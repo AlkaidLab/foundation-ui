@@ -1,0 +1,66 @@
+/* The launch splash (MLaunchSplash.vue): fills its window, which is click-through and on the display the stream captures.
+   Sizes follow the shorter side of its own box (cqmin), so it reads the same on a 1080p panel, a 4K virtual display, a portrait phone resolution and a gallery frame. */
+.m-launch { position: fixed; inset: 0; overflow: hidden; container-type: size; color: var(--md-sys-color-on-surface); font-family: 'Roboto Flex', system-ui, sans-serif;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--md-sys-color-primary-container) 60%, var(--md-sys-color-surface)), var(--md-sys-color-surface) 68%);
+  pointer-events: none; user-select: none; animation: m-launch-in 220ms var(--m-ease-standard, ease-out) both; }
+.m-launch--inline { position: absolute; }  /* in a frame of a page (the gallery, a preview) instead of over the whole window */
+.m-launch.is-leaving { animation: m-launch-out 180ms var(--m-ease-standard, ease-in) both; }
+@keyframes m-launch-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes m-launch-out { from { opacity: 1; } to { opacity: 0; } }
+
+.m-launch__frame { position: absolute; inset: 0; display: grid; place-items: center; box-sizing: border-box; padding: 6cqmin; }
+.m-launch__body { position: relative; display: grid; gap: 2.4cqmin; justify-items: center; text-align: center; max-width: 80cqw; }
+.m-launch__name { margin: 0; font-size: clamp(28px, 7cqmin, 120px); line-height: 1.06; font-weight: 700; font-variation-settings: 'wght' 700, 'wdth' 104; letter-spacing: -.01em; overflow-wrap: anywhere; text-wrap: balance; }
+.m-launch__line { margin: 0; display: inline-flex; align-items: center; gap: 1cqmin; font-size: clamp(16px, 2.8cqmin, 44px); line-height: 1.3; color: var(--md-sys-color-on-surface-variant); }
+.m-launch__line .m-icon { width: 1.3em; height: 1.3em; flex: none; fill: currentColor; }
+.m-launch__line--failed { color: var(--md-sys-color-error); }
+.m-launch__line--notice { color: var(--md-sys-color-tertiary-text); }
+.m-launch__mark { margin-bottom: 1.2cqmin; }
+/* the wavy bar is drawn for 14 px; it is scaled with the display so a stream of a 4K screen still shows it (the scale in a custom property, so the box follows it) */
+.m-launch__bar { --m-launch-s: 1.7; width: min(46cqmin, 560px); height: calc(14px * var(--m-launch-s)); }
+@supports (scale: calc(1cqmin / 1px)) { .m-launch__bar { --m-launch-s: clamp(1.4, calc(.17 * (1cqmin / 1px)), 6); } }
+/* The waiting bar of the splash is one wavy line, never a wave on a straight track: the whole width is the faint wave, a brighter stretch of the same wave draws itself in from the left
+   (the head runs ahead, the tail follows, the soft ends are a mask) while the wave itself travels to the right, then it starts again. Nothing straight sits under it. */
+@property --m-lw-a { syntax: '<percentage>'; inherits: false; initial-value: -20%; }
+@property --m-lw-b { syntax: '<percentage>'; inherits: false; initial-value: -20%; }
+.m-launch__wave { --m-lw-shape: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='14' viewBox='0 0 40 14'%3E%3Cpath d='M-10 7Q0 1 10 7T30 7T50 7' fill='none' stroke='black' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  position: relative; width: calc(100% / var(--m-launch-s)); height: 14px; transform-origin: 0 0; scale: var(--m-launch-s); }
+.m-launch__wave i { position: absolute; inset: 0; background: #fff; -webkit-mask: var(--m-lw-shape) repeat-x 0 50% / 40px 14px; mask: var(--m-lw-shape) repeat-x 0 50% / 40px 14px; animation: m-launch-travel 1.3s linear infinite; }
+.m-launch__wave i.m-launch__wave-track { opacity: .3; }
+.m-launch__wave i.m-launch__wave-run {
+  -webkit-mask: var(--m-lw-shape) repeat-x 0 50% / 40px 14px, linear-gradient(90deg, transparent var(--m-lw-a), #000 calc(var(--m-lw-a) + 9%), #000 calc(var(--m-lw-b) - 9%), transparent var(--m-lw-b)) no-repeat 0 0 / 100% 100%;
+  mask: var(--m-lw-shape) repeat-x 0 50% / 40px 14px, linear-gradient(90deg, transparent var(--m-lw-a), #000 calc(var(--m-lw-a) + 9%), #000 calc(var(--m-lw-b) - 9%), transparent var(--m-lw-b)) no-repeat 0 0 / 100% 100%;
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+  animation: m-launch-travel-run 1.3s linear infinite, m-launch-draw 2.4s infinite; }
+@keyframes m-launch-travel { from { mask-position: -40px 50%; -webkit-mask-position: -40px 50%; } to { mask-position: 0 50%; -webkit-mask-position: 0 50%; } }
+@keyframes m-launch-travel-run { from { mask-position: -40px 50%, 0 0; -webkit-mask-position: -40px 50%, 0 0; } to { mask-position: 0 50%, 0 0; -webkit-mask-position: 0 50%, 0 0; } }
+@keyframes m-launch-draw {
+  0% { --m-lw-a: -20%; --m-lw-b: -20%; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+  42% { --m-lw-a: -20%; --m-lw-b: 78%; animation-timing-function: cubic-bezier(0.3, 0, 0.8, 0.15); }
+  78% { --m-lw-a: 46%; --m-lw-b: 122%; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+  100% { --m-lw-a: 122%; --m-lw-b: 122%; }
+}
+
+/* with a hero: the picture is the backdrop, the text sits bottom left on a scrim and is white in either theme */
+.m-launch--art { color: #fff; background: #000; }
+.m-launch--art .m-launch__frame { place-items: end start; }
+.m-launch__art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.m-launch__scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgb(0 0 0 / .8), rgb(0 0 0 / .46) 34%, rgb(0 0 0 / 0) 62%); }
+.m-launch--art .m-launch__body { justify-items: start; text-align: left; max-width: 70cqw; }
+.m-launch--art .m-launch__name { text-shadow: 0 .2cqmin 2cqmin rgb(0 0 0 / .45); }
+.m-launch--art .m-launch__line { color: rgb(255 255 255 / .86); }
+.m-launch--art .m-launch__line--failed { color: #ffb4ab; }
+.m-launch--art .m-launch__line--notice { color: #ffd9a8; }
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) .m-launch, html:not([data-motion='full']) .m-launch.is-leaving { animation-duration: 1ms; }
+}
+/* reduced motion: the wave stands still and the whole line breathes slowly */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) .m-launch__wave i { animation: none; }
+  html:not([data-motion='full']) .m-launch__wave i.m-launch__wave-run { --m-lw-a: -20%; --m-lw-b: 122%; animation: m-launch-breathe 2.4s ease-in-out infinite; }
+}
+html[data-motion='reduced'] .m-launch__wave i { animation: none; }
+html[data-motion='reduced'] .m-launch__wave i.m-launch__wave-run { --m-lw-a: -20%; --m-lw-b: 122%; animation: m-launch-breathe 2.4s ease-in-out infinite; }
+@keyframes m-launch-breathe { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+html[data-motion='reduced'] .m-launch, html[data-motion='reduced'] .m-launch.is-leaving { animation-duration: 1ms; }

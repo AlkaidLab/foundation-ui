@@ -1,0 +1,70 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { createNotifyStore } from '../src/notify/store.js'
+
+test('snackbars come one at a time in the order they were asked for, an action runs and closes its own', () => {
+  const n = createNotifyStore()
+  let undone = 0
+  const a = n.snack('已保存 2 项', { action: '撤销', onAction: () => { undone += 1 } })
+  n.snack('第二条')
+  assert.equal(n.current.value.message, '已保存 2 项')
+  n.runSnackAction(a)
+  assert.equal(undone, 1)
+  assert.equal(n.current.value.message, '第二条')
+})
+
+test('a snackbar with an id replaces its own message instead of queueing a copy', () => {
+  const n = createNotifyStore()
+  n.snack('正在重启', { id: 'restart' })
+  n.snack('已重启', { id: 'restart' })
+  assert.equal(n.state.queue.length, 1)
+  assert.equal(n.current.value.message, '已重启')
+})
+
+test('a banner belongs to one page and is gone when it is cleared', () => {
+  const n = createNotifyStore()
+  n.banner('microphone', { id: 'component', tone: 'warn', text: '缺少组件' })
+  n.banner('microphone', { id: 'component', tone: 'warn', text: '缺少组件 usbip' })
+  assert.equal(n.bannersOf('microphone').length, 1)
+  assert.equal(n.bannersOf('microphone')[0].text, '缺少组件 usbip')
+  assert.equal(n.bannersOf('display').length, 0)
+  n.clearBanner('microphone', 'component')
+  assert.equal(n.bannersOf('microphone').length, 0)
+})
+
+test('system states are ordered by severity and counted for the status button', () => {
+  const n = createNotifyStore()
+  n.system('update', { tone: 'info', title: '有新版本' })
+  n.system('mic', { tone: 'warn', title: '麦克风组件缺失' })
+  n.system('driver', { tone: 'error', title: '驱动未安装' })
+  assert.deepEqual(n.systems.value.map((s) => s.id), ['driver', 'mic', 'update'])
+  assert.equal(n.systemCount.value, 3)
+  assert.equal(n.systemTone.value, 'error')
+  n.clearSystem('driver')
+  assert.equal(n.systemTone.value, 'warn')
+})
+
+test('a notice can be dismissed one by one or all together; it stays away until it changes or is solved; a status cannot be dismissed', () => {
+  const n = createNotifyStore()
+  n.system('driver', { tone: 'error', title: '驱动未安装' })
+  n.system('update', { tone: 'info', title: '有新版本 1.2', dismissible: true, revision: '1.2' })
+  n.system('tip', { tone: 'info', title: '提示', dismissible: true })
+  assert.deepEqual(n.systemGroups.value.map((g) => [g.id, g.items.map((i) => i.id)]), [['status', ['driver']], ['notice', ['update', 'tip']]])
+  assert.deepEqual(n.clearable.value.map((i) => i.id), ['update', 'tip'])
+  n.dismissSystem('driver')
+  assert.equal(n.systemCount.value, 3)
+  n.dismissSystem('update')
+  n.system('update', { tone: 'info', title: '有新版本 1.2', dismissible: true, revision: '1.2' })
+  assert.equal(n.systemCount.value, 2)
+  n.system('update', { tone: 'info', title: '有新版本 1.3', dismissible: true, revision: '1.3' })
+  assert.equal(n.systemCount.value, 3)
+  for (const item of [...n.clearable.value]) n.dismissSystem(item.id)
+  assert.deepEqual(n.systemGroups.value.map((g) => g.id), ['status'])
+})
+
+test('the status button keeps its place while there is nothing to say: a slot of its width, so a notice that comes from the host later moves nothing (connect moved 52 px, the dpr gate)', async () => {
+  const { readFileSync } = await import('node:fs')
+  const vue = readFileSync(new URL('../src/vue/MStatusBell.vue', import.meta.url), 'utf8'); const css = readFileSync(new URL('../src/css/notify.css', import.meta.url), 'utf8')
+  assert.ok(vue.includes('<span v-else class="m-statusbell m-statusbell--rest" aria-hidden="true" />'))
+  assert.ok(css.includes('.m-statusbell { position: relative; display: inline-flex; flex: none; width: 48px; }') && css.includes('.m-statusbell--rest { height: 40px; }'), 'the bell and its empty slot are 48 px wide: the slot is as wide as the bell (the Web page measured 40 then 48: an 8 px move)')
+})

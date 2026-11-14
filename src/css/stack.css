@@ -1,0 +1,84 @@
+/* The smart stack (MDashStack): one place, one tile shown, the rest a turn away */
+.m-dstack { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; border-radius: var(--m-dash-radius, 28px); outline: 0; touch-action: pan-x; container-type: size; }
+.m-dstack:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-dstack__view { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+.m-dstack__page { position: absolute; inset: 0; display: flex; will-change: transform, opacity; }
+.m-dstack__page > * { flex: 1; min-width: 0; min-height: 0; }
+/* a turn: the spatial spring, the one leaving slides and fades up (or down), the next comes from the other side; the leaving page stays under the new one for the moment of the move only */
+.m-dstack-up-enter-active, .m-dstack-up-leave-active, .m-dstack-down-enter-active, .m-dstack-down-leave-active { transition: transform var(--m-spring-default-spatial-duration, 412ms) var(--m-spring-default-spatial, ease), opacity 200ms linear; }
+.m-dstack-up-enter-from, .m-dstack-down-leave-to { transform: translateY(32%); opacity: 0; }
+.m-dstack-up-leave-to, .m-dstack-down-enter-from { transform: translateY(-32%); opacity: 0; }
+.m-dstack-up-leave-active, .m-dstack-down-leave-active { z-index: 0; }
+/* a turn by the host (smart rotation): a short crossfade and nothing else; the one leaving stays whole under the one coming in, so the tile is never see-through in the middle of it */
+.m-dstack-fade-enter-active { transition: opacity 240ms linear; z-index: 1; }
+.m-dstack-fade-leave-active { transition: opacity 240ms linear; z-index: 0; }
+.m-dstack-fade-enter-from { opacity: 0; }
+/* reduced motion: no movement and no fade, the tile is the other tile at once */
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-dstack :is(.m-dstack-up-enter-active, .m-dstack-up-leave-active, .m-dstack-down-enter-active, .m-dstack-down-leave-active, .m-dstack-fade-enter-active, .m-dstack-fade-leave-active) { transition: none; } html:not([data-motion='full']) .m-dstack :is(.m-dstack-up-enter-from, .m-dstack-up-leave-to, .m-dstack-down-enter-from, .m-dstack-down-leave-to, .m-dstack-fade-enter-from) { transform: none; opacity: 1; } }
+html[data-motion='reduced'] .m-dstack-up-enter-active, html[data-motion='reduced'] .m-dstack-up-leave-active, html[data-motion='reduced'] .m-dstack-down-enter-active, html[data-motion='reduced'] .m-dstack-down-leave-active, html[data-motion='reduced'] .m-dstack-fade-enter-active, html[data-motion='reduced'] .m-dstack-fade-leave-active { transition: none; }
+html[data-motion='reduced'] .m-dstack-up-enter-from, html[data-motion='reduced'] .m-dstack-up-leave-to, html[data-motion='reduced'] .m-dstack-down-enter-from, html[data-motion='reduced'] .m-dstack-down-leave-to, html[data-motion='reduced'] .m-dstack-fade-enter-from { transform: none; opacity: 1; }
+/* the page dots are always there, faint (what a stack is: Apple's page indicator); on the pointer or the focus they stand on a pill and the pin shows */
+.m-dstack__dots { position: absolute; right: 6px; top: 50%; translate: 0 -50%; display: grid; grid-auto-flow: column; grid-auto-columns: 24px; grid-template-rows: repeat(auto-fit, 24px); align-items: center; justify-items: center; gap: 0; opacity: .7; transition: opacity 160ms linear, background-color 160ms linear; z-index: 2; padding: 4px 2px; border-radius: 14px; backdrop-filter: blur(6px);
+  /* the dots stay inside the tile and clear of the pin hanging below: past what one column can hold they go into a second one. One grid of 24 px cells (as many rows as the max-height holds, the columns fill top down),
+     so every column starts on the same line: a flex wrap with each column centred put a short second column half a cell (12 px) off the first. Empty rows collapse (auto-fit), so a few dots are as tall as they are. */
+  max-height: calc(100cqh - 72px); align-content: center; justify-content: center; }
+/* a page dot is a button: 24 x 24 px to press (WCAG 2.2 target size, 2.5.8), the dot itself stays 6 px, round; the one shown is in the primary colour and a little larger (a tall bar next to a dot reads as an exclamation mark) */
+.m-dstack__dot { all: unset; box-sizing: border-box; width: 24px; height: 24px; display: grid; place-items: center; cursor: pointer; border-radius: 12px; }
+@container (max-height: 170px) { .m-dstack__pin { width: 24px; height: 24px; } }
+.m-dstack__dot:focus-visible, .m-dstack__pin:focus-visible { outline: 2px solid var(--md-sys-color-primary); }
+.m-dstack__dot i { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--md-sys-color-outline); opacity: .75; transition: transform var(--m-spring-fast-spatial-duration, 300ms) var(--m-spring-fast-spatial, ease), background-color 160ms linear, opacity 160ms linear; }
+.m-dstack__dot:hover i { background: var(--md-sys-color-on-surface-variant); }
+.m-dstack__dot.is-on i { transform: scale(1.35); opacity: 1; background: var(--md-sys-color-primary); }
+/* the pin keeps the card shown and turns smart rotation off for the stack: a tonal fill while it is on */
+.m-dstack__pin { all: unset; opacity: 0; transition: opacity 160ms linear, background-color 160ms linear; box-sizing: border-box; position: absolute; top: calc(100% + 4px); left: 50%; translate: -50% 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; color: var(--md-sys-color-on-surface-variant); background: color-mix(in srgb, var(--md-sys-color-surface) 78%, transparent); backdrop-filter: blur(6px); }
+.m-dstack__pin .m-icon { font-size: 16px; }
+.m-dstack__pin:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, var(--md-sys-color-surface)); }
+.m-dstack__pin.is-on { opacity: 1; background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-dstack:hover .m-dstack__dots, .m-dstack:focus-within .m-dstack__dots { opacity: 1; background: color-mix(in srgb, var(--md-sys-color-surface) 78%, transparent); }
+.m-dstack:hover .m-dstack__pin, .m-dstack:focus-within .m-dstack__pin { opacity: 1; }
+@media (hover: none) { .m-dstack__pin { opacity: 1; } }
+/* the suggestion: one more page after the last tile, on the surface of every tile (the lowest priority of the page is not the loudest): the 加入 button carries the colour */
+.m-dstack__dot.is-suggest i { background: var(--md-sys-color-outline-variant); }
+.m-dstack__sug { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px; text-align: center; border-radius: inherit; background: var(--m-card); color: var(--md-sys-color-on-surface); }
+.m-dstack__sugtag { position: absolute; left: 14px; top: 12px; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-dstack__sugicon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 16px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-dstack__sugtitle { font: var(--m-title-medium); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-dstack__sugbtns { display: flex; align-items: center; gap: 6px; }
+.m-dstack__sugx { all: unset; box-sizing: border-box; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; }
+.m-dstack__sugx:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.m-dstack__sugx:focus-visible { outline: 2px solid var(--md-sys-color-primary); }
+/* in edit mode the stack is a tile to arrange: its mark says how many it holds */
+.is-edit .m-dstack__dots { display: none; }
+.m-dstack__mark { position: absolute; left: 10px; bottom: 10px; z-index: 3; display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px 0 6px; border-radius: 12px; font: var(--m-label-medium); line-height: 1; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); pointer-events: none; }
+.m-dstack__mark .m-icon { font-size: 16px; }
+
+/* the edit sheet */
+.m-stacksheet__body { display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px; }
+.m-stacksheet__count { margin: 0; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); }
+.m-stacksheet__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.m-stacksheet__row { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 4px 8px 4px 4px; border-radius: 16px; background: var(--md-sys-color-surface-container-lowest); box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); transition: background-color 160ms linear, transform var(--m-spring-fast-spatial-duration, 300ms) var(--m-spring-fast-spatial, ease); }
+.m-stacksheet__row.is-drag { background: var(--md-sys-color-secondary-container); transform: scale(1.02); box-shadow: 0 6px 18px color-mix(in srgb, var(--md-sys-color-shadow) 24%, transparent); z-index: 1; }
+.m-stacksheet__row.is-out { opacity: .55; transform: scale(.96); }
+.m-stacksheet__row.is-over { box-shadow: inset 0 0 0 2px var(--md-sys-color-primary); }
+.m-stacksheet__handle, .m-stacksheet__remove { all: unset; box-sizing: border-box; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; cursor: grab; color: var(--md-sys-color-on-surface-variant); touch-action: none; }
+.m-stacksheet__remove { cursor: pointer; color: var(--md-sys-color-error); touch-action: auto; }
+.m-stacksheet__handle:focus-visible, .m-stacksheet__remove:focus-visible { outline: 2px solid var(--md-sys-color-primary); }
+.m-stacksheet__name { flex: 1; min-width: 0; font: var(--m-title-small); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-stacksheet__pick { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow-y: auto; }
+.m-stacksheet__pick button { all: unset; box-sizing: border-box; width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 14px; border-radius: 14px; cursor: pointer; font: var(--m-body-large); }
+.m-stacksheet__pick button:hover:not(:disabled) { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-stacksheet__pick .is-off button { cursor: default; color: var(--md-sys-color-on-surface-variant); opacity: .6; }
+.m-stacksheet__pick small { font: var(--m-label-small); }
+.m-stacksheet__dissolve { align-self: flex-start; margin-top: 8px; }
+/* a tile dragged onto the middle of a tile of its size, held: the two become a stack */
+/* the tile that is carried is the same size as the one it would join and covers it: the highlight of the target stands above the carried tile, which draws back while it hovers there */
+.m-dash__cell.is-merge-target { z-index: 45; }
+.is-edit .m-dash__cell.is-dragging.is-merging .m-dash__body { transform: scale(.74); opacity: .8; }
+.m-dash__cell.is-merge-target::after { pointer-events: none; z-index: 3; content: ''; position: absolute; inset: 0; border-radius: var(--m-dash-radius, 28px); background: color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent); box-shadow: inset 0 0 0 3px var(--md-sys-color-primary); }
+/* the words stand in a pill in the middle: the tile under them has text of its own at the foot */
+.m-dash__cell.is-merge-target::before { pointer-events: none; z-index: 4; content: attr(data-merge-label); position: absolute; left: 50%; top: 50%; translate: -50% -50%; max-width: calc(100% - 24px); padding: 8px 16px; border-radius: 999px; white-space: nowrap; background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font: var(--m-title-small-emphasized, 600 14px/20px var(--md-ref-typeface-brand)); }
+.m-dash__cell.is-merge-target > .m-dash__body { transform: scale(1.03); transition: transform var(--m-spring-fast-spatial-duration, 300ms) var(--m-spring-fast-spatial, ease); }
+.m-dash__stackbtn { position: absolute; z-index: 5; left: 50%; bottom: 8px; translate: -50% 0; height: 32px; padding: 0 14px; border: 0; border-radius: 16px; cursor: pointer; font: var(--m-label-large); background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); box-shadow: 0 1px 6px color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent); }
+.m-joinlist { padding: 4px 0 16px; }
+.m-joinlist button { background: var(--md-sys-color-surface-container-lowest); box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); border-radius: 16px; min-height: 52px; }
+.m-joinlist__none { padding: 12px 8px; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-medium); }

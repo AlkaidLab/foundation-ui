@@ -1,0 +1,85 @@
+/* Menu, tooltip, button group and button. Loaded after the other files. */
+
+/* ---- Menu: the Material 3 Expressive vertical menu, standard colours (m3.material.io/components/menus/specs, read 2026-11-09; docs/authority/source-index.tsv m3e-m3-menus-*) ----
+   container: surface-container-low, shape Corner large 16 dp, elevation level 2, 4 dp group padding; width 112 to 280 dp
+   item: 44 dp high, 8 dp above and below, 16 dp at the sides, 12 dp between icon / text / trailing, 20 dp icons; label 14/20 500, supporting text 12/16 400, trailing text 14/20 500
+   shapes: item Corner extra small 4 dp; the first and the last item of a group 12 dp on the outer side (inner side 4 dp); a selected item Corner medium 12 dp, secondary-container / on-secondary-container
+   divider: outline-variant, 1 dp, 8 dp above and below (the Material Web default; the baseline spec's "divider top/bottom padding 8 dp")
+   states: hover layer on-surface 8 %, focus 10 %, pressed 10 %, disabled 38 %; groups are separated by a divider (gaps are not available on the web); focus indicator secondary, 3 dp, inside
+   submenu: opens beside its item (md-sub-menu, 400 ms hover delay); the menu that has a submenu open is the inactive one (Corner small 8 dp), the open submenu the active one (24 dp) */
+md-menu, .m-menu {
+  --md-menu-container-color: var(--md-sys-color-surface-container-low);
+  --md-menu-container-shape: 16px;
+  --md-menu-container-elevation: 2;
+  --md-menu-container-shadow-color: var(--md-sys-color-shadow);
+  --md-menu-top-space: 4px; --md-menu-bottom-space: 4px;
+  --md-menu-item-container-color: transparent;
+  --md-menu-item-one-line-container-height: 44px;
+  --md-menu-item-two-line-container-height: 52px;
+  --md-menu-item-top-space: 8px; --md-menu-item-bottom-space: 8px;
+  --md-menu-item-leading-space: 16px; --md-menu-item-trailing-space: 16px;
+  --md-menu-item-label-text-color: var(--md-sys-color-on-surface);
+  --md-menu-item-leading-icon-color: var(--md-sys-color-on-surface-variant);
+  --md-menu-item-trailing-icon-color: var(--md-sys-color-on-surface-variant);
+  --md-menu-item-supporting-text-color: var(--md-sys-color-on-surface-variant);
+  --md-menu-item-trailing-supporting-text-color: var(--md-sys-color-on-surface-variant);
+  --md-menu-item-hover-state-layer-color: var(--md-sys-color-on-surface);
+  --md-menu-item-hover-state-layer-opacity: 0.08;
+  --md-menu-item-pressed-state-layer-color: var(--md-sys-color-on-surface);
+  --md-menu-item-pressed-state-layer-opacity: 0.1;
+  --md-menu-item-disabled-opacity: 0.38;
+  --md-menu-item-selected-container-color: var(--md-sys-color-secondary-container);
+  --md-menu-item-selected-label-text-color: var(--md-sys-color-on-secondary-container);
+  --md-menu-item-label-text-size: 14px; --md-menu-item-label-text-weight: 500; --md-menu-item-label-text-line-height: 20px;
+  --md-menu-item-supporting-text-size: 12px; --md-menu-item-supporting-text-weight: 400; --md-menu-item-supporting-text-line-height: 16px;
+  --md-menu-item-trailing-supporting-text-size: 14px; --md-menu-item-trailing-supporting-text-weight: 500; --md-menu-item-trailing-supporting-text-line-height: 20px;
+  --md-divider-color: var(--md-sys-color-outline-variant);
+  min-width: 112px; max-width: 280px;
+}
+md-menu md-menu-item { margin-inline: 4px; gap: 12px; border-radius: 4px; letter-spacing: 0.1px;
+  --md-focus-ring-color: var(--md-sys-color-secondary); --md-focus-ring-width: 3px; --md-focus-ring-offset: -3px; }
+md-menu md-menu-item.m-first { border-start-start-radius: 12px; border-start-end-radius: 12px; }
+md-menu md-menu-item.m-last { border-end-start-radius: 12px; border-end-end-radius: 12px; }
+md-menu md-menu-item.m-selected { border-radius: 12px; --md-menu-item-hover-state-layer-color: var(--md-sys-color-on-secondary-container); --md-menu-item-pressed-state-layer-color: var(--md-sys-color-on-secondary-container); }
+md-menu md-menu-item:focus-visible:not([disabled]) { background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent); }
+md-menu md-menu-item.m-selected:focus-visible:not([disabled]) { background: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 10%, var(--md-sys-color-secondary-container)); }
+md-menu md-menu-item .m-icon { width: 20px; height: 20px; font-size: 20px; }
+/* the submenu arrow: Material Symbols chevron_right, 20 px, on-surface-variant, its drawn edge on the trailing edge of the text (the glyph has 4 px of its own space) */
+md-menu md-menu-item .m-icon[slot='end'] { color: var(--md-sys-color-on-surface-variant); margin-inline-end: -4px; }
+md-menu .m-menu__label { padding: 8px 16px 4px; font-size: 14px; font-weight: 500; line-height: 20px; letter-spacing: 0.1px; color: var(--md-sys-color-on-surface-variant); pointer-events: none; }
+md-menu md-menu-item.m-danger { --md-menu-item-label-text-color: var(--md-sys-color-error); --md-menu-item-leading-icon-color: var(--md-sys-color-error); --md-menu-item-hover-state-layer-color: var(--md-sys-color-error); --md-menu-item-pressed-state-layer-color: var(--md-sys-color-error); }
+/* the item that has its submenu open is the "active" one: the on-surface state layer (8 %), not the selected colours */
+md-menu > md-sub-menu > md-menu-item { --md-menu-item-selected-container-color: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); --md-menu-item-selected-label-text-color: var(--md-sys-color-on-surface); }
+md-menu:has(> md-sub-menu > md-menu[open]) { --md-menu-container-shape: 8px; }
+md-menu > md-sub-menu > md-menu { --md-menu-container-shape: 24px; }
+
+/* ---- Tooltip: one box in the top layer for every [data-tip] and every info button, so no card or row can cover it ---- */
+.m-tipbox { position: fixed; inset: auto; margin: 0; max-width: min(280px, calc(100vw - 16px)); padding: 6px 10px; border: 0; border-radius: 8px; background: var(--md-sys-color-on-surface-variant); color: var(--md-sys-color-surface-container-lowest); font: var(--m-body-small); text-align: start; white-space: pre-line; overflow: visible; pointer-events: none; opacity: 0; transition: opacity 120ms linear; }
+.m-tipbox.is-on { opacity: 1; }
+.m-info__tip { position: absolute !important; width: 1px; height: 1px; padding: 0 !important; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; opacity: 0 !important; pointer-events: none; }
+
+/* ---- Button group: the selected button morphs to the round shape and the one that lost it goes back; the new one settles with a small spring ---- */
+.m-seg__btn { transition: border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), background-color var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects), color var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects), flex-grow var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-seg__btn[data-pop] { animation: m-seg-pop var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
+@keyframes m-seg-pop { 0% { transform: scale(.9, .94); } 100% { transform: none; } }
+/* pending: the chosen option is shown and its answer is on its way; it breathes with the busy fade of the loading indicator, and a press waits */
+.m-seg.is-pending { cursor: progress; }
+.m-seg.is-pending .m-seg__btn[aria-checked='true'], .m-seg.is-pending .m-seg__btn[aria-pressed='true'] { animation: m-seg-busy 1.2s ease-in-out infinite; }
+@keyframes m-seg-busy { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-seg.is-pending :is(.m-seg__btn[aria-checked='true'], .m-seg__btn[aria-pressed='true']) { animation: none !important; opacity: .6; } }
+html[data-motion='reduced'] .m-seg.is-pending :is(.m-seg__btn[aria-checked='true'], .m-seg__btn[aria-pressed='true']) { animation: none !important; opacity: .6; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-seg__btn { transition: background-color 80ms linear, color 80ms linear; } html:not([data-motion='full']) .m-seg__btn[data-pop] { animation: none; } html:not([data-motion='full']) .m-pbar, html:not([data-motion='full']) .m-snackbar { animation: none !important; } html:not([data-motion='full']) .m-tipbox { transition: none; } }
+html[data-motion='reduced'] .m-seg__btn { transition: background-color 80ms linear, color 80ms linear; } html[data-motion='reduced'] .m-seg__btn[data-pop] { animation: none; } html[data-motion='reduced'] .m-pbar, html[data-motion='reduced'] .m-snackbar { animation: none !important; } html[data-motion='reduced'] .m-tipbox { transition: none; }
+
+/* ---- Button: the glyph place is fixed (18 dp); busy swaps the glyph for the progress indicator by crossfade, the button keeps its colour and width ---- */
+.m-btn__lead { position: relative; display: inline-grid; place-items: center; flex: none; width: var(--m-btn-icon, 18px); height: var(--m-btn-icon, 18px); margin-left: -4px; }
+.m-btn__lead > * { grid-area: 1 / 1; margin: 0 !important; transition: opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+.m-btn__lead .m-icon { font-size: var(--m-btn-icon, 18px); }
+.m-btn__lead .m-btn__loading { opacity: 0; }
+.m-btn__lead .m-btn__loading .m-loading__shape { background: currentColor; }
+.m-btn__lead.is-busy .m-btn__loading { opacity: 1; }
+.m-btn__lead.is-busy .m-icon { opacity: 0; }
+.m-btn.is-loading { cursor: progress; }
+.m-btn.is-loading:active { --m-btn-radius: var(--m-btn-rest); transform: none; }
+.m-btn:not(.m-btn--sm):not(.m-btn--lg) .m-btn__lead:only-child { margin-right: 0; }
+

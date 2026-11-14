@@ -1,0 +1,28 @@
+export default
+{
+  "apps": "{n} applications",
+  "paired": "{n} appairés",
+  "unpaired": "Non appairé",
+  "noApps": "Aucune application",
+  "errors24": "{n} erreurs en 24 h",
+  "noErrors": "Aucune erreur",
+  "ready": "{a}/{b} prêts",
+  "current": "À jour",
+  "updateTo": "Mettre à jour vers {v}",
+  "on": "Activé",
+  "off": "Désactivé",
+  "restartNote": "Après un redémarrage",
+  "clientNote": "Défini par le client · après un redémarrage",
+  "padNote": "S'applique aux nouvelles manettes",
+  "addFps": "Ajouter une cadence",
+  "add": "Ajouter",
+  "errorsUnit": "erreurs",
+  "last24": "Dernières 24 heures",
+  "warnings": "{n} avertissements",
+  "noWarnings": "Aucun avertissement",
+  "linesUnit": "lignes",
+  "levelErr": "{n} erreurs",
+  "levelWarn": "{n} avertissements",
+  "noLines": "Aucune nouvelle ligne",
+  "noWallpaper": "Aucun fond d'écran"
+}

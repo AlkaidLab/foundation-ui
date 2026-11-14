@@ -1,0 +1,33 @@
+export default {
+  "pageTitle": "Sunshine svarar inte",
+  "title": "Sunshine svarar inte",
+  "line": "Sunshine körs inte eller svarar inte på förfrågningar.",
+  "tipsTitle": "Vad du ska kontrollera:",
+  "tips": {
+    "0": "Kör Sunshine-tjänsten?",
+    "1": "Är port 47990 ledig och inte blockerad?",
+    "2": "Blockerar brandväggen Sunshine?"
+  },
+  "retry": "Försök igen",
+  "footer": "Den här sidan återvänder av sig själv när Sunshine svarar.",
+  "probing": "Sökning {n}: letar efter Sunshine...",
+  "failed": "Sökning {n} misslyckades, försöker igen om {s} s...",
+  "awake": "Sunshine är tillbaka. Återvänder…",
+  "restart": "Starta om Sunshine",
+  "userMode": "Starta i användarläge",
+  "viewLog": "Visa loggen",
+  "runDoctor": "Kör hälsokontrollen",
+  "retryIn": "Försök igen om {s} s",
+  "attemptFailed": "Sökning {n} misslyckades",
+  "restarting": "Startar om Sunshine...",
+  "restartFailed": "Omstarten fungerade inte: {message}",
+  "restartTimeout": "Sunshine svarar fortfarande inte efter omstarten",
+  "troubleshooting": "Felsökning",
+  "proxyTitle": "Sunshines webbpanel kunde inte nås",
+  "proxyLine": "En proxy eller TUN-tjänst kan fånga trafik på localhost, 127.0.0.0/8 eller IPv6-loopback. Undanta loopbacktrafiken från proxyn och försök igen.",
+  "proxyChecking": "Kontrollerar igen… försök {n}",
+  "proxyWaiting": "Försöker igen strax",
+  "proxyAttempts": "Kontrollerat {n} gånger; den återhämtar sig själv när den svarar",
+  "unresponsiveTitle": "Värden svarar inte",
+  "unresponsiveLine": "Sunshine-processen körs fortfarande men svarar inte på förfrågningar. Ofta går det över; om inte, starta om Sunshine."
+}

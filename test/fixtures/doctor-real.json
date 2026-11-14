@@ -1,0 +1,568 @@
+{
+ "checked_at": "2026-11-07T06:07:38Z",
+ "elapsed_ms": 2417,
+ "groups": [
+  {
+   "elapsed_ms": 4,
+   "id": "gpu",
+   "items": [
+    "gpu.driver.0",
+    "gpu.driver.1",
+    "gpu.driver.2",
+    "gpu.adapter"
+   ],
+   "status": "pass",
+   "timed_out": false,
+   "title": "Graphics and driver"
+  },
+  {
+   "elapsed_ms": 2217,
+   "id": "encoder",
+   "items": [
+    "encoder.nvenc",
+    "encoder.vulkan",
+    "encoder.quicksync",
+    "encoder.amdvce",
+    "encoder.software"
+   ],
+   "status": "pass",
+   "timed_out": false,
+   "title": "Encoders"
+  },
+  {
+   "elapsed_ms": 2416,
+   "id": "capture",
+   "items": [
+    "capture.test"
+   ],
+   "status": "pass",
+   "timed_out": false,
+   "title": "Screen capture"
+  },
+  {
+   "elapsed_ms": 1,
+   "id": "vdd",
+   "items": [
+    "vdd.driver",
+    "vdd.control",
+    "vdd.hdr",
+    "vdd.refresh"
+   ],
+   "status": "pass",
+   "timed_out": false,
+   "title": "Virtual display"
+  },
+  {
+   "elapsed_ms": 4,
+   "id": "audio",
+   "items": [
+    "audio.sink",
+    "audio.virtual",
+    "audio.mic"
+   ],
+   "status": "pass",
+   "timed_out": false,
+   "title": "Audio"
+  },
+  {
+   "elapsed_ms": 0,
+   "id": "input",
+   "items": [
+    "input.vigem",
+    "input.ds5",
+    "input.usb"
+   ],
+   "status": "pass",
+   "timed_out": false,
+   "title": "Input and gamepads"
+  },
+  {
+   "elapsed_ms": 1572,
+   "id": "network",
+   "items": [
+    "network.ports",
+    "network.firewall",
+    "network.upnp",
+    "network.public",
+    "network.mesh",
+    "network.lan",
+    "network.nat.cgnat",
+    "network.nat.mapping",
+    "network.v6.global",
+    "network.pcp"
+   ],
+   "status": "warn",
+   "timed_out": false,
+   "title": "Network"
+  },
+  {
+   "elapsed_ms": 4,
+   "id": "system",
+   "items": [
+    "system.disk.logs",
+    "system.disk.config",
+    "system.time",
+    "system.account",
+    "system.reboot",
+    "system.os"
+   ],
+   "status": "pass",
+   "timed_out": false,
+   "title": "System"
+  },
+  {
+   "elapsed_ms": 0,
+   "id": "host",
+   "items": [
+    "host.version",
+    "host.uptime",
+    "host.crashes",
+    "host.config",
+    "host.log"
+   ],
+   "status": "warn",
+   "timed_out": false,
+   "title": "Host status"
+  }
+ ],
+ "items": [
+  {
+   "detail": "Driver 610.74, NVENC SDK 13.1",
+   "fix": {
+    "text": ""
+   },
+   "group": "gpu",
+   "id": "gpu.driver.0",
+   "status": "pass",
+   "title": "NVIDIA GeForce RTX 4080"
+  },
+  {
+   "detail": "Driver 610.74, NVENC SDK 13.1",
+   "fix": {
+    "text": ""
+   },
+   "group": "gpu",
+   "id": "gpu.driver.1",
+   "status": "pass",
+   "title": "NVIDIA GeForce RTX 4080"
+  },
+  {
+   "detail": "Driver 610.74, NVENC SDK 13.1",
+   "fix": {
+    "text": ""
+   },
+   "group": "gpu",
+   "id": "gpu.driver.2",
+   "status": "pass",
+   "title": "NVIDIA GeForce RTX 4080"
+  },
+  {
+   "detail": "NVIDIA GeForce RTX 4080",
+   "fix": {
+    "text": ""
+   },
+   "group": "gpu",
+   "id": "gpu.adapter",
+   "status": "pass",
+   "title": "Encoding adapter"
+  },
+  {
+   "detail": "H.264 ✓ 4:4:4 · HEVC ✓ HDR 4:4:4 · AV1 ✓ HDR · in use",
+   "fix": {
+    "text": ""
+   },
+   "group": "encoder",
+   "id": "encoder.nvenc",
+   "status": "pass",
+   "title": "NVENC"
+  },
+  {
+   "detail": "Not available here: Could not open the display for this encoder's capture",
+   "fix": {
+    "text": ""
+   },
+   "group": "encoder",
+   "id": "encoder.vulkan",
+   "status": "pass",
+   "title": "Vulkan"
+  },
+  {
+   "detail": "Not available here: This GPU does not support it",
+   "fix": {
+    "text": ""
+   },
+   "group": "encoder",
+   "id": "encoder.quicksync",
+   "status": "pass",
+   "title": "Intel QSV"
+  },
+  {
+   "detail": "Not available here: This GPU does not support it",
+   "fix": {
+    "text": ""
+   },
+   "group": "encoder",
+   "id": "encoder.amdvce",
+   "status": "pass",
+   "title": "AMD AMF"
+  },
+  {
+   "detail": "H.264 ✓ 4:4:4",
+   "fix": {
+    "text": ""
+   },
+   "group": "encoder",
+   "id": "encoder.software",
+   "status": "pass",
+   "title": "Software (x264/x265/SVT-AV1)"
+  },
+  {
+   "detail": "\\\\.\\DISPLAY15 · 3840×2160 · first frame in 190 ms · nothing stored",
+   "fix": {
+    "text": ""
+   },
+   "group": "capture",
+   "id": "capture.test",
+   "status": "pass",
+   "title": "Test capture (vdd → ddx)"
+  },
+  {
+   "detail": "Installed and running · 100.0.18.0/24",
+   "fix": {
+    "text": ""
+   },
+   "group": "vdd",
+   "id": "vdd.driver",
+   "status": "pass",
+   "title": "Foundation Virtual Display driver"
+  },
+  {
+   "detail": "A virtual monitor is attached now; no monitor was created (that would change the display layout)",
+   "fix": {
+    "text": ""
+   },
+   "group": "vdd",
+   "id": "vdd.control",
+   "status": "pass",
+   "title": "Create and attach"
+  },
+  {
+   "detail": "Available (Windows build 26300)",
+   "fix": {
+    "text": ""
+   },
+   "group": "vdd",
+   "id": "vdd.hdr",
+   "status": "pass",
+   "title": "HDR on the virtual display"
+  },
+  {
+   "detail": "Not checked: the driver reports its modes only for a monitor it has created",
+   "fix": {
+    "text": ""
+   },
+   "group": "vdd",
+   "id": "vdd.refresh",
+   "status": "skip",
+   "title": "Refresh rates"
+  },
+  {
+   "detail": "Steam Streaming Speakers",
+   "fix": {
+    "text": ""
+   },
+   "group": "audio",
+   "id": "audio.sink",
+   "status": "pass",
+   "title": "Audio output"
+  },
+  {
+   "detail": "扬声器 (Steam Streaming Speakers)",
+   "fix": {
+    "text": ""
+   },
+   "group": "audio",
+   "id": "audio.virtual",
+   "status": "pass",
+   "title": "Virtual audio device"
+  },
+  {
+   "detail": "usbip_experimental · absent",
+   "fix": {
+    "text": ""
+   },
+   "group": "audio",
+   "id": "audio.mic",
+   "status": "pass",
+   "title": "Microphone"
+  },
+  {
+   "detail": "Installed; a client connected",
+   "fix": {
+    "text": ""
+   },
+   "group": "input",
+   "id": "input.vigem",
+   "status": "pass",
+   "title": "ViGEmBus"
+  },
+  {
+   "detail": "usbip-win2 found · usbip2_ude",
+   "fix": {
+    "text": ""
+   },
+   "group": "input",
+   "id": "input.ds5",
+   "status": "pass",
+   "title": "DualSense driver path"
+  },
+  {
+   "detail": "usbip-win2 ready",
+   "fix": {
+    "text": ""
+   },
+   "group": "input",
+   "id": "input.usb",
+   "status": "pass",
+   "title": "USB forwarding"
+  },
+  {
+   "detail": "8 ports listening (4 open when a stream starts)",
+   "fix": {
+    "text": ""
+   },
+   "group": "network",
+   "id": "network.ports",
+   "status": "pass",
+   "title": "Ports"
+  },
+  {
+   "detail": "Sunshine is allowed",
+   "fix": {
+    "text": ""
+   },
+   "group": "network",
+   "id": "network.firewall",
+   "status": "pass",
+   "title": "Firewall"
+  },
+  {
+   "detail": "Router upnp-igd: 7 of 8 mappings present",
+   "fix": {
+    "action": {
+     "confirm": true,
+     "effect": "Restarts the Sunshine service; it is back in about 10 seconds. A stream that is live ends; the settings stay.",
+     "kind": "restart",
+     "level": 2,
+     "target": "sunshine"
+    },
+    "text": "Restart Sunshine to renew the mappings."
+   },
+   "group": "network",
+   "id": "network.upnp",
+   "status": "warn",
+   "title": "UPnP"
+  },
+  {
+   "detail": "Verified",
+   "fix": {
+    "text": ""
+   },
+   "group": "network",
+   "id": "network.public",
+   "status": "pass",
+   "title": "From the internet"
+  },
+  {
+   "detail": "A mesh adapter exists but Sunshine is not reachable on it",
+   "fix": {
+    "action": {
+     "confirm": false,
+     "kind": "open",
+     "level": 1,
+     "target": "page:network"
+    },
+    "text": "See the mesh path on the Network page."
+   },
+   "group": "network",
+   "id": "network.mesh",
+   "status": "warn",
+   "title": "Mesh network"
+  },
+  {
+   "detail": "Listening on every address",
+   "fix": {
+    "text": ""
+   },
+   "group": "network",
+   "id": "network.lan",
+   "status": "pass",
+   "title": "Local network"
+  },
+  {
+   "detail": "None: the router has a public address",
+   "fix": {
+    "text": ""
+   },
+   "group": "network",
+   "id": "network.nat.cgnat",
+   "status": "pass",
+   "title": "NAT in front of the router"
+  },
+  {
+   "detail": "Not checked: the STUN probe lands with the network work",
+   "fix": {
+    "text": ""
+   },
+   "group": "network",
+   "id": "network.nat.mapping",
+   "status": "skip",
+   "title": "NAT mapping"
+  },
+  {
+   "detail": "None (IPv4 only)",
+   "fix": {
+    "text": ""
+   },
+   "group": "network",
+   "id": "network.v6.global",
+   "status": "pass",
+   "title": "Global IPv6"
+  },
+  {
+   "detail": "Not checked: the gateway probe lands with the network work",
+   "fix": {
+    "text": ""
+   },
+   "group": "network",
+   "id": "network.pcp",
+   "status": "skip",
+   "title": "NAT-PMP / PCP"
+  },
+  {
+   "detail": "42 GB free of 953 GB · C:\\Program Files\\Sunshine\\config",
+   "fix": {
+    "text": ""
+   },
+   "group": "system",
+   "id": "system.disk.logs",
+   "status": "pass",
+   "title": "Free space for logs"
+  },
+  {
+   "detail": "42 GB free of 953 GB · C:\\Program Files\\Sunshine\\config",
+   "fix": {
+    "text": ""
+   },
+   "group": "system",
+   "id": "system.disk.config",
+   "status": "pass",
+   "title": "Free space for configuration"
+  },
+  {
+   "detail": "NTP 0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org · W32Time stopped (trigger start)",
+   "fix": {
+    "text": ""
+   },
+   "group": "system",
+   "id": "system.time",
+   "status": "pass",
+   "title": "Time sync"
+  },
+  {
+   "detail": "LocalSystem (service)",
+   "fix": {
+    "text": ""
+   },
+   "group": "system",
+   "id": "system.account",
+   "status": "pass",
+   "title": "Service account"
+  },
+  {
+   "detail": "None",
+   "fix": {
+    "text": ""
+   },
+   "group": "system",
+   "id": "system.reboot",
+   "status": "pass",
+   "title": "Pending restart"
+  },
+  {
+   "detail": "Windows 11 Pro 26H2 · build 26300",
+   "fix": {
+    "text": ""
+   },
+   "group": "system",
+   "id": "system.os",
+   "status": "pass",
+   "title": "Operating system"
+  },
+  {
+   "detail": "2026.1107.131554 · release or local build (read from the version string)",
+   "fix": {
+    "text": ""
+   },
+   "group": "host",
+   "id": "host.version",
+   "status": "pass",
+   "title": "Sunshine version"
+  },
+  {
+   "detail": "23 min",
+   "fix": {
+    "text": ""
+   },
+   "group": "host",
+   "id": "host.uptime",
+   "status": "pass",
+   "title": "Running for"
+  },
+  {
+   "detail": "None in 7 days · WER",
+   "fix": {
+    "text": ""
+   },
+   "group": "host",
+   "id": "host.crashes",
+   "status": "pass",
+   "title": "Recent crashes"
+  },
+  {
+   "detail": "Unrecognized configurable option [zako_input_hid]; Unrecognized configurable option [widget_token_configured]; Unrecognized configurable option [setup_wizard_completed]; +1 more",
+   "fix": {
+    "action": {
+     "confirm": false,
+     "kind": "open",
+     "level": 1,
+     "target": "page:config"
+    },
+    "text": "Correct or remove these entries in the configuration file."
+   },
+   "group": "host",
+   "id": "host.config",
+   "status": "warn",
+   "title": "Configuration at start"
+  },
+  {
+   "detail": "None since start",
+   "fix": {
+    "text": ""
+   },
+   "group": "host",
+   "id": "host.log",
+   "status": "pass",
+   "title": "Fatal errors in the log"
+  }
+ ],
+ "source": "host",
+ "streaming": false,
+ "summary": {
+  "fail": 0,
+  "pass": 35,
+  "skip": 3,
+  "warn": 3
+ },
+ "version": 1
+}

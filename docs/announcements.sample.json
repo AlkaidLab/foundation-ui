@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "items": [
+    {
+      "id": "2026-11-welcome",
+      "severity": "info",
+      "importance": "popup",
+      "category": "announce",
+      "title": {
+        "zh": "欢迎使用 Foundation Sunshine 2026.11",
+        "en": "Welcome to Foundation Sunshine 2026.11"
+      },
+      "banner": "https://www.alkaidlab.com/announcement-banners/welcome.webp",
+      "published": "2026-11-02",
+      "revision": "1",
+      "body": {
+        "zh": "## 这个版本有什么\n\n- **新的面板外壳**：导航栏、列表和页面分层更清晰\n- 公告现在是**资讯**：有图、有分类，可以在公告页里读全文\n- 个性化移到了左下角\n\n> 有问题可以问米塔 AI，也可以到 [文档](https://www.alkaidlab.com/docs/) 里查。\n\n![面板外观](https://www.alkaidlab.com/announcement-banners/welcome-inline.webp)",
+        "en": "## What is in this version\n\n- **A new panel shell**: the rail, the list and the page are layered more clearly\n- Announcements are **news** now: with pictures and kinds, and the full text on the announcements page\n- Personalisation moved to the bottom left\n\n> Ask Mita AI if you get stuck, or read the [docs](https://www.alkaidlab.com/docs/).\n\n![The panel](https://www.alkaidlab.com/announcement-banners/welcome-inline.webp)"
+      }
+    },
+    {
+      "id": "2026-11-release-notes",
+      "severity": "info",
+      "category": "update",
+      "title": {
+        "zh": "2026.11 更新说明",
+        "en": "Release notes 2026.11"
+      },
+      "banner": "https://www.alkaidlab.com/announcement-banners/release.webp",
+      "published": "2026-11-02T08:00:00+08:00",
+      "url": "https://www.alkaidlab.com/changelog",
+      "body": {
+        "zh": "### 新增\n\n1. 资讯卡片（首页）\n2. 公告支持 Markdown 和图片\n3. 下次公告更新前不再显示\n\n### 修复\n\n- 虚拟显示器页面打开时不再闪动\n- 配置文件页面首次进入不再空白",
+        "en": "### Added\n\n1. A news tile on the home\n2. Markdown and pictures in announcements\n3. Do not show again until the announcement changes\n\n### Fixed\n\n- The virtual display page no longer flashes when it opens\n- The configuration files page is no longer blank on the first visit"
+      }
+    },
+    {
+      "id": "2026-11-multi-display-guide",
+      "severity": "info",
+      "category": "guide",
+      "title": {
+        "zh": "教程：给串流设置一块虚拟显示器",
+        "en": "Guide: give a stream its own virtual display"
+      },
+      "banner": "https://www.alkaidlab.com/announcement-banners/guide.webp",
+      "published": "2026-10-28",
+      "body": {
+        "zh": "虚拟显示器让串流有自己的分辨率和刷新率，不影响主显示器。\n\n1. 打开 **显示 › 虚拟显示器**\n2. 选择 *按需创建* 或 *始终存在*\n3. 在客户端选择想要的分辨率\n\n完整说明见 [文档](https://www.alkaidlab.com/docs/virtual-display)。",
+        "en": "A virtual display gives the stream its own resolution and refresh rate without touching the main monitor.\n\n1. Open **Display › Virtual display**\n2. Choose *on demand* or *always present*\n3. Pick the resolution on the client\n\nThe full description is in the [docs](https://www.alkaidlab.com/docs/virtual-display)."
+      }
+    },
+    {
+      "id": "2026-11-driver-update",
+      "severity": "warn",
+      "type": "warning",
+      "category": "announce",
+      "title": {
+        "zh": "建议更新显卡驱动",
+        "en": "Update your graphics driver"
+      },
+      "published": "2026-11-01",
+      "starts": "2026-11-01T00:00:00Z",
+      "ends": "2026-12-01T00:00:00Z",
+      "minVersion": "2026.900.0",
+      "pinned": true,
+      "url": "https://www.alkaidlab.com/docs/graphics-driver",
+      "body": {
+        "zh": "旧版驱动在某些显卡上会导致串流花屏，请更新到最新版本。",
+        "en": "Older drivers can cause corrupted video on some GPUs. Please update to the latest version."
+      }
+    },
+    {
+      "id": "2026-11-license-notice",
+      "severity": "info",
+      "importance": "must-read",
+      "category": "announce",
+      "revision": "2",
+      "title": {
+        "zh": "请先阅读：使用须知",
+        "en": "Please read: terms of use"
+      },
+      "published": "2026-10-30",
+      "body": {
+        "zh": "## 使用须知\n\nFoundation Sunshine 以 GPL-3.0 发布。\n\n- 请只在你拥有或获得授权的电脑上使用\n- 公网访问请设置强密码，并开启安全与登录\n- 配对码只给自己的设备\n\n第4条：请定期更新主机和客户端到同一版本\n\n第5条：不要在不信任的网络上开放串流端口\n\n第6条：遇到问题先查看日志与诊断页面\n\n第7条：备份配置文件后再做大的改动\n\n第8条：共享给他人的客户端请单独配对并可随时取消\n\n第9条：公共场所串流时注意屏幕上的隐私信息\n\n第10条：手柄与键鼠权限只授予可信设备\n\n第11条：升级前请先结束正在进行的串流\n\n第12条：完整条款见官网\n\n**感谢使用。**",
+        "en": "## Terms of use\n\nFoundation Sunshine is released under GPL-3.0.\n\n- Use it only on computers you own or are allowed to use\n- Set a strong password for public access and turn on sign-in\n- Give pairing codes only to your own devices\n\nItem 4: Keep the host and the clients on the same version\n\nItem 5: Do not expose the streaming ports on networks you do not trust\n\nItem 6: Check the logs and diagnostics page first when something breaks\n\nItem 7: Back up the configuration before big changes\n\nItem 8: Pair shared clients separately and revoke them when done\n\nItem 9: Mind private information on screen when streaming in public\n\nItem 10: Give gamepad and keyboard access to trusted devices only\n\nItem 11: End a running stream before upgrading\n\nItem 12: The full terms are on the website\n\n**Thank you for using it.**"
+      }
+    },
+    {
+      "id": "2026-10-pairing-tips",
+      "severity": "info",
+      "category": "guide",
+      "title": {
+        "zh": "配对小贴士",
+        "en": "Pairing tips"
+      },
+      "published": "2026-10-20",
+      "body": {
+        "zh": "客户端找不到主机时，先确认两台设备在同一网络，再试 **二维码配对**。",
+        "en": "If the client cannot find the host, check that both devices are on the same network, then try **QR pairing**."
+      }
+    },
+    {
+      "id": "2026-10-roadmap",
+      "severity": "info",
+      "category": "announce",
+      "title": {
+        "zh": "接下来的计划",
+        "en": "What is next"
+      },
+      "published": "2026-10-12",
+      "url": "https://www.alkaidlab.com/roadmap",
+      "body": {
+        "zh": "手柄反馈、弱网表现和 macOS 客户端是接下来的重点。",
+        "en": "Gamepad feedback, weak-network behaviour and the macOS client are next."
+      }
+    }
+  ]
+}

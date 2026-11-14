@@ -1,0 +1,51 @@
+/* The shell's finishing layer (loaded last): how the rail meets the content, one scrim for every modal, and a first-run window with no figure behind it. */
+
+/* ---- three surfaces, two kinds of edge ----
+   The rail is a surface of its own, the same material as the caption bar (the frame, one L): solid enough that the wallpaper only tints it. It ends at the content panel's
+   rounded corner, where the panel's own lighter material begins: that edge is the tone step itself, drawn without a line. The list pane and the page are separated softly:
+   the list's material fades out into the page's across the pane (layout.css, .m-scene__listfill), so there is no edge to see there. */
+html.m-has-wallpaper { --m-rail-alpha: .94; --m-list-alpha: .80; }
+html.m-has-wallpaper[data-bs-theme='dark'], html.m-has-wallpaper.dark, html.m-has-wallpaper[data-theme='dark'] { --m-rail-alpha: .97; --m-list-alpha: .86; }
+.m-rail__item[aria-current='page'] .m-rail__pill, .m-rail--expanded .m-rail__item[aria-current='page'] .m-rail__pill { background: var(--m-rail-pill); }
+/* The base of the list pane's fill (layout.css, .m-scene__listfill): the main pane's material taken a step towards the frame, translucent so a wallpaper still shows through. Neither setting
+   of the list pane shows it as is: 'merged' makes the fill the frame's own (below) and 'one' has no fill at all. */
+html { --m-list-mix: 50%; --m-list-fill: color-mix(in srgb, var(--m-frame-fill) var(--m-list-mix), var(--m-panel-fill)); }
+html.m-has-wallpaper { --m-list-mix: 45%; }
+html.m-has-wallpaper { --m-list-alpha: .92; }
+/* the bottom bar of a narrow window is frosted the same way */
+html.m-has-wallpaper .m-rail--bar { background: color-mix(in srgb, var(--md-sys-color-surface-container) 90%, transparent); backdrop-filter: blur(18px) saturate(1.15); }
+
+/* ---- one scrim for every modal ----
+   A page inside the control panel's frame dims its own part and the shell dims the rest (the rail, the list, the caption bar). A blur on only one of them made the
+   dimmed window look split along the frame's edge, so the scrim is the plain Material 3 one everywhere: the scrim colour at a fixed opacity, no blur. */
+html { --m-modal-scrim: color-mix(in srgb, var(--md-sys-color-scrim, #000) 44%, transparent); --m-modal-blur: none; }
+.m-scene__modalscrim { backdrop-filter: none; }
+
+/* ---- the first-run window, the guide and the welcome page: no wallpaper behind them ----
+   The big picture, blurred, showed as a colour blob on one side of the window (behind the first-run scrim, or the whole page of the standalone guide). */
+html:not(.m-onboarding):has(.m-guide, .m-welcome) .m-wp { display: none; }
+
+/* how much of the container tones the tonal backdrop shows (appearance.js DEFAULT_GRADIENT): full in light, less in 深色, a hint in 纯黑 */
+:root { --m-tonal-k: 70%; }
+html[data-bs-theme='dark'] { --m-tonal-k: 45%; }
+html[data-bs-theme='dark'][data-dark='black'] { --m-tonal-k: 22%; }
+
+/* ---- the list pane merged into the frame (html[data-list='merged'], the default) ----
+   The caption bar, the rail and the list are one chrome of one surface; the only edge is the chrome to the content area, which keeps its translucent surface and its rounded top-left corner, now at the
+   list's right edge. No line, no shadow and no fade at the list's edge. */
+html[data-list='merged'] { --m-list-fill: var(--m-rail-fill); }
+html[data-list='merged'] .m-scene__listfill { border-top-left-radius: 0; box-shadow: none; }
+html[data-list='merged'] .m-scene__corner { left: calc(var(--c-rail, 0px) + var(--c-list, 0px)); }
+html[data-list='merged'] .m-scene__seam { border-top-left-radius: var(--m-seam-r, 0px); }
+
+/* The labels of the rail are the label style of Material 3 (12 px, label-medium) in normal weight: the softer tone of the unselected ones (on-surface-variant, as the spec has it) keeps them from looking heavy on
+   a frosted rail, the selected one is the strong tone and a step heavier. */
+html.m-has-wallpaper .m-rail__item .m-rail__label { color: var(--md-sys-color-on-surface-variant); }
+html.m-has-wallpaper .m-rail__item[aria-current='page'] .m-rail__label { color: var(--md-sys-color-on-surface); }
+
+/* ---- the list and the detail as one surface (html[data-list='one']) ----
+   The content panel starts at the rail and holds the list and the detail alike: the same translucent surface under both, with the rounded top-left corner where the frame meets it (at the rail).
+   The list pane has no fill of its own: no column, no bottom edge, no seam, no hairline. The rows of the list carry the grouping. */
+html[data-list='one'] .m-scene__listfill { display: none; }
+html[data-list='one'] .m-scene__seam { left: var(--c-rail, 0px); border-top-left-radius: var(--m-seam-r, 0px); }
+html[data-list='one'] .m-scene__corner { left: var(--c-rail, 0px); }

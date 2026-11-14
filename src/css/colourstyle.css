@@ -1,0 +1,29 @@
+/* 配色风格 (MAppearance.vue): three cards for the same seed, each drawn from the scheme it would give */
+.m-ap__styles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.m-ap__style { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 8px 8px 10px; border-radius: 20px; cursor: pointer; border: 2px solid transparent; background: var(--md-sys-color-surface-container); transition: background-color 160ms linear, border-color 160ms linear; }
+.m-ap__style:hover { background: var(--md-sys-color-surface-container-high); } .m-ap__style:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-ap__style { position: relative; }
+.m-ap__style.is-on { background: var(--m-sel-fill); }
+.m-ap__style.is-on .m-ap__stylename { font-weight: 700; }
+.m-ap__style.is-on::before, .m-ap__style.is-on::after { content: ''; position: absolute; bottom: 12px; right: 10px; width: 22px; height: 22px; pointer-events: none; }
+.m-ap__style.is-on::before { border-radius: 50%; background: var(--md-sys-color-primary); }
+.m-ap__style.is-on::after { background: var(--md-sys-color-on-primary); -webkit-mask: var(--m-check-mask) center / 16px no-repeat; mask: var(--m-check-mask) center / 16px no-repeat; }
+.m-ap__stylecard { position: relative; display: flex; flex-direction: column; gap: 6px; height: 92px; padding: 8px; border-radius: 14px; background: var(--st-surface); overflow: hidden; }
+.m-ap__styleview { display: flex; flex-direction: column; gap: 5px; flex: 1; min-height: 0; }
+.m-ap__stylehero { flex: 1; min-height: 0; border-radius: 10px; background: var(--st-hero); display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 0 9px; }
+.m-ap__stylehero i { display: block; height: 4px; border-radius: 2px; background: var(--st-on); opacity: .75; } .m-ap__stylehero i:last-child { width: 55%; opacity: .45; }
+.m-ap__stylebar { height: 9px; border-radius: 5px; background: var(--st-container); flex: none; }
+.m-ap__stylecircles { display: flex; gap: 5px; flex: none; }
+.m-ap__stylecircles i { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--st-surface); } .m-ap__stylecircles .is-p { background: var(--st-p); } .m-ap__stylecircles .is-s { background: var(--st-s); } .m-ap__stylecircles .is-t { background: var(--st-t); }
+.m-ap__stylename { min-width: 0; padding-inline: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; font: var(--m-label-large); color: var(--md-sys-color-on-surface); }
+/* the chosen card has its check badge (22 px at 10 px from the card edge) at the foot: its name keeps clear of it, 28 px on both sides so it does not move when the check comes; the other names have the whole width */
+.m-ap__style.is-on .m-ap__stylename { padding-inline: 28px; }
+.m-ap__sub { margin-top: 12px; }
+
+/* the swatches of the colour section: a thin ring where a colour is hardly told from its card; 自定义 is an action (a neutral swatch with an eyedropper) until a custom colour is chosen */
+.m-ap__colours .m-ap__swatch.has-ring { background: var(--md-sys-color-outline); }
+.m-ap__colours .m-ap__swatch.has-ring::before { content: ''; position: absolute; inset: 1.5px; background: var(--sw, var(--md-sys-color-primary)); clip-path: var(--m-shape-cookie); }
+.m-ap__colours .m-ap__swatch.has-ring > .m-icon { position: relative; z-index: 1; }
+.m-ap__colours .m-ap__swatch--custom .m-icon { opacity: 1; filter: none; color: var(--md-sys-color-on-surface-variant); }
+.m-ap__colours .m-ap__swatch--custom.is-on .m-icon { color: #fff; }
+.m-ap__swatch--custom input[type='color'] { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }

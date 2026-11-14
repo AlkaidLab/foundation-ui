@@ -1,0 +1,924 @@
+{
+ "source": "README.md of the host repository",
+ "host": "91d9d555980c2ec6d47abac8b877b01eb24fd6c5 2026-11-02",
+ "people": [
+  {
+   "login": "qiin2333",
+   "id": "2795904",
+   "url": "https://github.com/qiin2333",
+   "bot": false,
+   "team": true,
+   "avatar": "2795904.jpg",
+   "commits": 607
+  },
+  {
+   "login": "Yundi339",
+   "id": "38252824",
+   "url": "https://github.com/Yundi339",
+   "bot": false,
+   "team": true,
+   "avatar": "38252824.png",
+   "commits": 182
+  },
+  {
+   "login": "skyhua0224",
+   "id": "91328606",
+   "url": "https://github.com/skyhua0224",
+   "bot": false,
+   "team": true,
+   "avatar": "91328606.png",
+   "commits": 142
+  },
+  {
+   "login": "ShadowLemoon",
+   "id": "119576779",
+   "url": "https://github.com/ShadowLemoon",
+   "bot": false,
+   "team": true,
+   "avatar": "119576779.jpg",
+   "commits": 14
+  },
+  {
+   "login": "ReenigneArcher",
+   "id": "42013603",
+   "url": "https://github.com/ReenigneArcher",
+   "bot": false,
+   "avatar": "42013603.png"
+  },
+  {
+   "login": "cgutman",
+   "id": "2695644",
+   "url": "https://github.com/cgutman",
+   "bot": false,
+   "avatar": "2695644.jpg"
+  },
+  {
+   "login": "dependabot[bot]",
+   "id": "29110",
+   "url": "https://github.com/apps/dependabot",
+   "bot": true,
+   "avatar": "29110.png"
+  },
+  {
+   "login": "loki-47-6F-64",
+   "id": "3084139",
+   "url": "https://github.com/loki-47-6F-64",
+   "bot": false,
+   "avatar": "3084139.jpg"
+  },
+  {
+   "login": "ns6089",
+   "id": "61738816",
+   "url": "https://github.com/ns6089",
+   "bot": false,
+   "avatar": "61738816.png"
+  },
+  {
+   "login": "LizardByte-bot",
+   "id": "108553330",
+   "url": "https://github.com/LizardByte-bot",
+   "bot": false,
+   "avatar": "108553330.png"
+  },
+  {
+   "login": "TheElixZammuto",
+   "id": "6505622",
+   "url": "https://github.com/TheElixZammuto",
+   "bot": false,
+   "avatar": "6505622.png"
+  },
+  {
+   "login": "psyke83",
+   "id": "749000",
+   "url": "https://github.com/psyke83",
+   "bot": false,
+   "avatar": "749000.png"
+  },
+  {
+   "login": "istori1",
+   "id": "107304850",
+   "url": "https://github.com/istori1",
+   "bot": false,
+   "avatar": "107304850.png"
+  },
+  {
+   "login": "Nonary",
+   "id": "27069224",
+   "url": "https://github.com/Nonary",
+   "bot": false,
+   "avatar": "27069224.jpg"
+  },
+  {
+   "login": "github-actions[bot]",
+   "id": "15368",
+   "url": "https://github.com/apps/github-actions",
+   "bot": true,
+   "avatar": "15368.jpg"
+  },
+  {
+   "login": "PapyKahan",
+   "id": "9347985",
+   "url": "https://github.com/PapyKahan",
+   "bot": false,
+   "avatar": "9347985.jpg"
+  },
+  {
+   "login": "ABeltramo",
+   "id": "1122217",
+   "url": "https://github.com/ABeltramo",
+   "bot": false,
+   "avatar": "1122217.png"
+  },
+  {
+   "login": "FrogTheFrog",
+   "id": "22381748",
+   "url": "https://github.com/FrogTheFrog",
+   "bot": false,
+   "avatar": "22381748.png"
+  },
+  {
+   "login": "HomerSp",
+   "id": "487734",
+   "url": "https://github.com/HomerSp",
+   "bot": false,
+   "avatar": "487734.jpg"
+  },
+  {
+   "login": "kodemeister",
+   "id": "1043953",
+   "url": "https://github.com/kodemeister",
+   "bot": false,
+   "avatar": "1043953.png"
+  },
+  {
+   "login": "brad-richardson",
+   "id": "5924884",
+   "url": "https://github.com/brad-richardson",
+   "bot": false,
+   "avatar": "5924884.jpg"
+  },
+  {
+   "login": "Doomsdayrs",
+   "id": "38189170",
+   "url": "https://github.com/Doomsdayrs",
+   "bot": false,
+   "avatar": "38189170.png"
+  },
+  {
+   "login": "gschintgen",
+   "id": "11065156",
+   "url": "https://github.com/gschintgen",
+   "bot": false,
+   "avatar": "11065156.png"
+  },
+  {
+   "login": "Logical-sh",
+   "id": "5807486",
+   "url": "https://github.com/Logical-sh",
+   "bot": false,
+   "avatar": "5807486.jpg"
+  },
+  {
+   "login": "Hazer",
+   "id": "4046170",
+   "url": "https://github.com/Hazer",
+   "bot": false,
+   "avatar": "4046170.jpg"
+  },
+  {
+   "login": "diadatp",
+   "id": "4490283",
+   "url": "https://github.com/diadatp",
+   "bot": false,
+   "avatar": "4490283.jpg"
+  },
+  {
+   "login": "KuleRucket",
+   "id": "737724",
+   "url": "https://github.com/KuleRucket",
+   "bot": false,
+   "avatar": "737724.png"
+  },
+  {
+   "login": "chewi",
+   "id": "35072",
+   "url": "https://github.com/chewi",
+   "bot": false,
+   "avatar": "35072.png"
+  },
+  {
+   "login": "guanzhangrtk",
+   "id": "44019025",
+   "url": "https://github.com/guanzhangrtk",
+   "bot": false,
+   "avatar": "44019025.png"
+  },
+  {
+   "login": "nowrep",
+   "id": "522831",
+   "url": "https://github.com/nowrep",
+   "bot": false,
+   "avatar": "522831.jpg"
+  },
+  {
+   "login": "sitiom",
+   "id": "56180050",
+   "url": "https://github.com/sitiom",
+   "bot": false,
+   "avatar": "56180050.png"
+  },
+  {
+   "login": "luk1337",
+   "id": "6830979",
+   "url": "https://github.com/luk1337",
+   "bot": false,
+   "avatar": "6830979.png"
+  },
+  {
+   "login": "JacekJagosz",
+   "id": "28653965",
+   "url": "https://github.com/JacekJagosz",
+   "bot": false,
+   "avatar": "28653965.jpg"
+  },
+  {
+   "login": "jorys-paulin",
+   "id": "5084309",
+   "url": "https://github.com/jorys-paulin",
+   "bot": false,
+   "avatar": "5084309.jpg"
+  },
+  {
+   "login": "tez011",
+   "id": "22161268",
+   "url": "https://github.com/tez011",
+   "bot": false,
+   "avatar": "22161268.png"
+  },
+  {
+   "login": "KiralyCraft",
+   "id": "10259742",
+   "url": "https://github.com/KiralyCraft",
+   "bot": false,
+   "avatar": "10259742.jpg"
+  },
+  {
+   "login": "pgrunzjr",
+   "id": "3165068",
+   "url": "https://github.com/pgrunzjr",
+   "bot": false,
+   "avatar": "3165068.jpg"
+  },
+  {
+   "login": "thatsysadmin",
+   "id": "65380846",
+   "url": "https://github.com/thatsysadmin",
+   "bot": false,
+   "avatar": "65380846.png"
+  },
+  {
+   "login": "WisdomCode",
+   "id": "26511487",
+   "url": "https://github.com/WisdomCode",
+   "bot": false,
+   "avatar": "26511487.png"
+  },
+  {
+   "login": "safijari",
+   "id": "5191844",
+   "url": "https://github.com/safijari",
+   "bot": false,
+   "avatar": "5191844.jpg"
+  },
+  {
+   "login": "korverdev",
+   "id": "84342833",
+   "url": "https://github.com/korverdev",
+   "bot": false,
+   "avatar": "84342833.jpg"
+  },
+  {
+   "login": "tgurr",
+   "id": "414984",
+   "url": "https://github.com/tgurr",
+   "bot": false,
+   "avatar": "414984.jpg"
+  },
+  {
+   "login": "exetico",
+   "id": "3549445",
+   "url": "https://github.com/exetico",
+   "bot": false,
+   "avatar": "3549445.png"
+  },
+  {
+   "login": "BigBrainAFK",
+   "id": "7173033",
+   "url": "https://github.com/BigBrainAFK",
+   "bot": false,
+   "avatar": "7173033.png"
+  },
+  {
+   "login": "Arbitrate3280",
+   "id": "26132870",
+   "url": "https://github.com/Arbitrate3280",
+   "bot": false,
+   "avatar": "26132870.png"
+  },
+  {
+   "login": "arnerak",
+   "id": "29173710",
+   "url": "https://github.com/arnerak",
+   "bot": false,
+   "avatar": "29173710.png"
+  },
+  {
+   "login": "detiam",
+   "id": "44510779",
+   "url": "https://github.com/detiam",
+   "bot": false,
+   "avatar": "44510779.png"
+  },
+  {
+   "login": "dkgkdfg65",
+   "id": "219107372",
+   "url": "https://github.com/dkgkdfg65",
+   "bot": false,
+   "avatar": "219107372.png"
+  },
+  {
+   "login": "lns103",
+   "id": "49310852",
+   "url": "https://github.com/lns103",
+   "bot": false,
+   "avatar": "49310852.png"
+  },
+  {
+   "login": "okkiv",
+   "id": "68665660",
+   "url": "https://github.com/okkiv",
+   "bot": false,
+   "avatar": "68665660.jpg"
+  },
+  {
+   "login": "w0utert",
+   "id": "30574002",
+   "url": "https://github.com/w0utert",
+   "bot": false,
+   "avatar": "30574002.png"
+  },
+  {
+   "login": "MiroKaku",
+   "id": "50670906",
+   "url": "https://github.com/MiroKaku",
+   "bot": false,
+   "avatar": "50670906.jpg"
+  },
+  {
+   "login": "TimmyOVO",
+   "id": "47740511",
+   "url": "https://github.com/TimmyOVO",
+   "bot": false,
+   "avatar": "47740511.png"
+  },
+  {
+   "login": "ReeceHumphreys",
+   "id": "14209515",
+   "url": "https://github.com/ReeceHumphreys",
+   "bot": false,
+   "avatar": "14209515.jpg"
+  },
+  {
+   "login": "mcourteaux",
+   "id": "845012",
+   "url": "https://github.com/mcourteaux",
+   "bot": false,
+   "avatar": "845012.jpg"
+  },
+  {
+   "login": "Doridian",
+   "id": "631409",
+   "url": "https://github.com/Doridian",
+   "bot": false,
+   "avatar": "631409.png"
+  },
+  {
+   "login": "brownj85",
+   "id": "35931888",
+   "url": "https://github.com/brownj85",
+   "bot": false,
+   "avatar": "35931888.png"
+  },
+  {
+   "login": "felipejfc",
+   "id": "285782",
+   "url": "https://github.com/felipejfc",
+   "bot": false,
+   "avatar": "285782.png"
+  },
+  {
+   "login": "CLF184",
+   "id": "57824267",
+   "url": "https://github.com/CLF184",
+   "bot": false,
+   "avatar": "57824267.jpg"
+  },
+  {
+   "login": "briankendall",
+   "id": "7917884",
+   "url": "https://github.com/briankendall",
+   "bot": false,
+   "avatar": "7917884.png"
+  },
+  {
+   "login": "abusse",
+   "id": "1366888",
+   "url": "https://github.com/abusse",
+   "bot": false,
+   "avatar": "1366888.jpg"
+  },
+  {
+   "login": "perroboc",
+   "id": "2722773",
+   "url": "https://github.com/perroboc",
+   "bot": false,
+   "avatar": "2722773.png"
+  },
+  {
+   "login": "andygrundman",
+   "id": "105828",
+   "url": "https://github.com/andygrundman",
+   "bot": false,
+   "avatar": "105828.jpg"
+  },
+  {
+   "login": "CrazyStevenz",
+   "id": "40207026",
+   "url": "https://github.com/CrazyStevenz",
+   "bot": false,
+   "avatar": "40207026.png"
+  },
+  {
+   "login": "TrueZhuangJia",
+   "id": "78474576",
+   "url": "https://github.com/TrueZhuangJia",
+   "bot": false,
+   "avatar": "78474576.jpg"
+  },
+  {
+   "login": "xanderfrangos",
+   "id": "33106561",
+   "url": "https://github.com/xanderfrangos",
+   "bot": false,
+   "avatar": "33106561.jpg"
+  },
+  {
+   "login": "zackelia",
+   "id": "31748637",
+   "url": "https://github.com/zackelia",
+   "bot": false,
+   "avatar": "31748637.jpg"
+  },
+  {
+   "login": "zanechua",
+   "id": "4265429",
+   "url": "https://github.com/zanechua",
+   "bot": false,
+   "avatar": "4265429.jpg"
+  },
+  {
+   "login": "KawaiiZapic",
+   "id": "45936772",
+   "url": "https://github.com/KawaiiZapic",
+   "bot": false,
+   "avatar": "45936772.jpg"
+  },
+  {
+   "login": "Chang-Jin-Lee",
+   "id": "54494793",
+   "url": "https://github.com/Chang-Jin-Lee",
+   "bot": false,
+   "avatar": "54494793.png"
+  },
+  {
+   "login": "bushshrub",
+   "id": "9291792",
+   "url": "https://github.com/bushshrub",
+   "bot": false,
+   "avatar": "9291792.jpg"
+  },
+  {
+   "login": "RickAndTired",
+   "id": "53553229",
+   "url": "https://github.com/RickAndTired",
+   "bot": false,
+   "avatar": "53553229.png"
+  },
+  {
+   "login": "rafaelsgirao",
+   "id": "7544832",
+   "url": "https://github.com/rafaelsgirao",
+   "bot": false,
+   "avatar": "7544832.png"
+  },
+  {
+   "login": "radugrecu97",
+   "id": "39441011",
+   "url": "https://github.com/radugrecu97",
+   "bot": false,
+   "avatar": "39441011.jpg"
+  },
+  {
+   "login": "PVermeer",
+   "id": "23457923",
+   "url": "https://github.com/PVermeer",
+   "bot": false,
+   "avatar": "23457923.png"
+  },
+  {
+   "login": "devusb",
+   "id": "4951663",
+   "url": "https://github.com/devusb",
+   "bot": false,
+   "avatar": "4951663.png"
+  },
+  {
+   "login": "LXY1226",
+   "id": "8820178",
+   "url": "https://github.com/LXY1226",
+   "bot": false,
+   "avatar": "8820178.jpg"
+  },
+  {
+   "login": "sethicis",
+   "id": "4684016",
+   "url": "https://github.com/sethicis",
+   "bot": false,
+   "avatar": "4684016.jpg"
+  },
+  {
+   "login": "SnowSwordScholar",
+   "id": "73566969",
+   "url": "https://github.com/SnowSwordScholar",
+   "bot": false,
+   "avatar": "73566969.jpg"
+  },
+  {
+   "login": "Max-Might",
+   "id": "119780",
+   "url": "https://github.com/Max-Might",
+   "bot": false,
+   "avatar": "119780.png"
+  },
+  {
+   "login": "zoeyjodon",
+   "id": "76182954",
+   "url": "https://github.com/zoeyjodon",
+   "bot": false,
+   "avatar": "76182954.png"
+  },
+  {
+   "login": "skryvel",
+   "id": "120495777",
+   "url": "https://github.com/skryvel",
+   "bot": false,
+   "avatar": "120495777.png"
+  },
+  {
+   "login": "sirius128",
+   "id": "68372698",
+   "url": "https://github.com/sirius128",
+   "bot": false,
+   "avatar": "68372698.png"
+  },
+  {
+   "login": "qingm36",
+   "id": "76875055",
+   "url": "https://github.com/qingm36",
+   "bot": false,
+   "avatar": "76875055.png"
+  },
+  {
+   "login": "manteuffel723",
+   "id": "40317957",
+   "url": "https://github.com/manteuffel723",
+   "bot": false,
+   "avatar": "40317957.png"
+  },
+  {
+   "login": "jensaymoo",
+   "id": "45825226",
+   "url": "https://github.com/jensaymoo",
+   "bot": false,
+   "avatar": "45825226.jpg"
+  },
+  {
+   "login": "jcj83429",
+   "id": "5402600",
+   "url": "https://github.com/jcj83429",
+   "bot": false,
+   "avatar": "5402600.png"
+  },
+  {
+   "login": "iMakeSoftware",
+   "id": "20089877",
+   "url": "https://github.com/iMakeSoftware",
+   "bot": false,
+   "avatar": "20089877.png"
+  },
+  {
+   "login": "exalented",
+   "id": "9328864",
+   "url": "https://github.com/exalented",
+   "bot": false,
+   "avatar": "9328864.png"
+  },
+  {
+   "login": "everything411",
+   "id": "32010059",
+   "url": "https://github.com/everything411",
+   "bot": false,
+   "avatar": "32010059.jpg"
+  },
+  {
+   "login": "brycerocky",
+   "id": "56776312",
+   "url": "https://github.com/brycerocky",
+   "bot": false,
+   "avatar": "56776312.png"
+  },
+  {
+   "login": "aseligmann",
+   "id": "40468411",
+   "url": "https://github.com/aseligmann",
+   "bot": false,
+   "avatar": "40468411.png"
+  },
+  {
+   "login": "ahmadalli",
+   "id": "2167301",
+   "url": "https://github.com/ahmadalli",
+   "bot": false,
+   "avatar": "2167301.jpg"
+  },
+  {
+   "login": "aetheryx",
+   "id": "25572140",
+   "url": "https://github.com/aetheryx",
+   "bot": false,
+   "avatar": "25572140.jpg"
+  },
+  {
+   "login": "notentered",
+   "id": "1017032",
+   "url": "https://github.com/notentered",
+   "bot": false,
+   "avatar": "1017032.jpg"
+  },
+  {
+   "login": "360sym",
+   "id": "63459534",
+   "url": "https://github.com/360sym",
+   "bot": false,
+   "avatar": "63459534.png"
+  },
+  {
+   "login": "d-s-x",
+   "id": "5136335",
+   "url": "https://github.com/d-s-x",
+   "bot": false,
+   "avatar": "5136335.png"
+  },
+  {
+   "login": "Xythus",
+   "id": "1338909",
+   "url": "https://github.com/Xythus",
+   "bot": false,
+   "avatar": "1338909.png"
+  },
+  {
+   "login": "Crashdummyy",
+   "id": "15139403",
+   "url": "https://github.com/Crashdummyy",
+   "bot": false,
+   "avatar": "15139403.png"
+  },
+  {
+   "login": "cgarst",
+   "id": "125395",
+   "url": "https://github.com/cgarst",
+   "bot": false,
+   "avatar": "125395.png"
+  },
+  {
+   "login": "Copilot",
+   "id": "1143301",
+   "url": "https://github.com/apps/copilot-swe-agent",
+   "bot": true,
+   "avatar": "1143301.png"
+  },
+  {
+   "login": "CodyManess",
+   "id": "47895180",
+   "url": "https://github.com/CodyManess",
+   "bot": false,
+   "avatar": "47895180.jpg"
+  },
+  {
+   "login": "Clutchnp",
+   "id": "105556048",
+   "url": "https://github.com/Clutchnp",
+   "bot": false,
+   "avatar": "105556048.png"
+  },
+  {
+   "login": "cfalas",
+   "id": "34488895",
+   "url": "https://github.com/cfalas",
+   "bot": false,
+   "avatar": "34488895.jpg"
+  },
+  {
+   "login": "cfajardo",
+   "id": "104530852",
+   "url": "https://github.com/cfajardo",
+   "bot": false,
+   "avatar": "104530852.png"
+  },
+  {
+   "login": "cazzoo",
+   "id": "1876754",
+   "url": "https://github.com/cazzoo",
+   "bot": false,
+   "avatar": "1876754.png"
+  },
+  {
+   "login": "caveat-makes-software",
+   "id": "59033732",
+   "url": "https://github.com/caveat-makes-software",
+   "bot": false,
+   "avatar": "59033732.png"
+  },
+  {
+   "login": "cathyjf",
+   "id": "508485",
+   "url": "https://github.com/cathyjf",
+   "bot": false,
+   "avatar": "508485.png"
+  },
+  {
+   "login": "gamozolabs",
+   "id": "13505090",
+   "url": "https://github.com/gamozolabs",
+   "bot": false,
+   "avatar": "13505090.png"
+  },
+  {
+   "login": "BeeLeDev",
+   "id": "60373320",
+   "url": "https://github.com/BeeLeDev",
+   "bot": false,
+   "avatar": "60373320.png"
+  },
+  {
+   "login": "angelnu",
+   "id": "4406403",
+   "url": "https://github.com/angelnu",
+   "bot": false,
+   "avatar": "4406403.png"
+  },
+  {
+   "login": "amarshall",
+   "id": "153175",
+   "url": "https://github.com/amarshall",
+   "bot": false,
+   "avatar": "153175.jpg"
+  },
+  {
+   "login": "Aaron-Rumpler",
+   "id": "80610725",
+   "url": "https://github.com/Aaron-Rumpler",
+   "bot": false,
+   "avatar": "80610725.png"
+  },
+  {
+   "login": "kelvie",
+   "id": "5893",
+   "url": "https://github.com/kelvie",
+   "bot": false,
+   "avatar": "5893.png"
+  },
+  {
+   "login": "KarlVogel",
+   "id": "4101575",
+   "url": "https://github.com/KarlVogel",
+   "bot": false,
+   "avatar": "4101575.png"
+  },
+  {
+   "login": "justindhillon",
+   "id": "145078271",
+   "url": "https://github.com/justindhillon",
+   "bot": false,
+   "avatar": "145078271.jpg"
+  },
+  {
+   "login": "Tea23",
+   "id": "1298028",
+   "url": "https://github.com/Tea23",
+   "bot": false,
+   "avatar": "1298028.jpg"
+  },
+  {
+   "login": "jhgarner",
+   "id": "7400280",
+   "url": "https://github.com/jhgarner",
+   "bot": false,
+   "avatar": "7400280.png"
+  },
+  {
+   "login": "insanemal",
+   "id": "215062",
+   "url": "https://github.com/insanemal",
+   "bot": false,
+   "avatar": "215062.jpg"
+  },
+  {
+   "login": "Calinou",
+   "id": "180032",
+   "url": "https://github.com/Calinou",
+   "bot": false,
+   "avatar": "180032.png"
+  },
+  {
+   "login": "hgaiser",
+   "id": "716138",
+   "url": "https://github.com/hgaiser",
+   "bot": false,
+   "avatar": "716138.png"
+  },
+  {
+   "login": "Han-cy830",
+   "id": "279452837",
+   "url": "https://github.com/Han-cy830",
+   "bot": false,
+   "avatar": "279452837.png"
+  },
+  {
+   "login": "hadicharara",
+   "id": "46264409",
+   "url": "https://github.com/hadicharara",
+   "bot": false,
+   "avatar": "46264409.png"
+  },
+  {
+   "login": "c3m3gyanesh",
+   "id": "11159228",
+   "url": "https://github.com/c3m3gyanesh",
+   "bot": false,
+   "avatar": "11159228.jpg"
+  },
+  {
+   "login": "himekifee",
+   "id": "65988663",
+   "url": "https://github.com/himekifee",
+   "bot": false,
+   "avatar": "65988663.jpg"
+  },
+  {
+   "login": "theofficialgman",
+   "id": "28281419",
+   "url": "https://github.com/theofficialgman",
+   "bot": false,
+   "avatar": "28281419.png"
+  },
+  {
+   "login": "ekchang",
+   "id": "10266208",
+   "url": "https://github.com/ekchang",
+   "bot": false,
+   "avatar": "10266208.jpg"
+  },
+  {
+   "login": "e-dong",
+   "id": "16567905",
+   "url": "https://github.com/e-dong",
+   "bot": false,
+   "avatar": "16567905.png"
+  },
+  {
+   "login": "Gara-Dorta",
+   "id": "1507774",
+   "url": "https://github.com/Gara-Dorta",
+   "bot": false,
+   "avatar": "1507774.jpg"
+  },
+  {
+   "login": "ehabajmal",
+   "id": "33014707",
+   "url": "https://github.com/ehabajmal",
+   "bot": false,
+   "avatar": "33014707.png"
+  }
+ ]
+}

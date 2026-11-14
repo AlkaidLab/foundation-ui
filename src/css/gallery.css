@@ -1,0 +1,83 @@
+/* The tile gallery (MTileGallery.vue): categories at the left, tiles in frames at the right, each drawn live at its real size. */
+.m-gal { display: grid; grid-template-columns: 212px minmax(0, 1fr); gap: 20px; min-height: 0; flex: 1; }
+.m-gal__nav { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; padding: 2px 0 8px; }
+.m-gal__cat { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 16px 0 14px; border-radius: 24px; cursor: pointer; color: var(--md-sys-color-on-surface-variant); font: var(--m-label-large); transition: background var(--m-spring-fast-effects-duration, 200ms) linear; }
+.m-gal__cat .m-icon { font-size: 22px; flex: none; } .m-gal__cat span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .m-gal__cat small { font: var(--m-label-medium); opacity: .75; }
+.m-gal__cat:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); } .m-gal__cat:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -2px; }
+.m-gal__cat.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-gal__main { min-width: 0; min-height: 0; overflow-y: auto; padding: 2px 2px 12px; }
+.m-gal__grid { display: grid; grid-auto-flow: row dense; row-gap: 20px; align-items: start; }
+.m-gal__card { display: flex; flex-direction: column; gap: 14px; padding: 14px; border-radius: 28px; background: var(--md-sys-color-surface-container-low); cursor: grab; user-select: none; min-width: 0; outline-offset: 3px; transition: background 200ms linear; }
+.m-gal__card:hover { background: var(--md-sys-color-surface-container); } .m-gal__card:focus-visible { outline: 3px solid var(--md-sys-color-primary); }
+.m-gal__card.is-added { cursor: default; }
+.m-gal__stage { position: relative; display: flex; justify-content: center; overflow: hidden; border-radius: 20px; }
+.m-gal__scaled { flex: none; transform-origin: top center; pointer-events: none; }
+.m-gal__foot { display: flex; align-items: center; gap: 12px; min-height: 40px; }
+.m-gal__title { flex: 1; min-width: 0; } .m-gal__title b { display: block; font: var(--m-title-small); color: var(--md-sys-color-on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-gal__add { all: unset; box-sizing: border-box; flex: none; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 20px 0 16px; border-radius: 20px; cursor: pointer; background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font: var(--m-label-large); transition: transform var(--m-spring-fast-spatial-duration, 250ms) var(--m-spring-fast-spatial, ease); }
+.m-gal__add .m-icon { font-size: 20px; } .m-gal__add:hover { transform: scale(1.03); } .m-gal__add:active { transform: scale(.97); } .m-gal__add:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-gal__add.is-added { background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); cursor: default; transform: none; }
+.m-gal__variants { display: flex; flex-wrap: wrap; gap: 6px; } .m-gal__variant { all: unset; box-sizing: border-box; height: 32px; padding: 0 14px; border-radius: 16px; cursor: pointer; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); font: var(--m-label-medium); } .m-gal__variant.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-gal__empty { margin: 32px 0; text-align: center; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-large); }
+@media (max-width: 760px) { .m-gal { grid-template-columns: minmax(0, 1fr); } .m-gal__nav { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 0 0 6px; } .m-gal__cat { flex: none; } }
+
+/* the sheet that holds it: tall, the search and the buttons above; it slides away when a tile is dragged out of it */
+.m-dedit.m-dedit--gallery { height: min(80vh, 760px); max-width: 1240px; transition: transform var(--m-spring-default-spatial-duration, 400ms) var(--m-spring-default-spatial, ease), opacity 200ms linear; }
+.m-dedit.is-away { transform: translateY(calc(100% + 48px)); opacity: 0; pointer-events: none; }
+.m-dedit__dim.is-away { opacity: 0; transition: opacity 240ms linear; }
+html:not([data-motion='full']) .m-dedit.is-away { transition-duration: 1ms; }
+/* a tile that was just placed arrives on the spring, from a little lower and smaller */
+.m-dash__cell.is-landing { z-index: 6; animation: m-land 600ms var(--m-spring-fast-spatial, ease) both; }
+@keyframes m-land { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+
+/* RZ2: while the window is being resized nothing slides: a move that is in flight is finished at once, whatever started it (the move classes are not applied then either) */
+.m-dash.is-resizing .m-dash__cell, .m-dash.is-resizing .m-dash__cell *, .m-dash.is-resizing .m-dash__grid, .m-dash.is-resizing .m-dock__cell { transition: none !important; }
+.m-dash.is-resizing .m-dash__cell, .m-dash.is-resizing .m-dash__grid > * { translate: none !important; }
+
+/* GL1/GL2: the preview is large and is paged through its sizes: a slide, arrows, dots, the size's name as the caption; ONE button */
+.m-gal__stage { position: relative; display: flex; align-items: flex-start; justify-content: center; overflow: hidden; border-radius: 20px; transition: height 320ms var(--m-spring-default-spatial, ease); touch-action: pan-y; cursor: grab; }
+.m-gal__scaled { flex: none; transform-origin: top center; transition: transform 320ms var(--m-spring-default-spatial, ease), opacity 200ms linear; }
+.m-gal__scaled.is-swiping { transition: none; }
+.m-gal__arrow { all: unset; box-sizing: border-box; position: absolute; top: 50%; z-index: 2; width: 40px; height: 40px; margin-top: -20px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; background: color-mix(in srgb, var(--md-sys-color-surface-container-highest) 92%, transparent); color: var(--md-sys-color-on-surface); box-shadow: 0 1px 6px color-mix(in srgb, var(--md-sys-color-shadow) 24%, transparent); opacity: 0; transition: opacity 160ms linear; }
+.m-gal__arrow--prev { left: 6px; } .m-gal__arrow--next { right: 6px; }
+.m-gal__card:hover .m-gal__arrow, .m-gal__card:focus-within .m-gal__arrow { opacity: 1; } .m-gal__arrow:disabled { opacity: 0 !important; pointer-events: none; }
+.m-gal__arrow:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; opacity: 1; }
+.m-gal__dots { display: flex; justify-content: center; gap: 0; margin-top: -4px; }
+.m-gal__dot { all: unset; box-sizing: border-box; width: 28px; height: 28px; display: grid; place-items: center; cursor: pointer; border-radius: 50%; }
+.m-gal__dot i { width: 8px; height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 40%, transparent); transition: width 240ms var(--m-spring-fast-spatial, ease), background-color 160ms linear; }
+.m-gal__dot.is-on i { width: 22px; background: var(--md-sys-color-primary); } .m-gal__dot:hover i { background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 70%, transparent); } .m-gal__dot.is-on:hover i { background: var(--md-sys-color-primary); }
+.m-gal__dot:focus-visible { outline: 2px solid var(--md-sys-color-primary); }
+.m-gal__title { display: flex; flex-direction: column; gap: 2px; } .m-gal__cap { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-gal__add { height: 44px; padding: 0 24px 0 18px; border-radius: 22px; }
+/* a page turns by sliding: the old preview leaves one way, the new one comes from the other */
+.m-gal[data-variant='slide'] .gal-next-enter-from { opacity: 0; transform: translateX(48px) !important; } .m-gal[data-variant='slide'] .gal-next-leave-to { opacity: 0; transform: translateX(-48px) !important; }
+.m-gal[data-variant='slide'] .gal-prev-enter-from { opacity: 0; transform: translateX(-48px) !important; } .m-gal[data-variant='slide'] .gal-prev-leave-to { opacity: 0; transform: translateX(48px) !important; }
+.gal-next-enter-active, .gal-prev-enter-active, .gal-next-leave-active, .gal-prev-leave-active { transition: transform 200ms var(--m-spring-fast-spatial, ease), opacity 160ms linear; }
+@media (hover: none) { .m-gal__arrow { opacity: 1; } }
+
+/* GL3: the layout switch of the sheet is a segmented button with a normal hit area (40 px) and a label */
+.m-dedit__layoutlabel { flex: none; margin-inline-start: 8px; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
+.m-dedit .m-dsize.m-dedit__layout { padding: 0; gap: 0; border: 1px solid var(--md-sys-color-outline); background: transparent; border-radius: 20px; overflow: hidden; margin-inline-start: 0; }
+.m-dedit .m-dsize.m-dedit__layout > button { all: unset; box-sizing: border-box; min-height: 40px; min-width: 40px; padding: 0 16px; display: inline-grid; place-items: center; cursor: pointer; font: var(--m-label-large); color: var(--md-sys-color-on-surface); white-space: nowrap; transition: background-color 160ms linear; }
+.m-dedit .m-dsize.m-dedit__layout > button + button { border-inline-start: 1px solid var(--md-sys-color-outline); }
+.m-dedit .m-dsize.m-dedit__layout > button:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-dedit .m-dsize.m-dedit__layout > button.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-dedit .m-dsize.m-dedit__layout > button:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -2px; }
+
+
+/* GL-fix: the preview IS the tile: the cell of the overview (radius, surface, stretch) at the real size of the box; the card and its controls never lose room */
+.m-gal__scaled { display: block; }
+.m-gal__sized { transform-origin: top left; display: flex; }
+.m-gal__sized > .m-gal__dash { flex: 1; min-width: 0; min-height: 0 !important; display: flex; }
+.m-gal__dash > .m-gal__tile { flex: 1; min-width: 0; min-height: 0; }
+.m-gal__stage { border-radius: 0; background: none; }
+.m-gal__card { overflow: hidden; }
+.m-gal__dots { width: 100%; }
+
+/* the arrows sit beside the dots, not over the preview: a tile at its real size is never covered */
+.m-gal__pager { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: -4px; }
+.m-gal__pager .m-gal__arrow { position: static; margin: 0; width: 40px; height: 40px; opacity: 1; box-shadow: none; background: transparent; color: var(--md-sys-color-on-surface-variant); transition: background-color 160ms linear, opacity 160ms linear; }
+.m-gal__pager .m-gal__arrow:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-gal__pager .m-gal__arrow:disabled { opacity: .3 !important; pointer-events: none; }
+.m-gal__pager .m-gal__dots { width: auto; margin-top: 0; }
+.m-gal__card:hover .m-gal__pager .m-gal__arrow, .m-gal__card:focus-within .m-gal__pager .m-gal__arrow { opacity: 1; }

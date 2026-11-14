@@ -1,0 +1,26 @@
+/* The latency test clock (MLatencyClock.vue). The face is a photo target: opaque, pure white on black or black on white (the measurement asks for the
+   highest contrast a camera can read; these two colours are its spec, not a theme), no transition, blur or translucency. Everything around it takes the theme.
+   The time is one text node in tabular figures: its 12 characters keep one width, so a frame never moves anything; the sweep moves by transform only. */
+.m-lclock { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.m-lclock__face { container-type: inline-size; position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 3.2cqi; padding: 4cqi 4cqi 3cqi; border-radius: 28px; overflow: hidden; }
+.m-lclock__face.is-dark { background: #000; color: #fff; } .m-lclock__face.is-light { background: #fff; color: #000; }
+.m-lclock__face:fullscreen { border-radius: 0; justify-content: center; padding: 6vh 5vw; }
+.m-lclock__time { font: 600 14.2cqi/1 var(--m-font-display); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1, 'lnum' 1; letter-spacing: 0;
+  white-space: nowrap; text-align: center; contain: layout paint style; }
+.m-lclock__track { position: relative; height: 3.2cqi; min-height: 18px; border: max(2px, .35cqi) solid currentColor; border-radius: 0; overflow: hidden; contain: layout paint; }
+/* the mark is a layer as wide as the track whose left edge is the bar: translating it by its own width × the share of the second moves the bar across */
+.m-lclock__mark { position: absolute; inset: 0; will-change: transform; }
+.m-lclock__mark::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: max(6px, 1.4cqi); margin-left: max(-3px, -.7cqi); background: currentColor; }
+.m-lclock__ticks { display: grid; grid-template-columns: repeat(10, 1fr); margin: .8cqi 0 0; padding: 0; list-style: none; font: 600 max(12px, 2cqi)/1 var(--m-font-display); font-variant-numeric: tabular-nums; }
+.m-lclock__ticks li { border-left: max(2px, .3cqi) solid currentColor; padding-left: .6cqi; }
+.m-lclock__stats { display: flex; justify-content: center; gap: 5cqi; margin: 0; font: 500 max(13px, 2.2cqi)/1.2 var(--m-font-display); font-variant-numeric: tabular-nums; }
+.m-lclock__stats div { display: flex; gap: 1.2cqi; align-items: baseline; } .m-lclock__stats dt { font-weight: 500; } .m-lclock__stats dd { margin: 0; font-weight: 700; min-width: 6ch; }
+.m-lclock__exit { position: absolute; right: 2.4cqi; bottom: 1.8cqi; font: 500 max(12px, 1.4cqi)/1 var(--md-ref-typeface-brand); }
+.m-lclock.is-standalone { position: fixed; inset: 0; gap: 0; }
+.m-lclock.is-standalone .m-lclock__face { flex: 1; border-radius: 0; justify-content: center; padding: 6vh 5vw; }
+.m-lclock__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.m-lclock__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.m-lclock__guide { padding: 20px 24px; border-radius: 24px; background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface); }
+.m-lclock__guide h3 { margin: 0 0 10px; font: var(--m-title-medium); }
+.m-lclock__guide ol { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; font: var(--m-body-medium); }
+.m-lclock__note { margin: 12px 0 4px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }

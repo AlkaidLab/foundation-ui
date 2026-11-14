@@ -1,0 +1,13 @@
+/* Reduced motion (the system's `prefers-reduced-motion`, or the setting 动画 = 减少; 动画 = 完整 overrides the system).
+   A finite animation is played in an instant and ends in its final state; a transition is instant: it is switched OFF (`transition: none`), not shortened to 0.01 ms. A near-zero duration on every element keeps `transition-property: all`, so every
+   style change of an inherited property (the scrollbar colour follows :hover and :focus-within of an ancestor, a dialog moves the focus) starts a transition object on every element below it: 790 of them, ≈65 ms of style recalculation on each open and close of a dialog on the panel. An INFINITE animation is stopped (one iteration, so it rests in its base state):
+   it must never be sped up, a pulse or a turning shape that loops every 0.01 ms is a strobe. A busy indicator keeps a slow, calm fade (no movement) so that the state stays visible. */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) :is(.m-app, .m-onboard) *, html:not([data-motion='full']) :is(.m-app, .m-onboard) *::before, html:not([data-motion='full']) :is(.m-app, .m-onboard) *::after { animation-iteration-count: 1 !important; animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
+  html:not([data-motion='full']) :is(.m-app, .m-onboard) :is(.m-loading__shape, .m-update__badge-icon.is-spinning, .m-wave-circle--spin) { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
+  html:not([data-motion='full']) :is(.m-app, .m-onboard) :is(.m-loading__spin, .m-loading__step) { animation: none !important; }
+}
+html[data-motion='reduced'] :is(.m-app, .m-onboard) *, html[data-motion='reduced'] :is(.m-app, .m-onboard) *::before, html[data-motion='reduced'] :is(.m-app, .m-onboard) *::after { animation-iteration-count: 1 !important; animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
+html[data-motion='reduced'] :is(.m-app, .m-onboard) :is(.m-loading__shape, .m-update__badge-icon.is-spinning, .m-wave-circle--spin) { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
+html[data-motion='reduced'] :is(.m-app, .m-onboard) :is(.m-loading__spin, .m-loading__step) { animation: none !important; }
+@keyframes m-rm-busy { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }

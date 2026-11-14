@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "checked_at": "2026-11-03T14:20:00+08:00",
+  "ports": [
+    {
+      "proto": "tcp",
+      "port": 57984,
+      "role": "https",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed",
+      "on_demand": false
+    },
+    {
+      "proto": "tcp",
+      "port": 57989,
+      "role": "http",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed",
+      "on_demand": false
+    },
+    {
+      "proto": "tcp",
+      "port": 57990,
+      "role": "web",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed",
+      "on_demand": false
+    },
+    {
+      "proto": "tcp",
+      "port": 58010,
+      "role": "rtsp",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed",
+      "on_demand": false
+    },
+    {
+      "proto": "udp",
+      "port": 57998,
+      "role": "video",
+      "listening": false,
+      "bound": [],
+      "firewall": "unknown",
+      "on_demand": true
+    },
+    {
+      "proto": "udp",
+      "port": 57999,
+      "role": "control",
+      "listening": false,
+      "bound": [],
+      "firewall": "unknown",
+      "on_demand": true
+    },
+    {
+      "proto": "udp",
+      "port": 58000,
+      "role": "audio",
+      "listening": false,
+      "bound": [],
+      "firewall": "unknown",
+      "on_demand": true
+    },
+    {
+      "proto": "udp",
+      "port": 58001,
+      "role": "microphone",
+      "listening": false,
+      "bound": [],
+      "firewall": "unknown",
+      "on_demand": true
+    }
+  ],
+  "public": {
+    "verdict": "unknown",
+    "reasons": [
+      "mapping_missing:udp/57998"
+    ],
+    "host_public_ip": null,
+    "router": {
+      "protocol": "upnp-igd",
+      "wan_ip": "203.0.113.45",
+      "wan_ip_class": "public",
+      "mappings": []
+    },
+    "hairpin": {
+      "tried": true,
+      "ok": true,
+      "port": 59995,
+      "identity_match": true,
+      "target": "203.0.113.45"
+    },
+    "evidence": [],
+    "configured_address": {
+      "value": "home.example.net",
+      "kind": "hostname",
+      "resolved": [
+        "203.0.113.45",
+        "2001:db8::1"
+      ],
+      "matches_wan": true,
+      "reasons": [],
+      "hint": ""
+    },
+    "endpoints": []
+  },
+  "mesh": {
+    "adapters": [
+      {
+        "kind": "tailscale",
+        "name": "wt0",
+        "addresses": [
+          "100.92.14.7"
+        ],
+        "up": true
+      }
+    ],
+    "verdict": "likely",
+    "reasons": [],
+    "listening_on_mesh": true,
+    "web_ui_origin_allows_mesh": true,
+    "evidence": []
+  }
+}

@@ -1,0 +1,120 @@
+/* The window's material over a wallpaper. One picture spans the whole window (.m-wp, behind everything), under ONE frosted layer that spans it too:
+   a real backdrop blur, a tint of the scheme's surface tone that rises towards the bottom into a pale (never white, never black) tone with a
+   faint hue of the seed, and a fine grain against banding. The rail and the caption bar (the frame), the list pane and the content panel are
+   three regions of the same translucency (--m-region) that differ by one tone step, not by opacity; the content panel is rounded where it
+   meets the frame (layout.css draws the regions). Cards and rows lie on it nearly opaque (--m-card), the same on both sides and without a
+   blur of their own, so nothing is blurred twice. Blur and tint come from the person's settings of the page's scope (apply.js). */
+@property --m-wp-blur { syntax: '<length>'; inherits: true; initial-value: 32px; }
+@property --m-scrim-light { syntax: '<number>'; inherits: true; initial-value: 0.5; }
+@property --m-scrim-dark { syntax: '<number>'; inherits: true; initial-value: 0.5; }
+html { --m-page-solid: var(--md-sys-color-surface-container); --m-card-solid: var(--md-sys-color-surface-bright); --m-row-solid: var(--m-card-solid); --m-frame: var(--md-sys-color-surface-container-high); --m-frame-radius: 24px; --m-frame-alpha: 0.85; --m-panel-alpha: 0.30; --m-fade-end: 0.94;
+  --m-fade-tone: color-mix(in srgb, var(--md-sys-color-surface-bright) 97%, var(--md-sys-color-primary) 3%); }
+html[data-bs-theme='dark'], html.dark, html[data-theme='dark'] { --m-page-solid: var(--md-sys-color-surface); --m-card-solid: var(--md-sys-color-surface-container-high); --m-row-solid: var(--md-sys-color-surface-container-highest); --m-frame: var(--md-sys-color-surface-container-high);
+  --m-fade-tone: color-mix(in srgb, var(--md-sys-color-surface-container-lowest) 92%, var(--md-sys-color-primary) 8%); }
+html { --m-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E"); }
+/* solid: solid surfaces everywhere */
+html { --m-frame-fill: var(--m-frame); --m-panel-fill: var(--m-page-solid); --m-rail-fill: var(--m-frame); --m-list-left: var(--m-frame); --m-row-fill: var(--m-row-solid); }
+/* The shell material (variant A, subtle, is the default; B, stronger, is html[data-shell='b']): the rail and the caption bar are the most solid, the list pane fades from nearly
+   the rail's tone at its rail edge to the content panel's at its content edge (a gradient of opacity across the pane, so no line and no step at the seam), its rows are a little
+   transparent too, and the content panel is the lightest. */
+html.m-has-wallpaper { --m-rail-alpha: .90; --m-list-alpha: .86; --m-row-alpha: .80; }
+html.m-has-wallpaper[data-shell='b'] { --m-rail-alpha: .76; --m-list-alpha: .68; --m-row-alpha: .62; }
+html.m-has-wallpaper { background: var(--m-page-solid);
+  --m-frame-fill: color-mix(in srgb, var(--m-frame) calc(var(--m-frame-alpha) * 100%), transparent); --m-panel-fill: color-mix(in srgb, var(--m-page-solid) calc(var(--m-panel-alpha) * 100%), transparent);
+  --m-page: transparent; --m-card: color-mix(in srgb, var(--m-card-solid) 96%, transparent);
+  --m-rail-fill: color-mix(in srgb, var(--m-frame) calc(var(--m-rail-alpha) * 100%), transparent); --m-list-left: color-mix(in srgb, var(--m-frame) calc(var(--m-list-alpha) * 100%), transparent); --m-row-fill: color-mix(in srgb, var(--m-row-solid) calc(var(--m-row-alpha) * 100%), transparent); }
+/* the tint belongs to the picture layer alone: the frost moves on a transition, and a transition of an inherited property on the root recalculates the style of every element in every frame of it */
+html.m-has-wallpaper .m-wp { --m-scrim: var(--m-scrim-light, 0.5); }
+html.m-has-wallpaper[data-bs-theme='dark'] .m-wp, html.m-has-wallpaper.dark .m-wp, html.m-has-wallpaper[data-theme='dark'] .m-wp { --m-scrim: var(--m-scrim-dark, 0.6); }
+html.m-has-wallpaper .m-wp { --m-tint-top: color-mix(in srgb, var(--m-page-solid) calc(var(--m-scrim) * 100%), transparent); --m-tint-end: color-mix(in srgb, var(--m-fade-tone) calc(max(var(--m-scrim), var(--m-fade-end)) * 100%), transparent); }
+/* the labels of the rail sit straight on the frosted frame: the strongest text colour, not the variant one */
+html.m-has-wallpaper .m-rail__item .m-rail__label { color: var(--md-sys-color-on-surface); }
+html.m-has-wallpaper[data-fade='off'] .m-wp { --m-tint-end: var(--m-tint-top); }
+/* the frosted layer: the picture under it is already blurred (apply.js bakes the blur once instead of blurring the window on every frame); this layer
+   is the tint (a gradient, paler towards the bottom) and the grain */
+html.m-has-wallpaper::before { display: none; }
+/* inside the picture layer: the shell's body is a fixed box (its own stacking context), a layer on the root would sit under the picture */
+.m-wp::after { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: var(--m-noise), linear-gradient(to bottom, var(--m-tint-top) 0%, var(--m-tint-end) 100%); }
+html.m-has-wallpaper body, html.m-has-wallpaper .m-app { background: transparent; }
+/* blur and tint move on the effects spring when the page changes between the overview and the others */
+html.m-has-wallpaper .m-wp { transition: --m-wp-blur var(--m-spring-default-effects-duration, 500ms) var(--m-spring-default-effects, ease), --m-scrim-light var(--m-spring-default-effects-duration, 500ms) var(--m-spring-default-effects, ease), --m-scrim-dark var(--m-spring-default-effects-duration, 500ms) var(--m-spring-default-effects, ease); }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']).m-has-wallpaper .m-wp { transition: none; } }
+html[data-motion='reduced'].m-has-wallpaper .m-wp { transition: none; }
+/* the page title sits straight on the picture at rest, on the frost's own tint (no text shadow); the bar gets its surface when content scrolls under it, layout.css */
+/* the theme moves on springs when the picture or the colour changes */
+html.m-theming, html.m-theming * { transition: background-color 600ms var(--m-spring-default-effects, ease), color 600ms var(--m-spring-default-effects, ease), border-color 600ms linear, fill 600ms linear !important; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']).m-theming, html:not([data-motion='full']).m-theming * { transition: none !important; } }
+html[data-motion='reduced'].m-theming, html[data-motion='reduced'].m-theming * { transition: none !important; }
+/* appearance page */
+.m-ap { display: flex; flex-direction: column; gap: 18px; }
+.m-ap__preview { position: relative; display: flex; gap: 0; padding: 0; border-radius: 28px; overflow: hidden; min-height: 188px; background: var(--m-page-solid); isolation: isolate; --m-ap-blur: 14px; --m-ap-tint: .5; --m-ap-end: .94; }
+.m-ap__preview::before { content: ''; position: absolute; inset: -24px; z-index: -2; background: var(--m-ap-wall, none) center / cover; filter: blur(var(--m-ap-blur)); }
+.m-ap__preview::after { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--m-noise), linear-gradient(to bottom, color-mix(in srgb, var(--m-page-solid) calc(var(--m-ap-tint) * 100%), transparent), color-mix(in srgb, var(--m-fade-tone) calc(var(--m-ap-end) * 100%), transparent)); }
+/* the page's first frame paints the preview's empty box (the final size, nothing jumps): the wallpaper blur and the scrim are painted with the preview's content, after that frame */
+.m-ap__preview--holding::before, .m-ap__preview--holding::after { content: none; }
+/* the strip with its blurred wallpaper as one bitmap (previewBake.js) and the noise and the scrim as backgrounds of the strip itself: no pseudo-element layers, no stacking context to paint (84-100 ms of GPU raster in the frame that painted them, 42 ms like this) */
+.m-ap__preview--flat::before, .m-ap__preview--flat::after { content: none; }
+.m-ap__preview--flat { background: var(--m-noise), linear-gradient(to bottom, color-mix(in srgb, var(--m-page-solid) calc(var(--m-ap-tint) * 100%), transparent), color-mix(in srgb, var(--m-fade-tone) calc(var(--m-ap-end) * 100%), transparent)), var(--m-ap-wall-baked, none) 0 0 / 100% 100% no-repeat, var(--m-page-solid); }
+.m-ap__capt { position: absolute; left: 0; right: 0; top: 0; height: 14px; background: var(--m-frame-fill); }
+.m-ap__rail { position: relative; width: 48px; flex: none; background: var(--m-frame-fill); display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px 0 10px; }
+.m-ap__panel { flex: 1; min-width: 0; margin-top: 14px; padding: 10px; background: var(--m-panel-fill); border-top-left-radius: 14px; display: flex; }
+.m-ap__tag { position: absolute; right: 10px; bottom: 8px; padding: 2px 10px; border-radius: 9999px; background: color-mix(in srgb, var(--m-card-solid) 90%, transparent); color: var(--md-sys-color-on-surface); font: var(--m-label-small); font-variant-numeric: tabular-nums; }
+.m-ap__same { margin: -4px -8px 0; }
+.m-ap__row .m-item { background: transparent; }
+.m-ap__frost { gap: 6px; }
+.m-ap__row { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 28px; background: var(--m-card); } .m-ap__row h4 { margin: 0; font: 600 13px/18px var(--md-ref-typeface-brand); color: var(--md-sys-color-on-surface-variant); }
+.m-ap__swatches { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.m-ap__swatch { width: 44px; height: 44px; padding: 0; border: 3px solid transparent; background: var(--sw); cursor: pointer; clip-path: var(--m-shape-cookie); transition: transform 300ms var(--m-spring-fast-spatial); } .m-ap__swatch:hover { transform: scale(1.08); }
+.m-ap__field { display: flex; gap: 8px; align-items: center; } .m-ap__field input[type='text'], .m-ap__field input[type='url'] { flex: 1; height: 44px; font: 400 14px var(--md-ref-typeface-brand); }
+.m-ap__slider { display: flex; align-items: center; gap: 12px; } .m-ap__slider label { width: 72px; font: 500 13px var(--md-ref-typeface-brand); color: var(--md-sys-color-on-surface-variant); } .m-ap__slider .m-slider { flex: 1; min-width: 0; } .m-ap__slider output { width: 40px; text-align: end; font: 600 12px var(--md-ref-typeface-brand); font-variant-numeric: tabular-nums; }
+.m-ap__note { font: 400 12px/16px var(--md-ref-typeface-brand); color: var(--md-sys-color-on-surface-variant); }
+
+/* the wallpaper layers (apply.js): two, cross-fading; the face is placed by wallpaper.js */
+html { --m-wp-fade: 700ms; }
+.m-wp { position: fixed; inset: 0; z-index: -2; overflow: hidden; display: none; pointer-events: none; }
+html.m-has-wallpaper .m-wp { display: block; }
+.m-wp > i { position: absolute; inset: 0; background-repeat: no-repeat; opacity: 0; transition: opacity var(--m-wp-fade, 700ms) ease; will-change: opacity; }
+.m-wp > i.is-front { opacity: 1; z-index: 2; }
+.m-wp > i.is-under { opacity: 1; z-index: 1; transition: none; }
+html.m-has-wallpaper::before { display: none; }
+
+/* the source of the wallpaper: a grid of small pictures (薇薇 1, 薇薇 2) and symbols (auto, gradient, file, web address) */
+.m-ap__sources { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.m-ap__source { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; padding: 6px; border-radius: 16px; cursor: pointer; color: var(--md-sys-color-on-surface-variant); box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); }
+.m-ap__source:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent); }
+.m-ap__source:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-ap__source.is-on { color: var(--m-sel-ink); background: var(--m-sel-fill); }
+.m-ap__source.is-on .m-ap__sourcelabel { font-weight: 700; }
+.m-ap__thumb { height: 52px; border-radius: 10px; display: grid; place-items: center; background: var(--md-sys-color-surface-container-high) center / cover no-repeat; font-size: 24px; }
+.m-ap__thumb--gradient { background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-tertiary-container) 55%, var(--md-sys-color-secondary-container)); }
+.m-ap__thumb--auto { background: linear-gradient(90deg, var(--md-sys-color-surface-container-high) 50%, var(--md-sys-color-secondary-container) 50%); }
+.m-ap__sourcelabel { font: var(--m-label-medium); text-align: center; }
+
+/* the live preview: a small window drawn with the real tokens, on the real wallpaper and scrim */
+.m-ap__rail i { width: 22px; height: 12px; border-radius: 8px; background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 26%, transparent); display: block; } .m-ap__rail i.is-on { background: var(--md-sys-color-secondary-container); }
+.m-ap__main { flex: 1; display: grid; width: 100%; grid-template-columns: 1.6fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; min-width: 0; }
+.m-ap__card { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 10px 14px; border-radius: 18px; background: var(--m-card); min-width: 0; }
+.m-ap__card--hero { grid-row: span 2; background: var(--md-sys-color-primary-container); }
+.m-ap__line { display: block; height: 8px; width: 80%; border-radius: 4px; background: color-mix(in srgb, var(--md-sys-color-on-surface) 70%, transparent); } .m-ap__line--short { width: 46%; opacity: .6; }
+.m-ap__pbtn { width: 64px; height: 26px; border-radius: 13px; background: var(--md-sys-color-primary); }
+.m-ap__pchip { width: 44px; height: 18px; border-radius: 9px; background: var(--md-sys-color-secondary-container); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-sys-color-on-secondary-container) 25%, transparent); }
+.m-ap__pswitch { width: 36px; height: 20px; border-radius: 10px; background: var(--md-sys-color-primary); position: relative; } .m-ap__pswitch::after { content: ''; position: absolute; right: 3px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--md-sys-color-on-primary); }
+.m-ap__pbar { display: block; height: 6px; border-radius: 3px; background: var(--md-sys-color-surface-container-highest); } .m-ap__pbar i { display: block; width: 62%; height: 100%; border-radius: 3px; background: var(--md-sys-color-tertiary); }
+/* the one cross-fade of a change of colours (see useAppearance.set): the old and the new picture of the window, faded on the compositor */
+html.m-theme-fade::view-transition-old(root), html.m-theme-fade::view-transition-new(root) { animation-duration: 200ms; animation-timing-function: var(--m-spring-default-effects, ease); }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']).m-theme-fade::view-transition-group(root) { animation: none; } }
+html[data-motion='reduced'].m-theme-fade::view-transition-group(root) { animation: none; }
+
+/* colour: a row of seed swatches, one tap changes the whole preview above and the window */
+.m-ap__colours { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.m-ap__colours .m-ap__swatch { display: grid; place-items: center; width: 48px; height: 48px; border: 0; padding: 0; background: var(--sw, var(--md-sys-color-primary)); color: #fff; clip-path: var(--m-shape-cookie); cursor: pointer; position: relative; }
+/* the check is outlined (paint-order stroke), not shadowed with a filter: any CSS filter on this page made the frame of a change of colours 60 ms longer (100 ms against 33-59 without one, real WebView2) */
+.m-ap__colours .m-ap__swatch .m-icon { font-size: 22px; opacity: 0; transition: opacity 120ms linear; }
+.m-ap__colours .m-ap__swatch .m-icon * { paint-order: stroke; stroke: rgb(0 0 0 / .35); stroke-width: .6px; }
+.m-ap__colours .m-ap__swatch[aria-checked='true'] .m-icon, .m-ap__colours .m-ap__swatch.is-on .m-icon { opacity: 1; }
+.m-ap__colours .m-ap__swatch:hover { transform: scale(1.08); } .m-ap__colours .m-ap__swatch:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 3px; }
+.m-ap__swatch--wall { background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-tertiary-container)) !important; color: var(--md-sys-color-on-primary-container) !important; }
+.m-ap__swatch--wall .m-icon { opacity: 1 !important; filter: none !important; }
+.m-ap__swatch--custom input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+/* a change of colours only holds every transition for its two frames (see useAppearance.set): 25 to 35 ms of style work in the first frame otherwise */
+html.m-theme-fade, html.m-theme-fade *, html.m-theme-fade *::before, html.m-theme-fade *::after { transition: none !important; }

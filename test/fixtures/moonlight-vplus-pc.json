@@ -1,0 +1,60 @@
+{
+ "schema": 1,
+ "kind": "release-metadata",
+ "product": "moonlight-vplus-pc",
+ "channels": {
+  "latest": {
+   "version": "v6.5.3",
+   "assets": [
+    {
+     "type": "linux-arm64-appimage",
+     "name": "Moonlight-VPlus-6.5.3-aarch64.AppImage"
+    },
+    {
+     "type": "linux-arm64-appimage-zsync",
+     "name": "Moonlight-VPlus-6.5.3-aarch64.AppImage.zsync"
+    },
+    {
+     "type": "macos-arm64-dmg",
+     "name": "Moonlight-VPlus-6.5.3-arm64.dmg"
+    },
+    {
+     "type": "linux-x64-appimage",
+     "name": "Moonlight-VPlus-6.5.3-x86_64.AppImage"
+    },
+    {
+     "type": "linux-x64-appimage-zsync",
+     "name": "Moonlight-VPlus-6.5.3-x86_64.AppImage.zsync"
+    },
+    {
+     "type": "windows-arm64-portable",
+     "name": "Moonlight-VPlus-Portable-arm64-6.5.3.zip"
+    },
+    {
+     "type": "windows-x64-portable",
+     "name": "Moonlight-VPlus-Portable-x64-6.5.3.zip"
+    },
+    {
+     "type": "windows-x64-installer",
+     "name": "Moonlight-VPlus-Setup-6.5.3.exe"
+    },
+    {
+     "type": "steam-link-zip",
+     "name": "Moonlight-VPlus-SteamLink-6.5.3.zip"
+    },
+    {
+     "type": "windows-arm64-portable-alias",
+     "name": "MoonlightPortable-arm64-6.5.3.zip"
+    },
+    {
+     "type": "windows-x64-portable-alias",
+     "name": "MoonlightPortable-x64-6.5.3.zip"
+    },
+    {
+     "type": "windows-x64-installer-alias",
+     "name": "MoonlightSetup-6.5.3.exe"
+    }
+   ]
+  }
+ }
+}

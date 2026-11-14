@@ -1,0 +1,52 @@
+export default
+{
+  "source": "Source des mises à jour",
+  "channel": "Canal de mise à jour",
+  "sources": {
+    "auto": "Automatique"
+  },
+  "mirrorAbout": "MirrorChyan est un service d'accélération des téléchargements pour les projets open source, et un moyen de soutenir leurs développeurs. Avec un abonnement, un CDK accélère les téléchargements, et les revenus sont partagés avec les développeurs qui utilisent MirrorChyan, dont ce projet. Le CDK est facultatif ; sans lui, les mises à jour se téléchargent depuis CNB ou GitHub.",
+  "tagDomestic": "Rapide en Chine",
+  "cdkOptional": "CDK MirrorChyan (facultatif)",
+  "getCdk": "Obtenir un CDK",
+  "remainingDays": "Le CDK expire dans {0} jours.",
+  "fetchFailed": "Impossible de récupérer les informations du CDK. Affichage du dernier résultat réussi.",
+  "cdk": "CDK MirrorChyan",
+  "cdkHint": "Conservé dans le coffre du système ; plus affiché une fois enregistré.",
+  "save": "Sauvegarder",
+  "clear": "Supprimer",
+  "check": "Vérifier le CDK",
+  "checking": "Vérification…",
+  "saved": "CDK enregistré",
+  "removed": "CDK supprimé",
+  "unavailable": "Le coffre exige un panneau plus récent.",
+  "status": {
+    "none": "Pas de CDK",
+    "valid": "CDK valide",
+    "expired": "CDK expiré",
+    "invalid": "CDK invalide",
+    "limit": "Limite quotidienne de téléchargement atteinte",
+    "banned": "CDK bloqué",
+    "type": "Ce CDK n'est pas pour ce logiciel",
+    "test": "C'est un CDK de test",
+    "unknown": "Impossible à dire",
+    "offline": "MirrorChyan n'a pas répondu"
+  },
+  "errors": {
+    "cdk-expired": "Le CDK a expiré. Veuillez utiliser un nouveau CDK pour l'autorisation.",
+    "cdk-invalid": "Le CDK est invalide. Vérifiez la saisie.",
+    "cdk-limit": "Le CDK a atteint la limite de téléchargement du jour. Réessayez demain.",
+    "cdk-type": "Le type de CDK ne correspond pas à la ressource. Vérifiez le champ d'application du CDK.",
+    "cdk-banned": "Le CDK a été bloqué, peut-être à cause d'un remboursement ou d'un usage anormal.",
+    "cdk-test": "Le CDK est un CDK de test. Il ne peut pas servir à de vrais téléchargements.",
+    "no-resource": "MirrorChyan n'a pas encore de version pour ce système et ce canal.",
+    "params": "MirrorChyan n'a pas accepté la demande. Mettez à jour le panneau et réessayez.",
+    "server": "MirrorChyan a eu une erreur. Réessayez plus tard.",
+    "malformed": "MirrorChyan a envoyé quelque chose qui n'est pas une réponse.",
+    "network": "MirrorChyan n'a pas répondu. Vérifiez le réseau.",
+    "unknown": "MirrorChyan a refusé pour une raison que ce panneau ne connaît pas."
+  },
+  "tagPaid": "Payant",
+  "freeNotice": "Ce programme est un logiciel libre et open source. Si vous l'avez payé, par quelque canal que ce soit, demandez immédiatement un remboursement.",
+  "supportLine": "Pour soutenir le développement, abonnez-vous à MirrorChyan : des téléchargements plus rapides qui financent directement les développeurs."
+}

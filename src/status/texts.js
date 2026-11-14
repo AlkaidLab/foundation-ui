@@ -1,0 +1,93 @@
+// Text of the component status page and cards: Chinese and English, other languages fall back to English.
+const EN = {
+  title: 'Components', check: 'Check', checking: 'Checking…', checked: 'Checked {time}', checkAll: 'Check all', refresh: 'Refresh',
+  update: 'Update', updateRepair: 'Update or repair', repair: 'Repair', install: 'Install', open: 'Open', version: 'Version', noVersion: 'No version reported',
+  noUpdatePath: 'No update path from here', viaPanel: 'Update it in the control panel',
+  states: { ok: 'Working', warn: 'Attention', error: 'Problem', missing: 'Not installed', unknown: 'Unknown' },
+  componentsOk: '{n} components working', componentsNeed: '{n} need attention', summaryOk: 'All {n} checks passed', summaryProblem: '{n} of {total} checks need attention', summaryUnknown: 'No answer from the source',
+  unsupported: 'Not available on this system', disabled: 'Turned off', unknownNote: 'No data',
+  names: { vdd: 'Foundation Virtual Display driver', usb: 'usbip-win2 USB/IP transport', vigem: 'ViGEmBus virtual gamepad driver', mic: 'Virtual microphone device', mouse: 'Zako virtual mouse driver', vulkan: 'Vulkan HDR compatibility', dlssnr: 'DLSS NR', rtxhdr: 'RTX HDR', sparxie: 'Sparxie', dualsense: 'DualSense channel', encoder: 'Encoder', host: 'Host' },
+  cardTitle: '{name} status',
+  checks: {
+    launcher: 'Launcher runs', runtime: 'Runtime', config: 'Config file readable and writable', installed: 'Installed', running: 'Running', control: 'Control channel', version: 'Version', problem: 'Device problem code', state: 'State',
+    signed: 'Signature', ready: 'Ready', residual: 'Leftover virtual devices', host: 'Host reachable', tuning: 'Tuning available', native: 'Native path built',
+    transport: 'USB/IP transport', controllers: 'Active controllers', component: 'Component present', device: 'Device', active: 'Encoder in use', codecs: 'Codecs',
+    reachable: 'Host answers', update: 'Update', artifacts: 'Compatibility files', display: 'HDR display present', enabled: 'Enabled in the configuration', adapter: 'Sunshine adapter', vcruntime: 'Microsoft Visual C++ runtime', runtime: 'Runtime file', digest: 'Digest of the imported file', maintenance: 'Unfinished maintenance', inuse: 'In use by a stream',
+    os: 'Windows version', disk: 'Free space', webview2: 'WebView2 Runtime', vcruntime: 'Visual C++ runtime', admin: 'Install directory', quarantine: 'Installed files',
+  },
+  uninstall: { title: 'Uninstall {name}?', text: '{name} is removed from this computer. What uses it stops working until it is installed again. Streams in progress end.', yes: 'Uninstall', done: '{name} was uninstalled.', failed: '{name} could not be uninstalled.' },
+  ext: {
+    badge: 'Extension', import: 'Import', reselect: 'Choose again', remove: 'Remove', importInPanel: 'Import it in the control panel', helpTitle: 'How to install',
+    digest: 'Digest', notImported: 'No file imported',
+    help: {
+      dlssnr: 'Choose a locally obtained NVIDIA nvngx_dlssnr.dll. This is separate from RTX HDR; do not select nvngx_truehdr.dll. Import records the file digest. Use Choose again to update it.',
+      rtxhdr: 'Get and extract the NVIDIA RTX Video SDK, then choose bin\\Windows\\x64\\rel\\nvngx_truehdr.dll. This is separate from DLSS NR; do not select nvngx_dlssnr.dll. Import records the file digest.',
+    },
+    mixWarning: 'Choose {dll} only. The other component uses {other}: mixing them up breaks both.',
+    pick: 'Choose {dll}', wrongFile: 'This is not {dll}. Choose the file with exactly that name.',
+    importConfirm: 'Import the selected {dll}? Administrator permission may be required.', importTitle: 'Import the NVIDIA {name} component', reselectTitle: 'Replace the NVIDIA {name} component',
+    importDone: 'The component is imported.', importFailed: 'The component could not be imported.', inUse: 'End all streams before importing or removing this component.',
+    removeConfirm: 'Remove the NVIDIA {name} component? It is turned off first. The file you chose is not changed.', removeTitle: 'Remove the NVIDIA {name} component',
+    removeDone: 'The component was removed.', removeFailed: 'The component could not be removed.', pendingRestart: 'Removal finishes when the host restarts.',
+  },
+
+  sparxie: {
+    bring: 'Get the Sparxie package yourself, then choose it here.',
+    issues: { os: 'Needs Windows 10 2004 or later, x64', disk: 'Not enough free space', webview2: 'Not installed', vcruntime: 'Not installed', admin: 'Needs administrator rights', quarantine: 'A file is missing, possibly quarantined by antivirus' },
+    fromFile: 'Choose a file', update: 'Update', open: 'Open Sparxie', openFailed: 'Sparxie could not be opened.', alreadyOpen: 'Sparxie is already open.',
+    noticeTitle: 'Before installing', noticeYes: 'Continue',
+    unverifiedTitle: 'Unverified version', unverified: 'This package is not a known version. Install it anyway?', unverifiedYes: 'Install',
+    removeTitle: 'Uninstall Sparxie?', removeText: 'The program files are removed. You can keep config.json.', removeKeep: 'Keep config', removeDelete: 'Delete config too',
+    done: 'Sparxie is installed.', failed: 'Sparxie could not be installed.', removed: 'Sparxie was uninstalled.',
+    errors: { sparxie_running: 'Close Sparxie first.', os_too_old: 'Needs Windows 10 2004 or later (x64).', webview2_missing: 'Install the WebView2 runtime first.', vcruntime_missing: 'Install the Visual C++ x64 runtime first.', no_admin: 'The install location is not writable. Run the Control Panel as administrator.', disk_full: 'There is not enough free space.', quarantined: 'A file is missing after the install; antivirus software may have quarantined it.', bad_zip: 'The package cannot be read, or it is not a Sparxie package.', zip_slip: 'The package contains an unsafe path and was refused.', not_found: 'The file was not found.', busy: 'Another install is still running.', not_writable: 'The install location could not be created.', write_failed: 'The program files could not be removed.' },
+    stages: { dependencies: 'Checking dependencies', verify: 'Verifying', extract: 'Extracting', probe: 'Checking the files', done: 'Done' },
+  },
+  hints: { update: 'An update is available', },
+}
+const ZH = {
+  title: '组件状态', check: '检查', checking: '检查中…', checked: '{time} 已检查', checkAll: '全部检查', refresh: '刷新',
+  update: '更新', updateRepair: '更新或修复', repair: '修复', install: '安装', open: '打开', version: '版本', noVersion: '未报告版本',
+  noUpdatePath: '这里没有更新入口', viaPanel: '请在控制面板中更新',
+  states: { ok: '正常', warn: '注意', error: '有问题', missing: '未安装', unknown: '未知' },
+  componentsOk: '{n} 个组件全部正常', componentsNeed: '{n} 项需要处理', summaryOk: '{n} 项检查全部通过', summaryProblem: '{total} 项检查中 {n} 项需要处理', summaryUnknown: '没有收到来源的回答',
+  unsupported: '此系统不可用', disabled: '已关闭', unknownNote: '暂无数据',
+  names: { vdd: '基地虚拟显示器驱动', usb: 'usbip-win2 USB/IP 传输', vigem: 'ViGEmBus 虚拟手柄驱动', mic: '虚拟麦克风设备', mouse: 'Zako 虚拟鼠标驱动', vulkan: 'Vulkan HDR 兼容组件', dlssnr: 'DLSS NR', rtxhdr: 'RTX HDR', sparxie: 'Sparxie', dualsense: 'DualSense 通道', encoder: '编码器', host: '被控端' },
+  cardTitle: '{name}状态',
+  checks: {
+    launcher: '启动器可运行', runtime: '运行库', config: '配置文件可读写', installed: '已安装', running: '运行中', control: '控制通道', version: '版本', problem: '设备问题代码', state: '状态',
+    signed: '签名', ready: '就绪', residual: '残留虚拟设备', host: '被控端可达', tuning: '调节可用', native: '原生通道已编入',
+    transport: 'USB/IP 传输', controllers: '在用手柄', component: '组件存在', device: '设备', active: '在用编码器', codecs: '编码格式',
+    reachable: '被控端应答', update: '更新', artifacts: '兼容文件', display: '有 HDR 显示器', enabled: '配置里已启用', adapter: 'Sunshine 适配组件', vcruntime: 'Microsoft Visual C++ 运行库', runtime: '运行库文件', digest: '已导入文件的摘要', maintenance: '未完成的维护', inuse: '串流正在使用',
+    os: 'Windows 版本', disk: '可用空间', webview2: 'WebView2 运行库', vcruntime: 'Visual C++ 运行库', admin: '安装目录可写', quarantine: '安装后的文件',
+  },
+  uninstall: { title: '要卸载 {name} 吗？', text: '会从这台电脑上移除 {name}，依赖它的功能在重新安装前不能用，正在进行的串流会结束。', yes: '卸载', done: '{name} 已卸载。', failed: '{name} 卸载失败。' },
+  ext: {
+    badge: '扩展组件', import: '导入', reselect: '重新选择', remove: '移除', importInPanel: '请在控制面板中导入', helpTitle: '如何安装',
+    digest: '摘要', notImported: '还没有导入文件',
+    help: {
+      dlssnr: '选择你已取得的 NVIDIA nvngx_dlssnr.dll。此组件与 RTX HDR 不同，请勿选择 nvngx_truehdr.dll。导入后会记录文件摘要；更新运行库请使用“重新选择”。',
+      rtxhdr: '获取 RTX_Video_SDK_v1.1.0.zip 并解压，然后选择 bin\\Windows\\x64\\rel\\nvngx_truehdr.dll。此组件与 DLSS NR 不同，请勿选择 nvngx_dlssnr.dll。导入后会记录文件摘要。',
+    },
+    mixWarning: '只选 {dll}。另一个组件用的是 {other}，选混了两个都会出问题。',
+    pick: '选择 {dll}', wrongFile: '这不是 {dll}。请选名字正好是它的文件。',
+    importConfirm: '是否导入所选的 {dll}？过程中可能需要管理员权限。', importTitle: '导入 NVIDIA {name} 组件', reselectTitle: '替换 NVIDIA {name} 组件',
+    importDone: '组件已导入。', importFailed: '组件导入失败。', inUse: '导入或移除组件前，请结束所有串流。',
+    removeConfirm: '是否移除 NVIDIA {name} 组件？会先把它关闭。你选的那个文件不会被改动。', removeTitle: '移除 NVIDIA {name} 组件',
+    removeDone: '组件已移除。', removeFailed: '组件移除失败。', pendingRestart: '主机重启后会完成移除。',
+  },
+
+  sparxie: {
+    bring: '请自行取得 Sparxie 的安装包，然后在这里选择它。',
+    issues: { os: '需要 Windows 10 2004 或更新版本（x64）', disk: '可用空间不足', webview2: '未安装', vcruntime: '未安装', admin: '需要管理员权限', quarantine: '有文件缺失，可能被杀毒软件隔离' },
+    fromFile: '从文件安装', update: '更新', open: '打开 Sparxie', openFailed: '无法打开 Sparxie。', alreadyOpen: 'Sparxie 已经打开。',
+    noticeTitle: '安装之前', noticeYes: '继续',
+    unverifiedTitle: '未经验证的版本', unverified: '这个安装包不是已记录的版本。仍要安装吗？', unverifiedYes: '安装',
+    removeTitle: '要卸载 Sparxie 吗？', removeText: '程序文件会被移除。可以选择保留 config.json。', removeKeep: '保留配置', removeDelete: '同时删除配置',
+    done: 'Sparxie 已安装。', failed: 'Sparxie 未能安装。', removed: 'Sparxie 已卸载。',
+    errors: { sparxie_running: '请先关闭 Sparxie。', os_too_old: '需要 Windows 10 2004 或更新版本（x64）。', webview2_missing: '请先安装 WebView2 运行时。', vcruntime_missing: '请先安装 Visual C++ x64 运行库。', no_admin: '安装位置不可写，请以管理员身份运行控制面板。', disk_full: '可用空间不足。', quarantined: '安装后有文件缺失，可能被杀毒软件隔离。', bad_zip: '安装包无法读取，或不是 Sparxie 的安装包。', zip_slip: '安装包含有不安全的路径，已被拒绝。', not_found: '找不到所选文件。', busy: '另一个安装仍在进行。', not_writable: '无法创建安装位置。', write_failed: '无法移除程序文件。' },
+    stages: { dependencies: '正在检查依赖', verify: '正在校验', extract: '正在解压', probe: '正在检查文件', done: '完成' },
+  },
+  hints: { update: '有可用更新' },
+}
+const deep = (a, b) => { const o = { ...a }; for (const k of Object.keys(b || {})) o[k] = b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) ? deep(a[k] || {}, b[k]) : b[k]; return o }
+export const statusTexts = (locale = 'en', overrides = null) => { const base = /^zh/i.test(String(locale)) ? deep(EN, ZH) : EN; return overrides ? deep(base, overrides) : base }

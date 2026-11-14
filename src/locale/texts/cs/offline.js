@@ -1,0 +1,33 @@
+export default {
+  "pageTitle": "Sunshine neodpovídá",
+  "title": "Sunshine neodpovídá",
+  "line": "Sunshine neběží nebo neodpovídá na požadavky.",
+  "tipsTitle": "Co zkontrolovat:",
+  "tips": {
+    "0": "Běží služba Sunshine?",
+    "1": "Je port 47990 volný a neblokovaný?",
+    "2": "Neblokuje firewall Sunshine?"
+  },
+  "retry": "Zkusit znovu",
+  "footer": "Tato stránka se sama vrátí, až Sunshine odpoví.",
+  "probing": "Sonda {n}: hledám Sunshine...",
+  "failed": "Sonda {n} selhala, další pokus za {s} s...",
+  "awake": "Sunshine je zpět. Vracím se…",
+  "restart": "Restartovat Sunshine",
+  "userMode": "Spustit v uživatelském režimu",
+  "viewLog": "Zobrazit protokol",
+  "runDoctor": "Spustit kontrolu zdraví",
+  "retryIn": "Zkusit znovu za {s} s",
+  "attemptFailed": "Sonda {n} selhala",
+  "restarting": "Restartuji Sunshine...",
+  "restartFailed": "Restart nefungoval: {message}",
+  "restartTimeout": "Sunshine ani po restartu neodpovídá",
+  "troubleshooting": "Řešení problémů",
+  "proxyTitle": "Webový panel Sunshine nebyl dostupný",
+  "proxyLine": "Proxy nebo služba TUN může zachycovat provoz na localhost, 127.0.0.0/8 nebo IPv6 loopback. Vynechte loopback z proxy a zkuste to znovu.",
+  "proxyChecking": "Kontroluji znovu… pokus {n}",
+  "proxyWaiting": "Zkusíme to brzy znovu",
+  "proxyAttempts": "Zkontrolováno {n}krát; obnoví se samo, až odpoví",
+  "unresponsiveTitle": "Hostitel neodpovídá",
+  "unresponsiveLine": "Proces Sunshine stále běží, ale neodpovídá na požadavky. Většinou to přejde; pokud ne, restartujte Sunshine."
+}

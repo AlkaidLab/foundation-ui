@@ -1,0 +1,146 @@
+import { textTable } from '../locale/texts/index.js'
+// The words of the reachability screens (the 远程访问 card of 主机设置 › 网络, the first-run step, the home tile). Chinese and English; any other language reads English.
+// A verdict word never says more than the host said: "verified" only where the host says verified.
+
+const EN = {
+  title: 'Remote access', recheck: 'Check again', checking: 'Checking…', checkedAt: 'Checked {time}', notChecked: 'Not checked yet',
+  unavailable: 'This host cannot check reachability yet.', unavailableText: 'This host is an older version without this check. Update the host to get it. Remote access still works if you set it up with the tutorial below.', failed: 'The check could not run.',
+  failure: { why: { offline: 'The host did not answer: it may be restarting or have stopped.', server: 'The host failed while checking (HTTP {code}).', auth: 'The host refused the request (HTTP {code}). Sign in again and retry.', 'bad-answer': 'The host did not give a check result.', other: 'The host responded with HTTP status {code}.' }, next: 'Press “Check again”. If it keeps failing, restart the host.' },
+  paths: { public: 'Internet', mesh: 'Mesh network' },
+  verdicts: { verified: 'Verified', likely: 'Likely', unknown: 'Not known', unreachable: 'Not reachable', none: 'No mesh found' },
+  headline: {
+    public: {
+      verified: 'A client has connected from the internet, or this computer reached itself through your public address. It works.',
+      likely: 'The settings look right, but nothing has connected from outside yet. It is not verified.',
+      unknown: 'This computer cannot tell whether the internet can reach it.',
+      unreachable: 'The internet cannot reach this computer.',
+    },
+    mesh: {
+      verified: 'A client has connected through the mesh network. It works.',
+      likely: 'The mesh network is up and this computer listens on it, but nothing has connected through it yet. It is not verified.',
+      unknown: 'This computer cannot tell whether the mesh network works.',
+      none: 'No mesh network adapter was found (Tailscale, ZeroTier, EasyTier, WireGuard).',
+    },
+  },
+  evidence: { 'client-connected-from-public': 'Last connected from the internet', 'client-connected-from-mesh': 'Last connected over the mesh', hairpin: 'This computer reached its own certificate through the public address' },
+  reasons: {
+    cgnat: 'Your provider shares one public address between many homes (CGNAT). The internet cannot reach you directly.',
+    private_wan: 'The router\'s outside address is a private one: there is another router or a provider NAT in front of it.',
+    no_wan_ip: 'The router did not report an outside address.',
+    not_listening_on_mesh: 'Nothing listens on {proto} {port} over the mesh address.',
+    mesh_adapter_down: 'A mesh network is installed but it is not connected.',
+    no_mesh_adapter: 'No mesh network is installed on this computer.',
+    session_evidence: 'A client connected from this kind of address recently.',
+    hairpin_verified: 'This computer reached its own certificate through the public address.',
+    host_public_ip: 'This computer holds a public address itself.',
+    mappings_complete: 'The router forwards every port that is needed.',
+    mesh_adapter_up: 'The mesh network is connected and the ports listen on it.',
+    hairpin_not_tried: 'There was no public address to test through.',
+    firewall_unknown: 'This system cannot tell whether the firewall lets the ports through.',
+    address_mismatch: 'The public address you set is not the router\'s outside address, so clients that use it reach somewhere else.',
+    address_private: 'The public address you set is a private one: the internet cannot reach it.',
+    dns_failed: 'The name you set does not resolve. Check the DDNS record.',
+    unset: 'No public address is set: clients use the address the host finds by itself.',
+    no_igd: 'The router did not answer UPnP (it is off or not supported).',
+    mapping_missing: 'The router has no port mapping for {proto} {port}.',
+    firewall_blocked: 'The firewall blocks {proto} {port}.',
+    not_listening: 'Nothing listens on {proto} {port}.',
+    hairpin_unsupported: 'The router does not loop connections back, so this computer cannot test itself. Try once from outside, on mobile data.',
+    origin_blocks_mesh: 'The Web UI is open to the local network only, and the mesh addresses (100.64.0.0/10) count as outside, so the Web UI does not open over the mesh.',
+  },
+  unknownReason: 'Another reason',
+  actions: { upnp: 'Turn on UPnP', forward: 'Forward the ports by hand', firewall: 'Add a firewall rule', restart: 'Restart the host', origin: 'Change who may open the Web UI', mesh: 'Use a mesh network instead', address: 'Set the public address', 'use-wan': 'Use the router\'s outside address', outside: 'How to test from outside' },
+  addressPublic: 'Address to enter in the client', addressMesh: 'Mesh address to enter in the client', copy: 'Copy', copied: 'Copied', noAddress: 'No address is known yet.',
+  adapters: 'Mesh adapters', up: 'up', down: 'down',
+  meshKinds: { tailscale: 'Tailscale', zerotier: 'ZeroTier', easytier: 'EasyTier', wireguard: 'WireGuard', other: 'Other' },
+  ports: 'Ports', portsHint: 'Base port {base}', colProto: 'Protocol', colPort: 'Port', colRole: 'Role', colListen: 'Listening', colFirewall: 'Firewall',
+  yes: 'Yes', no: 'No', firewall: { allowed: 'Allowed', blocked: 'Blocked', unknown: 'Unknown' },
+  fixFirewall: 'Run this as administrator to open the blocked ports:', fixFirewallLinux: 'Run this to open the blocked ports:',
+  fixOutside: 'Switch a phone to mobile data (not your Wi-Fi), open the client and add this computer by the address above.',
+  address: { title: 'Public endpoints', fieldLabel: 'Endpoint', placeholder: 'home.example.net:57989', add: 'Add endpoint', remove: 'Remove', save: 'Save', check: 'Check', saving: 'Saving…', saved: 'Saved', count: '{n} / {max}', resolved: 'Resolves to', matches: 'Router\'s outside address', differs: 'Not the router\'s outside address', errors: { scheme: 'Remove the http:// prefix.', format: 'Only host or host:port.', host: 'Not an IP address or a host name.', port: 'Port: 6 to 65535.', private: 'Private address: the internet cannot reach it.', duplicate: 'Already in the list.' }, failed: 'Could not save it.' },
+  roles: { http: { name: 'HTTP', note: 'Client address' }, https: { name: 'HTTPS', note: 'Pairing' }, web: { name: 'Web UI', note: '' }, rtsp: { name: 'RTSP', note: '' }, video: { name: 'Video', note: '' }, control: { name: 'Control', note: '' }, audio: { name: 'Audio', note: '' }, microphone: { name: 'Microphone', note: '' } },
+  portState: { listening: 'Listening', 'on-session': 'Opens with a session', closed: 'Closed', unknown: '—' }, colInternal: 'Internal port',
+  endpoint: { reached: 'Reached', https: 'HTTPS {port}', errors: { dns_failed: 'Does not resolve', refused: 'Port refused', timeout: 'No answer', unreachable: 'No route', tls_failed: 'Not a TLS server', identity_mismatch: 'Another device answered', not_tried: 'Not tested', failed: 'Failed' }, scopes: { public: 'Internet', lan: 'LAN', mesh: 'Mesh', loopback: 'This computer', unknown: '' }, none: 'No endpoint set', list: 'Endpoints' },
+  addressKinds: { ip: 'IP address', hostname: 'Host name', empty: 'Not set' },
+  lan: { title: 'LAN', verdicts: { listening: 'Listening', pending: 'After a restart', unknown: 'Not known', loading: 'Reading…' }, port: 'port {port}', mdnsOn: 'LAN discovery on', mdnsOff: 'LAN discovery off', allAddresses: 'all adapters', failed: 'The listening addresses could not be read.', pending: 'The saved listener settings differ from the ones in use: they apply after the host restarts.', address: 'Address to enter on the local network' },
+  overview: { label: 'Connection paths', copyLabel: 'Copy {address}', details: 'Ports and firewall' },
+  sheet: { add: 'Add a public endpoint', edit: 'Edit the public endpoint', cancel: 'Cancel', checking: 'Checking…', unchecked: 'Not checked yet', full: 'At most {max} endpoints.' },
+  tutorial: 'Remote access tutorials', tile: 'Remote access', tileEmpty: 'Not checked',
+}
+
+const ZH = {
+  title: '远程访问', recheck: '重新检测', checking: '检测中…', checkedAt: '{time} 检测', notChecked: '还没有检测',
+  unavailable: '这台主机还不能检测可达性。', unavailableText: '这台主机的版本较旧，还没有这项检测，更新主机后就有。照下面的教程设置好，远程访问仍然可用。', failed: '没能运行检测。',
+  failure: { why: { offline: '主机没有应答：它可能正在重启，或已经退出。', server: '主机在检测时出错了（HTTP {code}）。', auth: '主机拒绝了这次请求（HTTP {code}），请重新登录后再试。', 'bad-answer': '主机没有给出检测结果。', other: '主机返回了 HTTP 状态码 {code}。' }, next: '点“重新检测”再试一次；一直失败，请重启主机。' },
+  paths: { public: '公网', mesh: '组网' },
+  verdicts: { verified: '已验证', likely: '很可能可连', unknown: '无法确定', unreachable: '连不上', none: '没有组网' },
+  headline: {
+    public: {
+      verified: '有客户端从公网连上过，或这台电脑经公网地址连到了自己。可用。',
+      likely: '设置看起来没问题，但还没有从外面连上过，所以不算已验证。',
+      unknown: '这台电脑无法判断公网能否连到它。',
+      unreachable: '公网连不到这台电脑。',
+    },
+    mesh: {
+      verified: '有客户端通过组网连上过。可用。',
+      likely: '组网已连通，这台电脑也在组网上监听，但还没有通过组网连上过，所以不算已验证。',
+      unknown: '这台电脑无法判断组网是否可用。',
+      none: '没有发现组网网卡（Tailscale、ZeroTier、EasyTier、WireGuard）。',
+    },
+  },
+  evidence: { 'client-connected-from-public': '最近一次从公网连接成功', 'client-connected-from-mesh': '最近一次通过组网连接成功', hairpin: '本机经公网地址连到了自己的证书（回环测试通过）' },
+  reasons: {
+    cgnat: '运营商让很多户共用一个公网地址（CGNAT），互联网无法直接连到你。',
+    private_wan: '路由器的外网地址是内网地址：前面还有一层路由器或运营商 NAT。',
+    no_wan_ip: '路由器没有报告外网地址。',
+    not_listening_on_mesh: '组网地址上没有程序在监听 {proto} {port}。',
+    mesh_adapter_down: '装了组网，但它没有连接。',
+    no_mesh_adapter: '这台电脑上没有安装组网。',
+    session_evidence: '最近有客户端从这类地址连上过。',
+    hairpin_verified: '这台电脑经公网地址连到了自己的证书。',
+    host_public_ip: '这台电脑自己就持有一个公网地址。',
+    mappings_complete: '路由器已转发所有需要的端口。',
+    mesh_adapter_up: '组网已连接，端口也在组网上监听。',
+    hairpin_not_tried: '没有可用来测试的公网地址。',
+    firewall_unknown: '这个系统无法判断防火墙有没有放行端口。',
+    address_mismatch: '你填的公网地址不是路由器的外网地址，用它的客户端会连到别处。',
+    address_private: '你填的公网地址是内网地址，互联网连不到。',
+    dns_failed: '你填的域名解析不出来，请检查 DDNS 记录。',
+    unset: '没有设置公网地址：客户端使用主机自己发现的地址。',
+    no_igd: '路由器没有回应 UPnP（没开启，或不支持）。',
+    mapping_missing: '路由器上缺少 {proto} {port} 的端口映射。',
+    firewall_blocked: '防火墙挡住了 {proto} {port}。',
+    not_listening: '没有程序在监听 {proto} {port}。',
+    hairpin_unsupported: '路由器不支持回环，这台电脑无法自行测试。请改用手机流量从外部测试一次。',
+    origin_blocks_mesh: 'Web 管理页只对局域网开放，而组网地址（100.64.0.0/10）被算作外网，所以通过组网打不开管理页。',
+  },
+  unknownReason: '其他原因',
+  actions: { upnp: '开启 UPnP', forward: '手动转发端口', firewall: '添加防火墙规则', restart: '重启主机', origin: '调整 Web UI 访问来源', mesh: '改用组网', address: '设置公网地址', 'use-wan': '改用路由器的外网地址', outside: '怎么从外面测试' },
+  addressPublic: '在客户端里填写的地址', addressMesh: '在客户端里填写的组网地址', copy: '复制', copied: '已复制', noAddress: '还不知道地址。',
+  adapters: '组网网卡', up: '已连接', down: '未连接',
+  meshKinds: { tailscale: 'Tailscale', zerotier: 'ZeroTier', easytier: 'EasyTier', wireguard: 'WireGuard', other: '其他' },
+  ports: '端口表', portsHint: '基础端口 {base}', colProto: '协议', colPort: '端口', colRole: '用途', colListen: '监听', colFirewall: '防火墙',
+  yes: '是', no: '否', firewall: { allowed: '已放行', blocked: '已拦截', unknown: '未知' },
+  fixFirewall: '用管理员身份运行下面的命令，放行被拦截的端口：', fixFirewallLinux: '运行下面的命令，放行被拦截的端口：',
+  fixOutside: '把手机切到移动数据（不要用 Wi-Fi），打开客户端，用上面的地址添加这台电脑。',
+  address: { title: '公网地址', fieldLabel: '地址', placeholder: 'home.example.net:57989', add: '添加地址', remove: '删除', save: '保存', check: '检测', saving: '正在保存…', saved: '已保存', count: '{n} / {max}', resolved: '解析为', matches: '路由器的外网地址', differs: '不是路由器的外网地址', errors: { scheme: '去掉 http:// 前缀。', format: '只填 主机 或 主机:端口。', host: '不是 IP 地址或域名。', port: '端口范围 6 到 65535。', private: '内网地址，互联网连不到。', duplicate: '已在列表中。' }, failed: '没能保存。' },
+  roles: { http: { name: 'HTTP', note: '客户端地址' }, https: { name: 'HTTPS', note: '配对' }, web: { name: 'Web UI', note: '' }, rtsp: { name: 'RTSP', note: '' }, video: { name: '视频', note: '' }, control: { name: '控制', note: '' }, audio: { name: '音频', note: '' }, microphone: { name: '麦克风', note: '' } },
+  portState: { listening: '监听中', 'on-session': '串流时开启', closed: '未监听', unknown: '—' }, colInternal: '本机端口',
+  endpoint: { reached: '已连通', https: 'HTTPS {port}', errors: { dns_failed: '域名无法解析', refused: '端口拒绝连接', timeout: '无应答', unreachable: '没有路由', tls_failed: '不是 TLS 服务', identity_mismatch: '另一台设备应答', not_tried: '未检测', failed: '失败' }, scopes: { public: '公网', lan: '局域网', mesh: '组网', loopback: '本机', unknown: '' }, none: '未设置地址', list: '地址' },
+  addressKinds: { ip: 'IP 地址', hostname: '域名', empty: '未设置' },
+  lan: { title: '局域网', verdicts: { listening: '在监听', pending: '重启后生效', unknown: '无法确定', loading: '读取中…' }, port: '端口 {port}', mdnsOn: '局域网发现 开', mdnsOff: '局域网发现 关', allAddresses: '所有网卡', failed: '没能读取监听地址。', pending: '保存的监听设置和正在用的不同，重启主机后生效。', address: '在局域网内填写的地址' },
+  overview: { label: '连接方式', copyLabel: '复制 {address}', details: '端口与防火墙' },
+  sheet: { add: '添加公网地址', edit: '编辑公网地址', cancel: '取消', checking: '检测中…', unchecked: '还没有检测', full: '最多 {max} 个地址。' },
+  tutorial: '远程访问教程', tile: '远程访问', tileEmpty: '尚未检测',
+}
+
+/** Why the check could not run, in words: { title, why, next } for a failure of `failureOf(view)`; the old host gets its own sentence (`unavailable`, with the HTTP code it answered). */
+export function failureWords(failure, locale = 'en') {
+  const T = reachTexts(locale)
+  const code = failure?.http ? String(failure.http) : ''
+  if (failure?.kind === 'old-host') return { title: T.unavailable, why: T.unavailableText.replace('{code}', code || '404'), next: '' }
+  const why = T.failure.why[failure?.reason] || T.failure.why.other
+  return { title: T.failed, why: why.replace('{code}', code), next: T.failure.next }
+}
+
+export const reachTexts = (locale) => textTable('reach', locale, EN, ZH)

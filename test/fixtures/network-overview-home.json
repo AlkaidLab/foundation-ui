@@ -1,0 +1,273 @@
+{
+  "version": 1,
+  "checked_at": "2026-11-04T09:30:00Z",
+  "reachability_checked_at": "2026-11-04T09:30:00Z",
+  "stun_enabled": true,
+  "interfaces": [
+    {
+      "name": "Ethernet",
+      "description": "Intel(R) Ethernet Controller I225-V",
+      "up": true,
+      "egress": true,
+      "virtual": false,
+      "mesh": "none",
+      "addresses": [
+        {
+          "address": "192.168.1.20",
+          "family": "ipv4",
+          "prefix_length": 24,
+          "scope": "private"
+        },
+        {
+          "address": "2408:8207:1:2::abcd",
+          "family": "ipv6",
+          "prefix_length": 64,
+          "scope": "global",
+          "lifetime": "stable",
+          "deprecated": false
+        },
+        {
+          "address": "2408:8207:1:2:a1b2:c3d4:e5f6:789",
+          "family": "ipv6",
+          "prefix_length": 64,
+          "scope": "global",
+          "lifetime": "temporary",
+          "deprecated": false
+        },
+        {
+          "address": "fe80::1",
+          "family": "ipv6",
+          "prefix_length": 64,
+          "scope": "link-local",
+          "lifetime": "stable",
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "name": "Tailscale",
+      "description": "Tailscale Tunnel",
+      "up": true,
+      "egress": false,
+      "virtual": false,
+      "mesh": "tailscale",
+      "addresses": [
+        {
+          "address": "100.72.0.84",
+          "family": "ipv4",
+          "prefix_length": 32,
+          "scope": "shared"
+        }
+      ]
+    },
+    {
+      "name": "vEthernet (Default Switch)",
+      "description": "Hyper-V Virtual Ethernet Adapter",
+      "up": true,
+      "egress": false,
+      "virtual": true,
+      "mesh": "none",
+      "addresses": [
+        {
+          "address": "172.27.0.1",
+          "family": "ipv4",
+          "prefix_length": 20,
+          "scope": "private"
+        }
+      ]
+    }
+  ],
+  "ipv4": {
+    "stun": true,
+    "local_address": "192.168.1.20",
+    "public_address": "198.51.100.88",
+    "source": "stun",
+    "on_interface": false,
+    "consistent": true,
+    "seen_addresses": [
+      "198.51.100.88"
+    ],
+    "notes": [],
+    "nat": {
+      "present": true,
+      "mapping": "address-and-port-dependent",
+      "method": "rfc5780",
+      "mapped_address_varies": false,
+      "filtering": "unknown",
+      "filtering_reason": "not_tested",
+      "reasons": [],
+      "tests": [
+        {
+          "test": "I",
+          "target": "111.206.174.3:3478",
+          "mapped": {
+            "address": "198.51.100.88",
+            "port": 40001
+          }
+        },
+        {
+          "test": "II",
+          "target": "111.206.174.2:3478",
+          "mapped": {
+            "address": "198.51.100.88",
+            "port": 40002
+          }
+        },
+        {
+          "test": "III",
+          "target": "111.206.174.2:3479",
+          "mapped": {
+            "address": "198.51.100.88",
+            "port": 40003
+          }
+        }
+      ]
+    },
+    "servers": [
+      {
+        "server": "stun.miwifi.com:3478",
+        "address": "111.206.174.3",
+        "answered": true,
+        "error": "",
+        "mapped": {
+          "address": "198.51.100.88",
+          "port": 40001
+        },
+        "other_address": {
+          "address": "111.206.174.2",
+          "port": 3479
+        },
+        "rtt_ms": 70
+      },
+      {
+        "server": "stun.l.google.com:19302",
+        "address": "74.125.250.129",
+        "answered": false,
+        "error": "timeout",
+        "mapped": null,
+        "other_address": null,
+        "rtt_ms": 0
+      }
+    ],
+    "stun_address": "198.51.100.88"
+  },
+  "ipv6": {
+    "stun": true,
+    "local_address": "2408:8207:1:2:a1b2:c3d4:e5f6:789",
+    "public_address": "2408:8207:1:2::abcd",
+    "source": "interface",
+    "on_interface": true,
+    "consistent": true,
+    "seen_addresses": [
+      "2408:8207:1:2:a1b2:c3d4:e5f6:789"
+    ],
+    "notes": [],
+    "nat": {
+      "present": false,
+      "mapping": "endpoint-independent",
+      "method": "none",
+      "mapped_address_varies": false,
+      "filtering": "unknown",
+      "filtering_reason": "not_tested",
+      "reasons": [
+        "not_natted"
+      ],
+      "tests": []
+    },
+    "servers": [
+      {
+        "server": "stun.hitv.com:3478",
+        "address": "240e:c2:1800:16:4000::15",
+        "answered": true,
+        "error": "",
+        "mapped": {
+          "address": "2408:8207:1:2:a1b2:c3d4:e5f6:789",
+          "port": 50000
+        },
+        "other_address": null,
+        "rtt_ms": 40
+      }
+    ],
+    "stun_address": "2408:8207:1:2:a1b2:c3d4:e5f6:789"
+  },
+  "cgnat": {
+    "state": "unknown",
+    "reasons": [
+      "stun_differs_from_wan"
+    ]
+  },
+  "upstream_nat": {
+    "state": "yes",
+    "reasons": [
+      "stun_differs_from_wan"
+    ]
+  },
+  "upnp": {
+    "protocol": "upnp-igd",
+    "available": true,
+    "wan_ip": "203.0.113.56",
+    "wan_ip_class": "public",
+    "mappings": [
+      {
+        "proto": "tcp",
+        "port": 47984,
+        "present": true,
+        "internal": "192.168.1.20"
+      },
+      {
+        "proto": "tcp",
+        "port": 47989,
+        "present": true,
+        "internal": "192.168.1.20"
+      },
+      {
+        "proto": "udp",
+        "port": 47998,
+        "present": false,
+        "internal": ""
+      }
+    ]
+  },
+  "hairpin": {
+    "tried": true,
+    "ok": true,
+    "identity_match": true,
+    "target": "203.0.113.56"
+  },
+  "firewall": {
+    "state": "blocked",
+    "blocked": [
+      "udp/47998"
+    ],
+    "ports": []
+  },
+  "reachability": {
+    "ipv4": {
+      "verdict": "unknown",
+      "reasons": [
+        "hairpin_verified",
+        "upstream_nat"
+      ]
+    },
+    "ipv6": {
+      "verdict": "unknown",
+      "reasons": [
+        "ipv6_stable_global",
+        "ipv6_inbound_filter_unknown"
+      ]
+    },
+    "check_verdict": "verified"
+  },
+  "stun": {
+    "enabled": true,
+    "region": "china",
+    "contacted": [
+      "stun.miwifi.com:3478",
+      "stun.chat.bilibili.com:3478",
+      "stun.douyucdn.cn:18000",
+      "stun.hitv.com:3478",
+      "stun.cloudflare.com:3478"
+    ],
+    "cache_seconds": 600
+  }
+}

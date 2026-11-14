@@ -1,0 +1,31 @@
+html { font-synthesis: none; }
+/* Base: page ground, text, focus, motion preferences. Everything reads the tokens, nothing is hard-coded. */
+.m-app, .m-root {
+  color: var(--md-sys-color-on-surface);
+  font: var(--m-body-large);
+  background: var(--m-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+}
+.m-app *, .m-app *::before, .m-app *::after { box-sizing: border-box; }
+/* The Material 3 focus indicator: 3 dp, 2 dp from the element, secondary, following the element's own corners (never a corner of its own), and for the keyboard only
+   (src/a11y/modality.js): a dialog that focuses its first button as it opens, or a click, leaves no frame. */
+.m-app :focus-visible, dialog.m-dialog :focus-visible { outline: 3px solid var(--md-sys-color-secondary); outline-offset: 2px; }
+html:not([data-modality='keyboard']) :focus-visible { outline-color: transparent !important; }
+:where(.m-app) button { font: inherit; color: inherit; }
+:where(.m-app) a { color: var(--md-sys-color-primary-text); }
+.m-mono { font-family: var(--m-font-mono); font-size: 0.9em; }
+.m-muted { color: var(--md-sys-color-on-surface-variant); }
+.m-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.m-icon { width: 1em; height: 1em; fill: currentColor; flex: none; display: inline-block; vertical-align: middle; }
+
+/* Wallpaper: an optional picture under a scrim made of the surface colour, so text contrast comes from the theme, not the picture. */
+.m-wallpaper { position: fixed; inset: 0; z-index: -2; background: center / cover no-repeat var(--m-wallpaper, none); }
+.m-wallpaper::after { content: ''; position: absolute; inset: 0; background: color-mix(in srgb, var(--md-sys-color-surface) 80%, transparent); backdrop-filter: blur(28px) saturate(1.3); }
+
+/* motion under reduced motion: see motion.css */
+
+/* No drag ghost with an address: a link, an image or a graphic starts a drag only when it says draggable="true" (tile and cover rearranging). Without this rule the
+   image of a draggable cover is the drag source and the ghost carries its URL; with it the tile around the image drags. */
+:where(a, img, svg, canvas, video, picture):not([draggable="true"]) { -webkit-user-drag: none; user-drag: none; }

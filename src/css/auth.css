@@ -1,0 +1,67 @@
+/* The sign-in page (MLoginPage) and the small extras of 安全与登录 (MSecurityLogin). */
+.m-sec__wait { display: grid; place-items: center; min-height: 200px; }
+.m-sec__cta { margin-top: 12px; display: flex; justify-content: flex-end; }
+
+/* The sign-in page after Google's Material 3 sign-in page, at its breakpoints (measured on its pages at 360 to 2560 px wide):
+     under 600:   no card, the page itself is the sheet (24 px margins), the footer at the bottom of the screen; the text button at the left, the filled button at the right;
+     600 to 899:  one column in a card 480 wide with 28 px corners, the card and the footer under it centred in the window;
+     900 and up:  two panes in a card 840 to 1040 wide (the window less 400, 840 at the least): the product mark, the big title and one line at the left, the form at the right, the
+                  buttons at the bottom right (the text button, then the filled one); 36 px padding, 48 px between the panes.
+   The language and the small links sit under the card, outside it, 16 px in from its edges. The page behind is the app's own backdrop (the wallpaper, or the tonal one), see appearance/boot.js. */
+/* The page owns the whole window: the browser's 8 px body margin would show the wallpaper as a strip at the left, right and top of the sheet. viewport-fit=cover (login.html) lets the page run
+   under the notch, the rounded corners and the home bar, and every edge that carries content keeps its safe-area inset. */
+html:has(.m-login), html:has(.m-login) body { margin: 0; padding: 0; }
+.m-login { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); background: transparent; color: var(--md-sys-color-on-surface); box-sizing: border-box; }
+/* The card is neutral, like Google's: pure white in light, a neutral dark surface in dark (a little lighter than black on the 纯黑 page), the text and the outlines in neutral greys.
+   The page around it (the wallpaper, or the tonal backdrop) and every accent (the filled button, the links, the focused field, the ticked boxes) take the seed colours. */
+.m-login { --m-lg-card: #fff; --m-lg-on: #1f1f1f; --m-lg-on-var: #444746; --m-lg-outline: #747775; --m-lg-shadow: 0 1px 3px rgba(0, 0, 0, .14); }
+html[data-bs-theme='dark'] .m-login { --m-lg-card: #0e0e0e; --m-lg-on: #e3e3e3; --m-lg-on-var: #c4c7c5; --m-lg-outline: #8e918f; --m-lg-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+html[data-bs-theme='dark'][data-dark='black'] .m-login { --m-lg-card: #0a0a0a; --m-lg-shadow: 0 0 0 1px rgba(255, 255, 255, .08); }
+.m-login__card .m-field { --md-outlined-text-field-outline-color: var(--m-lg-outline); --md-outlined-text-field-hover-outline-color: var(--m-lg-on); --md-outlined-text-field-focus-outline-color: var(--md-sys-color-primary); --md-outlined-text-field-label-text-color: var(--m-lg-on-var); --md-outlined-text-field-hover-label-text-color: var(--m-lg-on-var); --md-outlined-text-field-focus-label-text-color: var(--md-sys-color-primary); --md-outlined-text-field-input-text-color: var(--m-lg-on); --md-outlined-text-field-hover-input-text-color: var(--m-lg-on); --md-outlined-text-field-focus-input-text-color: var(--m-lg-on); --md-outlined-text-field-supporting-text-color: var(--m-lg-on-var); }
+.m-login__card md-checkbox { --md-checkbox-outline-color: var(--m-lg-outline); --md-checkbox-hover-outline-color: var(--m-lg-on); --md-checkbox-focus-outline-color: var(--m-lg-on); }
+.m-login__card, .m-login__foot { width: min(480px, 100%); box-sizing: border-box; }
+.m-login__card { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 28px; padding: 36px; border-radius: 28px; background: var(--m-lg-card); color: var(--m-lg-on); box-shadow: var(--m-lg-shadow); }
+.m-login__aside { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.m-login__brand { align-self: flex-start; } .m-login__brand .m-brand__name { display: none; } .m-login__brand .m-brand__icon { width: 40px; height: 40px; }
+.m-login__title { margin: 12px 0 0; font: var(--m-display-small, 400 36px/44px var(--md-ref-typeface-brand)); color: var(--m-lg-on); }
+.m-login__lead { margin: 0; font: var(--m-body-large); color: var(--m-lg-on); }
+.m-login__wait { display: grid; place-items: center; min-height: 220px; }
+.m-login__form { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.m-login__fields { display: flex; flex-direction: column; gap: 20px; }
+.m-login__checks { display: flex; flex-direction: column; gap: 12px; }
+.m-login__check { display: flex; align-items: flex-start; gap: 14px; cursor: pointer; font: var(--m-body-large); color: var(--m-lg-on); }
+.m-login__check md-checkbox { flex: none; margin: 3px 0 0 0; }
+.m-login__checktext { display: flex; flex-direction: column; padding-top: 0; } .m-login__checktext small { font: var(--m-body-medium); color: var(--m-lg-on-var); }
+.m-login__actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; }
+.m-login__forgot { margin-left: -12px; padding: 10px 12px; border: 0; background: transparent; cursor: pointer; border-radius: 20px; font: var(--m-label-large); color: var(--md-sys-color-primary-text); text-decoration: none; }
+.m-login__hint { margin: 0; padding: 12px 16px; border-radius: 16px; background: color-mix(in srgb, var(--m-lg-on) 6%, transparent); color: var(--m-lg-on); font: var(--m-body-medium); }
+.m-login__forgot:hover { background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent); } .m-login__forgot:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-login__submit { min-width: 90px; justify-content: center; margin-left: auto; }
+.m-login__foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 40px; padding-inline: 16px; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); }
+.m-login__lang select { border: 0; border-radius: 16px; padding: 6px 4px; background: transparent; color: inherit; font: inherit; cursor: pointer; } .m-login__lang select:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-login__lang select option { color: var(--md-sys-color-on-surface); background: var(--md-sys-color-surface-container-high); }
+.m-login__links { display: flex; gap: 4px; margin-left: auto; } .m-login__links a { padding: 6px 10px; border-radius: 16px; color: inherit; text-decoration: none; } .m-login__links a:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); text-decoration: underline; }
+.m-login__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (min-width: 900px) {
+  .m-login__card, .m-login__foot { width: clamp(840px, calc(100vw - 400px), 1040px); }
+  .m-login__card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; min-height: 403px; }
+  .m-login__form { padding-top: 80px; }
+  .m-login__actions { justify-content: flex-end; margin-top: auto; }
+  .m-login__forgot { margin-left: 0; margin-right: 28px; }
+  .m-login__submit { margin-left: 0; }
+}
+@media (max-width: 599.98px) {
+  .m-login { justify-content: space-between; padding: 0; gap: 0; }
+  .m-login__card { width: 100%; flex: 1; border-radius: 0; padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) 8px max(24px, env(safe-area-inset-left)); box-shadow: none; }
+  .m-login__foot { width: 100%; padding: 8px max(24px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); background: var(--m-lg-card); color: var(--m-lg-on-var); }
+}
+/* A phone held sideways (up to 520 px high) has no room for a card with the wallpaper around it: the sheet again, edge to edge, in two panes (the words at the left, the form at the right). */
+@media (max-height: 520px) and (orientation: landscape) and (min-width: 600px) and (max-width: 1100px) {
+  .m-login { justify-content: space-between; padding: 0; gap: 0; }
+  .m-login__card { width: 100%; flex: 1; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 32px; min-height: 0; border-radius: 0; padding: max(20px, env(safe-area-inset-top)) max(32px, env(safe-area-inset-right)) 8px max(32px, env(safe-area-inset-left)); box-shadow: none; }
+  .m-login__form { padding-top: 0; }
+  .m-login__actions { justify-content: flex-end; margin-top: 8px; }
+  .m-login__forgot { margin-left: 0; margin-right: 20px; }
+  .m-login__submit { margin-left: 0; }
+  .m-login__foot { width: 100%; padding: 4px max(32px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(32px, env(safe-area-inset-left)); background: var(--m-lg-card); color: var(--m-lg-on-var); }
+}

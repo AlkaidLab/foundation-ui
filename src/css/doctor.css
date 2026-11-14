@@ -1,0 +1,101 @@
+/* 体检: a hero card (the shape, the state in words, the one action), what is checked or the groups with their results, one row per check.
+   Everything starts at the left edge of the page column. Status colours come from the theme (success/warning/error), so light, dark and
+   纯黑 follow the palette; the skip state is the muted text colour. */
+.m-doctor__hero { gap: 24px; padding: 28px 32px; min-height: 176px; }
+.m-doctor__hero .m-hero__shape { width: 96px; height: 96px; font-size: 44px; }
+.m-doctor__hero .m-hero__title { font: var(--m-headline-medium-emphasized, var(--m-headline-small-emphasized)); overflow-wrap: anywhere; }
+.m-doctor__hero .m-hero__text { max-width: 62ch; overflow-wrap: anywhere; }
+.m-doctor__hero.is-warn { --m-hero-bg: var(--md-sys-color-warning-container, var(--md-sys-color-tertiary-container)); --m-hero-fg: var(--md-sys-color-on-warning-container, var(--md-sys-color-on-tertiary-container)); --m-hero-accent: var(--md-sys-color-warning, var(--md-sys-color-tertiary)); --m-hero-on-accent: var(--md-sys-color-on-warning, var(--md-sys-color-on-tertiary)); }
+.m-doctor__hero.is-fail { --m-hero-bg: var(--md-sys-color-error-container); --m-hero-fg: var(--md-sys-color-on-error-container); --m-hero-accent: var(--md-sys-color-error); --m-hero-on-accent: var(--md-sys-color-on-error); }
+.m-doctor__hero.is-success { --m-hero-bg: var(--md-sys-color-success-container, var(--md-sys-color-primary-container)); --m-hero-fg: var(--md-sys-color-on-success-container, var(--md-sys-color-on-primary-container)); --m-hero-accent: var(--md-sys-color-success, var(--md-sys-color-primary)); --m-hero-on-accent: var(--md-sys-color-on-success, var(--md-sys-color-on-primary)); }
+.m-doctor__bar { width: min(100%, 420px); margin-top: 12px; }
+.m-doctor__heroact { display: flex; flex-wrap: wrap; gap: 8px; align-self: flex-end; }
+.m-doctor__start { min-width: 200px; }
+.m-doctor__hero .m-hero__chips { align-items: center; }
+.m-doctor__offline { display: inline-flex; align-items: center; gap: 4px; font: var(--m-body-medium); }
+.m-doctor__offline .m-icon { font-size: 18px; }
+
+/* what is checked, by source: one tile per group; the last result of the group tints its icon */
+.m-doctor__plan { margin-top: 24px; }
+.m-doctor__phead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin: 0 4px 8px; }
+.m-doctor__phead h3 { margin: 0; font: var(--m-title-medium); }
+.m-doctor__phead p { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 8px; }
+.m-doctor__tile { position: relative; display: flex; align-items: flex-start; gap: 12px; min-width: 0; padding: 14px 16px; border-radius: 24px; background: var(--m-card); color: var(--md-sys-color-on-surface); }
+.m-doctor__ttext { flex: 1; min-width: 0; }
+.m-doctor__ttext h4 { margin: 0; font: var(--m-title-small); overflow-wrap: anywhere; }
+.m-doctor__ttext p { margin: 2px 0 0; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; }
+.m-doctor__tstat { flex: none; font: var(--m-label-small); color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__tile.is-warn .m-doctor__tstat { color: var(--md-sys-color-warning, var(--md-sys-color-tertiary)); }
+.m-doctor__tile.is-fail .m-doctor__tstat,
+.m-doctor__tile.is-error .m-doctor__tstat { color: var(--md-sys-color-error); }
+.m-doctor__tile.is-pass .m-doctor__tstat { color: var(--md-sys-color-success, var(--md-sys-color-primary)); }
+
+.m-doctor__group { margin-top: 8px; border-radius: 24px; background: var(--m-card); color: var(--md-sys-color-on-surface); overflow: hidden; }
+.m-doctor__ghead { display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 16px; min-width: 0; }
+.m-doctor__gicon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__gicon .m-icon { font-size: 22px; }
+.m-doctor__spin { width: 22px; height: 22px; }
+.m-doctor__group.is-pass .m-doctor__gicon,
+.m-doctor__tile.is-pass .m-doctor__gicon { background: var(--md-sys-color-success-container, var(--md-sys-color-primary-container)); color: var(--md-sys-color-on-success-container, var(--md-sys-color-on-primary-container)); }
+.m-doctor__group.is-warn .m-doctor__gicon,
+.m-doctor__tile.is-warn .m-doctor__gicon { background: var(--md-sys-color-warning-container, var(--md-sys-color-tertiary-container)); color: var(--md-sys-color-on-warning-container, var(--md-sys-color-on-tertiary-container)); }
+.m-doctor__group.is-fail .m-doctor__gicon,
+.m-doctor__group.is-error .m-doctor__gicon,
+.m-doctor__tile.is-fail .m-doctor__gicon,
+.m-doctor__tile.is-error .m-doctor__gicon { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-doctor__gtext { flex: 1; min-width: 0; }
+.m-doctor__gtext h3 { margin: 0; font: var(--m-title-small); overflow-wrap: anywhere; }
+.m-doctor__gtext p { margin: 2px 0 0; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; }
+.m-doctor__rerun, .m-doctor__fold { flex: none; }
+
+/* a group that gave no result: why, what came back, what to do */
+.m-doctor__fail { display: grid; gap: 8px; margin: 0 8px 8px; padding: 12px 16px 14px 60px; border-radius: 16px; background: var(--md-sys-color-surface-container-low, transparent); }
+.m-doctor__fail p { margin: 0; font: var(--m-body-medium); overflow-wrap: anywhere; }
+.m-doctor__fail b { display: block; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__fail code { display: block; padding: 6px 10px; border-radius: 10px; background: var(--md-sys-color-surface-container-highest); font: var(--m-body-small); font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.m-doctor__group.is-error .m-doctor__why { color: var(--md-sys-color-error); }
+.m-doctor__failact { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.m-doctor__items { list-style: none; margin: 0; padding: 0 8px 8px; display: grid; gap: 2px; }
+.m-doctor__item { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 6px 12px; padding: 10px 8px 10px 12px; border-radius: 16px; background: var(--md-sys-color-surface-container-low, transparent); min-width: 0; }
+.m-doctor__sicon { flex: none; font-size: 20px; margin-top: 1px; }
+.m-doctor__item.is-pass .m-doctor__sicon { color: var(--md-sys-color-success, var(--md-sys-color-primary)); }
+.m-doctor__item.is-warn .m-doctor__sicon { color: var(--md-sys-color-warning, var(--md-sys-color-tertiary)); }
+.m-doctor__item.is-fail .m-doctor__sicon { color: var(--md-sys-color-error); }
+.m-doctor__item.is-skip .m-doctor__sicon { color: var(--md-sys-color-outline); }
+.m-doctor__body { flex: 1 1 220px; min-width: 0; }
+.m-doctor__body p { margin: 0; overflow-wrap: anywhere; }
+.m-doctor__ititle { font: var(--m-body-large); }
+.m-doctor__detail { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__item.is-skip .m-doctor__ititle { color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__fix { margin-top: 4px !important; font: var(--m-body-medium); color: var(--md-sys-color-on-surface); }
+.m-doctor__item.is-fail .m-doctor__fix::before,
+.m-doctor__item.is-warn .m-doctor__fix::before { content: '→ '; color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__fixbtn { flex: none; align-self: center; margin-inline-start: auto; }
+
+/* where a group's checks come from: the panel itself or Sunshine */
+.m-doctor__src { display: inline-block; margin-inline-start: 8px; padding: 1px 8px; border-radius: 999px; font: var(--m-label-small); vertical-align: 2px; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
+.m-doctor__src.is-local { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-doctor__group.is-offline .m-doctor__gicon { background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-outline); }
+.m-doctor__outcome { margin-top: 4px !important; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__outcome.is-error { color: var(--md-sys-color-error); }
+.m-doctor__confirm p { margin: 0 0 10px; overflow-wrap: anywhere; }
+.m-doctor__will b { display: block; margin-bottom: 2px; font: var(--m-title-small); }
+.m-doctor__admin, .m-doctor__live { display: flex; align-items: flex-start; gap: 8px; }
+.m-doctor__admin .m-icon, .m-doctor__live .m-icon { flex: none; font-size: 18px; margin-top: 1px; }
+.m-doctor__live { padding: 8px 10px; border-radius: 12px; background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+
+/* narrow: the hero keeps its shape and stacks left-aligned; the action takes the full width */
+@media (max-width: 599.98px) {
+  .m-doctor__hero { padding: 22px 20px; min-height: 0; gap: 16px; }
+  .m-doctor__hero .m-hero__shape { width: 72px; height: 72px; font-size: 34px; }
+  .m-doctor__heroact { align-self: stretch; }
+  .m-doctor__start { flex: 1 1 100%; }
+  .m-doctor__fail { padding-inline-start: 16px; }
+}
+
+/* a check a live stream limits: not passed, not failed; the label and the reason sit under the title, left aligned with it */
+.m-doctor__limit { margin-top: 4px !important; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-doctor__limit b { display: block; font: var(--m-label-large); color: var(--md-sys-color-on-surface); }
+.m-doctor__item[data-limit] .m-doctor__sicon { color: var(--md-sys-color-on-surface-variant); }

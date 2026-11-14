@@ -1,0 +1,259 @@
+/* Settings kit: cards with a preview, chip sets, the expert row, list editor, path row, sheet picker.
+   Same tokens as the rest of the package: tonal surfaces, springs, shape morph, no hard-coded colours. */
+
+/* ----- MChoiceCards ----- */
+.m-cards { --m-cards-cols: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr)); }
+.m-cards[style*='--m-cards-cols'] { grid-template-columns: repeat(var(--m-cards-cols), minmax(0, 1fr)); }
+.m-cards__card {
+  all: unset; box-sizing: border-box; position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 4px;
+  padding: 12px 12px 14px; border-radius: 28px; background: var(--m-card); color: var(--md-sys-color-on-surface); cursor: pointer;
+  transition: background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects), border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial);
+}
+.m-cards__card:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, var(--m-card)); border-radius: 22px; }
+.m-cards__card:active { border-radius: 16px; transform: scale(.98); }
+.m-cards__card:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-cards__card:disabled { opacity: .38; pointer-events: none; }
+/* chosen: the selected container (layout.css --m-sel-fill, one rule for every choice; a plain secondary container is the colour of a first-run window and vanished into it), the check, a heavier label; no outline */
+.m-cards__card.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); }
+.m-cards__card.is-on .m-cards__label { font: var(--m-title-small-emphasized); }
+.m-cards__art { display: grid; place-items: center; min-height: 84px; border-radius: 20px; background: color-mix(in srgb, var(--md-sys-color-on-surface) 5%, transparent); font-size: 40px; color: var(--md-sys-color-on-surface-variant); transition: border-radius var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
+.m-cards__card.is-on .m-cards__art { border-radius: 28px 14px 28px 14px; background: color-mix(in srgb, var(--md-sys-color-surface) 62%, transparent); color: var(--md-sys-color-primary-text); }
+.m-cards__art > svg, .m-cards__art > .m-ctl { width: 100%; max-height: 96px; }
+.m-cards__label { font: var(--m-title-small, 600 14px/20px sans-serif); padding: 0 4px; }
+.m-cards__text { font: var(--m-body-small, 400 12px/16px sans-serif); padding: 0 4px; opacity: .9; }
+.m-cards__mark { position: absolute; top: 18px; right: 18px; font-size: 22px; color: var(--md-sys-color-primary-text); }
+
+/* ----- MChipSet ----- */
+.m-chipset { display: flex; flex-wrap: wrap; gap: 8px; }
+.m-chipset__chip {
+  all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 12px;
+  border: 1px solid var(--md-sys-color-outline-variant); font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); cursor: pointer;
+  transition: background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects), border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), color var(--m-spring-default-effects-duration) var(--m-spring-default-effects);
+}
+.m-chipset__chip .m-icon { font-size: 18px; margin-left: -4px; }
+.m-chipset__chip:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-chipset__chip:active { border-radius: 18px; }
+.m-chipset__chip:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-chipset__chip.is-on { border-color: transparent; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border-radius: 18px; }
+.m-chipset__chip:disabled { opacity: .38; pointer-events: none; }
+
+/* ----- MExpertItem ----- */
+.m-expert { flex-direction: column; align-items: stretch; gap: 0; padding: 0; min-height: 0; }
+.m-expert__head { display: flex; align-items: center; gap: 12px; padding-right: 16px; }
+.m-expert__toggle { box-sizing: border-box; flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 14px 8px 14px 16px; border-radius: inherit; }
+.m-expert__toggle .m-item__body { flex: 1; min-width: 0; }
+.m-expert__chip { flex: none; height: 22px; padding: 0 8px; }
+.m-expert__control { flex: none; display: flex; align-items: center; gap: 8px; }
+.m-expert__control--stack { padding: 0 16px 14px; }
+.m-expert__control--stack > * { flex: 1; min-width: 0; }
+/* A phone: the title keeps at least 9 em (about 126 px); what does not fit beside it (the "changed" and "confirmed on save" chips, the info icon, the reset button) goes to the line under it. Beside the
+   switch of a row with chips the title had 50 px and ran a character to a line, six lines for one name. */
+@media (max-width: 599.98px) {
+  .m-expert__toggle { flex-wrap: wrap; row-gap: 0; }
+  .m-expert__toggle .m-item__body { flex: 1 1 9em; }
+  .m-expert__control > .m-btn { min-width: 0; max-width: 100%; }
+}
+
+/* ----- MListEditor ----- */
+.m-list { display: flex; flex-direction: column; gap: 2px; }
+.m-list__row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 8px 4px 16px; background: var(--m-card); color: var(--md-sys-color-on-surface-variant); }
+.m-list > .m-list__row:first-child { border-radius: 28px 28px 4px 4px; }
+.m-list > .m-list__row:last-of-type { border-radius: 4px 4px 28px 28px; }
+.m-list > .m-list__row:only-of-type { border-radius: 28px; }
+.m-list__input { flex: 1; height: 40px; }
+.m-list__suffix { font: var(--m-label-large); }
+.m-list__empty { margin: 0; padding: 12px 16px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-list__error { margin: 4px 16px 0; font: var(--m-body-small); color: var(--md-sys-color-error); }
+
+/* ----- MPathItem ----- */
+.m-item--path { flex-wrap: wrap; row-gap: 8px; }
+.m-path { flex: 1 1 100%; display: flex; align-items: center; gap: 8px; }
+.m-path__label { font: var(--m-title-medium); }
+.m-path__input { flex: 1; height: 40px; font: var(--m-body-medium); font-family: var(--md-ref-typeface-mono, ui-monospace, monospace); }
+.m-path__error { flex: 1 1 100%; margin: 0; font: var(--m-body-small); color: var(--md-sys-color-error); }
+
+/* ----- MPickSheet ----- */
+.m-pick__help { margin: 0 0 8px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-pick__search { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 16px; margin-bottom: 8px; border-radius: 28px; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); }
+.m-pick__search input { all: unset; flex: 1; min-width: 0; font: var(--m-body-large); color: var(--md-sys-color-on-surface); }
+.m-pick__search:focus-within { outline: 2px solid var(--md-sys-color-primary); }
+.m-pick__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.m-pick__opt { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 16px; background: var(--m-card); color: var(--md-sys-color-on-surface); cursor: pointer; border-radius: 4px; }
+.m-pick__list li:first-child .m-pick__opt { border-radius: 20px 20px 4px 4px; }
+.m-pick__list li:last-child .m-pick__opt { border-radius: 4px 4px 20px 20px; }
+.m-pick__list li:only-child .m-pick__opt { border-radius: 20px; }
+.m-pick__opt:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, var(--m-card)); }
+.m-pick__opt:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -2px; }
+.m-pick__opt.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-pick__text { flex: 1; min-width: 0; display: flex; flex-direction: column; font: var(--m-body-large); }
+.m-pick__text small { font: var(--m-body-small); opacity: .8; }
+.m-pick__empty { margin: 16px; text-align: center; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+
+/* ----- MControllerArt ----- */
+.m-ctl { display: block; width: 100%; height: auto; overflow: visible; }
+.m-ctl__body { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 14%, var(--md-sys-color-surface-container-high)); }
+.m-ctl__shoulder { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 22%, var(--md-sys-color-surface-container-high)); }
+.m-ctl__stick { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 26%, transparent); }
+.m-ctl__cap { fill: var(--md-sys-color-surface-container-lowest, var(--md-sys-color-surface)); opacity: .9; }
+.m-ctl__dpad path { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 30%, transparent); }
+.m-ctl__btns circle { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 30%, transparent); }
+.m-ctl__small, .m-ctl__guide { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 34%, transparent); }
+.m-ctl__pad { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 20%, transparent); transition: fill var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
+.m-ctl__light { fill: var(--md-sys-color-primary); }
+.is-hot { fill: var(--md-sys-color-primary); }
+.m-ctl__pad.is-hot { fill: color-mix(in srgb, var(--md-sys-color-primary) 70%, transparent); }
+.m-ctl__wave path { fill: none; stroke: var(--md-sys-color-primary); stroke-width: 2.5; stroke-linecap: round; opacity: .8; }
+.m-cards__card.is-on .m-ctl__body { fill: color-mix(in srgb, var(--md-sys-color-primary) 22%, var(--md-sys-color-secondary-container)); }
+
+/* ----- MRoute ----- */
+.m-route { container-type: inline-size; list-style: none; margin: 0; padding: 16px 12px; display: flex; align-items: stretch; gap: 0; border-radius: 28px; background: var(--m-card); }
+.m-route__node { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 4px; text-align: center; transition: opacity var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
+.m-route__ico { width: 48px; height: 48px; display: grid; place-items: center; font-size: 24px; border-radius: 16px 24px 16px 24px; background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); transition: border-radius var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
+.m-route__node:hover .m-route__ico { border-radius: 24px 16px 24px 16px; }
+.m-route__node.is-off { opacity: .72; }
+.m-route__node.is-off .m-route__ico { background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); }
+.m-route__node.is-warn .m-route__ico { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-route__title { font: var(--m-label-large); color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; }
+.m-route__text { font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; max-width: 100%; }
+.m-route__link { flex: 0 0 28px; position: relative; align-self: flex-start; height: 48px; display: grid; place-items: center; }
+.m-route__link i { display: block; width: 100%; height: 3px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--md-sys-color-outline) 0 6px, transparent 6px 10px); opacity: .6; }
+.m-route__link:not(.is-off) i { background: var(--md-sys-color-primary); opacity: .8; }
+.m-route__link.is-flow i { background: repeating-linear-gradient(90deg, var(--md-sys-color-primary) 0 8px, transparent 8px 14px); background-size: 14px 3px; animation: m-route-flow 1.4s linear infinite; }
+@keyframes m-route-flow { to { background-position: 14px 0; } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-route__link.is-flow i { animation: none; } }
+html[data-motion='reduced'] .m-route__link.is-flow i { animation: none; }
+@container (max-width: 420px) {
+  .m-route { flex-direction: column; align-items: stretch; padding: 12px 16px; }
+  .m-route__node { flex-direction: row; text-align: left; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .m-route__node .m-route__title { flex: 0 1 auto; }
+  .m-route__link { flex: 0 0 18px; align-self: flex-start; width: 48px; height: 18px; }
+  .m-route__link i { width: 3px; height: 100%; background: repeating-linear-gradient(180deg, var(--md-sys-color-outline) 0 6px, transparent 6px 10px); }
+  .m-route__link:not(.is-off) i { background: var(--md-sys-color-primary); }
+  .m-route__link.is-flow i { background: repeating-linear-gradient(180deg, var(--md-sys-color-primary) 0 8px, transparent 8px 14px); background-size: 3px 14px; animation-name: m-route-flow-v; }
+}
+@keyframes m-route-flow-v { to { background-position: 0 14px; } }
+
+/* ----- MVirtualDisplay ----- */
+.m-vdd { display: flex; flex-direction: column; gap: 12px; }
+.m-vdd__top { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px 24px; width: 100%; padding: 16px; border-radius: 28px; background: var(--m-card); }
+.m-vdd__art { flex: 0 0 auto; width: 196px; min-width: 0; max-width: 100%; margin: 0 auto; height: auto; overflow: visible; }
+.m-vdd__mode { flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.m-vdd__text { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-vdd__chips { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.m-vdd__mon rect, .m-vdd__mon path { fill: none; stroke: var(--md-sys-color-outline); stroke-width: 3; stroke-linecap: round; transition: stroke var(--m-spring-default-effects-duration) var(--m-spring-default-effects), fill var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
+.m-vdd__mon { opacity: .55; transition: opacity var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
+.m-vdd__mon.is-on { opacity: 1; }
+.m-vdd__mon.is-on rect { stroke: var(--md-sys-color-primary); fill: color-mix(in srgb, var(--md-sys-color-primary) 14%, transparent); }
+.m-vdd__mon.is-on path { stroke: var(--md-sys-color-primary); }
+.m-vdd__mon.is-dashed rect { stroke-dasharray: 7 6; fill: none; }
+.m-vdd__mon.is-live rect { fill: color-mix(in srgb, var(--md-sys-color-primary) 28%, transparent); }
+.m-vdd__link { fill: none; stroke: var(--md-sys-color-outline); stroke-width: 3; stroke-dasharray: 4 4; stroke-linecap: round; opacity: .5; }
+.m-vdd__link.is-on { stroke: var(--md-sys-color-primary); opacity: 1; animation: m-vdd-link 1.6s linear infinite; }
+@keyframes m-vdd-link { to { stroke-dashoffset: -8; } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-vdd__link.is-on { animation: none; } }
+html[data-motion='reduced'] .m-vdd__link.is-on { animation: none; }
+.m-vdd__pin circle { fill: var(--md-sys-color-primary); }
+.m-vdd__pin path { fill: none; stroke: var(--md-sys-color-on-primary); stroke-width: 2.2; stroke-linecap: round; }
+.m-vdd__note { display: flex; align-items: center; gap: 6px; font: var(--m-body-small); }
+.m-vdd__note .m-icon { font-size: 16px; }
+
+/* the appearance controls inside the guide: light or dark first, then the colour, then the wallpaper */
+.m-ap--compact { display: flex; flex-direction: column; gap: 10px; }
+.m-ap--compact > .m-ap__row:nth-of-type(3) { order: -2; }
+.m-ap--compact > .m-ap__row:nth-of-type(2) { order: -1; }
+.m-ap--essential { display: flex; flex-direction: column; gap: 10px; }
+.m-ap__elsewhere { margin: 0; padding: 0 4px; }
+
+
+/* the add button in the head of the applications card */
+.m-dadd { all: unset; box-sizing: border-box; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 16px; cursor: pointer; color: var(--md-sys-color-primary-text); background: var(--md-sys-color-primary-container); transition: border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-dadd:hover { border-radius: 10px; }
+.m-dadd:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-dadd .m-icon { font-size: 20px; }
+
+/* MFpsPresets */
+.m-fps { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.m-fps .m-chipset { flex: 0 1 auto; }
+.m-fps__add { display: inline-flex; gap: 8px; align-items: center; }
+.m-fps__input { width: 96px; height: 36px; padding: 0 12px; font: var(--m-body-medium); }
+
+.m-vdd__more { align-self: flex-start; margin-left: -8px; }
+
+/* ----- MStatusPills ----- */
+.m-pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.m-pill { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 16px 0 12px; border-radius: 20px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font: var(--m-label-large); transition: background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects), border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-pill:hover { border-radius: 14px; }
+.m-pill .m-icon { font-size: 20px; flex: none; }
+.m-pill__label { font-weight: 500; white-space: nowrap; }
+.m-pill__value { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-pill--ok { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-pill--live { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.m-pill--auto { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+.m-pill--off { background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); }
+.m-pills--line { container-type: inline-size; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 6px; }
+.m-pills--line .m-pill { flex: none; min-height: 32px; height: 32px; padding: 0 12px 0 10px; border-radius: 16px; gap: 6px; font: var(--m-label-large); }
+.m-pills--line .m-pill .m-icon { font-size: 18px; }
+@container (max-width: 560px) { .m-pills--line .m-pill__label.is-optional, .m-pills--line .m-pill__value.is-optional { display: none; } .m-pills--line .m-pill { padding: 0 10px 0 8px; } }
+/* a line that still does not fit (a phone) wraps to a second line instead of being cut at the edge */
+@media (max-width: 520px) { .m-pills--line { flex-wrap: wrap; overflow: visible; } }
+
+/* ----- MControllerArt: own silhouettes ----- */
+.m-ctl--ds5 .m-ctl__body { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 34%, var(--md-sys-color-surface-container-high)); }
+.m-ctl--ds5 .m-ctl__shoulder { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 40%, var(--md-sys-color-surface-container-high)); }
+.m-ctl__face { fill: color-mix(in srgb, var(--md-sys-color-surface-container-lowest, #fff) 88%, var(--md-sys-color-surface-container-high)); }
+.m-ctl__bar { fill: none; stroke: var(--md-sys-color-primary); stroke-width: 3; stroke-linecap: round; }
+.m-ctl--ds5 .m-ctl__pad { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 14%, var(--md-sys-color-surface-container-high)); }
+.m-ctl--ds5 .m-ctl__pad.is-hot { fill: color-mix(in srgb, var(--md-sys-color-primary) 70%, transparent); }
+.m-ctl--ds5 .m-ctl__stick { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 60%, transparent); }
+.m-ctl--ds5 .m-ctl__cap { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 18%, var(--md-sys-color-surface-container-high)); }
+.m-ctl__ring { fill: none; stroke: color-mix(in srgb, var(--md-sys-color-on-surface) 34%, transparent); stroke-width: 2; }
+.m-ctl--switch path.m-ctl__small { fill: none; stroke: color-mix(in srgb, var(--md-sys-color-on-surface) 34%, transparent); }
+.m-ctl__ghost { fill: none; stroke: color-mix(in srgb, var(--md-sys-color-on-surface) 40%, transparent); stroke-width: 2; stroke-dasharray: 5 4; stroke-linejoin: round; }
+.m-ctl__ghost--inner { opacity: .45; }
+.m-ctl__spark { fill: var(--md-sys-color-primary); }
+.m-ctl__spark--small { opacity: .55; }
+.m-cards__card.is-on .m-ctl--ds5 .m-ctl__body { fill: color-mix(in srgb, var(--md-sys-color-primary) 30%, var(--md-sys-color-surface-container-high)); }
+
+/* ----- MDsPlot ----- */
+.m-dsplot { margin: 0; display: block; }
+.m-dsplot svg { display: block; width: 100%; height: auto; overflow: visible; }
+.m-dsplot--compact svg { max-height: 56px; }
+.m-dsplot__grid path { fill: none; stroke: var(--md-sys-color-outline-variant); stroke-width: 1; opacity: .7; }
+.m-dsplot__clip { fill: none; stroke: var(--md-sys-color-error); stroke-width: 1; stroke-dasharray: 3 3; opacity: .45; }
+.m-dsplot__ghost { fill: none; stroke: var(--md-sys-color-outline); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: .6; }
+.m-dsplot__line { fill: none; stroke: var(--md-sys-color-primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.m-dsplot__line--b { stroke: var(--md-sys-color-tertiary); stroke-width: 2.5; opacity: .9; }
+.m-dsplot__line.is-clipped { stroke: var(--md-sys-color-error); }
+.m-dsplot__zone { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-dsplot__ticks text { fill: var(--md-sys-color-on-surface-variant); font-size: 9px; font-weight: 500; }
+.m-dsplot__led { fill: var(--md-sys-color-surface-container-highest); stroke: var(--md-sys-color-outline-variant); stroke-width: 1.5; }
+.m-dsplot__led.is-on { fill: var(--md-sys-color-primary); stroke: var(--md-sys-color-primary); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--md-sys-color-primary) 70%, transparent)); }
+
+.m-pill--warn { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+
+/* ----- gamepad art (MControllerArt): every part is a solid mix of the theme's ink over the tile behind the art, so the shell, the face, the sticks and the
+   buttons keep their contrast in light and dark and on a selected tile (a part that is a translucent tone of the tile vanishes into it), and a stroke closes
+   every outline. --m-ctl-bg is the tile behind the art, --m-ctl-ink the colour of what sits on it. ----- */
+.m-ctl { --m-ctl-bg: var(--md-sys-color-surface-container-high); --m-ctl-ink: var(--md-sys-color-on-surface); --m-ctl-mix: srgb; }
+.m-cards__card.is-on .m-ctl, .m-ctl--on { --m-ctl-bg: var(--md-sys-color-secondary-container); --m-ctl-ink: var(--md-sys-color-on-secondary-container); }
+.m-ctl__body { fill: color-mix(in srgb, var(--m-ctl-ink) 28%, var(--m-ctl-bg)); stroke: color-mix(in srgb, var(--m-ctl-ink) 64%, var(--m-ctl-bg)); stroke-width: 1.6; stroke-linejoin: round; }
+.m-ctl__shoulder { fill: color-mix(in srgb, var(--m-ctl-ink) 42%, var(--m-ctl-bg)); stroke: color-mix(in srgb, var(--m-ctl-ink) 64%, var(--m-ctl-bg)); stroke-width: 1.4; stroke-linejoin: round; }
+.m-ctl__stick { fill: color-mix(in srgb, var(--m-ctl-ink) 66%, var(--m-ctl-bg)); }
+.m-ctl__cap { fill: color-mix(in srgb, var(--m-ctl-ink) 14%, var(--m-ctl-bg)); opacity: 1; }
+.m-ctl__dpad path, .m-ctl__btns circle { fill: color-mix(in srgb, var(--m-ctl-ink) 68%, var(--m-ctl-bg)); }
+.m-ctl__small, .m-ctl__guide { fill: color-mix(in srgb, var(--m-ctl-ink) 66%, var(--m-ctl-bg)); }
+.m-ctl__pad { fill: color-mix(in srgb, var(--m-ctl-ink) 14%, var(--m-ctl-bg)); stroke: color-mix(in srgb, var(--m-ctl-ink) 46%, var(--m-ctl-bg)); stroke-width: 1.2; }
+.m-ctl__pad.is-hot, .m-ctl--ds5 .m-ctl__pad.is-hot { fill: color-mix(in srgb, var(--md-sys-color-primary) 72%, var(--m-ctl-bg)); }
+.m-ctl__ring { stroke: color-mix(in srgb, var(--m-ctl-ink) 66%, var(--m-ctl-bg)); stroke-width: 2.2; }
+.m-ctl--switch path.m-ctl__small { fill: none; stroke: color-mix(in srgb, var(--m-ctl-ink) 66%, var(--m-ctl-bg)); }
+.m-ctl__ghost { stroke: color-mix(in srgb, var(--m-ctl-ink) 58%, var(--m-ctl-bg)); }
+/* the DualSense: a light face over a dark shell (the two swap in the dark theme) */
+.m-ctl--ds5 .m-ctl__body, .m-cards__card.is-on .m-ctl--ds5 .m-ctl__body { fill: color-mix(in srgb, var(--m-ctl-ink) 56%, var(--m-ctl-bg)); stroke: color-mix(in srgb, var(--m-ctl-ink) 78%, var(--m-ctl-bg)); }
+.m-ctl--ds5 .m-ctl__shoulder { fill: color-mix(in srgb, var(--m-ctl-ink) 66%, var(--m-ctl-bg)); stroke: color-mix(in srgb, var(--m-ctl-ink) 78%, var(--m-ctl-bg)); }
+.m-ctl__face { fill: color-mix(in srgb, var(--md-sys-color-surface-container-lowest, #fff) 94%, var(--m-ctl-bg)); stroke: color-mix(in srgb, var(--m-ctl-ink) 30%, var(--m-ctl-bg)); stroke-width: 1; }
+.m-ctl--ds5 .m-ctl__pad { fill: color-mix(in srgb, var(--m-ctl-ink) 12%, var(--md-sys-color-surface-container-lowest, #fff)); stroke: color-mix(in srgb, var(--m-ctl-ink) 40%, var(--md-sys-color-surface-container-lowest, #fff)); }
+.m-ctl--ds5 .m-ctl__stick { fill: color-mix(in srgb, var(--m-ctl-ink) 88%, var(--m-ctl-bg)); }
+.m-ctl--ds5 .m-ctl__cap { fill: color-mix(in srgb, var(--md-sys-color-surface-container-lowest, #fff) 60%, var(--m-ctl-ink)); }
+.m-ctl--ds5 .m-ctl__dpad path, .m-ctl--ds5 .m-ctl__btns circle { fill: color-mix(in srgb, var(--m-ctl-ink) 62%, var(--md-sys-color-surface-container-lowest, #fff)); }
+.m-ctl--ds5 .m-ctl__small { fill: color-mix(in srgb, var(--m-ctl-ink) 50%, var(--md-sys-color-surface-container-lowest, #fff)); }
+.m-ctl--ds5 .m-ctl__guide { fill: color-mix(in srgb, var(--m-ctl-ink) 60%, var(--md-sys-color-surface-container-lowest, #fff)); }

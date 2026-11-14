@@ -1,0 +1,47 @@
+export default {
+  "source": "更新來源",
+  "sources": {
+    "auto": "自動",
+    "mirror": "Mirror醬"
+  },
+  "mirrorAbout": "Mirror醬是面向開源專案的下載加速服務，也是一項開發者贊助計劃。訂閱後可用 CDK 加速下載，訂閱收入會按訂閱情況分給接入 Mirror醬的開發者，包括本專案。CDK 為可選項，不填時從 CNB 或 GitHub 下載。",
+  "tagDomestic": "國內高速",
+  "cdkOptional": "Mirror醬 CDK（可選）",
+  "getCdk": "獲取 CDK",
+  "remainingDays": "CDK 還剩 {0} 天到期。",
+  "fetchFailed": "獲取 CDK 資訊失敗，已顯示上次成功查詢的結果。",
+  "cdk": "Mirror醬 CDK",
+  "cdkHint": "儲存在系統安全儲存中，儲存後不再顯示。",
+  "save": "儲存",
+  "check": "檢查 CDK",
+  "checking": "正在檢查…",
+  "saved": "CDK 已儲存",
+  "unavailable": "安全儲存需要更新的控制面板。",
+  "status": {
+    "none": "沒有 CDK",
+    "expired": "CDK 已過期",
+    "invalid": "CDK 無效",
+    "limit": "今日下載次數已用盡",
+    "type": "這個 CDK 不適用於本軟體",
+    "test": "這是測試用 CDK",
+    "unknown": "無法判斷",
+    "offline": "Mirror醬沒有回應"
+  },
+  "errors": {
+    "cdk-expired": "CDK 已過期，請使用新的 CDK 進行授權。",
+    "cdk-invalid": "CDK 無效，請檢查輸入是否正確。",
+    "cdk-limit": "CDK 今日下載次數已達上限，請明日再試。",
+    "cdk-type": "CDK 型別與待下載的資源不匹配，請檢查 CDK 適用範圍。",
+    "cdk-banned": "CDK 已被封禁，可能由於退款或非正常使用。",
+    "cdk-test": "CDK 是測試用 CDK，不能用於實際下載。",
+    "no-resource": "Mirror醬 暫無適用於當前系統與通道的版本。",
+    "params": "Mirror醬 未接受本次請求，請更新控制面板後重試。",
+    "server": "Mirror醬 出錯了，請稍後再試。",
+    "malformed": "無法識別 Mirror醬 的回覆。",
+    "network": "Mirror醬 沒有回應，請檢查網路。",
+    "unknown": "Mirror醬 拒絕了本次請求，原因未知。"
+  },
+  "tagPaid": "付費",
+  "freeNotice": "本程式是免費、開源的自由軟體。如果你透過任何管道付費購買了本程式，請立即申請退款。",
+  "supportLine": "如果想支持專案開發，可以訂閱 Mirror醬：下載更快，同時直接贊助開發者。"
+}

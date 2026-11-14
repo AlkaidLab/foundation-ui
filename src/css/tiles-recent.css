@@ -1,0 +1,39 @@
+/* 最近操作 and the live controls of a stream (tiles/TileRecent.vue, TileLive.vue): rows of a name with the line "when it applies" under it and the control at the end. */
+.m-rc { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.m-rc__rows { list-style: none; margin: 0; padding: 0; display: grid; grid-auto-rows: minmax(48px, auto); gap: 2px 20px; overflow: hidden; align-content: start; flex: 1 1 auto; min-height: 0; }
+.m-rc__cols { display: contents; } .m-rc__cols.is-two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; min-height: 0; flex: 1 1 auto; }
+.m-rc__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 4px 2px; }
+.m-rc__text { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
+.m-rc__text b { font: var(--m-title-small); color: var(--md-sys-color-on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-rc__text small, .m-rc__note, .m-rc__client { font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-rc__ctl { display: flex; align-items: center; gap: 10px; flex: none; min-width: 0; }
+.m-rc__row.is-full { flex-wrap: wrap; }
+.m-rc__row.is-full .m-rc__text { flex: 1 1 100%; }
+.m-rc__row.is-full .m-rc__ctl { flex: 1 1 100%; }
+.m-rc__row.is-full .m-slider { flex: 1 1 auto; min-width: 0; }
+.m-rc__val { font: var(--m-label-large); color: var(--md-sys-color-on-surface); min-width: 7ch; text-align: end; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-rc__jump { display: inline-flex; align-items: center; gap: 2px; max-width: 14ch; padding: 4px 4px 4px 10px; border: 0; border-radius: 16px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface-variant); font: var(--m-label-medium); cursor: pointer; }
+.m-rc__jump span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-rc__jump .m-icon { font-size: 18px; }
+.m-rc__seg { display: inline-flex; gap: 2px; max-width: 100%; overflow: hidden; }
+.m-rc__seg button { flex: 0 1 auto; min-width: 0; height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font: var(--m-label-medium); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-rc__seg button:first-child { border-radius: 16px 8px 8px 16px; } .m-rc__seg button:last-child { border-radius: 8px 16px 16px 8px; }
+.m-rc__seg button.is-on { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border-radius: 16px; }
+.m-rc__empty { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-rc--live .m-rc__live { display: flex; align-items: center; gap: 12px; }
+.m-rc--live .m-rc__live .m-slider { flex: 1 1 auto; min-width: 0; }
+.m-rc--live .m-rc__note { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.m-rc--live .m-calm__head { gap: 8px; } .m-rc--live .m-rc__client { margin-inline-start: auto; max-width: 40%; }
+/* 方形 with a setting: its shape, its name, when it applies, its control */
+.m-rc__heroview { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; flex: 1 1 auto; min-height: 0; }
+.m-rc__heroview .m-rc__text { flex: 0 1 auto; width: 100%; }
+.m-rc__heroview .m-rc__text b { font: var(--m-title-medium); white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.m-rc__heroview .m-rc__text small { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.m-rc__heroview > .m-switch, .m-rc__heroview > .m-rc__jump { margin-top: auto; }
+/* the rows share the height of 大 and 特大, so the tile is full and the controls are not squeezed to its top */
+.m-rc.is-l .m-rc__rows, .m-rc.is-xl .m-rc__rows { grid-auto-rows: minmax(48px, 1fr); }
+html.m-has-wallpaper :is(.m-rc__text small, .m-rc__note, .m-rc__client) { color: color-mix(in srgb, var(--md-sys-color-on-surface) 78%, transparent); }
+
+/* 中 of the DualSense tuning holds one slider: the head opens the page with all of them */
+.m-rc__all { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; padding: 4px 4px 4px 10px; border: 0; border-radius: 16px; background: transparent; color: var(--md-sys-color-primary-text); font: var(--m-tile-text-13-strong); cursor: pointer; }
+.m-rc__all .m-icon { width: 18px; height: 18px; } .m-rc__all:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }

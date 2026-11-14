@@ -1,0 +1,28 @@
+export default
+{
+  "apps": "앱 {n}개",
+  "paired": "{n}개 페어링됨",
+  "unpaired": "페어링 안 됨",
+  "noApps": "아직 앱이 없습니다",
+  "errors24": "24시간 동안 오류 {n}건",
+  "noErrors": "오류 없음",
+  "ready": "{a}/{b} 준비됨",
+  "current": "최신 상태",
+  "updateTo": "{v}(으)로 업데이트",
+  "on": "켜짐",
+  "off": "꺼짐",
+  "restartNote": "다시 시작한 뒤",
+  "clientNote": "클라이언트가 설정 · 다시 시작 후",
+  "padNote": "새 컨트롤러에 적용",
+  "addFps": "프레임 속도 추가",
+  "add": "추가",
+  "errorsUnit": "오류",
+  "last24": "최근 24시간",
+  "warnings": "경고 {n}개",
+  "noWarnings": "경고 없음",
+  "linesUnit": "줄",
+  "levelErr": "오류 {n}개",
+  "levelWarn": "경고 {n}개",
+  "noLines": "새 줄 없음",
+  "noWallpaper": "배경화면 없음"
+}

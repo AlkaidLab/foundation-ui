@@ -1,0 +1,294 @@
+{
+  "version": 1,
+  "checked_at": "2026-11-03T14:20:00+08:00",
+  "ports": [
+    {
+      "proto": "tcp",
+      "port": 57984,
+      "role": "https",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed",
+      "on_demand": false
+    },
+    {
+      "proto": "tcp",
+      "port": 57989,
+      "role": "http",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed",
+      "on_demand": false
+    },
+    {
+      "proto": "tcp",
+      "port": 57990,
+      "role": "web",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed",
+      "on_demand": false
+    },
+    {
+      "proto": "tcp",
+      "port": 58010,
+      "role": "rtsp",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed",
+      "on_demand": false
+    },
+    {
+      "proto": "udp",
+      "port": 57998,
+      "role": "video",
+      "listening": false,
+      "bound": [],
+      "firewall": "unknown",
+      "on_demand": true
+    },
+    {
+      "proto": "udp",
+      "port": 57999,
+      "role": "control",
+      "listening": false,
+      "bound": [],
+      "firewall": "unknown",
+      "on_demand": true
+    },
+    {
+      "proto": "udp",
+      "port": 58000,
+      "role": "audio",
+      "listening": false,
+      "bound": [],
+      "firewall": "unknown",
+      "on_demand": true
+    },
+    {
+      "proto": "udp",
+      "port": 58001,
+      "role": "microphone",
+      "listening": false,
+      "bound": [],
+      "firewall": "unknown",
+      "on_demand": true
+    }
+  ],
+  "public": {
+    "verdict": "verified",
+    "reasons": [
+      "hairpin_verified"
+    ],
+    "host_public_ip": null,
+    "router": {
+      "protocol": "upnp-igd",
+      "wan_ip": "203.0.113.45",
+      "wan_ip_class": "public",
+      "mappings": []
+    },
+    "hairpin": {
+      "tried": true,
+      "ok": true,
+      "port": 59995,
+      "identity_match": true,
+      "target": "203.0.113.45"
+    },
+    "evidence": [
+      {
+        "kind": "client-connected-from-public",
+        "address": "198.51.100.0/24",
+        "at": "2026-11-03T13:02:00+08:00"
+      }
+    ],
+    "configured_address": {
+      "value": "home.example.net",
+      "kind": "hostname",
+      "resolved": [
+        "203.0.113.45",
+        "2001:db8::1"
+      ],
+      "matches_wan": true,
+      "reasons": [],
+      "hint": ""
+    },
+    "endpoints": [
+      {
+        "input": "home.example.net:60000",
+        "host": "home.example.net",
+        "kind": "hostname",
+        "port": 60000,
+        "port_explicit": true,
+        "https_port": 59995,
+        "resolved": [
+          "203.0.113.45",
+          "2001:db8::1"
+        ],
+        "scope": "public",
+        "matches_wan": true,
+        "state": "reached",
+        "error": null,
+        "tested": {
+          "address": "203.0.113.45",
+          "port": 59995,
+          "latency_ms": 14
+        },
+        "attempts": [
+          {
+            "address": "203.0.113.45",
+            "port": 59995,
+            "connected": true,
+            "identity_match": true,
+            "error": null,
+            "latency_ms": 14
+          },
+          {
+            "address": "2001:db8::1",
+            "port": 59995,
+            "connected": false,
+            "identity_match": false,
+            "error": "refused",
+            "latency_ms": 4
+          }
+        ],
+        "reasons": []
+      },
+      {
+        "input": "203.0.113.45",
+        "host": "203.0.113.45",
+        "kind": "ip",
+        "port": 57989,
+        "port_explicit": false,
+        "https_port": 57984,
+        "resolved": [
+          "203.0.113.45"
+        ],
+        "scope": "public",
+        "matches_wan": true,
+        "state": "failed",
+        "error": "timeout",
+        "tested": {
+          "address": "203.0.113.45",
+          "port": 57984,
+          "latency_ms": 2501
+        },
+        "attempts": [
+          {
+            "address": "203.0.113.45",
+            "port": 57984,
+            "connected": false,
+            "identity_match": false,
+            "error": "timeout",
+            "latency_ms": 2501
+          }
+        ],
+        "reasons": []
+      },
+      {
+        "input": "[2001:db8::1]:57989",
+        "host": "2001:db8::1",
+        "kind": "ip",
+        "port": 57989,
+        "port_explicit": true,
+        "https_port": 57984,
+        "resolved": [
+          "2001:db8::1"
+        ],
+        "scope": "public",
+        "matches_wan": false,
+        "state": "failed",
+        "error": "refused",
+        "tested": {
+          "address": "2001:db8::1",
+          "port": 57984,
+          "latency_ms": 4
+        },
+        "attempts": [
+          {
+            "address": "2001:db8::1",
+            "port": 57984,
+            "connected": false,
+            "identity_match": false,
+            "error": "refused",
+            "latency_ms": 4
+          }
+        ],
+        "reasons": []
+      },
+      {
+        "input": "100.92.14.7",
+        "host": "100.92.14.7",
+        "kind": "ip",
+        "port": 57989,
+        "port_explicit": false,
+        "https_port": 57984,
+        "resolved": [
+          "100.92.14.7"
+        ],
+        "scope": "mesh",
+        "matches_wan": false,
+        "state": "reached",
+        "error": null,
+        "tested": {
+          "address": "100.92.14.7",
+          "port": 57984,
+          "latency_ms": 2
+        },
+        "attempts": [
+          {
+            "address": "100.92.14.7",
+            "port": 57984,
+            "connected": true,
+            "identity_match": true,
+            "error": null,
+            "latency_ms": 2
+          }
+        ],
+        "reasons": [
+          "scope_mesh"
+        ]
+      },
+      {
+        "input": "gone.example.net",
+        "host": "gone.example.net",
+        "kind": "hostname",
+        "port": 57989,
+        "port_explicit": false,
+        "https_port": 57984,
+        "resolved": [],
+        "scope": "unknown",
+        "matches_wan": false,
+        "state": "failed",
+        "error": "dns_failed",
+        "tested": null,
+        "attempts": [],
+        "reasons": []
+      }
+    ]
+  },
+  "mesh": {
+    "adapters": [
+      {
+        "kind": "tailscale",
+        "name": "wt0",
+        "addresses": [
+          "100.92.14.7"
+        ],
+        "up": true
+      }
+    ],
+    "verdict": "likely",
+    "reasons": [],
+    "listening_on_mesh": true,
+    "web_ui_origin_allows_mesh": true,
+    "evidence": []
+  }
+}

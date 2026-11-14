@@ -1,0 +1,349 @@
+/* Layout: the scene (list, detail, supporting panes), the page with its small header, groups of rows. */
+.m-app { min-height: 100vh; min-height: 100dvh; background: var(--m-page); }
+.m-app--shell { display: grid; grid-template-columns: auto minmax(0, 1fr); }
+.m-app__main { min-width: 0; min-height: 0; }
+.m-app--scroll { height: 100vh; height: 100dvh; overflow: clip; }
+/* the shell fills the window exactly and nothing but a pane scrolls: html and body are the viewport, clipped (a hidden box can still be scrolled by
+   scrollIntoView or by focus, a clipped one cannot) */
+html.m-shell, html.m-shell body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; }
+html.m-shell body { position: fixed; inset: 0; width: 100%; }
+html.m-shell .m-app, html.m-shell .m-app--scroll { overflow: clip; }
+
+/* ---- Scene: rail, then list, detail and supporting panes in one grid; the columns animate with the spatial spring ---- */
+.m-scene { --m-caption: 0px; position: relative; display: grid; grid-template-columns: var(--c-rail) var(--t-list, var(--c-list)) var(--t-detail, var(--c-detail)) var(--t-sup, var(--c-sup)); grid-template-rows: var(--m-caption, 0px) minmax(0, 1fr) auto; height: 100%; min-height: 0; overflow: clip; background: transparent; isolation: isolate; }
+.m-scene.is-animating { transition: grid-template-columns var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-scene__rail { grid-column: 1; grid-row: 1 / span 3; }
+.m-scene__pane--list { grid-column: 2; } .m-scene__pane--detail { grid-column: 3; } .m-scene__pane--supporting { grid-column: 4; }
+/* Scrollbars: css/scrollbar.css draws every scrollbar of the shell (thin, wider under the pointer, persistent; a pane that does not overflow has none). */
+.m-scene__pane { grid-row: 2; position: relative; min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+.m-scene__pane.is-hidden { visibility: hidden; transition: visibility 0s linear .5s; }
+.m-scene__inner { min-height: 100%; container-type: inline-size; }
+.m-scene__pane--list .m-scene__inner { width: var(--w-list); }
+.m-scene__pane--detail .m-scene__inner { width: var(--w-detail); }
+.m-scene__pane--supporting .m-scene__inner { width: var(--w-sup); }
+/* The window's two levels of material, drawn under the panes (MScene sets the clip path and the box): the frame (the rail and the caption bar as one L, the
+   list pane while it is shown) is the more solid, one tone darker; the content panel is lighter and more transparent, rounded where it meets the frame,
+   with a hairline and a soft shadow along the seam so the boundary reads. */
+/* Resizing is not animated (nav/resizing.js): while the window changes size every layout is what the size says in the same frame. */
+html.m-resizing *, html.m-resizing *::before, html.m-resizing *::after { transition: none !important; }
+/* The frame (the caption bar and the rail as one L, the bar of a narrow window) is drawn as boxes held at the edges of the scene, never as a path with a measured width: the caption bar reaches
+   the right edge of the window whatever the scale, the rounding of a fractional size or a resize event that came late. The boxes do not overlap (the fill is translucent). */
+.m-scene::before { content: ''; position: absolute; z-index: -1; pointer-events: none; left: 0; right: 0; top: 0; height: var(--m-content-y, 0px); background: var(--m-rail-fill); }
+.m-scene__railfill { position: absolute; z-index: -1; pointer-events: none; left: 0; top: var(--m-content-y, 0px); bottom: var(--m-content-b, 0px); width: var(--c-rail, 0px); background: var(--m-rail-fill); }
+.m-scene__corner { position: absolute; z-index: -1; pointer-events: none; left: var(--c-rail, 0px); top: var(--m-content-y, 0px); width: var(--m-seam-r, 0px); height: var(--m-seam-r, 0px); background: radial-gradient(circle at 100% 100%, transparent calc(var(--m-seam-r, 0px) - .5px), var(--m-rail-fill) var(--m-seam-r, 0px)); }
+.m-scene__barfill { position: absolute; z-index: -1; pointer-events: none; left: 0; right: 0; bottom: 0; height: var(--m-content-b, 0px); background: var(--m-rail-fill); }
+.m-scene__seam { position: absolute; z-index: -1; pointer-events: none; left: var(--m-content-x, 0); top: var(--m-content-y, 0); right: 0; bottom: var(--m-content-b, 0); border-top-left-radius: var(--m-content-r, 0); background: var(--m-panel-fill); }
+.m-scene__listfill { position: absolute; z-index: -1; pointer-events: none; left: var(--c-rail, 0); top: var(--m-content-y, 0); width: var(--c-list, 0); bottom: var(--m-content-b, 0); border-top-left-radius: var(--m-seam-r, 0); background: var(--m-list-fill); box-shadow: inset -1px 0 0 color-mix(in srgb, var(--md-sys-color-outline-variant) 30%, transparent); }
+.m-scene.is-animating .m-scene__listfill { transition: width var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), left var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-scene.is-animating .m-scene__railfill { transition: width var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-scene.is-animating .m-scene__corner { transition: left var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-scene.is-animating .m-scene__seam { transition: left var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-scene__pane--detail { border-left: 0; }
+.m-scene--single .m-scene__pane--detail, .m-scene--single .m-scene__pane--list { border-left: 0; }
+.m-scene__pane--supporting { border-left: 0; }
+.m-scene__overlay { position: absolute; z-index: 3; top: var(--m-caption, 0px); bottom: var(--m-content-b, 0px); left: calc(var(--c-rail) + var(--c-list)); right: var(--c-sup); display: flex; flex-direction: column; background: var(--m-page); visibility: hidden; pointer-events: none; border-left: 0; }
+.m-scene--single .m-scene__overlay { border-left: 0; }
+.m-scene__overlay.is-active { visibility: visible; pointer-events: auto; }
+/* the host cannot be used (MScene status): one status page over the whole content area, list pane included; the panes stay mounted and inert, the rail and the caption bar stay */
+.m-scene--status { --c-list: 0px !important; --c-sup: 0px !important; --m-content-x: var(--c-rail, 0px) !important; } /* the content panel (the seam) starts at the rail: one surface under the status page */
+.m-scene--status .m-scene__pane--list, .m-scene--status .m-scene__pane--detail, .m-scene--status .m-scene__pane--supporting { visibility: hidden; pointer-events: none; }
+.m-scene--status .m-scene__handle { display: none; }
+.m-scene.is-animating .m-scene__overlay { transition: left var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), right var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+/* The page's action buttons: the bottom end of the content pane (the detail pane; with a supporting pane, left of it), above the bottom bar of a narrow window, lifted by the bars that come up from the bottom */
+.m-fabdock { position: fixed; z-index: 30; right: 24px; bottom: 24px; }
+.m-scene__fabs, .m-fabdock { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; transform: translateY(calc(var(--m-fab-lift, 0px) * -1)); transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-fabdock .m-fab { position: static; }
+.m-scene__fabs { position: absolute; z-index: 4; right: calc(var(--c-sup, 0px) + 20px); bottom: calc(var(--m-content-b, 0px) + 20px); display: flex; flex-direction: column; align-items: flex-end; gap: 12px; transform: translateY(calc(var(--m-fab-lift, 0px) * -1)); transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); pointer-events: none; }
+.m-scene__fabs > * { pointer-events: auto; }
+.m-scene__fabs:empty, .m-scene__fabs.is-away { display: none; }
+.m-scene__fabs .m-fab { position: static; }
+/* a very narrow window: the round button, the label stays as its name */
+.m-scene__fabs.is-tight .m-fab--extended { padding: 0; width: 56px; }
+.m-scene__fabs.is-tight .m-fab--extended > span { display: none; }
+.m-scene--fab .m-scene__pane--detail .m-scene__inner::after { content: ''; display: block; height: max(96px, calc(var(--m-bottom-reserve, 0px) - var(--m-content-b, 0px))); }
+/* while the bar of unsaved changes floats over the bottom of the page, the page scrolls clear of it: the last row ends above the bar and its gap (notify/stack.js sets --m-bottom-reserve) */
+.m-scene:not(.m-scene--fab) .m-scene__pane--detail .m-scene__inner::after { content: ''; display: block; height: max(0px, calc(var(--m-bottom-reserve, 0px) - var(--m-content-b, 0px))); }
+@media (max-width: 479.98px) { .m-fabdock .m-fab--extended { padding: 0; width: 56px; } .m-fabdock .m-fab--extended > span { display: none; } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-scene__fabs, html:not([data-motion='full']) .m-fabdock { transition: none; } }
+.m-scene__bar { grid-column: 1 / -1; grid-row: 3; }
+.m-scene__handle { position: absolute; z-index: 6; top: var(--m-caption, 0px); bottom: 0; width: 16px; margin-left: -8px; cursor: col-resize; touch-action: none; outline: none; }
+.m-scene.is-animating .m-scene__handle { transition: left var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-scene__handle::after { content: ''; position: absolute; left: 6px; top: 50%; width: 4px; height: 48px; margin-top: -24px; border-radius: 2px; background: var(--md-sys-color-outline); opacity: 0; transition: opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects), height var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-scene__handle:hover::after, .m-scene__handle:focus-visible::after, .m-scene__handle.is-on::after { opacity: .7; height: 64px; margin-top: -32px; }
+.m-scene.is-dragging { cursor: col-resize; user-select: none; }
+.m-shortcuts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.m-shortcuts li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border-radius: 8px; background: var(--m-card); font: var(--m-body-large); }
+.m-shortcuts li:first-child { border-radius: 28px 28px 8px 8px; } .m-shortcuts li:last-child { border-radius: 8px 8px 28px 28px; }
+.m-shortcuts__keys { display: inline-flex; gap: 4px; }
+.m-shortcuts kbd { min-width: 28px; padding: 3px 8px; border-radius: 8px; text-align: center; font: var(--m-label-large); background: var(--md-sys-color-surface-container-highest); box-shadow: 0 1px 0 var(--md-sys-color-outline-variant); }
+.m-context-anchor { position: fixed; width: 1px; height: 1px; pointer-events: none; }
+
+/* ---- Navigation rail after the Material spec: collapsed 96 (indicator 56 x 32, label 12 under it), expanded 240 (row items, indicator 56 high hugging the content), bottom bar with the same item ---- */
+.m-rail { display: flex; flex-direction: column; min-height: 0; background: transparent; overflow: hidden; }
+.m-rail__head { flex: none; padding: 4px 0 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+.m-rail__menu { all: unset; box-sizing: border-box; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 20px; cursor: pointer; color: var(--md-sys-color-on-surface-variant); font-size: 24px; transition: background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects), border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-rail__menu:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-rail__menu:active { border-radius: 16px; }
+.m-rail__menu:focus-visible, .m-rail__item:focus-visible { outline: 2px solid var(--md-sys-color-secondary); outline-offset: -2px; }
+.m-rail__items { display: flex; flex-direction: column; gap: var(--m-rail-gap, 6px); padding: 12px 0 12px; align-items: center; overflow-y: auto; scrollbar-width: none; }
+.m-rail__foot { margin-top: auto; padding: 12px 0 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.m-rail__item { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding: 0; border: 0; background: transparent; color: var(--md-sys-color-on-surface-variant); cursor: pointer; font: 400 12px/16px var(--md-ref-typeface-brand); }
+.m-rail__pill { position: relative; display: grid; place-items: center; width: 56px; height: 32px; border-radius: 16px; font-size: 24px; transition: background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects), border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-rail__img { display: block; image-rendering: pixelated; user-select: none; -webkit-user-drag: none; }
+.m-rail__label { max-width: 100%; padding: 0 2px; box-sizing: border-box; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-align: center; } /* labels wrap to two lines (M3 navigation rail); German and Russian names stay whole instead of ellipsizing */
+.m-rail__item:hover .m-rail__pill { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-rail__item:active .m-rail__pill { border-radius: 12px; }
+.m-rail__item[aria-current='page'] { color: var(--md-sys-color-secondary-text); }
+.m-rail__item[aria-current='page'] .m-rail__label { color: var(--md-sys-color-on-surface); font-weight: 500; }
+/* The pill behind the current destination. In the light scheme secondaryContainer is the colour of the rail itself (the frame is surfaceContainerHigh, and the two are the same blue: the pill was 1.00:1 against the rail and the team could
+   not see where he was); there the pill is secondaryContainer taken a step towards the text colour. The dark schemes keep secondaryContainer (1.10:1 and more). The gate --railpill measures it. */
+html { --m-rail-pill: color-mix(in srgb, var(--md-sys-color-secondary-container), var(--md-sys-color-on-surface) 9%); }
+html[data-bs-theme='dark'] { --m-rail-pill: var(--md-sys-color-secondary-container); }
+.m-rail__item[aria-current='page'] .m-rail__pill { background: var(--m-rail-pill); color: var(--md-sys-color-on-secondary-container); }
+.m-rail__badge { position: absolute; top: -2px; right: 8px; }
+/* The tiers of the rail (MRail decides, in the frame of the change, which is the first in which every item is visible): 1 tighter, 2 icons only, 3 icons in two columns. */
+.m-rail--rail[data-tier='1'] .m-rail__items { gap: var(--m-rail-gap, 2px); padding: 8px 0; }
+.m-rail--rail[data-tier='1'] .m-rail__item { gap: 2px; font-size: 11px; line-height: 14px; }
+.m-rail--rail[data-tier='1'] .m-rail__pill { height: 26px; }
+.m-rail[data-tier] .m-rail__foot .m-icon-btn { transition: none; }
+.m-rail:not([data-tier='0']):not([data-tier='']) .m-rail__foot, .m-rail[data-foot='compact'] .m-rail__foot { padding: 6px 0 8px; gap: 0; }
+.m-rail:not([data-tier='0']):not([data-tier='']) .m-rail__foot .m-icon-btn, .m-rail[data-foot='compact'] .m-rail__foot .m-icon-btn { width: 40px; height: 40px; }
+.m-rail--rail[data-tier='2'] .m-rail__items, .m-rail--rail[data-tier='3'] .m-rail__items { gap: var(--m-rail-gap, 2px); padding: 6px 0; }
+.m-rail--rail[data-tier='2'] .m-rail__label:not(.m-rail__label--row), .m-rail--rail[data-tier='3'] .m-rail__label:not(.m-rail__label--row) { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.m-rail--rail[data-tier='2'] .m-rail__item, .m-rail--rail[data-tier='3'] .m-rail__item { gap: 0; }
+.m-rail--rail[data-tier='2'] .m-rail__pill, .m-rail--rail[data-tier='3'] .m-rail__pill { height: 36px; }
+.m-rail--rail[data-tier='3'] .m-rail__items { display: grid; grid-template-columns: repeat(2, 44px); justify-content: center; align-content: start; }
+.m-rail--rail[data-tier='3'] .m-rail__item { width: 44px; }
+.m-rail--rail[data-tier='3'] .m-rail__pill { width: 40px; }
+.m-rail--rail[data-tier='3'] .m-rail__badge { right: 0; }
+.m-rail--rail[data-tier='3'] .m-rail__foot { display: grid; grid-template-columns: repeat(2, 40px); justify-content: center; }
+.m-rail--rail[data-tier='3'] .m-rail__foot .m-web-utils--rail { display: contents; }
+.m-rail--expanded[data-tier='1'] .m-rail__pill { height: 48px; }
+.m-rail--expanded[data-tier='2'] .m-rail__pill { height: 40px; }
+.m-rail--expanded[data-tier='3'] .m-rail__pill { height: 34px; }
+.m-rail--expanded:not([data-tier='0']) .m-rail__foot { padding: 6px 12px 8px; }
+.m-rail--expanded:not([data-tier='0']) .m-rail__items { padding: 8px 12px; }
+/* expanded: icon and label in a row; the indicator is 56 high and as wide as its content */
+.m-rail--expanded .m-rail__head { flex-direction: row; align-items: center; gap: 8px; }
+.m-rail--expanded .m-rail__menu { margin-inline-start: 20px; }
+.m-rail--expanded .m-rail__items { align-items: stretch; gap: 0; padding: 12px 12px 12px 12px; }
+.m-rail--expanded .m-rail__item { align-items: flex-start; flex-direction: row; }
+.m-rail--expanded .m-rail__pill { display: inline-flex; align-items: center; gap: 12px; width: auto; max-width: 100%; min-width: 0; height: 56px; padding: 0 24px 0 16px; border-radius: 28px; animation: m-rail-grow var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
+.m-rail--expanded .m-rail__pill .m-icon { flex: none; font-size: 24px; }
+.m-rail__label--row { padding: 0; text-align: left; font: var(--m-label-large); }
+/* expanding: the row labels come in after the indicator has started to grow (opacity only; the width is the rail's own spring) */
+.m-rail--expanded .m-rail__label--row { animation: m-rail-label-in var(--m-spring-default-effects-duration) var(--m-spring-default-effects) 60ms both; }
+@keyframes m-rail-label-in { from { opacity: 0; } }
+.m-rail--expanded .m-rail__item[aria-current='page'] { color: var(--md-sys-color-on-secondary-container); }
+.m-rail--expanded .m-rail__badge { right: auto; left: 30px; top: 12px; }
+.m-rail--expanded .m-rail__foot { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; padding: 12px 12px 16px; border-top: 1px solid var(--md-sys-color-outline-variant); margin: 0 12px; gap: 2px; }
+.m-rail--expanded .m-web-utils { display: contents; }
+@keyframes m-rail-grow { from { opacity: .4; transform: translateX(-8px); } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-rail--expanded :is(.m-rail__pill, .m-rail__label--row) { animation: none; } }
+html[data-motion='reduced'] .m-rail--expanded :is(.m-rail__pill, .m-rail__label--row) { animation: none; }
+.m-rail--bar { flex-direction: row; justify-content: space-around; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background: var(--md-sys-color-surface-container); position: relative; z-index: 6; }
+.m-rail--bar .m-rail__items { flex-direction: row; justify-content: space-around; width: 100%; padding: 0; gap: 0; overflow: visible; }
+/* the bottom bar keeps one line: its items share the width of a phone (a second line would be cut by the bar's height), a long name ends in an ellipsis */
+.m-rail--bar .m-rail__item { width: auto; flex: 1; min-width: 0; }
+.m-rail--bar .m-rail__label { display: block; -webkit-line-clamp: 1; white-space: nowrap; text-overflow: ellipsis; }
+
+/* ---- List pane: search pill, segmented groups of rows (Expressive list), selected = secondary container ---- */
+/* List pane: search pill on top, then segmented groups of rows (first/last corners large, inner small, one row = fully round) */
+.m-navlist { display: flex; flex-direction: column; gap: 16px; padding: 16px 12px 88px 16px; }
+.m-navlist__nav { display: flex; flex-direction: column; gap: 20px; }
+.m-navlist__group { --nav-outer: var(--md-sys-shape-corner-extra-large); --nav-inner: 4px; display: flex; flex-direction: column; gap: 2px; }
+.m-navlist__heading { margin: 0; padding: 4px 16px 6px; font: var(--m-label-large); color: var(--md-sys-color-primary-text); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.m-navlist__item {
+  --nav-tl: var(--nav-inner); --nav-tr: var(--nav-inner); --nav-bl: var(--nav-inner); --nav-br: var(--nav-inner);
+  position: relative; isolation: isolate; overflow: clip; display: flex; align-items: center; gap: 16px; min-height: 68px; padding: 10px 16px 10px 14px;
+  background: var(--m-row-fill); color: var(--md-sys-color-on-surface); text-decoration: none; cursor: pointer;
+  border-radius: var(--nav-tl) var(--nav-tr) var(--nav-br) var(--nav-bl);
+  transition: background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects), border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial);
+}
+.m-navlist__group > .m-navlist__item:first-of-type { --nav-tl: var(--nav-outer); --nav-tr: var(--nav-outer); }
+.m-navlist__group > .m-navlist__item:last-of-type { --nav-bl: var(--nav-outer); --nav-br: var(--nav-outer); }
+.m-navlist__item::before { content: ''; position: absolute; inset: 0; z-index: -1; background: currentColor; opacity: 0; transition: opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+.m-navlist__item:hover::before { opacity: var(--m-state-hover); } .m-navlist__item:focus-visible::before { opacity: var(--m-state-focus); } .m-navlist__item:active::before { opacity: var(--m-state-pressed); }
+.m-navlist__item:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -2px; }
+/* hover rounds the inner corners a little more, pressed rounds every corner (list item shape states) */
+.m-navlist__item:hover { border-radius: max(var(--nav-tl), 12px) max(var(--nav-tr), 12px) max(var(--nav-br), 12px) max(var(--nav-bl), 12px); }
+.m-navlist__item:active { border-radius: 20px; }
+.m-navlist__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.m-navlist__label { font: var(--m-title-medium); white-space: normal; overflow-wrap: break-word; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } /* a long row name (Russian 分辨率与刷新率) wraps to a second line instead of ellipsizing */
+.m-navlist__item[aria-current='page'] .m-navlist__label { font: var(--m-title-medium-emphasized); }
+.m-navlist__text { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-navlist__item[aria-current='page'] .m-navlist__text { color: inherit; opacity: .92; }
+.m-navlist__badge { width: 8px; height: 8px; border-radius: 50%; background: var(--md-sys-color-outline); }
+.m-navlist__badge--ok { background: var(--md-sys-color-success); } .m-navlist__badge--warn { background: var(--md-sys-color-warning); } .m-navlist__badge--error { background: var(--md-sys-color-error); }
+.m-filterbar input:focus, .m-filterbar input:focus-visible { outline: 0; box-shadow: none; }
+
+/* ---- Page: small header at the very top, content below it: ONE column (the title row and the content share it), as wide as the pane up to its maximum, centred beyond ---- */
+/* 48 px of air under the last row (it was 64): a page whose content fills a 900 px window to within 60 px no longer scrolls for the padding alone (常规 overflowed by 4 px at 1440x900) */
+.m-page { --m-gutter: 32px; min-height: 100%; padding: 0 var(--m-gutter) 48px; }
+.m-page__bar { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; box-sizing: border-box; width: min(100%, var(--m-column)); min-height: 80px; margin-inline: auto; padding: 16px calc(var(--m-bar-end, 16px) + 48px + 8px) 8px 0; background: transparent; }
+/* ONE column, like Windows Settings: the title row and the content are both min(pane - 2 insets, --m-column) wide and centred in the pane, so they share one left edge (title left = content left) at every width. Under the maximum (a phone, a small window) the column fills the pane with the inset (--m-gutter: 32, 16, 12 px); above it the extra room grows equally on both sides. Only --m-column differs per kind of page (960; 1200 two columns; 1280 wide; the dashboard fills). A page with Back has the bubble at the column's left edge and the title after it. */
+/* Material top app bar, scrolling with the content: the title row is part of the page, nothing stays on top of the content and no surface or backdrop is drawn behind it */
+.m-page__back { position: relative; flex: none; width: 48px; height: 48px; display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface); font-size: 24px; cursor: pointer; transition: border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-page--sub .m-page__bar { margin-bottom: -8px; }
+.m-page--sub .m-page__back { flex: 0 0 48px; }
+.m-page__back:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, var(--md-sys-color-surface-container-highest)); }
+.m-page__back:active { border-radius: var(--md-sys-shape-corner-large); }
+.m-page__title { flex: 1; min-width: 0; margin: 0; font: var(--m-page-title); font-variation-settings: 'wght' 460; letter-spacing: 0; white-space: normal; overflow-wrap: break-word; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } /* a long title (German, Russian) wraps to a second line instead of losing its words to an ellipsis */
+.m-page__bar-actions { position: absolute; right: 0; top: 24px; z-index: 1; display: flex; align-items: center; gap: 4px; }
+.m-stamp { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 0; border-radius: 16px; background: transparent; color: var(--md-sys-color-on-surface-variant); font: var(--m-label-medium); white-space: nowrap; font-variant-numeric: tabular-nums; }
+button.m-stamp { cursor: pointer; }
+button.m-stamp:hover:not(:disabled) { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+button.m-stamp:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 1px; }
+.m-stamp__icon { font-size: 16px; width: 16px; height: 16px; }
+.m-stamp--busy .m-stamp__icon { animation: m-stamp-busy 1.8s ease-in-out infinite; }
+@keyframes m-stamp-busy { 50% { opacity: .35; } }
+@media (pointer: coarse) { .m-stamp { min-height: 44px; } }
+@media (max-width: 520px) { .m-page__bar-actions .m-stamp__text { display: none; } }
+.m-page__column { width: min(100%, var(--m-column)); margin-inline: auto; display: flex; flex-direction: column; gap: 4px; }
+@keyframes m-enter { from { opacity: 0; transform: translateY(12px); } }
+
+/* ---- Section label, group, row ---- */
+.m-section { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.m-section__head { padding: 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.m-section__title { margin: 0; font: var(--m-title-small); color: var(--md-sys-color-primary-text); letter-spacing: 0; }
+.m-section__desc { margin: 0; padding: 0 16px; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-medium); }
+.m-group { display: flex; flex-direction: column; gap: 2px; }
+.m-group--spaced { gap: 8px; }
+
+.m-item {
+  --m-item-radius: var(--md-sys-shape-corner-extra-small);
+  position: relative; display: flex; align-items: center; gap: 16px; min-height: 56px; padding: 12px 16px; width: 100%; margin: 0; border: 0; text-align: left; font: inherit; text-decoration: none;
+  background: var(--m-card); color: var(--md-sys-color-on-surface); border-radius: var(--m-item-radius); isolation: isolate; overflow: clip;
+  transition: border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects);
+}
+.m-group > .m-item:first-child { border-top-left-radius: var(--md-sys-shape-corner-extra-large); border-top-right-radius: var(--md-sys-shape-corner-extra-large); }
+.m-group > .m-item:last-child { border-bottom-left-radius: var(--md-sys-shape-corner-extra-large); border-bottom-right-radius: var(--md-sys-shape-corner-extra-large); }
+.m-group--spaced > .m-item { border-radius: var(--md-sys-shape-corner-extra-large); }
+.m-item--action { cursor: pointer; }
+.m-item--action::before, .m-btn::before, .m-nav-item::before { content: ''; position: absolute; inset: 0; z-index: -1; background: currentColor; opacity: 0; border-radius: inherit; transition: opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+.m-item--action:hover::before { opacity: var(--m-state-hover); }
+.m-item--action:focus-visible::before { opacity: var(--m-state-focus); }
+.m-item--action:active::before { opacity: var(--m-state-pressed); }
+.m-item--action:active { --m-item-radius: var(--md-sys-shape-corner-medium); }
+/* ---- The selected row: ONE rule for every list-detail list (MNavList), every selected MItem / MSplitItem and the drawer's nav item. Why it is not the secondary container any more:
+   the list column is the frame (surface-container-high) and the secondary container is the same tone of the same hue in the default colour style (bright: both #e5deff in a light vibrant scheme), so
+   the selected row had a contrast of 1.0 against its own column while the unselected rows (surface-bright) stood out as the lighter cards. Material's list puts the selected row on `surface`
+   (MDC List.md: segmented rows surface-bright, selected secondary-container) and relies on the shape change; on the frame that is not enough, and WCAG 2.2 SC 1.4.11 asks 3:1 for what shows a state.
+   So the row has (1) a fill on the far side of the ladder from both neighbours (the column and the unselected rows): the highest container tone with 18 % of the accent's text colour in it, which is
+   darker than all of them in light and lighter than all of them in dark; (2) a 2 px inset ring in the accent's TEXT colour (primary-text: built to be 4.5 : 1 on every surface), which carries the 3 : 1;
+   (3) the on-surface ink. The fill is opaque on purpose (the unselected rows are translucent over a wallpaper; the selected one must not depend on what lies behind). test/selectedrow.test.js pins the
+   tokens: they may not be the column's tone, and the ring may not be the fill's. ---- */
+html { --m-sel-fill: color-mix(in srgb, var(--md-sys-color-primary-text) 18%, var(--md-sys-color-surface-container-highest)); --m-sel-ink: var(--md-sys-color-on-surface); --m-sel-ring: var(--md-sys-color-primary-text); --m-sel-ring-w: 0px; }
+/* ONE rule for every selected card, choice, swatch and chip-like control (no thick outline): the selected one is the container colour --m-sel-fill with the ink --m-sel-ink (M3: filter chips, segmented buttons and checked cards show a selected container, not a ring),
+   a check where the control has room for one (the glyph below, or the control's own check icon), and a heavier label where it has a label. The keyboard focus ring is a different thing and stays on :focus-visible only. test/selectedring.test.js: no selected-state rule draws a border, outline or box-shadow ring wider than 1 px. */
+html { --m-check-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E"); }
+.m-item--selected, .m-navlist__item[aria-current='page'], .m-nav-item[aria-current='page'] { background: var(--m-sel-fill); color: var(--m-sel-ink); box-shadow: inset 0 0 0 var(--m-sel-ring-w) var(--m-sel-ring); }
+/* the selected row of a segmented list changes shape too (MDC List.md, M3 Expressive: selected items change shape): all four corners large, on the spatial spring of .m-item */
+.m-item.m-item--selected, .m-group > .m-item.m-item--selected { border-radius: var(--md-sys-shape-corner-large); }
+.m-item--disabled { opacity: .38; pointer-events: none; }
+.m-item__lead { width: 24px; height: 24px; flex: none; display: grid; place-items: center; font-size: 24px; color: var(--md-sys-color-on-surface-variant); }
+.m-item__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.m-item__title { font: var(--m-title-medium); letter-spacing: 0; overflow-wrap: anywhere; }
+.m-item__text { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; }
+.m-item--selected .m-item__text { color: inherit; opacity: .94; }
+.m-item__trail { margin-left: auto; display: flex; align-items: center; gap: 12px; flex: none; color: var(--md-sys-color-on-surface-variant); }
+.m-item__chev { font-size: 24px; }
+.m-item--stack { flex-wrap: wrap; row-gap: 8px; }
+.m-item--wrap { flex-wrap: wrap; row-gap: 8px; }
+.m-item--wrap .m-item__body { flex: 1 1 12em; }
+.m-item--wrap .m-item__trail { flex-wrap: wrap; justify-content: flex-end; }
+.m-item--stack .m-item__control { flex: 1 1 100%; padding-left: 40px; min-width: 0; }
+.m-item--stack.m-item--plain .m-item__control { padding-left: 0; }
+.m-item__control .m-seg { width: 100%; }
+.m-item--field { padding: 10px 14px; min-height: 0; box-sizing: border-box; } /* a div, not a button: without this its padding is added to the 100% width and the field runs past the group */
+.m-item--field .m-field { width: 100%; }
+.m-footer { margin: 12px 0 0; padding: 0 16px; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-medium); }
+.m-footer p { margin: 0; }
+.m-choice { display: flex; flex-direction: column; margin: 0 -8px; }
+.m-choice__row { display: flex; align-items: center; gap: 12px; padding: 6px 8px; border-radius: 12px; cursor: pointer; color: var(--md-sys-color-on-surface); font: var(--m-body-large); }
+.m-choice__row:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-choice__text { display: flex; flex-direction: column; } .m-choice__text small { color: var(--md-sys-color-on-surface-variant); font: var(--m-body-small); }
+md-menu-item.m-danger { --md-menu-item-label-text-color: var(--md-sys-color-error); }
+
+/* the inset follows the pane (the container rules), not the viewport: a page in the panel's frame is 575 px wide in a 1000 px window */
+@media (max-width: 599.98px) { .m-page { --m-gutter: 12px; } .m-navlist { padding: 12px 12px 88px; } }
+@container (max-width: 700px) { .m-page { --m-gutter: 16px; } }
+@container (max-width: 560px) { .m-page { --m-gutter: 12px; } .m-page__title { font: var(--m-page-title-narrow); } }
+/* a page framed by the panel has no scene around it, so no container to query: its document is as wide as the pane, and the same two steps follow its own width (575 px framed was 12 px against the 16 px of a panel page of the same width) */
+@media (max-width: 700px) { html:has(.m-web-embedded) .m-page { --m-gutter: 16px; } }
+@media (max-width: 560px) { html:has(.m-web-embedded) .m-page { --m-gutter: 12px; } }
+
+/* ---- Wide detail pages reorganise into two columns of groups; each group keeps a readable width ---- */
+@container (min-width: 1000px) {
+  .m-page--cols { --m-column: 1200px; }
+  .m-page--cols .m-page__column { display: block; column-count: 2; column-gap: 24px; }
+  .m-page--cols .m-page__column > * { break-inside: avoid; }
+  /* both columns start at the same height: a margin on a first section is dropped at a column break */
+  .m-page--cols .m-page__column { padding-top: 20px; }
+  .m-page--cols .m-page__column .m-section { margin-top: 0; margin-bottom: 20px; }
+}
+
+.m-page--wide { --m-column: min(100%, 1280px); }
+.m-page--full { --m-column: 100%; }
+
+.m-item__count { font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+
+.m-section__title { display: flex; align-items: center; gap: 4px; }
+.m-section__info { margin-left: 2px; } .m-section__info .m-info__btn { width: 24px; height: 24px; font-size: 16px; }
+.m-section__info .m-info__tip { left: 0; right: auto; text-transform: none; }
+
+/* the overview and any other dashboard page (wide AND full: the tiles fill the pane): the title row is the one every page has (see .m-page__bar); the column only keeps the room it had under the old, slimmer row */
+.m-page--wide .m-page__column { padding-top: 8px; }
+/* the overview (wide and full) has the same edge as every page: its title is over the first tile; only on a phone does it keep the 16 px it always had */
+.m-page--wide.m-page--full .m-page__column { padding-top: 2px; }
+@media (max-width: 599.98px) { .m-page--wide.m-page--full { --m-gutter: 16px; } }
+
+/* Wallpaper: text that sits on the page itself (a note, a lead line, a text button) has no box behind it: it is a tone nearer the text colour and carries a soft halo of the page's own tone (the scrim of the offline state, in text form), so it holds its ratio on any picture. */
+html.m-has-wallpaper { --m-halo: color-mix(in srgb, var(--m-page-solid) 90%, transparent); }
+html.m-has-wallpaper :is(.m-footer, .cfg-enc-note, .m-guide__stepof, .m-guide__lead, .m-guide__note, .setup-sub, .m-guide__brand) { color: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 45%, var(--md-sys-color-on-surface)); text-shadow: 0 0 5px var(--m-halo), 0 0 12px var(--m-halo), 0 0 22px var(--m-halo); }
+html.m-has-wallpaper .m-footer a { text-decoration: underline; text-underline-offset: 2px; }
+html.m-has-wallpaper :is(.m-actions-row, .m-section, .m-page__column, .m-section__head, .m-welcome__actions, .m-guide__actions) > .m-btn--text, html.m-has-wallpaper :is(.m-actions-row, .m-welcome__actions, .m-guide__actions) .m-btn--text { color: color-mix(in srgb, var(--md-sys-color-primary-text) 55%, var(--md-sys-color-on-surface)); text-shadow: 0 0 5px var(--m-halo), 0 0 12px var(--m-halo), 0 0 22px var(--m-halo); }
+
+
+/* A page shown inside the control panel's frame paints nothing of its own behind the page: the panel's wallpaper shows through. */
+html:has(.m-web-embedded), html:has(.m-web-embedded) body, .m-web-embedded { background: transparent !important; }
+/* and no margin of the browser's own around it: the page in the frame starts where a page of the panel starts, so its title sits where the panel's titles sit */
+html:has(.m-web-embedded) body { margin: 0; }
+html.m-has-wallpaper .m-item:not(.m-item--selected) .m-item__text { color: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 70%, var(--md-sys-color-on-surface)); }
+
+.m-rail--expanded .m-rail__foot { margin-top: 0; }
+/* the brand lockup: the icon and the name on one row, the icon at the scale of the name */
+.m-brand { display: inline-flex; align-items: center; gap: 8px; min-width: 0; line-height: 1; }
+.m-brand__icon { width: 20px; height: 20px; display: block; flex: none; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+/* the sun is pale and the icon has a transparent background: on a light frame it wears a thin darker rim drawn on the glyph itself (never a tile); on a dark frame it needs none */
+.m-brand__name { font: 600 15px/20px var(--md-ref-typeface-brand); letter-spacing: .01em; color: var(--md-sys-color-on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html:has(.m-web-embedded) .m-root, .m-web-embedded .m-app, .m-web-embedded .m-root { background: transparent !important; }
+/* the page in the control panel's frame has no scene of its own: the panel hands it --m-bottom-reserve (its root's custom properties travel with the colours) while its bar of unsaved changes floats, and the page ends with a spacer of that height, so its last row scrolls clear of the bar without the frame being shortened (a shortened frame shows the host surface below it as a band) */
+.m-web-embedded::after { content: ''; display: block; height: var(--m-bottom-reserve, 0px); }
+/* rail labels sit on the frosted frame, which is only slightly tinted: the idle label is on-surface, not the quieter variant */
+html.m-has-wallpaper .m-rail__item:not([aria-current="page"]) .m-rail__label { color: var(--md-sys-color-on-surface); }
+html.m-has-wallpaper .m-rail__item[aria-current="page"] .m-rail__label { color: color-mix(in srgb, var(--md-sys-color-secondary) 55%, var(--md-sys-color-on-surface)); }
+/* section labels are plain primary-tinted text (no capsule); over a picture they lean towards on-surface so they hold 4.5:1 on the frosted material */
+html.m-has-wallpaper :is(.m-section__title, .m-guide__label, .pin-group__title) { color: color-mix(in srgb, var(--md-sys-color-primary-text) 40%, var(--md-sys-color-on-surface)); }
+html.m-has-wallpaper .m-about .m-section .m-section__head .m-section__title { color: color-mix(in srgb, var(--md-sys-color-primary-text) 40%, var(--md-sys-color-on-surface)); }
+
+/* the scrim of a modal of an embedded page, over what the page cannot reach (the rail, the list, the caption bar): the same colour, blur and spring as the page's own scrim, the page's frame is the hole */
+html { --m-modal-scrim: color-mix(in srgb, var(--md-sys-color-scrim) 40%, transparent); --m-modal-blur: blur(10px) saturate(1.2); }
+.m-scene__modalscrim { position: fixed; inset: 0; z-index: 1500; background: var(--m-modal-scrim); backdrop-filter: var(--m-modal-blur); clip-path: var(--m-modal-clip, none); cursor: default; }
+.m-modalscrim-enter-active, .m-modalscrim-leave-active { transition: opacity var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
+.m-modalscrim-enter-from, .m-modalscrim-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-modalscrim-enter-active, html:not([data-motion='full']) .m-modalscrim-leave-active { transition: none; } }
+html[data-motion='reduced'] .m-modalscrim-enter-active, html[data-motion='reduced'] .m-modalscrim-leave-active { transition: none; }
+
+/* the caption bar (MCaption): the actions beside the search, in order: connect, announcements, account */
+.m-caption__end { display: flex; align-items: center; justify-self: end; margin-inline-start: auto; min-width: 0; }
+.m-caption__actions { flex: none; display: flex; align-items: center; gap: 4px; margin-inline-start: 8px; }
+/* the caption bar of a phone, the same in both products: search, connect, bell and account are icon buttons of one size, touching, all alike (the connect button is a plain icon, not a tonal pill); the status bell
+   keeps no empty slot while nothing is reported (the empty 48 px was the uneven gap and pushed the last button out of the window). The product's own grid (brand, search, end) is its own. */
+@media (max-width: 599.98px) {
+  .m-caption__actions { gap: 0; margin-inline-start: 0; padding-inline-end: 4px; }
+  .m-caption .m-icon-btn, .m-caption .m-caption-connect { width: 44px; height: 44px; min-width: 44px; padding: 0; justify-content: center; }
+  .m-caption .m-annbtn, .m-caption .m-statusbell { width: 44px; }
+  .m-caption .m-statusbell--rest { display: none; }
+  .m-caption .m-caption-connect { background: transparent; color: var(--md-sys-color-on-surface-variant); border-radius: 50%; }
+}

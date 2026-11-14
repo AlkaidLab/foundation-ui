@@ -1,0 +1,28 @@
+export default
+{
+  "apps": "{n} app",
+  "paired": "{n} associati",
+  "unpaired": "Non associato",
+  "noApps": "Ancora nessuna app",
+  "errors24": "{n} errori in 24 h",
+  "noErrors": "Nessun errore",
+  "ready": "{a}/{b} pronti",
+  "current": "Aggiornato",
+  "updateTo": "Aggiorna a {v}",
+  "on": "Attivo",
+  "off": "Disattivato",
+  "restartNote": "Dopo un riavvio",
+  "clientNote": "Impostato dal client · dopo un riavvio",
+  "padNote": "Vale per i nuovi controller",
+  "addFps": "Aggiungi una frequenza",
+  "add": "Aggiungi",
+  "errorsUnit": "errori",
+  "last24": "Ultime 24 ore",
+  "warnings": "{n} avvisi",
+  "noWarnings": "Nessun avviso",
+  "linesUnit": "righe",
+  "levelErr": "{n} errori",
+  "levelWarn": "{n} avvisi",
+  "noLines": "Nessuna riga nuova",
+  "noWallpaper": "Nessuno sfondo"
+}

@@ -1,0 +1,37 @@
+/* Text fields: one container rule for every field of the Panel and the Web UI.
+   A field is an outlined M3 field (label notch, caret, error, focus kept) on a tonal container: the fill is the container colour of the M3 filled field
+   (surface-container-highest), the boundary is the M3 `outline` role, which is at least 3.4:1 against every surface, bright, container and highest, in
+   light and dark (WCAG 2.2 SC 1.4.11 needs 3:1 for the edge of a control). `outline-variant` (1.3:1) is a divider colour, never the edge of a field.
+   md-outlined-text-field takes the fill through its `container` slot (span.m-field__fill, inside MField / MFieldItem / MValueDialog); a native input takes it from
+   .m-input. A page does not colour a field itself. */
+:root {
+  --m-field-fill: var(--md-sys-color-surface-container-highest);
+  --m-field-fill-disabled: color-mix(in srgb, var(--md-sys-color-on-surface) 4%, transparent);
+  --m-field-outline: var(--md-sys-color-outline);
+  --m-field-outline-hover: var(--md-sys-color-on-surface);
+  --m-field-shape: 16px;
+}
+md-outlined-text-field {
+  --md-outlined-text-field-container-shape: var(--m-field-shape);
+  --md-outlined-text-field-outline-color: var(--m-field-outline);
+  --md-outlined-text-field-hover-outline-color: var(--m-field-outline-hover);
+}
+/* the width of a field is the page's: .m-field is a field that fills its row */
+.m-field { width: 100%; }
+.m-field__fill { background: var(--m-field-fill); }
+md-outlined-text-field[disabled] .m-field__fill { background: var(--m-field-fill-disabled); }
+
+/* A native input or textarea that is a text field of the product: the same container, edge, focus and error as the outlined field. */
+.m-input {
+  border: 1px solid var(--m-field-outline); border-radius: var(--m-field-shape);
+  background: var(--m-field-fill); color: var(--md-sys-color-on-surface); outline: 0; caret-color: var(--md-sys-color-primary);
+  transition: border-color 150ms, box-shadow 150ms;
+}
+/* size and type at zero specificity: a page sets the height and the font of its input, never the surface */
+:where(.m-input) { box-sizing: border-box; min-width: 0; margin: 0; padding: 0 16px; font: var(--m-body-large); }
+:where(textarea.m-input) { padding: 12px 16px; }
+.m-input::placeholder { color: var(--md-sys-color-on-surface-variant); opacity: 1; }
+.m-input:hover:not(:disabled) { border-color: var(--m-field-outline-hover); }
+.m-input:focus, .m-input:focus-visible { border-color: var(--md-sys-color-primary); box-shadow: inset 0 0 0 1px var(--md-sys-color-primary); outline: 0; }
+.m-input[aria-invalid='true'], .m-input[aria-invalid=''] { border-color: var(--md-sys-color-error); box-shadow: inset 0 0 0 1px var(--md-sys-color-error); }
+.m-input:disabled { background: var(--m-field-fill-disabled); border-color: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent); color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent); }

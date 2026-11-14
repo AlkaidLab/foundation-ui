@@ -1,0 +1,5 @@
+/* the developer entry: a column of blocks, the way out at the end */
+.m-dev { display: flex; flex-direction: column; gap: 16px; }
+.m-dev__block { display: flex; flex-direction: column; gap: 12px; }
+.m-dev__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.m-dev__off { padding-top: 8px; border-top: 1px solid var(--md-sys-color-outline-variant); }

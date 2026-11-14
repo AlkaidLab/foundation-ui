@@ -1,0 +1,104 @@
+/* tile-fit, the manual-layout entries of the 4 TB round (fix/tiles-4tb): tile-specific rules for the small (方形) and medium tiles that a real window leaves 150 to 185 px of room. Each tile keeps its visual
+   (the art, the plate, the numeral) and its control; what does not fit gives way in this order: a gap, a control's height, a glyph that becomes the watermark of its plate. No text goes under 11 px. */
+
+/* 手柄类型 / 编码器 方形: three list buttons and the title fit 150 px at 28 px each; the restart note is behind the chevron (MPickSheet help) */
+.m-b2padtype.is-s .m-calm__head { min-height: 22px; }
+.m-b2padtype.is-s .m-b2padtype__body { margin-top: 4px; }
+.m-b2padtype.is-s .m-b2opts { gap: 2px; }
+.m-b2padtype.is-s .m-b2opt { height: 28px; padding: 0 10px; gap: 4px; flex: none; }
+.m-b2padtype.is-s .m-b2opt .m-icon { display: none; }
+.m-b2padtype.is-s .m-b2padtype__note { display: none; }
+.m-b2padtype.is-s .m-b2padtype__side { justify-content: flex-start; gap: 0; }
+/* 手柄类型 中: the note takes the room under the buttons and wraps */
+.m-b2padtype.is-m .m-b2padtype__note { margin-top: 0; line-height: 14px; }
+.m-b2padtype.is-m .m-b2padtype__side { gap: 2px; }
+.m-b2padtype.is-m .m-b2opt { height: 30px; }
+.m-b2padtype.is-m .m-b2opts { gap: 3px; }
+
+/* 麦克风 (switch) 方形: the glyph and the state sit in one row of the plate; the note stays under it */
+.m-b2mic.is-s .m-b2plate { flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; padding: 8px 12px; min-height: 0; }
+.m-b2mic.is-s .m-b2plate .m-b2glyph { --g: 40px; }
+.m-b2mic.is-s .m-b2__cap { margin-top: 4px; line-height: 14px; }
+
+/* 手柄 (status) 方形: the art keeps a plate of its own height; the name and the state line wrap under it */
+.m-b2pad.is-s .m-b2plate { flex: 1 1 40px; min-height: 40px; padding: 6px 12px; }
+.m-b2pad.is-s .m-b2__name { --b2n: 16px; margin-top: 4px; }
+.m-b2pad.is-s .m-b2__cap { line-height: 14px; }
+
+/* 下载客户端: the name and the button give a little room to each other; a medium tile's icon follows its height */
+.m-b2dl.is-s .m-b2dl__name { font-size: 17px; line-height: 1.12; margin-top: 4px; }
+.m-b2dl.is-s.is-short .m-b2dl__name { font-size: 24px; }
+.m-b2dl.is-s .m-b2dl__top { min-height: 32px; }
+.m-b2dl.is-s .m-b2dl__go { height: 30px; min-height: 26px; flex: 0 1 30px; }
+.m-b2dl.is-m > .m-b2dl__icon { --ic: 100px; }
+.m-b2dl.is-m .m-b2dl__side { gap: 4px; }
+.m-b2dl.is-m .m-b2dl__name { font-size: 20px; }
+.m-b2dl.is-m .m-mchip__btn { height: 28px; }
+.m-b2dl.is-m .m-b2__btn { height: 30px; min-height: 26px; flex: 0 1 30px; }
+
+/* 加密 中: the lock is the watermark of the plate, behind the words; the title, the mode and its note take the whole plate */
+.m-b2enc.is-m .m-b2plate { position: relative; padding: 8px 12px; }
+.m-b2enc.is-m .m-b2plate > .m-icon { position: absolute; z-index: -1; right: 8px; top: 8px; width: 44px; height: 44px; margin: 0; opacity: .2; }
+.m-b2enc.is-m .m-b2plate > span { flex: 1; min-width: 0; }
+.m-b2enc.is-m .m-b2enc__note { line-height: 14px; }
+
+/* 目标码率 (the metric tile) 方形: the numeral follows the width of the tile and its unit goes under it when the two do not fit one line */
+.m-calm.is-s .m-calm__value { container-type: inline-size; flex-wrap: wrap; row-gap: 2px; }
+.m-calm.is-s .m-calm__value b { font-size: min(var(--cv, 60px), 33cqw); }
+
+/* 正在串流到 方形: the glyph of the client is the watermark of the plate; the name and the address have the plate */
+.m-b2sc.is-s .m-b2plate { position: relative; margin-top: 6px; padding: 8px 10px; justify-content: flex-end; }
+.m-b2sc.is-s .m-b2plate .m-b2glyph { position: absolute; z-index: -1; right: 6px; top: 6px; --g: 44px; opacity: .35; }
+
+/* 手柄类型 中: the art and the note stand in the first column (the note under the art), the three buttons in the second: the note no longer needs a row under the buttons */
+.m-b2padtype.is-m .m-b2padtype__body { display: grid; grid-template-columns: 38% minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; column-gap: 14px; row-gap: 2px; margin-top: 4px; }
+.m-b2padtype.is-m .m-b2padtype__side { display: contents; }
+.m-b2padtype.is-m .m-b2padtype__body > .m-b2plate { grid-column: 1; grid-row: 1; flex: none; }
+.m-b2padtype.is-m .m-b2opts { grid-column: 2; grid-row: 1 / span 2; align-self: center; gap: 2px; }
+.m-b2padtype.is-m .m-b2opt { height: 28px; }
+.m-b2padtype.is-m .m-b2padtype__note { grid-column: 1; grid-row: 2; }
+.m-b2pad.is-s .m-b2plate { flex: 1 1 32px; min-height: 32px; }
+.m-b2pad.is-s .m-b2__name { margin-top: 2px; }
+
+/* 网卡 / 编码器 中: the numeral follows the 150 px height of the tile, so the lines under it (the adapter and its address, the codec and its bitrate) stay inside */
+.m-tnet.is-m .m-tnum--m, .m-tenc.is-m .m-tnum--m { --tn: 44px; }
+.m-tnet.is-m .m-tnet__main { gap: 4px; }
+.m-tnet.is-m .m-tnet__name { line-height: 18px; }
+.m-tnet.is-m .m-tnet__ip { line-height: 16px; }
+
+/* 目标码率 (the stream gauge) 中: the chips beside the gauge wrap inside the room they have instead of leaving the tile */
+.m-tstream.is-m .m-tstream__side .m-tchip { height: auto; min-height: 26px; padding-block: 4px; white-space: normal; line-height: 14px; max-width: 100%; text-align: left; }
+
+/* 主机 (the host card) 中: with a stream running the name, the state line and the chips of the card share 114 px; the name gives a few pixels to the line */
+.m-calh.is-m .m-calh__name { --hn: 30px; }
+.m-calh.is-m .m-calh__line { line-height: 16px; }
+
+/* DualSense 调校 大: the slider rows keep title and slider; the line that says when the tuning applies is said once, under the first title (it was repeated three times and pushed the third row out) */
+.m-rc__row.is-slider:not(:first-child) .m-rc__text small { display: none; }
+.m-rc__row.is-slider { padding-block: 2px; }
+
+/* 已配对客户端 大: the count follows the tile; the list shows the rows that fit under it */
+.m-b2paired.is-l { container: m-pl / size; }
+.m-b2paired.is-l .m-b2paired__count { --tn: 60px; margin-top: 6px; }
+@container m-pl (max-height: 360px) { .m-b2paired.is-l .m-b2list > li:nth-child(n+4) { display: none; } }
+
+/* 引导 (the journey card) in a narrow window: the connectors between the steps are short, so the name of the current step is whole */
+@container (max-width: 520px) {
+  .m-journey__steps { gap: 4px; }
+  .m-journey__steps li { gap: 4px; }
+  .m-journey__steps li + li::before { width: 10px; }
+  .m-journey__steps li.is-on span { overflow: visible; text-overflow: clip; }
+}
+.m-rc__rows { row-gap: 6px; }
+.m-tnet.is-m .m-tnum--m, .m-tenc.is-m .m-tnum--m { --tn: 38px; }
+.m-tnet.is-m .m-tnum__cap, .m-tenc.is-m .m-tnum__cap { margin-top: 2px; }
+/* 目标码率 (the stream gauge) 中: the cap chip sits in the title row (the gauge and the numeral have the rest); it replaces the narrow wrapped chip */
+.m-tstream--stream-bitrate.is-m .m-tstream__side { position: absolute; top: 14px; right: 16px; padding: 0; gap: 0; align-self: auto; flex: none; }
+.m-tstream--stream-bitrate.is-m .m-tstream__side .m-tchip { white-space: nowrap; height: 26px; padding-block: 0; }
+.m-tenc.is-m .m-tnum--m { --tn: 32px; }
+.m-b2pad.is-s .m-b2plate { flex: 1 1 26px; min-height: 26px; padding: 4px 12px; }
+.m-b2pad.is-s .m-b2__name { --b2n: 15px; }
+/* 编码器 中: the budget ring is 88 px, the height the tile leaves beside the codec word, so the line under the word stays inside */
+.m-tenc.is-m .m-tenc__budget { width: 88px; }
+/* the chip is centred on the title row, inside the tile: -47 px put its top on the tile's edge , -38 px leaves 10 px above it */
+.m-tstream--stream-bitrate.is-m .m-tstream__side { top: -38px; right: 0; }

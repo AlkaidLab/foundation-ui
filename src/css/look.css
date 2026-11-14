@@ -1,0 +1,51 @@
+/* 界面 (个性化): two looks of the old desktop's theme editor. Each applies only away from its default (appearance/apply.js applyInterfaceLook),
+   so the design as it is stays untouched: data-card-corner and --m-card-corner, data-text-size and --m-text-scale (text size / 14). */
+/* their defaults: the design as it is (the page sets them inline only away from these) */
+:root { --m-text-scale: 1; --m-card-corner: var(--md-sys-shape-corner-extra-large); }
+/* the title of a page: one size on every page and in every frame; it does not follow the width of the viewport the page is shown in (a page in the panel's narrow frame had 32 px beside the panel's own 28) */
+:root { --m-page-title: 500 calc(28px * var(--m-text-scale, 1))/calc(36px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand); --m-page-title-narrow: 500 calc(24px * var(--m-text-scale, 1))/calc(32px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand); }
+/* the text size scales the whole type scale of tokens.css (and its desktop step), sizes and line heights together */
+html[data-text-size] {
+  --m-display-large: 400 calc(57px * var(--m-text-scale, 1))/calc(64px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-display-medium: 400 calc(45px * var(--m-text-scale, 1))/calc(52px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-display-small: 400 calc(36px * var(--m-text-scale, 1))/calc(44px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-display-small-emphasized: 500 calc(36px * var(--m-text-scale, 1))/calc(44px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-headline-large: 400 calc(32px * var(--m-text-scale, 1))/calc(40px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-headline-large-emphasized: 500 calc(32px * var(--m-text-scale, 1))/calc(40px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-headline-medium: 400 calc(28px * var(--m-text-scale, 1))/calc(36px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-headline-medium-emphasized: 500 calc(28px * var(--m-text-scale, 1))/calc(36px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-headline-small: 400 calc(24px * var(--m-text-scale, 1))/calc(32px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-headline-small-emphasized: 500 calc(24px * var(--m-text-scale, 1))/calc(32px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-title-large: 400 calc(22px * var(--m-text-scale, 1))/calc(28px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-title-large-emphasized: 500 calc(22px * var(--m-text-scale, 1))/calc(28px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-title-medium: 500 calc(16px * var(--m-text-scale, 1))/calc(24px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-title-medium-emphasized: 700 calc(16px * var(--m-text-scale, 1))/calc(24px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-title-small: 500 calc(14px * var(--m-text-scale, 1))/calc(20px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-title-small-emphasized: 700 calc(14px * var(--m-text-scale, 1))/calc(20px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-body-large: 400 calc(16px * var(--m-text-scale, 1))/calc(24px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-body-large-emphasized: 500 calc(16px * var(--m-text-scale, 1))/calc(24px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-body-medium: 400 calc(14px * var(--m-text-scale, 1))/calc(20px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-body-medium-emphasized: 500 calc(14px * var(--m-text-scale, 1))/calc(20px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-body-small: 400 calc(12px * var(--m-text-scale, 1))/calc(16px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-label-large: 500 calc(14px * var(--m-text-scale, 1))/calc(20px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-label-large-emphasized: 700 calc(14px * var(--m-text-scale, 1))/calc(20px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-label-medium: 500 calc(12px * var(--m-text-scale, 1))/calc(16px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  --m-label-small: 500 calc(11px * var(--m-text-scale, 1))/calc(16px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+}
+@media (pointer: fine) and (min-width: 720px) {
+  html[data-text-size] {
+    --m-body-large: 400 calc(15px * var(--m-text-scale, 1))/calc(22px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+    --m-body-medium: 400 calc(13px * var(--m-text-scale, 1))/calc(18px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+    --m-title-medium: 500 calc(15px * var(--m-text-scale, 1))/calc(22px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+    --m-title-medium-emphasized: 700 calc(15px * var(--m-text-scale, 1))/calc(22px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+    --m-headline-large-emphasized: 500 calc(28px * var(--m-text-scale, 1))/calc(36px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+    --m-headline-medium-emphasized: 500 calc(24px * var(--m-text-scale, 1))/calc(32px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+    --m-label-large: 500 calc(13px * var(--m-text-scale, 1))/calc(18px * var(--m-text-scale, 1)) var(--md-ref-typeface-brand);
+  }
+}
+/* the card corner: list groups, overview tiles, the rows of 个性化, stat cards */
+html[data-card-corner] .m-group > .m-item:first-child { border-top-left-radius: var(--m-card-corner); border-top-right-radius: var(--m-card-corner); }
+html[data-card-corner] .m-group > .m-item:last-child { border-bottom-left-radius: var(--m-card-corner); border-bottom-right-radius: var(--m-card-corner); }
+html[data-card-corner] .m-group--spaced > .m-item { border-radius: var(--m-card-corner); }
+html[data-card-corner] .m-dash, html[data-card-corner] .m-dash--compact { --m-dash-radius: var(--m-card-corner); }
+html[data-card-corner] .m-ap__row, html[data-card-corner] .m-stat { border-radius: var(--m-card-corner); }

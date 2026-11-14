@@ -1,0 +1,15 @@
+/* Text selection. The window is an app, not a document: its chrome (titles, buttons, rows, tiles, captions, menus, labels) is not text to pick up with a drag or a double-click, and a drag that starts
+   on a tile or a row must not paint a blue band over half the page. One rule for the whole window, with explicit opt-ins for what a person may want to copy or read at length:
+     - fields: inputs, text areas, editable regions, the Material text fields and selects;
+     - code and data the user copies: <pre>, <code>, <samp>, `.m-mono`, `.m-pre` (IDs, addresses, commands, hashes, error details, log lines: MLogViewer's list);
+     - long-form text meant to be read: `.m-md` (the markdown of an announcement, the changelog, the about text), the message of a dialog;
+     - anything else a product marks itself: `.m-selectable` or `[data-selectable]` on the element (never per page CSS).
+   `user-select: none` on the root is inherited through `auto`, so one rule covers the shadow trees of the Material components too (CSS UI Level 4, user-select: "auto" takes the parent's value when it is none);
+   an explicit `text` below overrides it for the element and everything inside it. */
+:root { -webkit-user-select: none; user-select: none; }
+/* the top layer (a modal <dialog>, a popover) is laid out as a child of the viewport, not of its place in the page, and `auto` there does not take the root's `none`: it is set on the layer itself, or every dialog and sheet would be a block of selectable text */
+:where(dialog, [popover]) { -webkit-user-select: none; user-select: none; }
+:where(input, textarea, [contenteditable]:not([contenteditable='false']), md-outlined-text-field, md-filled-text-field, md-outlined-select, md-filled-select) { -webkit-user-select: text; user-select: text; }
+:where(pre, code, samp, .m-mono, .m-pre, .m-md, .m-logv__scroll, .m-dialog__message, .m-selectable, [data-selectable]) { -webkit-user-select: text; user-select: text; }
+/* a control that sits inside a selectable block stays a control: pressing it never starts a selection */
+:where(.m-md, .m-logv__scroll, .m-selectable, [data-selectable]) :where(button, [role='button'], md-text-button, md-filled-button, md-filled-tonal-button, md-outlined-button, md-icon-button, summary) { -webkit-user-select: none; user-select: none; }

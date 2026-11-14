@@ -1,0 +1,28 @@
+export default
+{
+  "apps": "アプリ {n}",
+  "paired": "{n} 台をペアリング済み",
+  "unpaired": "未ペアリング",
+  "noApps": "アプリはまだありません",
+  "errors24": "24時間でエラー {n}",
+  "noErrors": "エラーなし",
+  "ready": "{a}/{b} 準備完了",
+  "current": "最新です",
+  "updateTo": "{v} に更新",
+  "on": "オン",
+  "off": "オフ",
+  "restartNote": "再起動後",
+  "clientNote": "クライアントの設定 · 再起動後",
+  "padNote": "新しいコントローラーに適用",
+  "addFps": "フレームレートを追加",
+  "add": "追加",
+  "errorsUnit": "エラー",
+  "last24": "過去24時間",
+  "warnings": "警告 {n}",
+  "noWarnings": "警告なし",
+  "linesUnit": "行",
+  "levelErr": "エラー {n}",
+  "levelWarn": "警告 {n}",
+  "noLines": "新しい行はありません",
+  "noWallpaper": "壁紙なし"
+}

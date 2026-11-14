@@ -1,0 +1,196 @@
+/* The unsaved bar, the notifications and the dialog. Loaded after the other files. */
+
+/* ---- Unsaved bar: one for the whole window ---- */
+.m-pbar { position: fixed; z-index: 30; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 24px); padding: 8px 8px 8px 8px; border-radius: 9999px; }
+.m-pbar__summary { display: inline-flex; align-items: center; gap: 8px; min-width: 0; height: 40px; padding: 0 12px 0 16px; border: 0; border-radius: 9999px; background: transparent; color: inherit; font: var(--m-label-large); cursor: pointer; }
+.m-pbar__count { white-space: nowrap; }
+.m-pbar__pages { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--m-body-medium); }
+.m-pbar__summary .m-icon { font-size: 20px; flex: none; }
+@media (max-width: 599.98px) { .m-pbar__pages { display: none; } }
+.m-savebar-enter-active.m-pbar { animation: m-pbar-in var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
+@keyframes m-pbar-in { from { opacity: 0; transform: translate(-50%, 24px); } }
+.m-pbar.m-savebar-leave-active { transition: opacity 120ms linear, transform 120ms var(--m-ease-accelerate); }
+.m-pbar.m-savebar-leave-to { opacity: 0; transform: translate(-50%, 16px); }
+
+/* ---- Changes as rows: the name, the old value (muted outline chip) → the new value (tonal chip); the rows sit in one rounded list ---- */
+.m-plist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.m-plist__group + .m-plist__group { margin-top: 12px; }
+.m-plist__label { margin: 0 0 6px 4px; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-plist__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; } .m-plist__head h3 { margin: 0 0 0 4px; font: var(--m-title-small); color: var(--md-sys-color-on-surface-variant); }
+.m-plist--box { border-radius: 16px; background: var(--md-sys-color-surface-container); overflow: hidden; }
+.m-plist--scroll { max-height: none; } /* the body of the dialog is the one scroll area */
+.m-prow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; min-height: 56px; padding: 8px 16px; }
+.m-prow + .m-prow { border-top: 1px solid var(--md-sys-color-outline-variant); }
+.m-prow__label { flex: 1 1 150px; min-width: 0; font: var(--m-body-large); color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; }
+.m-prow__vals { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; }
+.m-prow__vals .m-icon { flex: none; font-size: 16px; color: var(--md-sys-color-on-surface-variant); }
+.m-vchip { box-sizing: border-box; display: inline-block; max-width: 160px; height: 24px; padding: 0 10px; border: 1px solid transparent; border-radius: 12px; font: var(--m-label-medium); line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-vchip--old { border-color: var(--md-sys-color-outline-variant); color: var(--md-sys-color-on-surface-variant); }
+.m-vchip--new { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-sconseq { display: flex; flex-direction: column; gap: 12px; }
+.m-sconseq__row { display: flex; align-items: flex-start; gap: 16px; color: var(--md-sys-color-on-surface); }
+.m-sconseq__row > .m-icon { flex: none; font-size: 24px; margin-top: 1px; color: var(--md-sys-color-on-surface-variant); }
+.m-sconseq__row > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.m-sconseq__row b { font: var(--m-body-large); font-weight: 500; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.m-sconseq__row span { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-sconseq__error { margin: 0; color: var(--md-sys-color-error); font: var(--m-body-medium); }
+/* a tag: a container colour with its own on-colour, so it reads in every theme */
+.m-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 8px; font: var(--m-label-small); font-weight: 500; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-sconseq__row .m-tag { color: var(--md-sys-color-on-secondary-container); }
+.m-tag--critical, .m-sconseq__row .m-tag--critical { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-tag--high, .m-sconseq__row .m-tag--high { background: var(--md-sys-color-warning-container); color: var(--md-sys-color-on-warning-container); }
+
+/* ---- Dialog, Material 3: headline left, icon (when there is one) bare above it, actions at the end ---- */
+.m-dialog { max-width: min(560px, calc(100vw - 32px)); min-width: min(312px, calc(100vw - 32px)); }
+.m-dialog__panel { gap: 16px; padding: 24px; border-radius: 28px; }
+.m-dialog__title { text-align: start; font: var(--m-headline-small); color: var(--md-sys-color-on-surface); }
+.m-dialog__icon { width: auto; height: auto; align-self: center; background: transparent; border-radius: 0; font-size: 24px; color: var(--md-sys-color-secondary-text); }
+.m-dialog__icon .m-icon { font-size: 24px; }
+.m-dialog__icon + .m-dialog__title { text-align: center; }
+.m-dialog__icon--danger, .m-dialog__icon--error { background: transparent; color: var(--md-sys-color-error); }
+.m-dialog__icon--info, .m-dialog__icon--accent { background: transparent; color: var(--md-sys-color-primary-text); }
+.m-dialog__body { font: var(--m-body-medium); }
+.m-dialog__actions { gap: 8px; }
+
+/* ---- Snackbar motion ---- */
+.m-snack-enter-active { animation: m-snack-in var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
+.m-snack-leave-active { transition: opacity 100ms linear; }
+.m-snack-leave-to { opacity: 0; }
+@keyframes m-snack-in { from { opacity: 0; transform: translate(-50%, 16px); } }
+
+/* ---- Status button of the caption bar and its panel ---- */
+.m-statusbell { position: relative; display: inline-flex; flex: none; width: 48px; }
+.m-statusbell--rest { height: 40px; }
+.m-statusbell__badge { position: absolute; top: 2px; right: 2px; pointer-events: none; }
+.m-statusbell--error .m-icon-btn { color: var(--md-sys-color-error); } .m-statusbell--warn .m-icon-btn { color: var(--md-sys-color-warning, var(--md-sys-color-on-surface)); }
+
+
+/* ---- The list of the unsaved changes rises from the bar (top layer, above the bar) ---- */
+.m-plistpop { position: fixed; inset: auto; margin: 0; padding: 0; display: none; flex-direction: column; border: 0; border-radius: 20px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); box-shadow: 0 8px 24px color-mix(in srgb, var(--md-sys-color-shadow) 28%, transparent), 0 0 0 1px color-mix(in srgb, var(--md-sys-color-outline-variant) 60%, transparent); overflow: hidden; transform-origin: 50% 100%; }
+.m-plistpop:popover-open { display: flex; animation: m-plist-rise var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
+@keyframes m-plist-rise { from { opacity: 0; transform: translateY(16px) scale(.96); } }
+.m-plistpop__head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 8px 0 20px; }
+.m-plistpop__head h2 { margin: 0; font: var(--m-title-medium); }
+.m-plistpop__body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px 12px; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-plistpop:popover-open { animation: none; } }
+html[data-motion='reduced'] .m-plistpop:popover-open { animation: none; }
+
+/* ---- Scrim of a dialog: strong enough on a dark scheme, where the cards behind are nearly as dark as the scrim ---- */
+.m-dialog::backdrop { background: color-mix(in srgb, var(--md-sys-color-scrim, #000) 48%, transparent); backdrop-filter: none; }
+:is([data-theme='dark'], [data-bs-theme='dark'], .dark) .m-dialog::backdrop { background: color-mix(in srgb, var(--md-sys-color-scrim, #000) 66%, transparent); }
+.m-dialog__message { margin: 0; white-space: pre-line; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+
+/* a window that resets every margin (the log console) must not move the dialog to its corner: the modal dialog centres itself with auto margins */
+.m-dialog { margin: auto; }
+
+/* ---- The dialog surface is the M3 role (surface-container-high) with the on-surface text; the vibrant light scheme gives that role a saturated lavender, so the chroma is
+   halved (lightness and hue stay) for the dialog and what sits on it, and the same in every scheme ---- */
+@supports (color: oklch(from red l c h)) {
+  .m-dialog__panel { background: oklch(from var(--md-sys-color-surface-container-high) l calc(c * .5) h); }
+  .m-dialog__panel .m-plist--box { background: oklch(from var(--md-sys-color-surface-container) l calc(c * .5) h); }
+  .m-plistpop { background: oklch(from var(--md-sys-color-surface-container-high) l calc(c * .5) h); }
+  .m-plistpop .m-plist--box { background: oklch(from var(--md-sys-color-surface-container) l calc(c * .5) h); }
+}
+.m-dialog__title, .m-dialog__body { color: var(--md-sys-color-on-surface); }
+.m-dialog__message { color: var(--md-sys-color-on-surface); }
+/* the dialog body styles its own lists as bullet lists; the change list is not one */
+.m-dialog__body .m-plist { padding-left: 0; gap: 0; }
+
+/* ---- Bottom stack: the bar of unsaved changes and the snackbar are the same pill; each is placed by the stack (inline bottom) and moves when a layer below it comes or goes ---- */
+.m-pbar { transition: bottom var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-snackbar { box-sizing: border-box; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 56px; max-width: calc(100vw - 24px); padding: 8px 8px 8px 24px; border-radius: 9999px; font: var(--m-label-large); transition: bottom var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-snackbar[popover] { position: fixed; inset: auto auto 20px 50%; margin: 0; border: 0; overflow: visible; width: max-content; }
+.m-snackbar__text { flex: 1; min-width: 0; padding-right: 8px; font: var(--m-label-large); }
+.m-snackbar .m-btn--text { flex: none; }
+.m-pin-toast { transition: bottom var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-pbar, html:not([data-motion='full']) .m-snackbar, html:not([data-motion='full']) .m-pin-toast { transition: none; } }
+html[data-motion='reduced'] .m-pbar, html[data-motion='reduced'] .m-snackbar, html[data-motion='reduced'] .m-pin-toast { transition: none; }
+
+/* the change rows keep the undo beside the values (the list of the popover is narrow) */
+.m-prow { flex-wrap: nowrap; }
+.m-prow__label { flex: 1 1 80px; }
+.m-prow__vals { flex: 0 1 auto; }
+.m-vchip { flex: 0 1 auto; min-width: 0; }
+.m-plistpop .m-vchip { max-width: 120px; }
+
+/* ---- Status panel of the caption bar: a list like the settings lists ---- */
+.m-statuspanel { position: fixed; inset: auto; margin: 0; padding: 8px 8px 12px; width: min(400px, calc(100vw - 16px)); max-height: min(72dvh, 560px); overflow-y: auto; border: 0; border-radius: 24px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); box-shadow: 0 8px 24px color-mix(in srgb, var(--md-sys-color-shadow) 24%, transparent), 0 0 0 1px color-mix(in srgb, var(--md-sys-color-outline-variant) 60%, transparent); }
+.m-statuspanel:popover-open { animation: m-sheet-end var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
+.m-statuspanel__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 4px 4px 16px; min-height: 48px; }
+.m-statuspanel__head h2 { margin: 0; font: var(--m-title-medium); }
+.m-statuspanel__groups { display: flex; flex-direction: column; }
+.m-sgroup, .m-srow { display: grid; grid-template-rows: 1fr; }
+.m-sgroup__inner, .m-srow__inner { min-height: 0; overflow: hidden; }
+.m-sgroup__label { margin: 8px 0 6px 12px; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-slist { list-style: none; margin: 0; padding: 0; border-radius: 16px; background: var(--md-sys-color-surface-container); overflow: hidden; }
+.m-sgroup + .m-sgroup { margin-top: 4px; }
+.m-srow + .m-srow > .m-srow__inner { border-top: 1px solid var(--md-sys-color-outline-variant); }
+.m-srow__inner { display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 16px; min-height: 64px; box-sizing: border-box; }
+.m-srow__icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-srow__icon .m-icon { font-size: 22px; }
+.m-srow__inner--error .m-srow__icon { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-srow__inner--warn .m-srow__icon { background: var(--md-sys-color-warning-container); color: var(--md-sys-color-on-warning-container); }
+.m-srow__inner--info .m-srow__icon { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-srow__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.m-srow__text b { font: var(--m-body-large); font-weight: 500; color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; }
+.m-srow__text span { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-srow__actions { flex: none; display: inline-flex; align-items: center; gap: 0; }
+.m-statuspanel__empty { margin: 4px 16px 8px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+/* rows and groups leave sliding out and fading, and the list closes up (the grid row goes from 1fr to 0fr) */
+.m-srow-leave-active, .m-sgroup-leave-active { transition: grid-template-rows 280ms var(--m-ease-standard, ease), opacity 220ms linear, transform 280ms var(--m-ease-standard, ease); }
+.m-srow-leave-to, .m-sgroup-leave-to { grid-template-rows: 0fr; opacity: 0; transform: translateX(36px); }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-srow-leave-active, html:not([data-motion='full']) .m-sgroup-leave-active { transition: none; } html:not([data-motion='full']) .m-statuspanel:popover-open { animation: none; } }
+html[data-motion='reduced'] .m-srow-leave-active, html[data-motion='reduced'] .m-sgroup-leave-active { transition: none; } html[data-motion='reduced'] .m-statuspanel:popover-open { animation: none; }
+@supports (color: oklch(from red l c h)) {
+  .m-statuspanel { background: oklch(from var(--md-sys-color-surface-container-high) l calc(c * .5) h); }
+  .m-slist { background: oklch(from var(--md-sys-color-surface-container) l calc(c * .5) h); }
+}
+
+/* ---- A change the host would refuse: the new value in an error chip and the reason under the row ---- */
+.m-vchip--bad { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-prow--invalid { flex-wrap: wrap; }
+.m-prow__error { flex: 1 0 100%; display: flex; align-items: center; gap: 6px; font: var(--m-body-medium); color: var(--md-sys-color-error); }
+.m-prow__error .m-icon { font-size: 18px; flex: none; }
+
+/* ---- A dialog never leaves the window: the title and the actions stay, the body scrolls with a fade at the edge that has more ---- */
+.m-dialog__panel { box-sizing: border-box; max-height: calc(100dvh - 48px); }
+.m-dialog__title, .m-dialog__actions, .m-dialog__icon { flex: none; }
+.m-dialog__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.m-dialog__body[data-fade='top'] { mask-image: linear-gradient(to bottom, transparent 0, #000 28px); }
+.m-dialog__body[data-fade='bottom'] { mask-image: linear-gradient(to top, transparent 0, #000 28px); }
+.m-dialog__body[data-fade='both'] { mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%); }
+
+/* ---- The bottom pill (unsaved bar, snackbar, toast): a tonal surface that floats on its shadow; light tonal in the light scheme, a raised dark surface in the dark ones ---- */
+.m-pbar, .m-snackbar, .m-pin-toast {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--md-sys-color-shadow) 24%, transparent), 0 1px 3px color-mix(in srgb, var(--md-sys-color-shadow) 22%, transparent), 0 0 0 1px color-mix(in srgb, var(--md-sys-color-outline-variant) 70%, transparent);
+}
+@supports (color: oklch(from red l c h)) {
+  .m-pbar, .m-snackbar, .m-pin-toast { background: oklch(from var(--md-sys-color-surface-container-highest) l calc(c * .7) h); }
+}
+.m-pbar .m-btn--text, .m-snackbar .m-btn--text { --m-btn-fg: var(--md-sys-color-primary); }
+.m-pbar .m-btn:not(.m-btn--text) { --m-btn-bg: var(--md-sys-color-primary); --m-btn-fg: var(--md-sys-color-on-primary); }
+.m-pbar__summary:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-pbar__pages { color: var(--md-sys-color-on-surface-variant); }
+
+/* ---- A text or number setting in a list: a row with the value, a pencil, and a compact dialog with the one field ---- */
+.m-item--invalid .m-item__text { color: var(--md-sys-color-error); }
+.m-item--empty .m-item__text { color: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 82%, transparent); }
+.m-item__edit { color: var(--md-sys-color-on-surface-variant); font-size: 20px; }
+.m-vdialog__help { margin: 0 0 16px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-vdialog__row { display: flex; align-items: flex-start; gap: 8px; min-width: min(420px, 100%); }
+.m-vdialog__row .m-vdialog__field { flex: 1; min-width: 0; }
+
+/* ---- A field of a form: plain on the surface, no row around it; a group of them is spaced as a form ---- */
+.m-fieldrow { display: block; }
+.m-fieldrow .m-field { width: 100%; }
+.m-fieldrow__info { margin-right: 12px; }
+.m-group:has(> .m-fieldrow) { gap: 16px; }
+/* a field among the rows of a group is a row of it: the card of the rows, their corners and their 2 px seam, so the group is one piece; a group of fields only stays a form */
+.m-group:has(> .m-item):has(> .m-fieldrow) { gap: 2px; }
+.m-group:has(> .m-item) > .m-fieldrow { background: var(--m-card); padding: 10px 14px; border-radius: var(--md-sys-shape-corner-extra-small); }
+.m-group:has(> .m-item) > .m-fieldrow:first-child { border-top-left-radius: var(--md-sys-shape-corner-extra-large); border-top-right-radius: var(--md-sys-shape-corner-extra-large); }
+.m-group:has(> .m-item) > .m-fieldrow:last-child { border-bottom-left-radius: var(--md-sys-shape-corner-extra-large); border-bottom-right-radius: var(--md-sys-shape-corner-extra-large); }
+html[data-card-corner] .m-group:has(> .m-item) > .m-fieldrow:first-child { border-top-left-radius: var(--m-card-corner); border-top-right-radius: var(--m-card-corner); }
+html[data-card-corner] .m-group:has(> .m-item) > .m-fieldrow:last-child { border-bottom-left-radius: var(--m-card-corner); border-bottom-right-radius: var(--m-card-corner); }

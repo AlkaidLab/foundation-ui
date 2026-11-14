@@ -1,0 +1,92 @@
+/* Touch (card touch-targets-r1, 2026-11-10). A finger needs a target of 48 x 48 dp (Material 3, m3.material.io/foundations/designing/structure "Touch targets"; Microsoft's
+   Fluent floor is 40 x 40 epx, WCAG 2.2 SC 2.5.8 the 24 x 24 px minimum). The visual keeps its size: a transparent box around the control takes the finger (the hit slop). With a mouse nothing here applies:
+   `any-pointer: coarse` for what is invisible (a tap box, no tap delay), `pointer: coarse` for what changes the layout (spacing, sizes). The pressed state on the frame of a press is a11y/touchPress.js
+   (`[data-pressed]`, css/touch-pressed.css). */
+@media (any-pointer: coarse) {
+  :root { --m-hit: 48px; -webkit-tap-highlight-color: transparent; }
+  :is(button, a[href], summary, select, input, textarea, [role='button'], [role='switch'], [role='tab'], [role='menuitem'], [role='checkbox'], [role='radio'], [role='option']) { touch-action: manipulation; }
+  /* the state layer comes on the frame of the press, without its fade */
+  [data-pressed]::before { transition-duration: 0s !important; }
+
+  /* ---- the hit slop: the ::after of the control grows to --m-hit around it where the control is smaller (it stays the control's own box where it is not), is transparent, and is neither above nor below
+     anything on purpose: the layout (below) keeps the controls far enough apart that two slops never meet inside a box ---- */
+  /* a host that is static in its own rule gets a position (the slop is placed against it); one that is already positioned keeps its own */
+  :is(.m-chipset__chip, .m-pin__key, .m-usearch__open, .m-usearch__clear, .m-usearch__back, .m-usearch__remove, .m-item__more, .m-mpick__chip, .m-mpick__outchip, .m-sprompt__later, .m-guide__notelink,
+      .m-cover__act, .m-cover__label, .m-journey__close, .m-b2__icbtn, .m-calm__more, .m-rail__menu, .m-login__forgot, .m-announce__btn, .m-actions__btn, .m-mchip__btn, .m-support__row, .m-ap__swatch, .dm-fchip, .dm-call, .m-rail__item) { position: relative; }
+  :is(.m-btn, .m-icon-btn, .m-chipset__chip, .m-switch, .m-capver__btn, .m-capver__update, .m-page__back, .m-info__btn, .m-pin__key, .m-seg__btn, .m-mpick__chip, .m-mpick__outchip, .m-guide__seg,
+      .m-sprompt__btn, .m-sprompt__later, .m-item__more, .m-usearch__open, .m-usearch__clear, .m-usearch__back, .m-usearch__remove, .m-caption-connect, .m-guide__openmore, .m-guide__notelink,
+      .m-cover__act, .m-cover__label, .m-journey__close, .m-b2__icbtn, .m-calm__more, .m-split__main, .m-split__more, .m-rail__menu, .m-login__forgot, .m-b2__btn, .m-capback, .m-caption-avatar,
+      .m-announce__btn, .m-actions__btn, .m-ap__swatch, .m-support__row, .m-mchip__btn, .dm-fchip, .dm-call)::after {
+    content: ''; position: absolute;
+    inset-block: min(0px, calc((100% - var(--m-hit)) / 2)); inset-inline: min(0px, calc((100% - var(--m-hit)) / 2));
+  }
+  /* the splitter is 16 px wide and as tall as the pane. Its slop (::before; its ::after is the grip) is 24 px wide, not a finger: the splitter sits on the edge of the list, and a slop of 48 px took the taps of the chips and buttons beside it (found by the audit's steal check) */
+  .m-scene__handle::before { content: ''; position: absolute; inset-block: 0; inset-inline: -4px; }
+  /* a control that clips its own overflow (the button clips its ripple, the segment its long label) lets the slop through: the clip box is 12 px wider than the control */
+  :is(.m-btn, .m-sprompt__btn) { overflow-clip-margin: 12px; }
+  .m-seg:not(.m-seg--block) .m-seg__btn { overflow: clip; overflow-clip-margin: 12px; }
+}
+
+/* ---- the layout: what a finger needs apart from the box. Two small controls next to each other need `width + gap` of 48 px (their slops meet in the gap and no further); a stack of rows has no room
+   for slop, so the rows are the size ---- */
+@media (pointer: coarse) {
+  /* the caption bar: icon buttons of 44 and a gap of 4 */
+  .m-caption__actions { gap: 4px; }
+  .m-caption .m-caption-connect { min-width: 44px; min-height: 44px; }
+  .m-usearch.is-compact .m-usearch__open { width: 44px; height: 44px; margin-inline-end: 4px; }
+  /* the search field is as high as a finger and the input is the field */
+  .m-usearch__field { height: max(var(--m-usearch-h, 40px), var(--m-hit)); }
+  .m-usearch__input { align-self: stretch; }
+  /* the rail and its foot: the whole rail scrolls when a short window cannot hold it (a phone on its side), every destination and every button the size of a finger */
+  .m-rail:not(.m-rail--bar) { overflow-y: auto; scrollbar-width: none; }
+  .m-rail:not(.m-rail--bar) .m-rail__items { overflow: visible; flex: none; gap: 0; }
+  .m-rail .m-rail__item { min-height: var(--m-hit); justify-content: center; }
+  .m-rail--bar .m-rail__items { gap: 0; }
+  .m-rail--rail[data-tier='3'] .m-rail__items { grid-template-columns: 1fr; }
+  .m-rail--rail[data-tier='3'] .m-rail__item { width: 100%; }
+  .m-rail .m-rail__foot { gap: 0; }
+  .m-rail:not(.m-rail--expanded) .m-rail__foot { display: flex; flex-direction: column; align-items: center; }
+  .m-rail .m-rail__foot .m-icon-btn { width: var(--m-hit); height: var(--m-hit); }
+  .m-rail__menu { width: 48px; height: 48px; border-radius: 24px; }
+  /* chips and buttons that wrap: the rows are far enough apart for the slop of both */
+  .m-chipset, .m-mpick__chips, .dm-chips { gap: 14px 8px; }
+  .m-sprompt__btns { gap: 16px 8px; }
+  .m-seg { gap: 4px; }
+  .m-seg__btn { min-width: var(--m-hit); }
+  .m-login__links a { padding-block: 14px; min-width: var(--m-hit); text-align: center; box-sizing: border-box; }
+  /* the small button and the small segment are 40 px high under a finger (their slop then needs 4 px, not 8) */
+  .m-btn--xs, .m-btn--sm { --m-btn-h: 40px; }
+  .m-seg--sm .m-seg__btn { height: 40px; }
+  .dm-call { min-height: var(--m-hit); }
+  /* the (i) button: 40 px (its slop then needs 4 px, not 10 or 12), and its row has the room for it */
+  :is(.m-info__btn, .m-section__info .m-info__btn) { width: 40px; height: 40px; }
+  .m-section__head { padding-bottom: 4px; }
+  /* a field is as high as a finger */
+  :is(.m-mpick__num, .dm-path__in, .dm-search input, .m-login__lang select) { min-height: var(--m-hit); box-sizing: border-box; }
+  .m-cover__actions { gap: 16px; }
+  .m-cover__act { height: 40px; }
+  .m-cover__actions[data-compact] .m-cover__act { width: 40px; }
+  .m-calm__more { min-width: 40px; min-height: 40px; }
+  /* the small line keeps its room: every trailing control of a row (info, pin menu) needs the width of both slops */
+  .m-item__trail { gap: 18px; }
+  /* sub-12 px type: the smallest label is 12 px under a finger (a thumb hides 11 px); the token first, then the places that wrote their own size */
+  :root { --m-label-small: 500 12px/16px var(--md-ref-typeface-brand); }
+  :is(.m-rail--rail[data-tier='1'] .m-rail__item, .dm-call__m, .dm-fchip b, .m-comp__nopath, .m-about__tag, .m-annpage__mode, .dm-lv, .m-ap__tag, .m-cover__text, .m-caln__sub, .m-dash__suggest, .m-calh__chips span) { font-size: 12px; }
+  small { font-size: max(12px, 0.8334em); }
+  /* a button that clips with overflow: hidden (the prompt buttons) clips with overflow: clip, which has a margin for the slop */
+  .m-sprompt__btn { overflow: clip; }
+}
+@media (any-pointer: coarse) {
+  /* the page bar overlaps the first 8 px of the page under it (margin-bottom -8): its empty part passes the finger on, so the first row of the page is whole */
+  .m-page__bar { pointer-events: none; }
+  .m-page__bar > * { pointer-events: auto; }
+  /* the slider thumb: 48 px wide by its own ::before, and as tall as a finger */
+  .m-slider__handle::before { inset-block: min(0px, calc((100% - var(--m-hit)) / 2)); }
+}
+/* what only a hover shows is shown when there is no hover (a finger cannot hover): the actions of a cover, the arrows and dots of a gallery, a stack and a banner */
+@media (hover: none) {
+  .m-cover__actions { opacity: 1; transform: none; pointer-events: auto; }
+  .m-gal__arrow, .m-gal__pager .m-gal__arrow { opacity: 1; }
+  .m-dstack__dots { opacity: 1; background: color-mix(in srgb, var(--md-sys-color-surface) 78%, transparent); }
+  .m-dstack__pin, .m-dnews__pips { opacity: 1; }
+}

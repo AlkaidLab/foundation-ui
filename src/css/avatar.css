@@ -1,0 +1,10 @@
+/* The avatar button of the caption bar (MCaptionAvatar): a character's pixel sprite, its own colours, drawn at whole device pixels; a quiet state dot at its corner. */
+.m-caption-avatar { position: relative; display: inline-grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 18px; cursor: pointer; background: transparent; color: inherit; transition: background-color 120ms linear, border-radius var(--m-spring-fast-spatial-duration, 200ms) var(--m-spring-fast-spatial, ease); }
+.m-caption-avatar:hover { border-radius: 12px; background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-caption-avatar:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 1px; }
+.m-caption-avatar__img { display: block; image-rendering: pixelated; image-rendering: crisp-edges; user-select: none; pointer-events: none; }
+.m-caption-avatar__state { position: absolute; right: 3px; bottom: 3px; width: 9px; height: 9px; border-radius: 50%; background: var(--md-sys-color-primary); box-shadow: 0 0 0 2px var(--m-page-solid, var(--md-sys-color-surface)); }
+.m-caption-avatar.is-thinking .m-caption-avatar__state { background: var(--md-sys-color-tertiary); animation: m-avatar-pulse 1.8s ease-in-out infinite; }
+@keyframes m-avatar-pulse { 50% { transform: scale(.6); opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-caption-avatar.is-thinking .m-caption-avatar__state { animation: none; } }
+html[data-motion='reduced'] .m-caption-avatar.is-thinking .m-caption-avatar__state { animation: none; }
