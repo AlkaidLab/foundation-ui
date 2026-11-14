@@ -1,0 +1,52 @@
+/* Roboto Flex (SIL OFL 1.1), variable weight. Subsets copied from @fontsource-variable/roboto-flex. */
+@font-face {
+  font-family: 'Roboto Flex';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 1000;
+  src: url(./roboto-flex-latin-wght-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Roboto Flex';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 1000;
+  src: url(./roboto-flex-latin-ext-wght-normal.woff2) format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Roboto Flex';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 1000;
+  src: url(./roboto-flex-cyrillic-wght-normal.woff2) format('woff2');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* Chinese, Japanese and Korean text comes from the system font, mapped onto the weights that font really has, so the browser never synthesises a bold and a weight
+   the font lacks falls to the nearest real one: up to 449 Regular; 450-599 Medium where it exists (PingFang SC, Noto Sans CJK SC), Regular on Windows (Microsoft YaHei UI
+   has Light, Regular and Bold only); 600 and up Semibold (PingFang SC) or Bold. Latin keeps Roboto Flex. */
+@font-face { font-family: 'M3E CJK'; font-weight: 100 449; font-display: swap; src: local('Microsoft YaHei UI'), local('PingFang SC'), local('PingFangSC-Regular'), local('Noto Sans CJK SC'), local('Noto Sans SC'), local('Microsoft YaHei');
+  unicode-range: U+2E80-2FFF, U+3000-30FF, U+3100-312F, U+31C0-31EF, U+3400-4DBF, U+4E00-9FFF, U+AC00-D7AF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF; }
+@font-face { font-family: 'M3E CJK'; font-weight: 450 599; font-display: swap; src: local('PingFang SC Medium'), local('PingFangSC-Medium'), local('Noto Sans CJK SC Medium'), local('Noto Sans SC Medium'), local('Microsoft YaHei UI'), local('Microsoft YaHei');
+  unicode-range: U+2E80-2FFF, U+3000-30FF, U+3100-312F, U+31C0-31EF, U+3400-4DBF, U+4E00-9FFF, U+AC00-D7AF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF; }
+@font-face { font-family: 'M3E CJK'; font-weight: 600 1000; font-display: swap; src: local('PingFang SC Semibold'), local('PingFangSC-Semibold'), local('Microsoft YaHei UI Bold'), local('MicrosoftYaHeiUI-Bold'), local('Microsoft YaHei Bold'), local('Noto Sans CJK SC Bold'), local('Noto Sans SC Bold');
+  unicode-range: U+2E80-2FFF, U+3000-30FF, U+3100-312F, U+31C0-31EF, U+3400-4DBF, U+4E00-9FFF, U+AC00-D7AF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF; }
+
+/* The faces of the dock clock (digits only, the axes the faces use: SIL OFL 1.1, see FONTS.md). Subset with pyftsubset and pinned with fontTools instancer from @fontsource-variable packages. */
+@font-face { font-family: 'Clock Flex'; font-style: normal; font-display: swap; font-weight: 1 1000; font-stretch: 25% 151%; src: url(./clock-google-sans-flex.woff2) format('woff2'); unicode-range: U+0020, U+002E, U+0030-003A; }
+@font-face { font-family: 'Clock Roboto Flex'; font-style: normal; font-display: swap; font-weight: 100 1000; font-stretch: 25% 151%; src: url(./clock-roboto-flex.woff2) format('woff2'); unicode-range: U+0020, U+002E, U+0030-003A; }
+@font-face { font-family: 'Clock Fraunces'; font-style: italic; font-display: swap; font-weight: 100 900; src: url(./clock-fraunces-italic.woff2) format('woff2'); unicode-range: U+0020, U+002E, U+0030-003A; }
+@font-face { font-family: 'Clock Caveat'; font-style: normal; font-display: swap; font-weight: 400 700; src: url(./clock-caveat.woff2) format('woff2'); unicode-range: U+0020, U+002E, U+0030-003A; }
+@font-face { font-family: 'Clock Brush'; font-style: normal; font-display: swap; font-weight: 400; src: url(./clock-mashanzheng.woff2) format('woff2'); unicode-range: U+0020, U+4E00, U+4E03, U+4E09, U+4E24, U+4E5D, U+4E8C, U+4E94, U+516B, U+516D, U+5206, U+5341, U+56DB, U+6574, U+70B9, U+79D2, U+96F6; }
+
+/* The display face of the tiles (tile kit, docs/tile-kit.md): Google Sans Flex (SIL OFL 1.1, LICENSE-Google-Sans-Flex.txt, FONTS.md). Two subsets of one family, each fetched only when a
+   tile draws its characters: the numerals (digits, % . , : + - × ° /; optical size 144, width 25-125 %, weight 300-800, roundness 0-100) and the Latin letters (optical size 18-144,
+   weight 400-700). font-display swap over a fallback set to its metrics, so the first paint never waits for it and the swap hardly moves a line. Chinese keeps the CJK stack. */
+@font-face { font-family: 'M3E Display'; font-style: normal; font-display: swap; font-weight: 300 800; font-stretch: 25% 125%; src: url(./display-google-sans-flex-digits.woff2) format('woff2');
+  unicode-range: U+0020, U+0025, U+0027, U+002B-003A, U+00B0, U+00B7, U+00D7, U+2013, U+2212, U+2215; }
+@font-face { font-family: 'M3E Display'; font-style: normal; font-display: swap; font-weight: 400 700; src: url(./display-google-sans-flex-latin.woff2) format('woff2');
+  unicode-range: U+0021-0024, U+0026, U+0028-002A, U+003B-007E, U+00A0-00FF, U+2010-2012, U+2014-2027, U+2030, U+20AC, U+2122, U+2190-2193; }
+/* the fallback while it loads: a local sans scaled to Google Sans Flex's metrics (units per em 2000, ascender 1932, descender 572, mean digit 0.54 em against Arial's 0.556) */
+@font-face { font-family: 'M3E Display Fallback'; src: local('Segoe UI Variable Display'), local('Segoe UI'), local('Microsoft YaHei UI'), local('Microsoft YaHei'), local('Roboto'), local('Arial'), local('Helvetica Neue'); size-adjust: 97%; ascent-override: 99.6%; descent-override: 29.5%; line-gap-override: 0%; }

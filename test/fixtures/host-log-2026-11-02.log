@@ -1,0 +1,18 @@
+[2026-11-02 15:34:04.384]: Info: Sunshine version: 2026.1102.142435
+[2026-11-02 15:34:04.393]: Info: Running with Windows 11 Pro 10.0.26300
+[2026-11-02 15:34:04.393]: Info: Package Publisher: qiin2333
+[2026-11-02 15:34:04.393]: Info: Publisher Website: https://alkaidlab.com
+[2026-11-02 15:34:04.393]: Info: Get support: https://github.com/qiin2333/Sunshine/issues
+[2026-11-02 15:34:04.393]: Info: Modified config settings: {"file_apps": "C:/work/run0/run/config/apps.json", "resolutions": "[1280x720,1920x1080,2560x1080,2560x1440,2560x1600,3440x1440,3840x2160]", "file_state": "C:/work/run0/run/config/sunshine_state.json", "fps": "[60,90,120,144]", "log_path": "C:/work/run0/run/config/sunshine.log", "sunshine_name": "<host>", "min_log_level": "debug", "origin_web_ui_allowed": "pc", "widget_token_configured": "[redacted]", "notify_pre_releases": "false", "port": "60989", "setup_wizard_completed": "true"}
+[2026-11-02 15:34:04.446]: Info: [SessionListener] Worker线程已启动
+[2026-11-02 15:34:04.447]: Info: [SessionListener] 会话事件监听器初始化成功
+[2026-11-02 15:34:04.449]: Debug:  无会话配置（current_use_vdd=nullopt），仅执行 VDD 清理
+[2026-11-02 15:34:04.449]: Info: 检测到异常残留的 VDD（无 persistent_data），清理 VDD
+[2026-11-02 15:34:04.450]: Warning: vdd_ioctl: CreateFileW failed (err=0)
+[2026-11-02 15:34:04.450]: Error: 销毁虚拟显示器失败 (IOCTL)
+[2026-11-02 15:34:05.579]: Error: nvprefs: Couldn't open undo file from previous improper termination, or confirm that there's no such file
+[2026-11-02 15:34:05.592]: Debug: Compiling shaders...
+[2026-11-02 15:34:06.621]: Debug: Compiled shaders
+[2026-11-02 15:34:06.627]: Info: vmouse: Found virtual mouse device at \\?\hid#hidclass#1&4784345&c&0000#{4d1e55b2-f16f-11cf-88cb-001111000030}
+[2026-11-02 15:34:06.627]: Info: Virtual mouse driver connected
+[2026-11-02 15:34:06.627]: Warning: Gamepad switch is disabled due to gamepads.motion-server-not-available

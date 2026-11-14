@@ -1,0 +1,46 @@
+/* the version in the caption bar (MCaptionVersion), the global back button (MCaptionBack) and the chip (MBackChip) */
+.m-caption__lead { display: flex; align-items: center; align-self: center; gap: 4px; min-width: 0; pointer-events: none; }
+.m-caption__lead > * { pointer-events: auto; }
+.m-caption__lead > .m-brand { pointer-events: none; }
+.m-capback { flex: none; display: inline-grid; place-items: center; width: 32px; height: 32px; margin-inline-start: 8px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--md-sys-color-on-surface-variant); cursor: pointer; transition: background-color 120ms linear, color 120ms linear; -webkit-app-region: no-drag; }
+.m-capback .m-icon { font-size: 20px; }
+.m-capback:not(:disabled):hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); color: var(--md-sys-color-on-surface); }
+.m-capback:not(:disabled):active { background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent); }
+.m-capback:disabled { opacity: .38; cursor: default; }
+.m-capback:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 1px; }
+.m-capback + .m-brand, .m-capback ~ .m-brand { padding-inline-start: 4px !important; }
+.m-capver { position: relative; flex: none; display: inline-flex; align-items: center; gap: 4px; margin-inline-start: 4px; white-space: nowrap; -webkit-app-region: no-drag; }
+.m-capver__btn, .m-capver__update { position: relative; display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border: 0; border-radius: 12px; background: transparent; font: var(--m-label-medium); letter-spacing: .02em; white-space: nowrap; cursor: pointer; flex: none; transition: background-color 120ms linear, color 120ms linear; }
+.m-capver__btn { color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.m-capver__btn:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); color: var(--md-sys-color-on-surface); }
+.m-capver__btn:active { background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent); }
+.m-capver__btn:focus-visible, .m-capver__update:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 1px; }
+.m-capver__test { display: inline-flex; align-items: center; height: 16px; padding: 0 6px; border-radius: 8px; background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); font: var(--m-label-small); font-weight: 600; letter-spacing: 0; }
+.m-capver__ok { font-size: 14px; color: var(--md-sys-color-primary-text); }
+.m-capver__pop { position: absolute; top: calc(100% + 6px); left: 0; z-index: 60; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 8px; border-radius: 16px; background: var(--md-sys-color-inverse-surface); color: var(--md-sys-color-inverse-on-surface); font: var(--m-label-medium); box-shadow: 0 2px 8px rgb(0 0 0 / 24%); pointer-events: none; animation: m-capver-pop 180ms ease-out; }
+.m-capver__pop .m-icon { font-size: 16px; color: var(--md-sys-color-inverse-primary); }
+@keyframes m-capver-pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.m-capver__update { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); padding: 0 10px 0 6px; }
+.m-capver__update .m-icon { font-size: 16px; }
+.m-capver__update:hover { background: color-mix(in srgb, var(--md-sys-color-primary-container) 86%, var(--md-sys-color-on-primary-container)); }
+.m-capver__uver { font-variant-numeric: tabular-nums; opacity: .8; }
+/* narrow desktop windows give up words, in this order: the search turns into its icon (useCaptionRoom), the new version's number after the update line, then the words of the update line; the 测试版 tag stays; nothing wraps or is cut */
+@media (max-width: 1180px) { .m-caption .m-capver__uver { display: none; } }
+@media (max-width: 900px) { .m-caption .m-capver__utext { display: none; } .m-caption .m-capver__update { padding: 0 6px; } }
+/* a phone has no room in the caption bar: the version is the first line of 更多 (MCaptionVersion is not drawn there) */
+@media (max-width: 599.98px) { .m-caption .m-capver, .m-caption .m-capback { display: none; } }
+/* the chip at the top of the page after a jump (variant B): over the detail pane, left-aligned with the page, the page below starts under it */
+.m-scene { --m-chip-h: 0px; }
+.m-scene--backchip { --m-chip-h: 44px; }
+.m-scene__backchip { position: absolute; z-index: 4; top: var(--m-caption, 0px); left: calc(var(--c-rail, 0px) + var(--c-list, 0px)); height: var(--m-chip-h); display: flex; align-items: center; padding-inline: 16px; pointer-events: none; }
+.m-scene__backchip > * { pointer-events: auto; }
+.m-scene--backchip .m-scene__pane--detail { padding-top: var(--m-chip-h); }
+.m-scene--backchip .m-scene__overlay { top: calc(var(--m-caption, 0px) + var(--m-chip-h)); }
+.m-backchip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px 0 10px; border: 0; border-radius: 16px; cursor: pointer; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font: var(--m-label-large); line-height: 1; white-space: nowrap; max-width: 100%; transition: background-color 120ms linear; animation: m-backchip-in 220ms ease-out; }
+.m-backchip .m-icon { font-size: 18px; }
+.m-backchip span { overflow: hidden; text-overflow: ellipsis; }
+.m-backchip:hover { background: color-mix(in srgb, var(--md-sys-color-secondary-container) 88%, var(--md-sys-color-on-secondary-container)); }
+.m-backchip:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+@keyframes m-backchip-in { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-backchip, html:not([data-motion='full']) .m-capver__pop { animation: none; } }
+html[data-motion='reduced'] .m-backchip, html[data-motion='reduced'] .m-capver__pop { animation: none; }

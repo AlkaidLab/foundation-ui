@@ -1,0 +1,16 @@
+{
+ "schema": 1,
+ "kind": "release-metadata",
+ "product": "moonlight-vplus",
+ "channels": {
+  "latest": {
+   "version": "v12.14.2",
+   "assets": [
+    {
+     "type": "android-apk",
+     "name": "Moonlight.V+.12.14.2.apk"
+    }
+   ]
+  }
+ }
+}

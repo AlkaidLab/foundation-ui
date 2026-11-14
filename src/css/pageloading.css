@@ -1,0 +1,38 @@
+/* The loading state: skeleton rows in the page's own tone (no black, no full-window layer), a soft sweep across them, in after a short delay. */
+@keyframes m-pageload-in { from { opacity: 0; } }
+@keyframes m-pageload-sweep { to { transform: translateX(100%); } }
+.m-pageload { --m-pageload-delay: 160ms; display: flex; flex-direction: column; gap: 12px; padding: 4px 0; animation: m-pageload-in 200ms linear var(--m-pageload-delay, 160ms) backwards; }
+.m-pageload__group { display: flex; flex-direction: column; gap: 2px; }
+.m-pageload__row { position: relative; overflow: hidden; display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 12px 16px; border-radius: 8px; background: var(--m-card, var(--md-sys-color-surface-container)); }
+.m-pageload__group > :first-child { border-top-left-radius: 28px; border-top-right-radius: 28px; } .m-pageload__group > :last-child { border-bottom-left-radius: 28px; border-bottom-right-radius: 28px; }
+.m-pageload__group > :only-child { border-radius: 28px; }
+.m-pageload__lead { flex: none; width: 40px; height: 40px; border-radius: 50%; background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-pageload__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.m-pageload__text b { display: block; height: 12px; border-radius: 6px; background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
+.m-pageload__text b:first-child { width: min(44%, 220px); } .m-pageload__text b:last-child { width: min(70%, 340px); height: 10px; }
+.m-pageload__row::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent) 50%, transparent 70%); animation: m-pageload-sweep 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-pageload { animation: none; } html:not([data-motion='full']) .m-pageload__row::after { display: none; } }
+html[data-motion='reduced'] .m-pageload { animation: none; } html[data-motion='reduced'] .m-pageload__row::after { display: none; }
+
+/* A page enters with one short fade-through (Material 3 motion): the incoming content fades in and settles from a slightly smaller size. Nothing else moves on a page change. */
+@keyframes m-page-in { from { opacity: 0; transform: scale(.985); } }
+.m-page__column { animation: m-page-in 210ms cubic-bezier(.05, .7, .1, 1) backwards; }
+/* inside a scene the enter belongs to the scene (MScene plays nav/pageEnter.js on every change of the destination, MPage or not); two would stack */
+.m-scene__pane .m-page__column { animation: none; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-page__column { animation: none; } }
+html[data-motion='reduced'] .m-page__column { animation: none; }
+
+/* the tile grid before its tiles (MDashSkeleton): tile surface and radius, the tile's mark and two lines, a slow sweep */
+@keyframes m-dskel-sweep { to { transform: translateX(100%); } }
+.m-dskel__tile { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; min-width: 0; min-height: 0; padding: var(--m-dash-pad, 18px 20px); border-radius: var(--m-dash-radius, 28px); background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, var(--m-card, var(--md-sys-color-surface-container))); }
+.m-dskel__mark { flex: none; width: 36px; height: 36px; border-radius: 50%; background: color-mix(in srgb, var(--md-sys-color-primary) 28%, transparent); }
+.m-dskel__tile > b { display: block; height: 12px; width: 46%; border-radius: 6px; background: color-mix(in srgb, var(--md-sys-color-on-surface) 16%, transparent); }
+.m-dskel__tile > b + b { width: 70%; height: 10px; margin-top: -2px; }
+.m-dskel__tile.is-big { border-radius: var(--m-dash-radius, 28px); }
+.m-dskel__tile.is-big .m-dskel__mark { width: 52px; height: 52px; }
+.m-dskel__tile.is-big::before { content: ''; position: absolute; right: -12%; bottom: -22%; width: 58%; aspect-ratio: 1; border-radius: 50%; background: color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent); }
+.m-dskel__tile.is-strip { flex-direction: row; align-items: center; justify-content: flex-start; padding-block: 0; }
+.m-dskel__tile.is-strip > b, .m-dskel__tile.is-strip > b + b { height: 10px; margin: 0; }
+.m-dskel__tile::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--md-sys-color-on-surface) 11%, transparent) 50%, transparent 70%); animation: m-dskel-sweep 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-dskel__tile::after { display: none; } }
+html[data-motion='reduced'] .m-dskel__tile::after { display: none; }

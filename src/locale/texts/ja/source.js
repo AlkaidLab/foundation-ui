@@ -1,0 +1,51 @@
+export default
+{
+  "source": "更新ソース",
+  "channel": "更新チャンネル",
+  "sources": {
+    "auto": "自動"
+  },
+  "mirrorAbout": "MirrorChyan はオープンソースプロジェクト向けのダウンロード高速化サービスで、開発者を支援する手段でもあります。購読すると CDK でダウンロードが速くなり、収益は MirrorChyan を利用する開発者（このプロジェクトを含む）に分配されます。CDK は任意で、なければ CNB または GitHub からダウンロードします。",
+  "tagDomestic": "中国では高速",
+  "cdkOptional": "MirrorChyan CDK（任意）",
+  "getCdk": "CDK を入手",
+  "remainingDays": "CDK は {0} 日で期限切れです。",
+  "fetchFailed": "CDK 情報を取得できませんでした。最後に成功した結果を表示します。",
+  "cdkHint": "システムの安全な保管場所に置き、保存後は再表示しません。",
+  "save": "保存",
+  "clear": "削除",
+  "check": "CDK を確認",
+  "checking": "確認しています…",
+  "saved": "CDK を保存しました",
+  "removed": "CDK を削除しました",
+  "unavailable": "安全な保管には新しいコントロールパネルが必要です。",
+  "status": {
+    "none": "CDK なし",
+    "valid": "CDK は有効",
+    "expired": "CDK の期限切れ",
+    "invalid": "CDK が無効",
+    "limit": "1日のダウンロード上限に達しました",
+    "banned": "CDK は停止済み",
+    "type": "この CDK はこのソフトウェア用ではありません",
+    "test": "これはテスト用 CDK です",
+    "unknown": "判別できませんでした",
+    "offline": "MirrorChyan が応答しませんでした"
+  },
+  "errors": {
+    "cdk-expired": "CDK の期限が切れています。認可には新しい CDK を使ってください。",
+    "cdk-invalid": "CDK が無効です。入力を確認してください。",
+    "cdk-limit": "CDK は本日のダウンロード上限に達しました。明日もう一度お試しください。",
+    "cdk-type": "CDK の種類がダウンロードする資源と一致しません。適用範囲を確認してください。",
+    "cdk-banned": "CDK は停止されています。返金または異常な利用の可能性があります。",
+    "cdk-test": "これはテスト用 CDK です。実際のダウンロードには使えません。",
+    "no-resource": "MirrorChyan には、このシステムとチャンネルの版がまだありません。",
+    "params": "MirrorChyan が要求を受け付けませんでした。コントロールパネルを更新して再試行してください。",
+    "server": "MirrorChyan でエラーがありました。後でもう一度お試しください。",
+    "malformed": "MirrorChyan は回答ではないものを送りました。",
+    "network": "MirrorChyan が応答しませんでした。ネットワークを確認してください。",
+    "unknown": "MirrorChyan が、このパネルの知らない理由で拒否しました。"
+  },
+  "tagPaid": "有料",
+  "freeNotice": "このプログラムは無料のオープンソース・フリーソフトウェアです。どの経路であれ代金を支払って入手した場合は、すぐに返金を請求してください。",
+  "supportLine": "開発を支援するには MirrorChyan を購読してください。ダウンロードが速くなり、開発者を直接支援できます。"
+}

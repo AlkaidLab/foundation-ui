@@ -1,0 +1,126 @@
+/* what the real Panel showed that the mock gate let through (fixes found with the browser check over harness/real/*, the real host of 2026-11-07).
+   Every rule keeps the tile's visual; nothing below 11 px. */
+/* 公网地址: the glyph and the two lines share the plate's height; the value fits the plate, not the tile (fitText.js) */
+.m-b2addr.is-s .m-b2plate { padding: 8px 10px; gap: 4px; }
+.m-b2addr.is-s .m-b2plate .m-b2glyph { --g: 28px; }
+.m-b2addr .m-b2plate .m-b2addr__text { min-width: 0; max-width: 100%; }
+/* 编码器: the big shape sits at the corner, below the title's words */
+.m-tenc--encoder .m-tile__corner { translate: 10% 8%; width: 104px; height: 104px; }
+/* 日志 (and every empty state at 方形): the corner shape keeps its glyph inside the tile */
+.m-tempty--s .m-tempty__shape { translate: -4% 4%; }
+/* 内存 and the other charts: the end dot's ring (12 px dot, 9 px halo) is not cut by the chart's box */
+.m-tchart { overflow: clip; overflow-clip-margin: 16px; }
+/* 自动 FEC and every pinned strip at 方形: the state takes its own line under the name instead of being cut */
+.m-b3pin.m-b2strip { flex-wrap: wrap; row-gap: 2px; }
+.m-b3pin.m-b2strip > b { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; white-space: normal !important; }
+.m-b3pin.m-b2strip .m-b2glyph { --g: 40px; flex: none; }
+.m-b3pin.m-b2strip > .m-b2__cap { flex: 1 0 100%; margin-inline-start: 0; padding-inline-start: 0; white-space: normal !important; }
+/* 安装推荐 at 方形: the platform chip has the whole row (电视 · 其他, iOS / iPadOS), the platform glyph is the chip's neighbour on the next line */
+.m-b2dl.is-s .m-b2dl__top { flex-wrap: wrap; gap: 6px; height: auto; }
+.m-b2dl.is-s .m-b2dl__os { flex: 1 1 100%; max-width: 100%; }
+.m-b2dl.is-s .m-b2dl__icon { display: none; }
+/* 本主机: the client line breaks in two even lines (no lone 「120」) */
+.m-calh__now small { text-wrap: balance; }
+/* 组件 tiles at 中 (usbip-win2): the status sits inside its plate */
+.m-b2comp.is-m .m-b2plate { padding: 8px 12px; gap: 2px; justify-content: center; }
+.m-b2comp.is-m .m-b2plate .m-b2glyph { --g: 34px; }
+.m-caln.is-s .m-caln__art.has-art { background-position: 50% 100%; }
+/* 本主机: a chip that does not fit is not shown (no half chip under a fade): the row wraps and fitRows.js takes out the entries that fall below the tile's content edge */
+.m-calh__fchips span { flex: none; }
+/* 上次串流 at 中 with art: the stats row (码率 帧率 延迟) fits the side and the side's height (a 98 Mbps session is 「Mbps 98」, not a cut 「98」) */
+.m-b2last.has-art.is-m .m-b2art { height: 100%; width: auto; aspect-ratio: 3 / 4; }
+.m-b2last.is-m .m-tnum { --tn: 40px; margin-top: 4px; }
+.m-b2last.is-m .m-b2last__side { gap: 2px; }
+.m-b2last.is-m .m-b2__line { margin-top: 4px; }
+.m-b2last.is-m .m-b2last__stats { gap: 8px; }
+/* 上次串流 at 方形 with art: the cover is 72 px so the title keeps two characters per line, and the line under the numeral stays inside the tile */
+.m-b2last.has-art.is-s .m-b2art { width: 72px; height: 72px; top: 16px; }
+.m-b2last.has-art.is-s .m-calm__head { margin-left: 80px; min-height: 72px; }
+.m-b2last.has-art.is-s .m-b2__line { margin-top: 4px; }
+/* 音频 (host-name, audio-out) at 方形: a long device name (Steam Streaming Speakers) wraps under a smaller glyph */
+.m-b2name.is-s .m-b2glyph { --g: 44px; }
+.m-b2name.is-s .m-b2__name { font-size: 14px; line-height: 18px; }
+/* 最近玩过 at 中: the small rows are as many as the tile's height holds, whole (a row that does not fit is not drawn) */
+.m-b2recent.is-m .m-b2recent__mini { flex: 1 1 0; min-height: 0; margin: 0; justify-content: flex-end; overflow: hidden; container-type: size; }
+@container (max-height: 79px) { .m-b2recent.is-m .m-b2recent__mini li:nth-child(n+2) { display: none; } }
+.m-b2last.has-art.is-s .m-calm__title { text-wrap: balance; }
+/* an icon base keeps its shape: 键盘输入 and the other action/toggle tiles drew their 48 px circle shrunk by the flex column to 48×39 (an oval) at 方形; the base does not shrink, the circle is 40 px at 方形 so the text under it keeps its room (gate: the browser check) */
+.m-cala__glyph { flex: none; aspect-ratio: 1 / 1; }
+.m-cala[data-size='s'] .m-cala__glyph { width: 40px; height: 40px; }
+.m-cala[data-size='s'] .m-cala__glyph .m-icon { width: 22px; height: 22px; }
+
+/* 手柄 (status) 方形: the drawn controller is the tile, not a 40 px plate under the text. The plate fills the tile behind the head, the name and the state; the controller is drawn large on it, and a scrim of the plate's own colour
+   (left and bottom, where the text is) keeps the words readable. Name 16 px, state 12 px, head 13 px: nothing under 11 px. */
+.m-b2pad.is-s .m-b2plate, .m-dash__cell .m-b2pad.is-s .m-b2plate { position: absolute; inset: 0; z-index: 0; flex: none; min-height: 0; margin: 0; padding: 0; clip-path: none; border-radius: 0; align-items: center; justify-content: center; overflow: hidden; }
+.m-b2pad.is-s .m-b2plate::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, var(--plate) 0, color-mix(in srgb, var(--plate) 88%, transparent) 34%, transparent 66%), linear-gradient(to right, color-mix(in srgb, var(--plate) 72%, transparent) 0, transparent 62%); }
+.m-b2pad.is-s .m-b2plate .m-ctl, .m-dash__cell .m-b2pad.is-s .m-b2plate .m-ctl { position: absolute; left: 22%; top: 26px; width: 100%; max-height: none; height: auto; }
+.m-b2pad.is-s > .m-calm__head, .m-b2pad.is-s > .m-b2__name, .m-b2pad.is-s > .m-b2__cap { position: relative; z-index: 1; }
+.m-b2pad.is-s > .m-b2__name { margin-top: auto; }
+.m-b2pad.is-s .m-b2plate.is-on ~ .m-b2__name, .m-b2pad.is-s .m-b2plate.is-on ~ .m-b2__cap { color: var(--md-sys-color-on-primary-container); }
+.m-b2pad.is-s .m-b2plate.is-quiet ~ .m-b2__name { color: var(--md-sys-color-on-surface); }
+/* 虚拟显示器 at 方形: the plate holds its value and its two lines (it was 76 px high for 85 px of content: 2160p rose over the plate's top edge) */
+.m-b2vdd.is-s .m-b2plate { margin-top: 2px; padding: 6px 12px; gap: 4px; justify-content: center; }
+.m-b2vdd.is-s .m-b2plate b { --pv: 28px; }
+/* 本主机 live column (码率 / 帧率 and the line): a grid that cannot overflow its band. It was a wrapped flex of 84 px of content in a 56 px column, centred: the labels rose 4 px over the band's top, the line's dot and ring hung 4 px under its bottom (the team's hero). The line takes the room that is left and goes when there is less than the dot's ring needs. */
+.m-calh__live { display: grid; grid-template-columns: repeat(2, auto); justify-content: start; align-content: safe center; container-type: size; }
+.m-calh__live > .m-calh__spark { grid-column: 1 / -1; }
+@container (max-height: 67px) { .m-calh__live > .m-calh__spark { display: none; } }
+/* every tile of the overview is a container of its own box (width and height): the rules below ask the tile, not the window (found by the window sweep 1240-1560, grid 1080-1400 px) */
+/* 已配对客户端 at 中: the device names go when the avatars leave them 31 px each */
+/* DualSense 调校 at 中 in a short tile: the line under the name goes so the slider is whole */
+/* 最近玩过 at 中: no half row */
+@container (max-height: 39px) { .m-b2recent.is-m .m-b2recent__mini li { display: none; } }
+/* 上次串流 at 中: the stats that do not fit in the side are not shown (a row of whole stats) */
+/* 停止串流 and 音频 at 方形: the lines under the name take two lines of 12-13 px at most */
+.m-cala[data-size='s'] .m-cala__name { font-size: 20px; line-height: 24px; }
+.m-cala[data-size='s'] .m-b3a__state { font-size: 12px; line-height: 16px; }
+.m-b2name.is-s .m-b2glyph { --g: 36px; }
+.m-b2name.is-s .m-b2__name { font-size: 13px; line-height: 16px; margin-top: 4px; overflow-wrap: normal !important; }
+/* setting strips (帧率预设, 码率预设, 编码器) on a phone: the buttons keep their own width and the row scrolls sideways under an edge fade instead of drawing 6 buttons of 24 px over each other */
+.m-calq > .m-b3s__row { display: flex; flex: 1 1 0; min-width: 0; gap: 4px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; padding-right: 18px; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent); }
+.m-calq > .m-b3s__row::-webkit-scrollbar { display: none; }
+.m-calq > .m-b3s__row > button { flex: none; min-width: 44px; padding-inline: 10px; }
+.m-calq__title:has(+ .m-b3s__row) { flex: 0 1 auto; max-width: 46%; }
+/* strips with a button row: the title column gives room to the row, its note wraps to two lines */
+.m-calq:has(> .m-b3s__row) > .m-calq__title { flex: 0 1 46%; min-width: 0; }
+.m-calq:has(> .m-b3s__row) .m-b3s__tt small { white-space: normal; line-height: 14px; }
+/* 上次串流 at 中 in a short tile: the numeral and its line stay, the stats row (it needs 36 px more) goes */
+
+/* no container on the tile itself: both a size and an inline-size container on .m-tile broke fitRows / the fitted rows (clients-paired:l, update:s, hero chips in the gate); the narrow cases below use the tile's own rows instead */
+.m-b2paired__people ul + ul { overflow: hidden; max-height: 30px; }
+
+/* 本主机 stat pills (「这个磁贴问题很大」): the pill's height comes from its content (tiles-cal.css), so nothing leaves it. The label is ONE line that ends in an ellipsis (the full text is the pill's title; the generic wrap rule of
+   tilefit.css would make it two lines and the pill taller than its row), the value shrinks to its room (fitText.js) and, below the floor, ends in an ellipsis too instead of wrapping. A card too short for the rows loses whole pills (fitRows.js, data-fit-rows). */
+.m-calh__blocks .m-calh__short { display: none; } .m-calh__blocks small[data-fit-short] .m-calh__full { display: none; } .m-calh__blocks small[data-fit-short] .m-calh__short { display: inline; } /* the label's detail (版本 · 2026.1107.232322) goes before an ellipsis would cut it: fitText.js */
+.m-dash__cell .m-calh__blocks li > small { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; overflow-wrap: normal; min-width: 0; }
+.m-dash__cell .m-calh__blocks li > b, .m-dash__cell .m-calh__blocks li > b[data-fit-wrap] { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; overflow-wrap: normal; min-width: 0; }
+
+/* 最近玩过 and 应用 at 方形: the art is the tile. The cover fills the whole tile as its background (aspect-fill in the fixed frame of the tile, clipped by the tile's own radius, so a poster, a landscape key art and the
+   wallpaper that is the desktop's art all fill it the same way), a soft scrim darkens the bottom and, lightly, the top where the words are, and the words sit on it in white: the name at the bottom left, the time under it
+   in a softer white; the tile's own title is a small label at the top left over the art. White on the scrim is the one case where text does not use the surface roles: it is on a picture, in light and dark alike. */
+.m-tile.m-b2recent.is-s, .m-tile.m-b2apps.is-s { --on-art: #fff; --on-art-2: rgb(255 255 255 / 0.78); --art-shadow: 0 1px 8px rgb(0 0 0 / 0.5); display: flex; flex-direction: column; justify-content: flex-start; background: var(--cal-inner); }
+.m-tile.m-b2recent.is-s .m-b2art, .m-tile.m-b2apps.is-s .m-b2art { position: absolute; inset: 0; z-index: 0; flex: none; width: auto; height: auto; min-height: 0; margin: 0; padding: 0; clip-path: none; border-radius: 0; }
+.m-tile.m-b2recent.is-s .m-b2art .m-tcover, .m-tile.m-b2apps.is-s .m-b2art .m-tcover { background-size: cover; background-position: 50% 40%; background-repeat: no-repeat; }
+.m-tile.m-b2recent.is-s .m-b2art::after, .m-tile.m-b2apps.is-s .m-b2art::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.8) 0, rgb(0 0 0 / 0.58) 32%, rgb(0 0 0 / 0.2) 56%, rgb(0 0 0 / 0) 76%); }
+/* the tile's title and its glyph are the last line of the words at the foot (「最近玩过」 and 「应用 · 5」 were drawn over the top of the art, the monitor poked up behind them): the top of the
+   picture is only picture, the name, the time and the tile's title stack on the scrim under it */
+.m-tile.m-b2recent.is-s > .m-calm__head, .m-tile.m-b2apps.is-s > .m-calm__head { order: 3; position: relative; z-index: 2; margin-top: 2px; min-height: 0; color: var(--on-art-2); text-shadow: var(--art-shadow); pointer-events: none; }
+/* 最近玩过 has the name and the time: a third line would stand over the word of the host's desktop.png, so its title stays for assistive technology and the time is the second line */
+.m-tile.m-b2recent.is-s > .m-calm__head { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.m-tile.m-b2recent.is-s > .m-calm__head > .m-icon, .m-tile.m-b2apps.is-s > .m-calm__head > .m-icon { width: 16px; height: 16px; filter: drop-shadow(0 1px 4px rgb(0 0 0 / 0.45)); }
+.m-tile.m-b2recent.is-s > .m-calm__head > .m-calm__title, .m-tile.m-b2apps.is-s > .m-calm__head > .m-calm__title { font-size: 12px; line-height: 16px; }
+.m-tile.m-b2recent.is-s .m-b2__name, .m-tile.m-b2apps.is-s .m-b2__name { position: relative; z-index: 2; margin: auto 0 0; --b2n: 17px; line-height: 22px; color: var(--on-art); text-shadow: var(--art-shadow); pointer-events: none; }
+.m-tile.m-b2recent.is-s .m-b2__cap { position: relative; z-index: 2; margin: 2px 0 0; font-size: 12px; line-height: 16px; color: var(--on-art-2); text-shadow: var(--art-shadow); pointer-events: none; }
+/* the host's own desktop.png has its glyph in the upper half and the word 「DESKTOP」 at 54-63 %: the lower part of it shows, so the word sits above the name and the glyph stays whole */
+.m-tile.m-b2recent.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'], .m-tile.m-b2apps.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'] { background-position: 50% 100%; }
+/* CPU, GPU and 内存 at 中 over a host with no chart (idle): the model's name takes two lines at the foot in a 150 px tile, and the 60 px numeral reached into it (the gate found 「3」 over 「12th Gen Intel(R) Core(TM) i」 at 1280 and 1267). The numeral takes 50 px there. */
+.m-calm--cpu.is-m, .m-calm--gpu.is-m, .m-calm--memory.is-m { --cv: 50px; }
+/* 公告: a title that takes two lines splits evenly, not 「开源与免费声 / 明」 */
+.m-b3n__text b { text-wrap: balance; }
+/* 已配对客户端 at 方形 with more than three clients: two avatars of 30 px and the +N, so the row stays inside the 150 px tile (the +28 pill left it by 5 px over 31 paired clients) */
+.m-b2paired.is-s .m-calo__rings { gap: 2px; } .m-b2paired.is-s .m-calo__rings li { width: 30px; height: 30px; }
+.m-b2paired.is-s .m-calo__rings:has(.is-more) li:nth-child(3) { display: none; }
+/* 内存变化 at 中: the chart takes the tile below the numeral and its caption, never more (60 % of a 148 px tile put the line of a 39 % memory through 「39 %」) */
+.m-tmem--trend.is-m { --tile-bleed: min(60%, calc(100% - 108px)); }

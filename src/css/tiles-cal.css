@@ -1,0 +1,195 @@
+/* Calibration round: the representative tiles in the calm language the team chose (the 帧率 中 of df9ac45). Theme roles only. */
+
+.m-cal { --tile-pad: 18px 20px; --cal-inner: var(--md-sys-color-surface-container-high); }
+/* in dark the card itself is surface-container-high: the tiles and pills inside it go one step up */
+html[data-bs-theme='dark'] .m-cal, html[data-theme='dark'] .m-cal { --cal-inner: var(--md-sys-color-surface-container-highest); }
+.m-cal[data-size='s'] { --tile-pad: 16px 18px; }
+
+/* the metric family: header, numeral, one line with its fill, caption under the line */
+.m-calm { --tk-fill: color-mix(in srgb, var(--tk) 22%, var(--tk-c)); --tk-fill-top: .9; --tk-fill-mid: .55; --tk-fill-end: .22; --tk-line: 3px; --tile-bleed: 36%; }
+html[data-bs-theme='dark'] .m-calm, html[data-theme='dark'] .m-calm { --tk-fill-top: .85; --tk-fill-mid: .5; --tk-fill-end: .2; }
+.m-calm.is-s { --tile-bleed: 40%; } .m-calm.is-l { --tile-bleed: 52%; }
+.m-calm__head { display: flex; align-items: center; gap: 8px; min-height: 24px; min-width: 0; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-calm__head > .m-icon { flex: none; width: 18px; height: 18px; }
+.m-calm__title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-calm__peak { font: 500 12px/16px var(--m-font-display); font-feature-settings: 'tnum' 1; }
+.m-calm__more { flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: -4px -8px -4px -2px; padding: 0; border: 0; border-radius: 50%; background: none; color: inherit; cursor: pointer; }
+.m-calm__more > .m-icon { width: 20px; height: 20px; } .m-calm__more:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.m-calm__value { display: flex; align-items: baseline; gap: 4px; margin-top: 8px; min-width: 0; white-space: nowrap; }
+.m-calm__value b { font: 600 var(--cv, 60px)/.95 var(--m-font-display); letter-spacing: -.035em; font-feature-settings: 'tnum' 1; }
+.m-calm__value small { font: 500 13px/1 var(--m-font-display); color: var(--md-sys-color-on-surface-variant); }
+.m-calm.is-s { --cv: 48px; } .m-calm.is-l { --cv: 84px; }
+.m-calm__details { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; font: var(--m-tile-text-14-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-calm__details li { white-space: nowrap; }
+.m-tile > .m-calm__foot { position: absolute; z-index: 1; left: 20px; right: 20px; bottom: 11px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font: var(--m-tile-text-12-strong); color: color-mix(in srgb, var(--on-tk-c) 80%, transparent); white-space: nowrap; }
+.m-calm__cap { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* the foot sits at the bottom of the chart, where its fill has faded to a fifth of its colour: in the dark theme the container colour is light and its text colour dark (1.4:1 on the dark card), so the foot takes the card's own text colour there */
+html[data-bs-theme='dark'] .m-tile > .m-calm__foot, html[data-theme='dark'] .m-tile > .m-calm__foot { color: var(--md-sys-color-on-surface-variant); }
+.m-calm.is-l .m-calm__foot { flex-direction: column-reverse; align-items: flex-start; gap: 2px; }
+.m-calm__stats { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-feature-settings: 'tnum' 1; } .m-calm__stats i { font-style: normal; opacity: .6; } /* min-width 0 + ellipsis: long localised stats end in an ellipsis instead of leaving the card */
+.m-calm .m-tchart__target { stroke: var(--tk); stroke-width: 1.5; stroke-dasharray: 4 5; opacity: .55; }
+
+/* 本主机: A, the hero the team liked, refined; B, the same anatomy quieter (no shape behind, the action plainly a button, the cover's colour while streaming) */
+/* the hero's colours: the card, its text, the action's shape and its glyph. A: solid primary in light; in dark the primary container (a light primary card with a dark
+   shape would be the heaviest thing on the page). B: the container roles in both; while streaming, the container of the cover's own scheme (CalHero sets them). */
+.m-calh { --hb-bg: var(--md-sys-color-primary); --hb-fg: var(--md-sys-color-on-primary); --hb-btn: var(--md-sys-color-on-primary); --hb-glyph: var(--md-sys-color-primary); }
+html[data-bs-theme='dark'] .m-calh--a, html[data-theme='dark'] .m-calh--a, .m-calh--b { --hb-bg: var(--md-sys-color-primary-container); --hb-fg: var(--md-sys-color-on-primary-container); --hb-btn: var(--md-sys-color-primary); --hb-glyph: var(--md-sys-color-on-primary); }
+.m-calh { flex-direction: row; gap: 14px; background: var(--hb-bg); color: var(--hb-fg);
+  transition: background-color var(--m-spring-slow-effects-duration) var(--m-spring-slow-effects), color var(--m-spring-slow-effects-duration) var(--m-spring-slow-effects); }
+.m-calh__main { container-type: inline-size; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.m-calh__head { display: flex; align-items: center; gap: 8px; min-width: 0; font: var(--m-tile-text-13-strong); }
+.m-calh__head:has(> .m-calh__act) { min-height: 48px; }
+.m-calh__head > .m-icon { width: 18px; height: 18px; flex: none; } .m-calh__head > span { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .9; }
+.m-calh__status { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 12px; font: var(--m-tile-text-12-strong); line-height: 1; }
+.m-calh__status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; } .m-calh__status.is-live i, .m-calh__status.is-ok i { background: var(--hb-dot); }
+/* the status pill (on the header row right after 本主机, a tonal role of the card in every theme and style): 实色 takes the card's text at 12 % with
+   that text, 柔和 the secondary container, a cover's colours their tinted text at 12 %. The state dot is the success colour drawn towards the pill's text, so it reads on any fill.
+   12 %, not 16: white over primary T40 at 16 % falls to 4.38:1 at some hues; 12 % keeps 4.81:1 at every hue and seed (light, dark, cover tints). */
+.m-calh { --hb-pill-bg: color-mix(in srgb, var(--hb-fg) 12%, transparent); --hb-pill-fg: var(--hb-fg); --hb-dot: color-mix(in oklab, var(--md-sys-color-success) 60%, var(--hb-pill-fg)); }
+.m-calh--b { --hb-pill-bg: var(--md-sys-color-secondary-container); --hb-pill-fg: var(--md-sys-color-on-secondary-container); }
+.m-calh--b.is-tinted { --hb-pill-bg: color-mix(in srgb, var(--hb-fg) 12%, transparent); --hb-pill-fg: var(--hb-fg); }
+/* 实色 in light: white text on a mid-tone primary, where the success colour reads 1.8:1; the light success container reads about 4:1 (a cover's dot comes from heroTint) */
+html:not([data-bs-theme='dark']):not([data-theme='dark']) .m-calh--a:not(.is-tinted) { --hb-dot: var(--md-sys-color-success-container); }
+.m-calh__status { background: var(--hb-pill-bg); color: var(--hb-pill-fg); }
+.m-calh__status em { font: 500 12px/1 var(--m-font-display); font-style: normal; font-feature-settings: 'tnum' 1; opacity: .9; margin-left: 2px; }
+/* the display face's box is 1.252 em: on a 1.05 line the ellipsis's overflow would cut it, so padding holds the box and the margins keep the layout */
+.m-calh__name { margin: calc(2px - .11em) 0 -.11em; padding-block: .11em; font: 600 var(--hn, 40px)/1.05 var(--m-font-display); font-size: min(var(--hn, 40px), max(24px, 15.5cqw)); letter-spacing: -.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-calh.is-l { --hn: 42px; } .m-calh.is-xl { --hn: 54px; }
+.m-calh__line { font: var(--m-tile-text-14-strong); opacity: .95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-calh__chips { display: flex; flex-wrap: wrap; gap: 6px; } .m-calh__chips span { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 11px; font: var(--m-tile-text-11-strong); line-height: 1; background: color-mix(in srgb, currentColor 14%, transparent); }
+.m-calh__chips .m-icon { width: 14px; height: 14px; }
+.m-calh__pairs { display: flex; gap: 24px; margin: 0; } .m-calh__pairs div { min-width: 0; } .m-calh__pairs dt { font: var(--m-tile-text-12-strong); opacity: .9; } .m-calh__pairs dd { margin: 0; font: var(--m-tile-text-16-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-calh .m-calh__facts { margin: auto 0 0; display: grid; } .m-calh__facts div { display: grid; grid-template-columns: 20px auto 1fr; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent); min-width: 0; }
+.m-calh__facts .m-icon { width: 18px; height: 18px; opacity: .85; } .m-calh__facts dt { font: var(--m-tile-text-13-strong); opacity: .92; } .m-calh__facts dd { margin: 0; text-align: right; font: var(--m-tile-text-14-strong); line-height: 18px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.m-calh.is-xl .m-calh__facts { grid-template-columns: 1fr 1fr; column-gap: 32px; }
+/* the action: a white library shape holding its glyph */
+/* the action (round 11-11; 「串流中的这个本主机卡片还有问题」: a 160 px square with its label under it left a band of air and pushed the chips out): ONE normal button at the end of the header, in every size and
+   state. M3 Expressive: 48 px (the touch size), a pill that morphs to a rounder rectangle on hover and a tighter one on press, on the spring. The stop is the error container (a destructive action reads as
+   one on any cover tint), the restart the card's own button colour. Under 340 px of header it keeps the glyph and the accessible name; the touch size stays. */
+.m-calh__act { flex: none; margin-inline-start: auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; min-width: 48px; padding: 0 20px 0 16px; border: 0; border-radius: 24px; background: var(--hb-btn); color: var(--hb-glyph); font: var(--m-tile-text-14-strong); line-height: 1; white-space: nowrap; cursor: pointer; transition: border-radius var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), background-color var(--m-spring-slow-effects-duration) var(--m-spring-slow-effects), opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+.m-calh__act[data-kind='stop'] { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-calh__act > .m-icon { width: 22px; height: 22px; flex: none; }
+.m-calh__act:hover { border-radius: 16px; } .m-calh__act:active { border-radius: 12px; transform: scale(.97); } .m-calh__act:disabled { opacity: .6; cursor: default; }
+.m-calh__act:focus-visible { outline: 3px solid var(--hb-fg); outline-offset: 3px; }
+@container (max-width: 339.98px) { .m-calh__act { padding: 0; width: 48px; } .m-calh__actlabel { display: none; } }
+/* 中: the action is on the name's row; the label needs 400 px of the card's content */
+/* the 150 px tile of 中 holds the header, the 48 px name row, the line and the chips with 4 px between them */
+.m-calh.is-m .m-calh__main { gap: 4px; }
+.m-calh__namerow { display: flex; align-items: center; gap: 10px; min-width: 0; } .m-calh__namerow > .m-calh__name { flex: 1 1 auto; min-width: 0; }
+@container (max-width: 399.98px) { .m-calh.is-m .m-calh__act { padding: 0; width: 48px; } .m-calh.is-m .m-calh__actlabel { display: none; } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) :is(.m-calh, .m-calh__act) { transition: none; } }
+html[data-motion='reduced'] :is(.m-calh, .m-calh__act) { transition: none; }
+
+/* 正在玩: the cover is the focal element */
+.m-caln { padding: 0; flex-direction: row; }
+.m-caln.is-s .m-caln__art { position: absolute; inset: 0; z-index: 0; }
+.m-caln.is-s::after { content: ''; position: absolute; z-index: 0; inset: 35% 0 0; background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--md-sys-color-scrim) 38%, transparent) 40%, color-mix(in srgb, var(--md-sys-color-scrim) 62%, transparent)); pointer-events: none; }
+.m-caln.is-s .m-caln__text { position: absolute; z-index: 1; left: 16px; right: 16px; bottom: 14px; color: var(--md-sys-color-surface-container-lowest); }
+html[data-bs-theme='dark'] .m-caln.is-s .m-caln__text, html[data-theme='dark'] .m-caln.is-s .m-caln__text { color: var(--md-sys-color-on-surface); }
+.m-caln.is-s .m-caln__label { display: none; }
+/* 方形 without art (the app's icon on surface-container-high): no scrim, the theme's text (white over the scrimmed light surface read 3.99:1) */
+.m-caln.is-s:not(.has-art)::after { display: none; }
+.m-caln.is-s:not(.has-art) .m-caln__text { color: var(--md-sys-color-on-surface); } .m-caln.is-s:not(.has-art) .m-caln__name { text-shadow: none; }
+.m-caln.is-m .m-caln__art { flex: none; height: 100%; aspect-ratio: 1; }
+.m-caln.is-m .m-caln__text { flex: 1; min-width: 0; padding: 18px 20px; justify-content: center; }
+.m-caln__text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.m-caln__label { display: flex; align-items: center; gap: 6px; margin-bottom: auto; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); } .m-caln__label .m-icon { width: 18px; height: 18px; }
+.m-caln__name { font: 600 22px/26px var(--m-font-display); letter-spacing: -.015em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.m-caln.is-s .m-caln__name { font-size: 19px; line-height: 23px; font-weight: 700; text-shadow: 0 1px 3px color-mix(in srgb, var(--md-sys-color-scrim) 45%, transparent); -webkit-line-clamp: 1; white-space: nowrap; display: block; text-overflow: ellipsis; }
+.m-caln__sub { font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-caln.is-s .m-caln__sub { color: inherit; opacity: .85; font-size: 12px; }
+.m-caln.is-m .m-caln__sub { margin-bottom: auto; }
+
+/* 在线客户端 */
+.m-calo__count { margin-top: 8px; } .m-calo .m-calo__count.m-tnum--s { --tn: 48px; }
+.m-calo__rings { list-style: none; margin: auto 0 0; padding: 0; display: flex; align-items: center; }
+.m-calo__rings li { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); box-shadow: 0 0 0 3px var(--m-card-solid, var(--md-sys-color-surface)); }
+.m-calo__rings li + li { margin-left: -6px; } .m-calo__rings li .m-icon { width: 22px; height: 22px; }
+.m-calo__rings li.is-live { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); box-shadow: 0 0 0 3px var(--m-card-solid, var(--md-sys-color-surface)), 0 0 0 5px var(--md-sys-color-primary); }
+.m-calo__rings li.is-more { font: 600 13px/1 var(--m-font-display); }
+.m-calo__tiles { flex: 1 1 0; min-height: 0; list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+.m-calo__tiles li { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 14px; border-radius: 20px; background: var(--cal-inner); }
+.m-calo__tiles li.is-live { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-calo__tiles li > .m-icon { width: 24px; height: 24px; } .m-calo__tiles span { display: flex; flex-direction: column; min-width: 0; }
+.m-calo__tiles b { font: var(--m-tile-text-14-strong); line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .m-calo__tiles small { font: var(--m-tile-text-12-strong); opacity: .88; }
+
+/* an action: the whole tile is the button */
+.m-cala { justify-content: space-between; align-items: flex-start; border: 0; text-align: left; cursor: pointer; background: var(--tk-c); color: var(--on-tk-c); font: inherit; }
+.m-cala:hover { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--on-tk-c) 8%, transparent); } .m-cala:focus-visible { outline: 3px solid var(--tk); outline-offset: 2px; }
+.m-cala__glyph { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--tk); color: var(--on-tk); } .m-cala__glyph .m-icon { width: 26px; height: 26px; }
+.m-cala__name { font: 500 22px/28px var(--m-font-display); letter-spacing: -.01em; }
+
+/* 快捷操作: one row of Quick Settings pills */
+.m-calq { flex-direction: row; align-items: center; gap: 14px; --tile-pad: 8px 8px 8px 18px; }
+.m-calq__title { flex: none; display: flex; align-items: center; gap: 8px; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); } .m-calq__title .m-icon { width: 18px; height: 18px; }
+.m-calq__row { flex: 1; min-width: 0; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.m-calq__row button { width: 100%; height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 4px; border: 0; border-radius: 20px; background: var(--cal-inner); color: var(--md-sys-color-on-surface); font: var(--m-tile-text-13-strong); line-height: 1; white-space: nowrap; overflow: hidden; cursor: pointer; }
+.m-calq__row button:hover { background: var(--md-sys-color-surface-container-highest); }
+.m-calq__row i { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 12px; background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); } .m-calq__row i .m-icon { width: 18px; height: 18px; }
+
+/* the hero's grid: the main column and the action, then (大, 特大) the facts across the card right under the chips, never pinned to the bottom */
+.m-calh { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; row-gap: 14px; }
+.m-calh:is(.has-f1, .has-f2, .has-table) { grid-template-rows: auto minmax(0, 1fr); }
+.m-calh > .m-calh__main { grid-area: 1 / 1; }
+.m-calh > :is(.m-calh__blocks, .m-calh__f2) { grid-area: 2 / 1; }
+/* f1: stat blocks */
+.m-calh__blocks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(min-content, 76px); align-content: start; align-self: stretch; overflow: clip; } /* a pill takes the height of its content (up to 76 px when the card has room); a card too short for the rows loses whole pills, last first (data-fit-rows, fitRows.js), nothing is squeezed */
+.m-calh.is-xl .m-calh__blocks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.m-calh__blocks li { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 10px; align-content: center; align-items: center; min-width: 0; padding: 8px 14px 8px 12px; border-radius: 20px; background: color-mix(in srgb, var(--hb-fg) 11%, transparent); }
+.m-calh__blocks li > .m-icon { grid-row: 1 / 3; width: 22px; height: 22px; opacity: .9; }
+.m-calh__blocks b { font: 600 18px/22px var(--m-font-display); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-calh__blocks small { font: var(--m-tile-text-12-strong); line-height: 14px; opacity: .88; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-calh__blocks li.is-on { background: var(--hb-btn); color: var(--hb-glyph); } .m-calh__blocks li.is-on small { opacity: .92; }
+/* f2: the now-playing band and one line of chips */
+.m-calh__f2 { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
+.m-calh__band { flex: 1 1 auto; display: flex; align-items: center; gap: 16px; min-width: 0; min-height: 76px; max-height: 150px; padding: 10px 18px 10px 10px; border-radius: 20px; background: color-mix(in srgb, var(--hb-fg) 11%, transparent); }
+.m-calh__art { flex: none; width: auto; height: min(100%, 104px); aspect-ratio: 1; clip-path: var(--m-shape-cookie); }
+.m-calh__now { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.m-calh__now b { font: 600 18px/24px var(--m-font-display); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-calh__now small { font: var(--m-tile-text-12-strong); opacity: .88; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-calh__spark { --tk: var(--hb-fg); --tk-line: 2px; }
+.m-calh__spark .m-tchart__dot { box-shadow: 0 0 0 3px var(--hb-bg), 0 0 0 8px color-mix(in srgb, var(--hb-fg) 20%, transparent); }
+.m-calh__names { display: flex; flex-wrap: wrap; gap: 4px 6px; min-width: 0; } .m-calh__names em { font: var(--m-tile-text-12-strong); font-style: normal; padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--hb-fg) 14%, var(--hb-bg)); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.m-calh__avatars { flex: none; display: flex; padding-left: 6px; }
+.m-calh__avatars i { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: color-mix(in srgb, var(--hb-fg) 18%, var(--hb-bg)); box-shadow: 0 0 0 3px var(--hb-bg); }
+.m-calh__avatars i + i { margin-left: -10px; } .m-calh__avatars .m-icon { width: 24px; height: 24px; }
+.m-calh__fchips { display: flex; flex-wrap: wrap; gap: 6px; }
+/* in a pane under 1400 px the large host tile is under 330 px high: the chips keep one row and the ones that do not fit are left out whole, not cut */
+@container (max-width: 1400px) { .m-calh.is-l .m-calh__art { height: min(100%, 52px); } .m-calh.is-l .m-calh__band { gap: 8px; padding-left: 8px; } }
+.m-calh__fchips span { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px 0 9px; border-radius: 14px; background: color-mix(in srgb, var(--hb-fg) 11%, transparent); font: var(--m-tile-text-12-strong); line-height: 1; white-space: nowrap; }
+.m-calh__fchips .m-icon { width: 16px; height: 16px; opacity: .9; }
+.m-calh.is-xl .m-calh__blocks b, .m-calh.is-xl .m-calh__now b { font-size: 22px; line-height: 28px; } .m-calh.is-xl .m-calh__blocks b { line-height: 26px; }
+.m-calh.is-l .m-calh__art { height: min(100%, 72px); } .m-calh.is-l .m-calh__band { gap: 12px; padding-right: 14px; }
+.m-calh.is-l .m-calh__blocks li { padding: 8px 12px 8px 10px; column-gap: 8px; }
+/* F2's end while streaming. r1: the bitrate as a labelled value with its line under it in the same column (the line is that number's history); 特大 adds the frame rate */
+.m-calh__live { flex: none; width: 38%; display: flex; flex-wrap: wrap; align-content: center; column-gap: 22px; row-gap: 4px; align-self: stretch; min-width: 0; }
+.m-calh.is-xl .m-calh__live { width: 42%; }
+.m-calh__metric { flex: none; display: flex; flex-direction: column; min-width: 0; } .m-calh__metric small { font: var(--m-tile-text-12); opacity: .88; white-space: nowrap; }
+.m-calh__metric b { font: 600 20px/24px var(--m-font-display); letter-spacing: -.01em; font-feature-settings: 'tnum' 1; white-space: nowrap; } .m-calh__metric i { font: var(--m-tile-text-12-strong); font-style: normal; margin-left: 3px; opacity: .88; }
+.m-calh__live > .m-calh__spark { flex: 1 0 100%; width: 100%; height: 40px; }
+.m-calh__metric em { font: var(--m-tile-text-12); font-style: normal; opacity: .8; white-space: nowrap; }
+/* idle ↔ streaming: the facts change from the blocks to the band; the new one grows out of the corner of the emphasised block (clip-path on the slow spatial spring), the old one fades */
+.m-calh-swap-enter-active { transition: clip-path var(--m-spring-slow-spatial-duration) var(--m-spring-slow-spatial), opacity var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
+.m-calh-swap-leave-active { transition: opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects), transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-calh-swap-enter-from { clip-path: inset(0 52% 48% 0 round 20px); opacity: 0; } .m-calh-swap-enter-to { clip-path: inset(0 0 0 0 round 20px); }
+.m-calh-swap-leave-to { opacity: 0; transform: scale(.98); }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) :is(.m-calh-swap-enter-active, .m-calh-swap-leave-active) { transition: none; } }
+html[data-motion='reduced'] :is(.m-calh-swap-enter-active, .m-calh-swap-leave-active) { transition: none; }
+/* 本主机 方形: the name, the state as a dot, one fact */
+.m-calh--sq { display: flex; flex-direction: column; container-type: inline-size; }
+/* 方形: the short pill on the header row when it fits; a narrower square keeps the dot and says the state in its fact line */
+.m-calh--sq .m-calh__dot, .m-calh--sq .m-calh__factstate { display: none; }
+@container (max-width: 149.98px) { .m-calh--sq .m-calh__head .m-calh__status { display: none; } .m-calh--sq .m-calh__dot { display: block; } .m-calh--sq .m-calh__factstate { display: inline; } }
+.m-calh--sq .m-calh__name { margin-top: auto; padding-top: 0; --hn: 28px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; line-height: 1.08; padding-bottom: .13em; margin-bottom: -.13em; }
+/* a nine-letter host name (Skyward) takes one line in the 150 px square: 20 px at the least instead of 24 (the clamp of two lines cut its second line) */
+.m-calh--sq .m-calh__name { font-size: min(var(--hn, 28px), max(20px, 17.5cqw)); }
+.m-calh__dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: currentColor; opacity: .55; }
+.m-calh__dot.is-ok, .m-calh__dot.is-live { background: color-mix(in oklab, var(--md-sys-color-success) 60%, var(--hb-fg)); opacity: 1; box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-sys-color-success) 24%, transparent); }
+.m-calh__fact { margin-top: 6px; font: var(--m-tile-text-12); opacity: .92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .m-calh__fact b { font: var(--m-tile-text-12-strong); }
+/* 正在玩 大: the cover masked by a library shape, large; the name and the client under it */
+.m-caln.is-l { flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; }
+.m-caln.is-l .m-caln__art { width: 66%; height: auto; aspect-ratio: 1; clip-path: var(--m-shape-cookie); }
+.m-caln.is-l .m-caln__text { align-items: center; text-align: center; padding: 0; }
+.m-caln.is-l .m-caln__label { display: none; }
+.m-caln__facts { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; } .m-caln__facts li { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 8px; border-radius: 999px; background: var(--cal-inner, var(--md-sys-color-surface-container-high)); font: var(--m-tile-text-13-strong); } .m-caln__facts .m-icon { width: 18px; height: 18px; color: var(--md-sys-color-on-surface-variant); } .m-caln__facts b { font-weight: 600; }
+.m-caln.is-l .m-caln__name { font-size: 24px; line-height: 30px; -webkit-line-clamp: 1; }

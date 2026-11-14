@@ -1,0 +1,22 @@
+export default {
+  "apps": "{n} 個應用",
+  "paired": "{n} 臺已配對",
+  "unpaired": "未配對",
+  "noApps": "還沒有應用",
+  "errors24": "24 小時 {n} 個錯誤",
+  "noErrors": "無錯誤",
+  "ready": "{a}/{b} 就緒",
+  "on": "開",
+  "off": "關",
+  "restartNote": "重啟後生效",
+  "clientNote": "由客戶端決定 · 重啟後生效",
+  "addFps": "新增幀率",
+  "add": "新增",
+  "errorsUnit": "個錯誤",
+  "last24": "過去 24 小時",
+  "noWarnings": "無警告",
+  "linesUnit": "條",
+  "levelErr": "錯誤 {n}",
+  "noLines": "無新日誌",
+  "noWallpaper": "未使用桌布"
+}

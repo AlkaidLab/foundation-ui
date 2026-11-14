@@ -1,0 +1,117 @@
+/* Diagnostics: viewer, error centre, export sheet */
+.m-logv { display: flex; flex-direction: column; gap: 8px; }
+.m-logv__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.m-logv__spacer { flex: 1; }
+.m-logv__search { flex: 1 1 200px; min-width: 160px; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 8px 0 12px; border-radius: 9999px; background: var(--m-card); color: var(--md-sys-color-on-surface-variant); box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); }
+.m-logv__search:focus-within { box-shadow: inset 0 0 0 2px var(--md-sys-color-primary); }
+.m-logv__search.is-bad { box-shadow: inset 0 0 0 2px var(--md-sys-color-error); }
+.m-logv__input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--md-sys-color-on-surface); font: var(--m-body-medium); }
+.m-logv__input:focus-visible { outline: 0; box-shadow: none; }
+.m-logv__x { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.m-logv__chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 9999px; background: var(--m-card); color: var(--md-sys-color-on-surface-variant); box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); font: var(--m-label-large); cursor: pointer; white-space: nowrap; }
+.m-logv__chip .m-icon { font-size: 18px; }
+.m-logv__chip b { font-weight: 600; opacity: .75; }
+.m-logv__chip[aria-pressed="true"] { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); box-shadow: none; }
+.m-logv__chip--error[aria-pressed="true"] { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-logv__chip--primary { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); box-shadow: none; }
+.m-logv__chip:hover { filter: brightness(.97); }
+.m-logv__warn { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--md-sys-color-error); font: var(--m-body-small); }
+.m-logv__stats { padding: 12px 16px; border-radius: 20px; background: var(--m-card); }
+.m-logv__stats h4 { margin: 0 0 6px; font: var(--m-title-small); color: var(--md-sys-color-on-surface); }
+.m-logv__stats dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 16px; }
+.m-logv__stats dt { font: var(--m-label-small); color: var(--md-sys-color-on-surface-variant); }
+.m-logv__stats dd { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; }
+.m-logv__note { margin: 8px 0 0; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-logv__scroll { overflow: auto; border-radius: 20px; background: var(--m-card); padding: 8px 0; font: 12px/1.5 ui-monospace, 'Cascadia Mono', Consolas, monospace; outline: 0; }
+.m-logv__scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--md-sys-color-primary); }
+.m-logv__row { display: flex; gap: 10px; padding: 1px 14px; cursor: pointer; min-width: max-content; border-left: 3px solid transparent; }
+.m-logv__scroll.is-wrap .m-logv__row { min-width: 0; }
+.m-logv__scroll.is-wrap .m-logv__msg { white-space: pre-wrap; overflow-wrap: anywhere; }
+.m-logv__row:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent); }
+.m-logv__row.is-selected { background: color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent); }
+.m-logv__row.is-flash { animation: m-logv-flash 1.4s ease-out; }
+@keyframes m-logv-flash { from { background: color-mix(in srgb, var(--md-sys-color-tertiary) 40%, transparent); } }
+.m-logv__time { flex: none; color: var(--md-sys-color-on-surface-variant); }
+.m-logv__level { flex: none; width: 62px; font-weight: 600; }
+.m-logv__src { flex: none; align-self: flex-start; min-width: 34px; padding: 0 7px; border-radius: 9999px; text-align: center; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font-weight: 500; font-size: 11px; line-height: 18px; }
+.m-logv__msg { white-space: pre; color: var(--md-sys-color-on-surface); }
+.m-logv__count { flex: none; align-self: flex-start; padding: 0 6px; border-radius: 9999px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font-weight: 600; }
+.m-logv__row--error { border-left-color: var(--md-sys-color-error); } .m-logv__row--error .m-logv__level { color: var(--md-sys-color-error); }
+.m-logv__row--warn { border-left-color: var(--md-sys-color-warning, var(--md-sys-color-tertiary)); } .m-logv__row--warn .m-logv__level { color: var(--md-sys-color-warning, var(--md-sys-color-tertiary)); }
+.m-logv__row--info .m-logv__level { color: var(--md-sys-color-primary-text); }
+.m-logv__more { display: block; margin: 0 auto 6px; padding: 6px 14px; border: 0; border-radius: 9999px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); cursor: pointer; font: var(--m-label-medium); }
+.m-logv__skel { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; }
+.m-logv__skel > i { display: block; height: 12px; border-radius: 6px; background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent); }
+.m-logv__empty { margin: 16px; text-align: center; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-medium); }
+.m-logv__foot { margin: 0; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); text-align: right; }
+
+.m-errc__raw { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); font: 12px/1.5 ui-monospace, 'Cascadia Mono', Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow: auto; }
+.m-errc__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.m-diagx__lead { margin: 0 0 12px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-diagx__loading { display: flex; flex-direction: column; gap: 12px; padding: 24px 0; color: var(--md-sys-color-on-surface-variant); }
+.m-diagx__saving { margin: 8px 0 0; }
+.m-diagx__list { margin-top: 12px; }
+.m-diagx__list .is-off { opacity: .6; }
+.m-diagx__previewrow .m-item__control { padding-left: 40px; }
+.m-diagx__previewbtn { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; color: var(--md-sys-color-primary-text); font: var(--m-label-medium); cursor: pointer; }
+.m-diagx__previewbtn .m-icon { font-size: 18px; }
+.m-diagx__pre { margin: 8px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); font: 11px/1.45 ui-monospace, 'Cascadia Mono', Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 220px; overflow: auto; }
+.m-diagx__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+
+/* the log as a tool: the head (search, chips, chart) stays put, the lines take the rest of the height */
+.m-logv__head { display: flex; flex-direction: column; gap: 8px; position: sticky; top: 0; z-index: 2; padding-bottom: 4px; }
+.m-logv--fill { height: calc(100dvh - 232px); min-height: 360px; }
+.m-logv--fill .m-logv__scroll { flex: 1; min-height: 0; }
+.m-logv--fill .m-logv__head { position: static; }
+.m-logv__chart { padding: 8px 12px 4px; border-radius: 20px; background: var(--m-card); }
+.m-logv__charttitle { display: block; font: var(--m-label-small); color: var(--md-sys-color-on-surface-variant); margin-bottom: 2px; }
+.m-logv__hit { background: color-mix(in srgb, var(--md-sys-color-tertiary) 45%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+.m-logv__row { border-left-width: 3px; }
+.m-diag__tabs { display: flex; margin-bottom: 8px; }
+.m-diag__fill { display: flex; flex-direction: column; }
+
+/* a chip that opens a menu, and the one row of the log viewer */
+.m-mchip { position: relative; display: inline-flex; }
+.m-mchip__btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 8px 0 14px; border: 0; border-radius: 9999px; background: var(--m-card); color: var(--md-sys-color-on-surface-variant); box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); font: var(--m-label-large); cursor: pointer; white-space: nowrap; }
+.m-mchip__btn:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--m-card)); }
+.m-mchip__btn:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-mchip__btn.is-active { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); box-shadow: none; }
+.m-mchip__btn.is-icon { width: 36px; padding: 0; justify-content: center; }
+.m-mchip__btn .m-icon { font-size: 18px; } .m-mchip__btn.is-icon .m-icon { font-size: 22px; }
+.m-mchip__arrow { margin-inline-start: -2px; }
+.m-mchip__tick { width: 24px; height: 24px; display: grid; place-items: center; }
+.m-mchip__count { font: var(--m-label-medium); font-variant-numeric: tabular-nums; color: var(--md-sys-color-on-surface-variant); }
+.m-logv__badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; font: var(--m-label-small); font-variant-numeric: tabular-nums; font-weight: 600; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface); }
+.m-logv__badge--error { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-logv__badge--warn { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+.m-logv__bar--main { flex-wrap: wrap; gap: 8px; }
+.m-logv__bar--main .m-logv__search { flex: 1 1 240px; }
+.m-logv__searchmenu { flex: none; }
+.m-logv__searchmenu .m-mchip__btn { height: 28px; width: 28px; box-shadow: none; background: transparent; }
+.m-mchip__btn.is-quiet { padding: 0 6px 0 10px; }
+
+/* startup problems: one slim line on the page (a soft tint of the error container, the grid's gap below it), the rest in a centred dialog */
+.m-sprob { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 8px 6px 10px; margin-bottom: 10px; border-radius: 24px; background: color-mix(in srgb, var(--md-sys-color-error-container) 40%, var(--m-card-solid, var(--md-sys-color-surface-container-low))); color: var(--md-sys-color-on-surface); }
+/* the column adds 4px between its children: the line keeps the grid's own gap to the tiles below it (14px; 10px in a compact dash) */
+.m-page__column:has(.m-dash--compact) > .m-sprob { margin-bottom: 6px; }
+.m-sprob__icon { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--md-sys-color-error) 14%, transparent); color: var(--md-sys-color-error); font-size: 18px; }
+.m-sprob__line { all: unset; box-sizing: border-box; flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; min-height: 36px; border-radius: 12px; cursor: pointer; font: var(--m-body-medium); }
+.m-sprob__line:focus-visible { outline: 2px solid var(--md-sys-color-error); outline-offset: 2px; }
+/* the message is the point: it wraps and is never cut; on a narrow window the view button keeps only its icon (title and label stay for assistive tech) */
+.m-sprob__text { min-width: 0; overflow-wrap: anywhere; }
+.m-sprob__view { flex: none; }
+.m-sprob__viewicon { display: none; }
+@media (max-width: 419.98px) { .m-sprob__viewicon { display: inline-block; } .m-sprob__fix { min-width: 36px; padding-inline: 0; } :is(.m-sprob__viewlabel, .m-sprob__fixlabel) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } .m-sprob__view { min-width: 36px; padding-inline: 0; } }
+.m-sprob__more { flex: none; padding: 0 8px; height: 22px; display: inline-grid; place-items: center; border-radius: 11px; background: color-mix(in srgb, var(--md-sys-color-error) 14%, transparent); font: var(--m-label-medium); font-variant-numeric: tabular-nums; }
+.m-sprob__chev { flex: none; width: 24px; height: 24px; font-size: 24px; color: var(--md-sys-color-on-surface-variant); transform: rotate(90deg); transition: transform 160ms ease; } .m-sprob__chev.is-open { transform: rotate(-90deg); }
+.m-sprob__rawrow .m-item__title { font: 12px/1.5 ui-monospace, 'Cascadia Mono', Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--md-sys-color-on-surface-variant); }
+
+/* the log is a data page: it uses the whole width of the content, not the centred column; its bar spans it and the search takes what the other controls leave */
+.m-logv__wrapbtn { width: 40px; padding: 0; justify-content: center; } .m-logv__wrapbtn.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+
+.m-diagai__wait { display: flex; align-items: center; gap: 12px; padding: 16px; color: var(--md-sys-color-on-surface-variant); }
+.m-diagai__result { position: relative; padding-inline-end: 56px; }
+.m-diagai__copy { position: absolute; top: 8px; right: 8px; }
+.m-diagai__html { font: var(--m-body-medium); line-height: 1.6; overflow-wrap: anywhere; }
+.m-diagai__html pre { margin: 8px 0; padding: 12px; border-radius: 12px; background: var(--md-sys-color-surface-container-highest); overflow: auto; white-space: pre-wrap; }

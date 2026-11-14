@@ -1,0 +1,28 @@
+export default
+{
+  "apps": "{n} Apps",
+  "paired": "{n} gekoppelt",
+  "unpaired": "Nicht gekoppelt",
+  "noApps": "Noch keine Apps",
+  "errors24": "{n} Fehler in 24 Std.",
+  "noErrors": "Keine Fehler",
+  "ready": "{a}/{b} bereit",
+  "current": "Aktuell",
+  "updateTo": "Auf {v} aktualisieren",
+  "on": "Ein",
+  "off": "Aus",
+  "restartNote": "Nach einem Neustart",
+  "clientNote": "Vom Client festgelegt · nach einem Neustart",
+  "padNote": "Gilt für neue Controller",
+  "addFps": "Bildrate hinzufügen",
+  "add": "Hinzufügen",
+  "errorsUnit": "Fehler",
+  "last24": "Letzte 24 Stunden",
+  "warnings": "{n} Warnungen",
+  "noWarnings": "Keine Warnungen",
+  "linesUnit": "Zeilen",
+  "levelErr": "{n} Fehler",
+  "levelWarn": "{n} Warnungen",
+  "noLines": "Keine neuen Zeilen",
+  "noWallpaper": "Kein Hintergrundbild"
+}

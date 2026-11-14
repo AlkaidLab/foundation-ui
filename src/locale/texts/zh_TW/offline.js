@@ -1,0 +1,32 @@
+export default {
+  "pageTitle": "Sunshine 沒有響應",
+  "title": "Sunshine 沒有響應",
+  "line": "Sunshine 沒有在執行，或者沒有回應請求。",
+  "tipsTitle": "可以這樣排查：",
+  "tips": [
+    "Sunshine 服務有沒有在執行",
+    "埠 47990 有沒有被佔用或被攔截",
+    "防火牆有沒有攔截 Sunshine"
+  ],
+  "retry": "再試一次",
+  "footer": "Sunshine 恢復後，這個頁面會自動返回。",
+  "probing": "第{n}次探測 Sunshine...",
+  "failed": "第{n}次探測失敗，{s}秒後重試...",
+  "awake": "Sunshine 已恢復，正在返回…",
+  "restart": "重啟 Sunshine",
+  "userMode": "以使用者模式啟動",
+  "viewLog": "檢視日誌",
+  "runDoctor": "執行體檢",
+  "retryIn": "{s} 秒後重試",
+  "attemptFailed": "第{n}次探測失敗",
+  "restarting": "正在重啟 Sunshine...",
+  "restartFailed": "重啟沒有成功：{message}",
+  "restartTimeout": "重啟後 Sunshine 還是沒有回應",
+  "proxyTitle": "無法連線 Sunshine 的 WebUI 面板",
+  "proxyLine": "代理或 TUN 軟體可能攔截了 localhost、127.0.0.0/8 或 IPv6 環回地址，請將本機環迴流量設為直連後重試。",
+  "proxyChecking": "正在重新檢測… 第{n}次",
+  "proxyWaiting": "稍後自動重試",
+  "proxyAttempts": "已檢測 {n} 次，通了會自動恢復",
+  "unresponsiveTitle": "主機無響應",
+  "unresponsiveLine": "Sunshine 的程序還在執行，但沒有回應請求。通常等一會兒就好；一直不好，可以重啟 Sunshine。"
+}

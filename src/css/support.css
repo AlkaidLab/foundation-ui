@@ -1,0 +1,13 @@
+.m-support .m-sheet__panel { background: color-mix(in srgb, var(--md-sys-color-primary) 8%, var(--md-sys-color-surface-container-low)); }
+.m-support .m-sheet__body { display: flex; flex-direction: column; gap: 18px; }
+.m-support__section { display: flex; flex-direction: column; gap: 8px; }
+.m-support__label { margin: 0 4px; font: var(--m-label-large); color: var(--md-sys-color-primary-text); }
+.m-support__rows { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.m-support__row { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 16px; padding: 12px 18px 12px 12px; border-radius: 24px; cursor: pointer; background: color-mix(in srgb, var(--md-sys-color-primary) 10%, var(--md-sys-color-surface-container-highest)); color: var(--md-sys-color-on-surface); transition: border-radius var(--m-spring-fast-spatial-duration, 200ms) var(--m-spring-fast-spatial, ease), background-color 120ms linear; }
+.m-support__row:hover { border-radius: 32px; background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, color-mix(in srgb, var(--md-sys-color-primary) 10%, var(--md-sys-color-surface-container-highest))); }
+.m-support__row:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-support__ico { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; font-size: 24px; background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); clip-path: var(--m-shape-cookie, none); }
+.m-support__ico.is-tertiary { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); clip-path: none; }
+.m-support__ico.is-secondary { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); clip-path: none; }
+.m-support__text { flex: 1; min-width: 0; display: flex; flex-direction: column; } .m-support__text b { font: var(--m-title-medium-emphasized); } .m-support__text small { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-support__go { flex: none; font-size: 20px; color: var(--md-sys-color-on-surface-variant); }

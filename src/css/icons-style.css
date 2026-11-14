@@ -1,0 +1,52 @@
+/*
+ * Icon treatment: ONE token. <html data-icons="a|b|c"> (default b) decides how every list, rail and card icon looks.
+ *
+ * Markup contract (what a consumer writes):
+ *   <span class="m-ico" data-tone="0"><MIcon :name="icon" fill /></span>
+ * - `data-tone` 0..3 is the group of the icon (a list group, a row of cards); the same value gives the same look in
+ *   every place. Omitted = 0.
+ * - Size: 40 px; set `--ico-size` on the element or a parent for another size (the glyph is 55 % of it).
+ * - The glyph is filled (`fill` on MIcon).
+ * - `.is-on` on the element, or `aria-current` / `aria-selected="true"` on an ancestor row, marks the selected state:
+ *   in b the shape morphs to a circle, in a and c the container takes the strong colour.
+ * No hue outside the palette of the seed: every colour below is a role of the theme. A problem is `data-tone="error"`.
+ *   a  one tonal container (secondary), soft squircle
+ *   b  one tonal colour (primary), identity by shape: cookie, clover, sunny, gem by group (default)
+ *   c  primary, secondary and tertiary containers by group, shape cookie
+ */
+.m-ico {
+  /* idle: a light tonal container (the group's hue at --ico-tint over a calm surface) with a glyph of the same hue pulled towards on-surface;
+     selected: the hue as a solid fill with the on-hue glyph. test/icon-contrast.test.js holds both pairs to 4.5:1 for the seeds. */
+  --ico-size: 40px;
+  --ico-tint: 16%;
+  --ico-glyph: 35%;
+  --ico-hue: var(--md-sys-color-primary);
+  --ico-on: color-mix(in srgb, var(--ico-hue) var(--ico-glyph), var(--md-sys-color-on-surface));
+  --ico-solid-on: var(--md-sys-color-on-primary);
+  --ico-bg: color-mix(in srgb, var(--ico-hue) var(--ico-tint), var(--md-sys-color-surface-container-high));
+  --ico-fg: var(--ico-on);
+  --ico-shape: var(--m-shape-cookie);
+  flex: none; box-sizing: border-box; width: var(--ico-size); height: var(--ico-size);
+  display: inline-grid; place-items: center; font-size: calc(var(--ico-size) * .46);
+  background: var(--ico-bg); color: var(--ico-fg); clip-path: var(--ico-shape);
+  transition: clip-path var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects), color var(--m-spring-default-effects-duration) var(--m-spring-default-effects);
+}
+.m-ico > .m-icon { width: 1em; height: 1em; }
+.m-ico[data-tone='1'] { --ico-shape: var(--m-shape-clover); }
+.m-ico[data-tone='2'] { --ico-shape: var(--m-shape-sunny); }
+.m-ico[data-tone='3'] { --ico-shape: var(--m-shape-gem); }
+/* b: selected = the shape morphs to a circle, the container turns solid */
+.m-ico.is-on, [aria-current='page'] .m-ico, [aria-selected='true'] .m-ico { --ico-shape: var(--m-shape-circle); --ico-bg: var(--md-sys-color-primary); --ico-fg: var(--md-sys-color-on-primary); }
+.m-ico[data-tone='error'] { --ico-bg: var(--md-sys-color-error-container); --ico-fg: var(--md-sys-color-on-error-container); }
+
+/* a: one hue (secondary), soft squircle */
+:root[data-icons='a'] .m-ico { --ico-shape: var(--m-shape-squircle); --ico-hue: var(--md-sys-color-secondary); }
+:root[data-icons='a'] .m-ico.is-on, :root[data-icons='a'] [aria-current='page'] .m-ico, :root[data-icons='a'] [aria-selected='true'] .m-ico { --ico-shape: var(--m-shape-squircle); --ico-bg: var(--md-sys-color-secondary); --ico-fg: var(--md-sys-color-on-secondary); }
+/* c: primary, secondary and tertiary hues by group, cookie */
+:root[data-icons='c'] .m-ico { --ico-shape: var(--m-shape-cookie); }
+:root[data-icons='c'] .m-ico[data-tone='1'] { --ico-hue: var(--md-sys-color-secondary); }
+:root[data-icons='c'] .m-ico[data-tone='2'] { --ico-hue: var(--md-sys-color-tertiary); }
+:root[data-icons='c'] .m-ico.is-on, :root[data-icons='c'] [aria-current='page'] .m-ico, :root[data-icons='c'] [aria-selected='true'] .m-ico { --ico-shape: var(--m-shape-cookie); --ico-bg: var(--md-sys-color-primary); --ico-fg: var(--md-sys-color-on-primary); }
+:root[data-icons='a'] .m-ico[data-tone='error'], :root[data-icons='c'] .m-ico[data-tone='error'] { --ico-bg: var(--md-sys-color-error-container); --ico-fg: var(--md-sys-color-on-error-container); }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-ico { transition: none; } }
+html[data-motion='reduced'] .m-ico { transition: none; }

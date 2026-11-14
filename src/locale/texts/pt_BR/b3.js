@@ -1,0 +1,27 @@
+export default
+{
+  "paired": "{n} pareados",
+  "unpaired": "Não pareado",
+  "noApps": "Ainda não há apps",
+  "errors24": "{n} erros em 24 h",
+  "noErrors": "Sem erros",
+  "ready": "{a}/{b} prontos",
+  "current": "Atualizado",
+  "updateTo": "Atualizar para {v}",
+  "on": "Ativado",
+  "off": "Desativado",
+  "restartNote": "Após reiniciar",
+  "clientNote": "Definido pelo cliente · após reiniciar",
+  "padNote": "Vale para controles novos",
+  "addFps": "Adicionar uma taxa de quadros",
+  "add": "Adicionar",
+  "errorsUnit": "erros",
+  "last24": "Últimas 24 horas",
+  "warnings": "{n} avisos",
+  "noWarnings": "Sem avisos",
+  "linesUnit": "linhas",
+  "levelErr": "{n} erros",
+  "levelWarn": "{n} avisos",
+  "noLines": "Nenhuma linha nova",
+  "noWallpaper": "Sem papel de parede"
+}

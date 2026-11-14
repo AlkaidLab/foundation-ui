@@ -1,0 +1,60 @@
+/* The unified search: a Material 3 search bar (docked on wide and medium windows, an icon with a full-screen view on compact ones). */
+html { --m-search-surface: var(--md-sys-color-surface-bright, var(--md-sys-color-surface-container-high)); }
+html[data-bs-theme='dark'], html.dark, html[data-theme='dark'] { --m-search-surface: var(--md-sys-color-surface-container-highest); }
+.m-usearch { position: relative; width: min(560px, 100%); height: var(--m-usearch-h, 40px); }
+.m-usearch__box { position: absolute; top: 0; left: 0; right: 0; z-index: 60; overflow: hidden; border-radius: calc(var(--m-usearch-h, 40px) / 2); background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--m-frame, var(--md-sys-color-surface-container-high))); color: var(--md-sys-color-on-surface); transition: background-color 160ms linear, border-radius 220ms var(--m-spring-default-spatial, ease), box-shadow 220ms linear; }
+.m-usearch:not(.is-open) .m-usearch__box:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, var(--m-frame, var(--md-sys-color-surface-container-high))); }
+.m-usearch.is-open .m-usearch__box { background: var(--m-search-surface); border-radius: 24px; box-shadow: 0 10px 32px color-mix(in srgb, var(--md-sys-color-shadow, #000) 24%, transparent); }
+.m-usearch__field { display: flex; align-items: center; gap: 12px; height: var(--m-usearch-h, 40px); padding: 0 8px 0 14px; cursor: text; }
+.m-usearch__lead { flex: none; width: 22px; height: 22px; color: var(--md-sys-color-on-surface); }
+.m-usearch__input { all: unset; flex: 1; min-width: 0; font: var(--m-body-large); color: var(--md-sys-color-on-surface); }
+.m-usearch__input::placeholder { color: var(--md-sys-color-on-surface-variant); opacity: 1; }
+.m-usearch__input:focus-visible { outline: none; }
+.m-usearch__kbd { flex: none; padding: 0 8px; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); background: none; border: 0; border-radius: 0; box-shadow: none; }
+.m-usearch__clear, .m-usearch__back, .m-usearch__open, .m-usearch__remove { all: unset; box-sizing: border-box; flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--md-sys-color-on-surface-variant); cursor: pointer; }
+.m-usearch__clear:hover, .m-usearch__back:hover, .m-usearch__open:hover, .m-usearch__remove:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent); }
+.m-usearch__clear:focus-visible, .m-usearch__back:focus-visible, .m-usearch__open:focus-visible, .m-usearch__remove:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 1px; }
+.m-usearch__clear .m-icon, .m-usearch__back .m-icon, .m-usearch__open .m-icon, .m-usearch__remove .m-icon { width: 20px; height: 20px; }
+
+/* the view */
+.m-usearch__view { border-top: 1px solid var(--md-sys-color-outline-variant); max-height: min(62vh, 560px); overflow-y: auto; padding: 4px 0 10px; overscroll-behavior: contain; }
+.m-usearch__list { list-style: none; margin: 0; padding: 0; }
+.m-usearch__group { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px 4px 24px; }
+.m-usearch__group h3 { margin: 0; font: var(--m-label-large); letter-spacing: .02em; color: var(--md-sys-color-on-surface-variant); }
+.m-usearch__groupact { all: unset; cursor: pointer; padding: 2px 8px; border-radius: 12px; font: var(--m-label-medium); color: var(--md-sys-color-primary-text); }
+.m-usearch__groupact:hover { background: color-mix(in srgb, var(--md-sys-color-primary) 10%, transparent); }
+.m-usearch__row { display: flex; align-items: center; gap: 16px; min-height: 56px; padding: 6px 12px 6px 16px; margin: 0 8px; border-radius: 16px; cursor: pointer; }
+.m-usearch__row.is-active { background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent); }
+.m-usearch__icon { flex: none; width: 24px; height: 24px; color: var(--md-sys-color-on-surface-variant); }
+.m-usearch__text { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 1px; }
+.m-usearch__title { font: var(--m-body-large); color: var(--md-sys-color-on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.m-usearch__title mark { background: none; color: var(--md-sys-color-primary-text); font-weight: 700; }
+.m-usearch__path { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-usearch__trail { flex: none; font: var(--m-label-medium); color: var(--md-sys-color-primary-text); }
+.m-usearch__more { padding: 2px 24px 6px 64px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-usearch__empty { display: grid; gap: 4px; padding: 28px 24px; text-align: center; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-usearch__empty b { font: var(--m-body-large); color: var(--md-sys-color-on-surface); font-weight: 500; }
+.m-usearch__confirm { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+
+/* compact: the icon sits in the top app bar, the view is the whole screen */
+.m-usearch.is-compact { width: auto; height: auto; }
+.m-usearch.is-compact .m-usearch__open { width: 40px; height: 40px; color: var(--md-sys-color-on-surface); }
+/* a <dialog> shown modally: the page behind it is inert; the user agent's own box is taken off */
+.m-usearch__full { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; box-sizing: border-box; overflow: visible; }
+.m-usearch__full:not([open]) { display: none; }
+.m-usearch__full::backdrop { background: transparent; }
+.m-usearch__full { position: fixed; inset: 0; z-index: 2000; display: flex; flex-direction: column; background: var(--m-search-surface); color: var(--md-sys-color-on-surface); animation: m-usearch-in 240ms var(--m-spring-default-spatial, ease) both; }
+@keyframes m-usearch-in { from { opacity: 0; transform: translateY(16px); } }
+.m-usearch__head { display: flex; align-items: center; gap: 8px; flex: none; height: 72px; padding: 0 8px 0 8px; }
+.m-usearch__head .m-usearch__back { width: 48px; height: 48px; color: var(--md-sys-color-on-surface); } .m-usearch__head .m-usearch__back .m-icon { width: 24px; height: 24px; }
+.m-usearch__head .m-usearch__clear { width: 48px; height: 48px; }
+.m-usearch__divider { flex: none; height: 1px; background: var(--md-sys-color-outline-variant); }
+.m-usearch__scroll { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 0px); overscroll-behavior: contain; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-usearch__full { animation: none; } html:not([data-motion='full']) .m-usearch__box { transition: none; } }
+html[data-motion='reduced'] .m-usearch__full { animation: none; } html[data-motion='reduced'] .m-usearch__box { transition: none; }
+
+/* the row a search hit lands on pulses (the highlight of Android's settings search) */
+.m-hit { animation: m-hit 1.8s ease-out; }
+@keyframes m-hit { 0%, 100% { background-color: transparent; } 12%, 52% { background-color: color-mix(in srgb, var(--md-sys-color-primary) 22%, transparent); } 32% { background-color: color-mix(in srgb, var(--md-sys-color-primary) 6%, transparent); } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-hit { animation: none; outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; } }
+html[data-motion='reduced'] .m-hit { animation: none; outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }

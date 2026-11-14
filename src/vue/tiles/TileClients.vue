@@ -1,0 +1,82 @@
+<script>
+export const tileIds = ['clients-paired', 'pair']
+</script>
+
+<script setup>
+// 已配对客户端 and 配对 in the calibrated calm language (round 31; REFERENCES.md "clients-paired", "pair"). 在线客户端 is B1's (TileOnlineCal).
+//   已配对客户端 (the Pixel Battery widget's device rows, One UI's Direct Dial row): the count is the focal element and the devices are its members. 方形 the count and the
+//     circles; 中 the count beside four circles with their names; 大 the count over rows: a 40 px tonal circle, the name, when it streamed last, a state chip; 特大 the rows in two
+//     columns, each also with its streamed time in words. A device that streams comes first.
+//   配对 (the iOS HIG's one control; a Pixel VIPs count): 方形 the paired count with its word on the baseline, one button; 中 the QR code on white beside one PIN field and its button.
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import MField from '../MField.vue'
+import MIcon from '../MIcon.vue'
+import MTileChip from '../MTileChip.vue'
+import MTileNumeral from '../MTileNumeral.vue'
+import { OPEN, designProps } from './tileData.js'
+import { sizeB2 } from './b2.js'
+
+const props = defineProps(designProps)
+const emit = defineEmits(['act'])
+const id = computed(() => props.card.id)
+const d = computed(() => props.card.data || {})
+const size = computed(() => sizeB2(props.card))
+const T = computed(() => props.texts || {})
+const live = (c) => c.tone === 'ok'
+const items = computed(() => { const v = d.value.items || []; return [...v.filter(live), ...v.filter((c) => !live(c))] })
+const count = computed(() => d.value.count ?? items.value.length)
+const chipTone = (c) => (live(c) ? 'ok' : c.tone === 'warn' ? 'warn' : '')
+
+// 配对: the PIN typed on the tile; the QR code lives while the tile is shown at 中 (the product makes it on pair-qr-begin)
+const pin = ref('')
+const pinText = computed({ get: () => pin.value, set: (v) => { pin.value = String(v).replace(/\D/g, '').slice(0, 4) } })
+const sendPin = () => { if (pin.value.length === 4) { emit('act', { type: 'pair-pin', value: { pin: pin.value } }); pin.value = '' } }
+const qr = computed(() => (id.value === 'pair' ? d.value.qr : null))
+const qrShown = computed(() => !!qr.value && size.value !== 's' && !props.preview)
+watch(qrShown, (on, was) => { if (on) emit('act', { type: 'pair-qr-begin' }); else if (was) emit('act', { type: 'pair-qr-stop' }) }, { immediate: true })
+onBeforeUnmount(() => { if (qrShown.value) emit('act', { type: 'pair-qr-stop' }) })
+</script>
+
+<template>
+  <section class="m-tile m-cal m-b2" :class="[`m-b2--${id}`, `is-${size}`, id === 'pair' ? 'm-b2pair' : 'm-b2paired']" :data-size="size" data-accent="primary">
+    <template v-if="empty">
+      <header class="m-calm__head"><MIcon :name="empty.icon || d.icon || 'devices'" /><span class="m-calm__title">{{ empty.title || card.title }}</span></header>
+      <div class="m-b2empty"><span class="m-b2glyph"><MIcon :name="d.icon || 'devices'" /></span><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+    </template>
+
+    <!-- 已配对客户端 -->
+    <template v-else-if="id === 'clients-paired'">
+      <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span><button v-if="chevron && size !== 's'" type="button" class="m-calm__more" :aria-label="T.more || card.title" @click.stop="emit('act', OPEN)"><MIcon name="chevron_right" /></button></header>
+      <template v-if="size === 's'">
+        <MTileNumeral class="m-b2paired__count" :value="String(count)" size="m" />
+        <ul class="m-calo__rings"><li v-for="c in items.slice(0, 3)" :key="c.name" :class="{ 'is-live': live(c) }"><MIcon :name="c.icon" /></li><li v-if="count > 3" class="is-more">+{{ count - 3 }}</li></ul>
+      </template>
+      <div v-else-if="size === 'm'" class="m-b2paired__dial">
+        <MTileNumeral class="m-b2paired__count" :value="String(count)" size="l" />
+        <div class="m-b2paired__people" :style="{ '--n': Math.min(items.length, 4) }">
+          <ul aria-hidden="true"><li v-for="c in items.slice(0, 4)" :key="c.name" class="m-b2glyph" :class="{ 'is-on': live(c), 'is-off': c.tone === 'warn' }"><MIcon :name="c.icon" /></li></ul>
+          <ul data-redact="client"><li v-for="c in items.slice(0, 4)" :key="c.name">{{ c.name }}</li></ul>
+        </div>
+      </div>
+      <template v-else>
+        <MTileNumeral class="m-b2paired__count" :value="String(count)" :size="size" />
+        <ol class="m-b2list" data-redact="client"><li v-for="c in items.slice(0, size === 'xl' ? 8 : 4)" :key="c.name" class="m-b2item"><span class="m-b2glyph" :class="{ 'is-on': live(c), 'is-off': c.tone === 'warn' }"><MIcon :name="c.icon" /></span><span><b>{{ c.name }}</b><small>{{ c.last }}<template v-if="size === 'xl' && c.time !== '–'"> · {{ d.labels?.time }} {{ c.time }}</template></small></span><MTileChip :label="c.state" :tone="chipTone(c)" /></li></ol>
+      </template>
+    </template>
+
+    <!-- 配对 -->
+    <template v-else-if="size === 's'">
+      <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span></header>
+      <MTileNumeral class="m-b2paired__count" :value="String(count)" size="m" :unit="T.pairedCount" />
+      <button type="button" class="m-b2__btn m-b2pair__go" @click.stop="emit('act', { type: 'pair-qr' })"><MIcon name="qr_code_2" />{{ T.pairGo || card.title }}</button>
+    </template>
+    <template v-else>
+      <div class="m-b2pair__qr" :class="{ 'is-wait': !qr?.image }"><img v-if="qr?.image" :src="qr.image" :alt="T.pairQr" decoding="async"><button v-else-if="qr && (qr.state === 'expired' || qr.state === 'error')" type="button" class="m-b2__icbtn" :aria-label="T.pairRefresh" @click.stop="emit('act', { type: 'pair-qr-begin' })"><MIcon name="refresh" /></button><MIcon v-else name="qr_code_2" /></div>
+      <div class="m-b2pair__side">
+        <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span><span class="m-calm__peak">{{ count }} {{ T.pairedCount }}</span></header>
+        <MField v-model="pinText" class="m-b2pair__pin" :label="T.pairPin" :disabled="!d.canPin" inputmode="numeric" autocomplete="one-time-code" @input="$event.target.value = pin" @click.stop @keydown.enter="sendPin" />
+        <button type="button" class="m-b2__btn m-b2pair__go" :disabled="pin.length < 4 || !d.canPin" @click.stop="sendPin"><MIcon name="check" />{{ T.pairGo }}</button>
+      </div>
+    </template>
+  </section>
+</template>

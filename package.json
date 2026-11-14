@@ -1,0 +1,66 @@
+{
+  "name": "foundation-ui",
+  "version": "0.1.0",
+  "description": "Shared Material 3 Expressive tokens, styles and Vue components for the Foundation control panel and Web UI",
+  "type": "module",
+  "license": "MPL-2.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.js",
+    "./vue": "./src/vue/index.js",
+    "./popup": "./src/popup.js",
+    "./tray": "./src/tray/trayModel.js",
+    "./tray/*": "./src/tray/*",
+    "./contextmenu/*": "./src/contextmenu/*",
+    "./tokens.css": "./src/tokens/tokens.css",
+    "./springs.css": "./src/tokens/springs.css",
+    "./all.css": "./src/css/all.css",
+    "./theme": "./src/tokens/theme.js",
+    "./motion": "./src/tokens/motion.js",
+    "./icons": "./src/icons/icons.js",
+    "./announcements": "./src/announcements/index.js",
+    "./telemetry": "./src/telemetry/index.js",
+    "./community": "./src/community/index.js",
+    "./update": "./src/update/index.js",
+    "./auth": "./src/auth/index.js",
+    "./about": "./src/about/index.js",
+    "./clients": "./src/clients/index.js",
+    "./status": "./src/status/index.js",
+    "./service": "./src/service/index.js",
+    "./diagnostics": "./src/diagnostics/index.js",
+    "./doctor": "./src/doctor/index.js",
+    "./apps": "./src/apps/index.js",
+    "./settings": "./src/settings/index.js",
+    "./settings/*": "./src/settings/*",
+    "./locale": "./src/locale/localePref.js",
+    "./locale/*": "./src/locale/*",
+    "./testing/no-network": "./scripts/no-network.mjs",
+    "./testing/scope-check": "./scripts/scope-check.mjs",
+    "./testing/selected-ring": "./scripts/selected-ring.mjs",
+    "./testing/copy-lint": "./scripts/copy-lint.mjs",
+    "./notify": "./src/notify/index.js",
+    "./pending": "./src/pending/index.js",
+    "./dialog": "./src/dialog/index.js",
+    "./latency": "./src/latency/index.js",
+    "./developer": "./src/developer/index.js"
+  },
+  "scripts": {
+    "build:tokens": "node --import ./scripts/register.mjs scripts/build-tokens.mjs",
+    "build:icons": "node scripts/build-icons.mjs",
+    "test": "node --import ./scripts/register.mjs --import ./scripts/no-network.mjs --test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "@material/material-color-utilities": "^0.4.0",
+    "@material/web": "^2.5.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@fontsource-variable/roboto-flex": "^5.3.0",
+    "@material-symbols/svg-400": "latest",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "vite": "^8.3.5",
+    "vue": "^3.5.43"
+  }
+}

@@ -1,0 +1,173 @@
+/* The tile designs of the metrics and the stream statistics.
+   Built on the tile kit (tilekit.css); colours are theme roles only. */
+
+.m-tile[data-size='s'] { --tile-pad: 14px 16px; }
+.m-tile :is(dl) { margin: 0; }
+/* stats: lowest, mean, highest, right-aligned beside the numeral */
+:is(.m-tload, .m-tmem, .m-tstream) :is(.m-tload__stats, .m-tmem__stats, .m-tstream__stats) { display: grid; gap: 2px; text-align: right; }
+:is(.m-tload__stats, .m-tmem__stats, .m-tstream__stats) div { display: flex; justify-content: flex-end; align-items: baseline; gap: 8px; }
+:is(.m-tload__stats, .m-tmem__stats, .m-tstream__stats) dt { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); }
+:is(.m-tload__stats, .m-tmem__stats, .m-tstream__stats) dd { margin: 0; font: var(--m-tile-text-15-strong); }
+.m-tile--tonal :is(.m-tload__stats, .m-tmem__stats, .m-tstream__stats) dt { color: color-mix(in srgb, var(--on-tk-c) 74%, transparent); }
+.m-tring .m-tnum__u { font-size: 14px; }
+.m-tring .m-tnum__cap { margin-top: 2px; }
+
+/* CPU, GPU */
+.m-tload { --tile-bleed: 56%; } .m-tload.is-m { --tile-bleed: 60%; } .m-tload.is-l { --tile-bleed: 52%; }
+.m-tload__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-top: 6px; }
+.m-tload__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.m-tload--v2 .m-tload__body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+.m-tload--v2.is-s .m-tload__body { justify-content: center; }
+.m-tload--v2 .m-tload__ring { height: 100%; flex: none; }
+.m-tload--v2.is-m .m-tload__body { margin-left: -2px; }
+.m-tload--v2 .m-tload__side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; align-self: flex-start; padding-top: 6px; }
+.m-tload__model { font: var(--m-tile-text-15-strong); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.m-tload--v2 .m-tload__chips { margin-top: 0; }
+.m-tload--v2.is-m .m-tload__spark { left: 44%; --tile-bleed: 40%; }
+.m-tload--v2.is-l .m-tload__body { flex-direction: column; gap: 12px; }
+.m-tload--v2.is-l .m-tload__ring { height: auto; width: 58%; }
+.m-tload--v2.is-l .m-tload__side { align-self: stretch; align-items: center; text-align: center; padding: 0; }
+.m-tload--v2.is-l .m-tload__stats { grid-template-columns: repeat(3, auto); gap: 18px; justify-content: center; }
+.m-tload--v2.is-l .m-tload__stats div { flex-direction: column; align-items: center; gap: 0; }
+.m-tload--v2.is-l .m-tload__spark { --tile-bleed: 18%; }
+
+/* 内存 */
+.m-tmem--trend { --tile-bleed: 56%; } .m-tmem--trend.is-m { --tile-bleed: 60%; }
+.m-tmem__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-top: 6px; }
+.m-tmem__body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 18px; margin-top: 4px; }
+.m-tmem.is-s .m-tmem__body { justify-content: center; }
+.m-tmem__ring { height: 100%; flex: none; }
+.m-tmem__side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.m-tmem__total { font: 600 28px/1 var(--m-font-display); }
+.m-tmem__legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.m-tmem__legend li { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 8px; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-tmem__legend li b { font: var(--m-tile-text-14-strong); line-height: 18px; color: var(--md-sys-color-on-surface); }
+.m-tmem__legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--tk); }
+.m-tmem__legend .is-b i { background: color-mix(in srgb, var(--tk) 52%, var(--md-sys-color-surface-container-highest)); }
+.m-tmem__legend .is-free i { background: color-mix(in srgb, var(--tk) 16%, var(--md-sys-color-surface-container-highest)); }
+/* the tank: the whole tile below the share in use is filled; it moves on a transform */
+.m-tmem__tank { position: absolute; z-index: 0; inset: 0; background: color-mix(in srgb, var(--tk) 24%, transparent); transition: transform var(--m-spring-slow-spatial-duration) var(--m-spring-slow-spatial); will-change: transform; pointer-events: none; }
+.m-tmem__wave { position: absolute; left: 0; bottom: 100%; width: 100%; height: 12px; display: block; }
+.m-tmem__wave path { fill: color-mix(in srgb, var(--tk) 24%, transparent); }
+.m-tmem--v2 .m-tmem__row { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.m-tmem--v2 .m-tmem__legend { min-width: 52%; }
+.m-tmem--v2 .m-tmem__legend li { color: var(--md-sys-color-on-surface); }
+
+/* 码率, 帧率, 丢包, 丢帧 */
+.m-tstream { --tile-bleed: 56%; } .m-tstream.is-m { --tile-bleed: 60%; } .m-tstream.is-l { --tile-bleed: 52%; }
+.m-tstream:is(.m-tstream--loss, .m-tstream--dropped), .m-tstream--bitrate.is-v2 { --tile-bleed: 46%; }
+.m-tstream__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-top: 6px; }
+.m-tchart__target { stroke: var(--tk); stroke-width: 1.5; stroke-dasharray: 5 5; opacity: .7; }
+.m-tstream__body, .m-tstream__gauge { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+.m-tstream.is-s :is(.m-tstream__body, .m-tstream__gauge) { justify-content: center; }
+.m-tstream__ring { height: 100%; flex: none; }
+.m-tstream__side { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; align-self: flex-start; padding-top: 6px; }
+.m-tstream--fps.is-v2.is-m .m-tstream__spark { left: 44%; --tile-bleed: 40%; }
+.m-tstream--fps.is-v2.is-l .m-tstream__body { flex-direction: column; } .m-tstream--fps.is-v2.is-l .m-tstream__ring { height: auto; width: 58%; }
+.m-tstream--fps.is-v2.is-l .m-tstream__side { align-self: stretch; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+.m-tstream--fps.is-v2.is-l .m-tstream__spark { --tile-bleed: 18%; }
+.m-tstream__alone { margin-top: auto; }
+/* the corner shape sits inside the gauge, not directly in the tile: tilekit's rule that lifts the tile's own children over it does not reach, and a positioned shape paints over in-flow text */
+.m-tstream__gauge > :not(.m-tile__corner) { position: relative; z-index: 1; }
+.m-tstream.is-s .m-tstream__gauge:has(.m-tstream__alone) { align-items: flex-end; justify-content: flex-start; }
+.m-tstream__foot { margin-top: 2px; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); text-align: center; }
+
+/* 网卡 */
+.m-tnet__corner { translate: 22% -14%; }
+.m-tnet__main { margin-top: auto; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.m-tnet.is-l .m-tnet__main { margin-top: 18px; }
+.m-tnet__name { font: var(--m-tile-text-15-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-tnet__name small { font-weight: 500; color: var(--md-sys-color-on-surface-variant); }
+.m-tnet__name--s { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-tnet__ip { font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-tnet__facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin-top: 14px; font: var(--m-tile-text-13-strong); }
+.m-tnet__facts div { display: contents; } .m-tnet__facts dt { color: var(--md-sys-color-on-surface-variant); } .m-tnet__facts dd { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-tnet__rows { list-style: none; margin: auto 0 0; padding: 0; display: grid; gap: 8px; }
+.m-tnet__rows li { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.m-tnet__rows li > span { display: flex; flex-direction: column; min-width: 0; } .m-tnet__rows b { font: var(--m-tile-text-14-strong); line-height: 18px; } .m-tnet__rows small { font: var(--m-tile-text-12-strong); opacity: .78; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-tnet__rows--plain li > .m-icon { flex: none; width: 22px; height: 22px; color: var(--tk); }
+.m-tnet__rows li.is-warn { color: var(--md-sys-color-error); }
+.m-tnet--v2 .m-tnet__body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+.m-tnet--v2.is-s .m-tnet__body { flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 8px; }
+.m-tnet__hero { position: relative; flex: none; display: grid; aspect-ratio: 1; height: 100%; }
+.m-tnet--v2.is-s .m-tnet__hero { position: absolute; z-index: -1; top: 0; right: 0; height: auto; width: 62%; translate: 0 0; }
+.m-tnet--v2.is-l .m-tnet__body { flex: none; height: 46%; }
+.m-tnet__hero > * { grid-area: 1 / 1; }
+.m-tnet__hero .m-tshape { width: 100%; height: 100%; } .m-tnet__signal { padding: 0; margin: -10%; width: 120%; height: 120%; }
+.m-tnet__hero:has(.m-tnet__signal) .m-tshape { scale: .78; }
+.m-tnet__text { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.m-tnet--v2 .m-tnet__ip { color: inherit; opacity: .8; }
+.m-tnet__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.m-tnet--v2 .m-tnet__rows { margin-top: 12px; }
+
+/* 温度, CPU 与 GPU */
+.m-tgauge__body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 18px; margin-top: 4px; }
+.m-tgauge.is-s .m-tgauge__body { justify-content: center; }
+.m-tgauge__ring { height: 100%; flex: none; }
+.m-tgauge__ring .m-tring__centre { padding-top: 6%; }
+.m-tgauge__bars { flex: 1; list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.m-tgauge__bars li { display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'l v' 'b b'; gap: 6px 8px; align-items: baseline; }
+.m-tgauge__bars span { grid-area: l; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-tgauge__bars em { grid-area: v; justify-self: end; font: 600 18px/22px var(--m-font-display); font-style: normal; }
+.m-tgauge__bars i { grid-area: b; height: 10px; border-radius: 5px; overflow: hidden; background: color-mix(in srgb, var(--tk) 16%, var(--md-sys-color-surface-container-highest)); }
+.m-tgauge__bars b { display: block; height: 100%; border-radius: 5px; background: var(--tk); transform-origin: left; transition: transform var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-tgauge--load { --tile-bleed: 58%; }
+.m-tgauge__pair { display: flex; gap: 28px; margin-top: 6px; }
+.m-tgauge__one { display: flex; flex-direction: column; gap: 10px; } .m-tgauge__one > span { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-primary-text); }
+.m-tgauge__one.is-b > span { color: var(--md-sys-color-tertiary-text); }
+.m-tgauge__charts > .m-tgauge__chart { position: absolute; inset: 0; }
+.m-tgauge__chart.is-b { --tk: var(--md-sys-color-tertiary); }
+
+/* 编码器, 编解码器, GPU 适配器 */
+.m-tenc__main { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; min-width: 0; }
+.m-tenc.is-m .m-tenc__main { margin-top: auto; }
+.m-tenc__word { min-width: 0; }
+.m-tenc__word .m-tnum__v { letter-spacing: -.02em; }
+.m-tenc__budget { width: 104px; flex: none; } .m-tenc__budget .m-tnum--s { --tn: 26px; }
+.m-tenc__chips { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.m-tenc__codecs { flex: 1 1 0; min-height: 0; list-style: none; margin: 8px 0 0; padding: 0; display: flex; align-items: center; gap: 10px; }
+.m-tenc__codecs li { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 0; }
+/* one codec leads: its shape fills the height of the list (the state is the solid fill), the others are about two thirds of a side, with their state under them */
+.m-tenc__codecs .m-tshape { flex: 0 0 auto; width: 64%; height: auto; aspect-ratio: 1; container-type: size; }
+.m-tenc__codecs li.is-lead { flex-grow: 1.6; align-self: stretch; }
+.m-tenc__codecs li.is-lead .m-tshape { flex: 1 1 0; min-height: 0; width: auto; max-width: 100%; }
+.m-tenc__codecs li.is-lead .m-tshape b { font-size: min(24px, 20cqi); }
+/* the name scales with its shape so it stays inside the cookie's inner circle (about 70 % of the side): 5 characters at 20 % of the side are 55 % of it */
+.m-tenc__codecs .m-tshape b { font: 600 min(17px, 20cqi)/1 var(--m-font-display); letter-spacing: -.01em; white-space: nowrap; }
+/* the state under the shape (the shape is a span of the li too: a child selector coloured its name grey on the solid shape, 1:1) */
+.m-tenc__state { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-tenc__adapter { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
+.m-tenc__name { font: 600 22px/26px var(--m-font-display); letter-spacing: -.01em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.m-tenc.is-m .m-tenc__name { font-size: 26px; line-height: 30px; max-width: 70%; }
+
+/* HDR, 串流分辨率, 系统, 串流热度 */
+.m-tfacts__foot { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
+.m-tfacts--hdr .m-tnum--s { --tn: 48px; }
+.m-tfacts__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.m-tile--tonal .m-tchip { background: color-mix(in srgb, var(--on-tk-c) 12%, transparent); color: var(--on-tk-c); }
+.m-tfacts__screenrow { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 6px; }
+.m-tfacts__screen { position: relative; display: grid; place-items: center; height: 100%; max-width: 100%; max-height: 100%; border-radius: 12px; border: 4px solid var(--tk); background: color-mix(in srgb, var(--tk) 20%, transparent); }
+.m-tfacts.is-s .m-tfacts__screen { height: auto; width: 100%; }
+.m-tfacts__screen::after { content: ''; position: absolute; top: 100%; left: 50%; width: 28%; height: 6px; translate: -50% 4px; border-radius: 3px; background: var(--tk); }
+.m-tfacts__screen .m-tnum--s { --tn: 34px; }
+.m-tfacts.is-m .m-tfacts__screenrow { justify-content: flex-start; } .m-tfacts.is-m .m-tfacts__screen { height: 82%; }
+.m-tfacts__side { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; } .m-tfacts__side > b { font: 600 22px/26px var(--m-font-display); }
+.m-tfacts__cap { margin-top: 12px; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-tfacts__os { font: 600 26px/30px var(--m-font-display); letter-spacing: -.015em; }
+.m-tfacts.is-m .m-tfacts__os { font-size: 34px; line-height: 38px; }
+.m-tfacts__rows { display: flex; gap: 20px; } .m-tfacts__rows div { display: flex; flex-direction: column; } .m-tfacts__rows dt { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); } .m-tfacts__rows dd { margin: 0; font: var(--m-tile-text-14-strong); line-height: 18px; }
+.m-tfacts.is-s .m-tfacts__cap { margin-top: 0; text-align: left; }
+.m-tfacts__heatrow { margin-top: 6px; }
+.m-tfacts__heat { list-style: none; margin: auto 0 0; padding: 0; display: grid; gap: 5px; grid-template-columns: repeat(7, 1fr); }
+.m-tfacts.is-m .m-tfacts__heat { grid-template-columns: repeat(15, 1fr); }
+.m-tfacts__heat li { aspect-ratio: 1; border-radius: 30%; background: color-mix(in srgb, var(--tk) calc(18% + var(--h) * 82%), var(--md-sys-color-surface-container-highest)); }
+.m-tfacts__heat li.is-zero { background: var(--md-sys-color-surface-container-highest); }
+.m-tfacts__heat li.is-today { box-shadow: inset 0 0 0 2px var(--md-sys-color-on-surface); }
+.m-tile.is-s .m-tfacts__heat, .m-tfacts.is-s .m-tfacts__heat { gap: 4px; }
+
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) :is(.m-tmem__tank, .m-tgauge__bars b) { transition: none; } }
+html[data-motion='reduced'] :is(.m-tmem__tank, .m-tgauge__bars b) { transition: none; }
+
+/* 码率 中: the lowest, mean and highest side by side under the number */
+.m-tstream--stream-bitrate .m-tstream__stats--row { position: relative; z-index: 1; display: flex; gap: 14px; margin-top: 2px; text-align: left; }
+.m-tstream--stream-bitrate .m-tstream__stats--row div { flex-direction: column; align-items: flex-start; gap: 0; justify-content: flex-start; }

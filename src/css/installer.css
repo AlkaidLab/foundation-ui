@@ -1,0 +1,290 @@
+/* The installer window (src/vue/installer): the chrome, the step rail and the pages, in the same Material 3 Expressive roles and springs as the Panel.
+   Shape: the page fills the window edge to edge and draws no outer radius, border or shadow (the host rounds the window: Windows 11 does it, about 8 px; --inst-r is 0 here and is only set by the gallery to show that corner).
+   The rail and the pane are cards inset by --inst-inset in a shell of the Panel's extra-large radius --inst-shell, so their radius is concentric: shell minus inset (28 - 8 = 20). A thing inside a card at an inset has the
+   card's radius minus that inset (a row of 16 holds its icon at 8: 8; the list of steps of 16 holds a step at 6: 10), a pill and a disc are their own shape.
+   A selected row is the container fill and a check (layout.css --m-sel-fill), never a ring. The focus frame shows for the keyboard only (src/a11y/modality.js). */
+.m-inst, .m-inst *, .m-inst *::before, .m-inst *::after { box-sizing: border-box; }
+.m-inst {
+  --inst-r: 0px; --inst-shell: 28px; --inst-inset: 8px; --inst-pane-r: calc(var(--inst-shell) - var(--inst-inset)); --inst-row-r: 16px; --inst-row-pad: 8px;
+  position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: 40px minmax(0, 1fr); column-gap: var(--inst-inset);
+  padding: var(--inst-inset); border-radius: var(--inst-r); container: m-inst / size;
+  background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface);
+  font: var(--m-body-medium); -webkit-font-smoothing: antialiased; -webkit-app-region: drag;
+}
+.m-inst :focus-visible { outline: 3px solid var(--md-sys-color-secondary); outline-offset: 2px; }
+.m-inst button { font: inherit; }
+.m-inst :where(h1, h2, p, ul, ol) { margin: 0; padding: 0; }
+.m-inst :where(ul, ol) { list-style: none; }
+.m-inst .m-icon { width: 24px; height: 24px; flex: none; fill: currentColor; }
+
+/* ---- the window controls: the Panel main window's caption buttons, exactly (SidebarMenu.vue .panel-caption__btn): 46 x 48 at the window's top right edge, an 18 px glyph,
+   9 % hover and 14 % pressed layers of the surface colour, the close button Windows red. They sit in the window's corner, so the window's own radius rounds the red of the close
+   button (as Windows 11 does); the strip left of them is the drag region ---- */
+.m-inst__caption { grid-column: 2; grid-row: 1; display: flex; align-items: flex-start; justify-content: flex-end; margin: calc(-1 * var(--inst-inset)) calc(-1 * var(--inst-inset)) 0 0; -webkit-app-region: drag; }
+.m-inst__wc { display: grid; place-items: center; width: 46px; height: 48px; padding: 0; border: 0; background: transparent; color: var(--md-sys-color-on-surface); font-size: 18px; cursor: default; transition: background-color 120ms linear, color 120ms linear; -webkit-app-region: no-drag; }
+.m-inst .m-inst__wc .m-icon { width: 18px; height: 18px; }
+.m-inst__wc:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 9%, transparent); }
+.m-inst__wc:active { background: color-mix(in srgb, var(--md-sys-color-on-surface) 14%, transparent); }
+.m-inst__wc--close:hover { background: #c42b1c; color: #fff; } .m-inst__wc--close:active { background: #b02417; color: #fff; }
+.m-inst__wc:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -2px; }
+
+/* ---- the rail ---- */
+.m-inst__rail {
+  grid-column: 1; grid-row: 1 / 3; width: clamp(208px, 30cqw, 264px); min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 28px; padding: 24px 20px 20px;
+  border-radius: var(--inst-pane-r); background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface); -webkit-app-region: drag;
+}
+.m-inst__brand { display: flex; flex-direction: column; gap: 2px; }
+.m-inst__logo { display: block; width: 56px; height: 56px; margin-bottom: 12px; object-fit: contain; -webkit-user-drag: none; }
+.m-inst__name { font: var(--m-title-medium-emphasized); letter-spacing: .005em; }
+.m-inst__setup { font: var(--m-body-medium); opacity: .78; }
+.m-inst__steps-rail { position: relative; display: flex; flex-direction: column; gap: 22px; }
+.m-inst__rs { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr); column-gap: 14px; align-items: start; }
+.m-inst__rs-text { display: flex; flex-direction: column; min-width: 0; padding-top: 1px; }
+.m-inst__rs-text b { font: var(--m-label-large); font-weight: 600; }
+.m-inst__rs-text small { font: var(--m-body-small, 400 12px/16px var(--md-ref-typeface-brand)); opacity: .78; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.m-inst__rs.is-pending .m-inst__rs-text { opacity: .72; }
+/* the line from the step above: filled with the primary colour once that one is done */
+.m-inst__rs + .m-inst__rs::before { content: ''; position: absolute; left: 14px; top: -22px; width: 2px; height: 14px; border-radius: 1px; background: color-mix(in srgb, currentColor 22%, transparent); transition: background-color var(--m-spring-default-effects-duration) linear; }
+.m-inst__rs.is-done + .m-inst__rs::before, .m-inst__rs.is-done + .m-inst__rs.is-running::before { background: var(--md-sys-color-primary); }
+.m-inst__dot { position: relative; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; font: var(--m-label-large); font-weight: 600; background: color-mix(in srgb, currentColor 14%, transparent); transition: background-color var(--m-spring-default-effects-duration) linear, color var(--m-spring-default-effects-duration) linear; }
+.m-inst__rs.is-done .m-inst__dot { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.m-inst__rs.is-running .m-inst__dot { background: var(--md-sys-color-surface); color: var(--md-sys-color-primary-text); }
+.m-inst__rs.is-failed .m-inst__dot { background: var(--md-sys-color-error); color: var(--md-sys-color-on-error); }
+.m-inst__dot .m-icon { width: 18px; height: 18px; }
+.m-inst__dot-icon { animation: m-inst-pop var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
+.m-inst__dot-spin { width: 24px; height: 24px; }
+@keyframes m-inst-pop { from { transform: scale(.4); opacity: 0; } }
+
+/* ---- the pane and its pages (a shared-axis slide on x between two: the old page leaves in 90 ms, the new one arrives behind it) ---- */
+.m-inst__pane { grid-column: 2; grid-row: 2; position: relative; min-height: 0; overflow: hidden; border-radius: var(--inst-pane-r); background: var(--md-sys-color-surface); -webkit-app-region: no-drag; }
+.m-inst__page { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; padding: 24px 28px 20px; }
+.m-inst-fwd-enter-active, .m-inst-bck-enter-active { transition: transform var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), opacity 210ms linear 90ms; }
+.m-inst-fwd-leave-active, .m-inst-bck-leave-active { transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), opacity 90ms linear; pointer-events: none; }
+.m-inst-fwd-enter-from { opacity: 0; transform: translateX(30px); } .m-inst-fwd-leave-to { opacity: 0; transform: translateX(-30px); }
+.m-inst-bck-enter-from { opacity: 0; transform: translateX(-30px); } .m-inst-bck-leave-to { opacity: 0; transform: translateX(30px); }
+
+.m-inst__head { display: flex; align-items: flex-start; gap: 16px; }
+.m-inst__headtext { min-width: 0; padding-top: 2px; }
+.m-inst__title { font: var(--m-headline-small-emphasized); color: var(--md-sys-color-on-surface); }
+.m-inst__lead { margin-top: 6px; text-wrap: pretty; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-inst__page.is-compact .m-inst__title { font: var(--m-title-large-emphasized); }
+.m-inst__glyph { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; }
+.m-inst__glyph .m-icon { width: 28px; height: 28px; }
+.m-inst__glyph-spin { width: 36px; height: 36px; }
+.m-inst__glyph--primary { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-inst__glyph--secondary { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-inst__glyph--tertiary { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+.m-inst__glyph--warning { background: var(--md-sys-color-warning-container); color: var(--md-sys-color-on-warning-container); }
+.m-inst__glyph--error { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-inst__glyph--success { background: var(--md-sys-color-success-container); color: var(--md-sys-color-on-success-container); }
+
+.m-inst__note { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 12px 16px; border-radius: 16px; font: var(--m-body-medium); }
+.m-inst__note--secondary { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-inst__note--warning { background: var(--md-sys-color-warning-container); color: var(--md-sys-color-on-warning-container); }
+.m-inst__note--error { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+
+.m-inst__facts { display: flex; flex-direction: column; gap: 18px; margin-top: 24px; }
+.m-inst__fact { display: flex; align-items: flex-start; gap: 16px; }
+.m-inst__fact-icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; }
+.m-inst__fact-text { display: flex; flex-direction: column; min-width: 0; padding-top: 1px; }
+.m-inst__fact-text b { font: var(--m-title-medium); }
+.m-inst__fact-text span { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+
+/* ---- the footer: the dismissive button at the left edge, the others at the right edge, the primary one last ---- */
+.m-inst__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 16px; }
+.m-inst__foot-end { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-inline-start: auto; }
+.m-inst__foot-start { display: flex; align-items: center; }
+.m-inst__btn { white-space: nowrap; }
+.m-inst__btn--start { margin-inline-start: -12px; }
+
+/* ---- the components list ---- */
+.m-inst__comps { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-top: 14px; }
+.m-inst__comps-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-inst__all { flex: none; margin-inline-end: -8px; }
+.m-inst__list { flex: 1; min-height: 0; margin-top: 6px; margin-inline: -8px; padding: 0 8px; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 4px; -webkit-app-region: no-drag; padding-bottom: 14px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent); }
+.m-inst__list-head { margin: 10px 0 2px 6px; font: var(--m-label-large); font-weight: 600; color: var(--md-sys-color-primary-text, var(--md-sys-color-primary)); }
+.m-inst__list-head:first-child { margin-top: 2px; }
+.m-inst__row { position: relative; flex: none; display: flex; align-items: center; gap: 14px; width: 100%; min-height: 56px; padding: 8px 14px 8px 10px; border: 0; border-radius: 16px; text-align: start; cursor: pointer; color: var(--md-sys-color-on-surface); background: var(--md-sys-color-surface-container-low); transition: background-color var(--m-spring-default-effects-duration) linear; }
+.m-inst__row::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: currentColor; opacity: 0; pointer-events: none; transition: opacity 90ms linear; }
+.m-inst__row:hover::before { opacity: .08; } .m-inst__row:active::before { opacity: .12; } .m-inst__row:focus-visible::before { opacity: .08; }
+.m-inst__row.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); }
+.m-inst__row.is-off-limits { opacity: .56; } .m-inst__row.is-off-limits::before { display: none; }
+.m-inst__row-icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: calc(var(--inst-row-r) - var(--inst-row-pad)); background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-inst__row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.m-inst__row-text b { font: var(--m-label-large); font-size: 14.5px; font-weight: 600; }
+.m-inst__row-text span { font: var(--m-body-small, 400 12px/16px var(--md-ref-typeface-brand)); color: var(--md-sys-color-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-inst__tick { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--md-sys-color-surface-container-highest); color: transparent; transition: background-color var(--m-spring-default-effects-duration) linear, color var(--m-spring-default-effects-duration) linear, transform var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-inst__tick .m-icon { width: 18px; height: 18px; }
+.m-inst__row.is-on .m-inst__tick { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.m-inst__row:active .m-inst__tick { transform: scale(.88); }
+
+/* ---- the installing page ---- */
+.m-inst__run { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0; margin-top: 14px; }
+.m-inst__rows { --inst-steps-pad: 6px; display: flex; flex-direction: column; gap: 2px; padding: var(--inst-steps-pad); border-radius: var(--inst-row-r); background: var(--md-sys-color-surface-container-low); }
+.m-inst__step { display: flex; align-items: center; gap: 14px; min-height: 40px; padding: 4px 12px 4px 8px; border-radius: calc(var(--inst-row-r) - var(--inst-steps-pad)); font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); transition: background-color var(--m-spring-default-effects-duration) linear, color var(--m-spring-default-effects-duration) linear; }
+.m-inst__step.is-running { background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); font-weight: 500; }
+.m-inst__step.is-done { color: var(--md-sys-color-on-surface); }
+.m-inst__step.is-failed { color: var(--md-sys-color-error); }
+.m-inst__sdot { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 14%, transparent); }
+.m-inst__step.is-done .m-inst__sdot { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.m-inst__step.is-running .m-inst__sdot { background: transparent; color: var(--md-sys-color-primary-text); }
+.m-inst__step.is-failed .m-inst__sdot { background: var(--md-sys-color-error); color: var(--md-sys-color-on-error); }
+.m-inst__sdot .m-icon { width: 16px; height: 16px; animation: m-inst-pop var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
+.m-inst__sdot-spin { width: 24px; height: 24px; }
+.m-inst__stext { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-inst__snext { flex: none; font: var(--m-body-small, 400 12px/16px var(--md-ref-typeface-brand)); color: var(--md-sys-color-on-surface-variant); font-weight: 400; }
+.m-inst__run .m-inst__note { margin-top: 12px; }
+.m-inst__total { margin-top: auto; padding-top: 14px; }
+.m-inst__total-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); }
+.m-inst__total-row b { font-weight: 600; color: var(--md-sys-color-on-surface); font-variant-numeric: tabular-nums; }
+
+/* ---- the done page: one centred seal, the title, the buttons at the foot ---- */
+.m-inst__hero { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.m-inst__seal { position: relative; display: grid; place-items: center; width: 112px; height: 112px; margin-bottom: 18px; color: var(--md-sys-color-success); }
+.m-inst__seal-art { position: absolute; inset: 0; width: 112px; height: 112px; overflow: visible; }
+/* 0-300 ms the ring closes (stroke), 260-520 ms it fills into the M3 Expressive soft shape (a circle that settles to a rounded square of 36 %),
+   480-860 ms the check draws itself; emphasized decelerate easing, about 860 ms in all */
+.m-inst__seal::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--md-sys-color-success-container); transform: scale(.6); opacity: 0;
+  animation: m-inst-seal-fill 420ms var(--m-ease-decelerate) 260ms forwards, m-inst-seal-shape 520ms var(--m-ease-standard) 480ms forwards; }
+.m-inst__seal-ring { fill: none; stroke: var(--md-sys-color-success); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transform-origin: 56px 56px; transform: rotate(-90deg);
+  animation: m-inst-seal-ring 320ms var(--m-ease-standard) forwards, m-inst-seal-ring-out 200ms linear 520ms forwards; }
+.m-inst__seal-tick { fill: none; stroke: var(--md-sys-color-on-success-container); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: m-inst-seal-tick 380ms var(--m-ease-decelerate) 480ms forwards; transition: opacity var(--m-spring-default-effects-duration) linear; }
+.m-inst__seal-spin { position: absolute; inset: 0; width: 112px; height: 112px; color: var(--md-sys-color-on-success-container); opacity: 0; transition: opacity var(--m-spring-default-effects-duration) linear; }
+.m-inst__seal.is-opening .m-inst__seal-spin { opacity: 1; } .m-inst__seal.is-opening .m-inst__seal-tick { opacity: 0; }
+.m-inst__seal-spin :is(.m-wave-circle__active) { stroke: var(--md-sys-color-success); }
+@keyframes m-inst-seal-ring { to { stroke-dashoffset: 0; } }
+@keyframes m-inst-seal-ring-out { to { opacity: 0; } }
+@keyframes m-inst-seal-fill { 60% { transform: scale(1.06); opacity: 1; } to { transform: scale(1); opacity: 1; } }
+@keyframes m-inst-seal-shape { to { border-radius: 36%; } }
+@keyframes m-inst-seal-tick { to { stroke-dashoffset: 0; } }
+.m-inst__title--hero { font: var(--m-headline-medium-emphasized); }
+.m-inst__lead--hero { max-width: 36ch; margin-top: 0; }
+
+/* ---- a window smaller than its 560 px (the host decides the size; the layout holds to -10 %): the same page with tighter rhythm ---- */
+@container m-inst (max-height: 540px) {
+  .m-inst__page { padding: 18px 24px 16px; }
+  .m-inst__rail { gap: 18px; padding: 18px 18px 16px; }
+  .m-inst__logo { width: 44px; height: 44px; margin-bottom: 8px; }
+  .m-inst__steps-rail { gap: 16px; }
+  .m-inst__rs + .m-inst__rs::before { top: -16px; height: 10px; }
+  .m-inst__step { min-height: 32px; }
+  .m-inst__snext { display: none; }
+  .m-inst__note { margin-top: 12px; padding: 8px 14px; }
+  .m-inst__facts { margin-top: 18px; gap: 14px; }
+  .m-inst__run { margin-top: 10px; }
+  .m-inst__total { padding-top: 10px; }
+  .m-inst__foot { padding-top: 10px; }
+  .m-inst__seal, .m-inst__seal-art, .m-inst__seal-spin { width: 96px; height: 96px; } .m-inst__seal { margin-bottom: 10px; }
+}
+
+/* ---- the window itself (installer-ui: a transparent, undecorated window): the page draws the rounded surface and its shadow. One concentric system: the window's radius is the
+   cards' radius plus the inset (20 + 8 = 28, the Panel's extra-large shape), the shadow lives in --inst-room around it (the host adds that room to the window size). ---- */
+.m-inst--window { --inst-room: 12px; --inst-r: calc(var(--inst-pane-r) + var(--inst-inset)); margin: var(--inst-room); width: calc(100% - 2 * var(--inst-room)); height: calc(100% - 2 * var(--inst-room));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--md-sys-color-outline-variant) 70%, transparent), 0 4px 10px rgb(0 0 0 / .22), 0 1px 3px rgb(0 0 0 / .16); }
+
+/* ---- it is an application window, not a page: the arrow cursor, no image or link drag, no focus frame but the keyboard's, no overscroll. Text selection is off for the
+   whole window in selection.css (the error code of the failed page opts in with .m-selectable); the thin overlay scrollbar of a list is scrollbar.css. ---- */
+.m-inst.m-inst, .m-inst.m-inst * { cursor: default; -webkit-user-drag: none; }
+.m-inst :focus:not(:focus-visible) { outline: none; }
+.m-inst * { overscroll-behavior: none; }
+
+.m-inst__stall { flex: none; display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 8px 14px; border-radius: 16px; font: var(--m-body-medium); background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-inst__stall .m-icon { width: 20px; height: 20px; }
+
+/* ---- the done page takes the whole window: no rail; the seal, the title and the two buttons centred ---- */
+.m-inst.is-done .m-inst__caption, .m-inst.is-done .m-inst__pane { grid-column: 1 / -1; }
+.m-inst.is-done { column-gap: 0; }
+.m-inst__page--done { justify-content: center; align-items: center; }
+.m-inst__page--done .m-inst__hero { flex: 0 1 auto; }
+.m-inst__page--done .m-inst__foot { margin-top: 28px; justify-content: center; }
+.m-inst__page--done .m-inst__foot-end { margin-inline-start: 0; }
+.m-inst__page--done .m-inst__btn--start { margin-inline-start: 0; }
+
+/* ---- room for content that does not fit: the facts and the steps scroll inside their area, the footer stays one row ---- */
+.m-inst__facts { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+.m-inst__rows { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+.m-inst__foot, .m-inst__foot-end, .m-inst__foot-start { flex-wrap: nowrap; min-width: 0; }
+.m-inst__foot-start { flex: none; } .m-inst__foot-end { flex: 0 1 auto; }
+/* a list of facts that scrolls fades out at its foot instead of cutting a line in half */
+.m-inst__facts { padding-bottom: 16px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 16px), transparent); }
+.m-inst__head, .m-inst__note { flex: none; }
+
+/* ---- a narrow window: the rail becomes its numbered dots (below 720 px), then goes (below 560 px); the pages keep one grid ---- */
+@container m-inst (max-width: 719px) {
+  .m-inst__rail { width: 56px; padding: 16px 0; align-items: center; gap: 18px; }
+  .m-inst__brand > :not(.m-inst__logo), .m-inst__rs-text { display: none; }
+  .m-inst__logo { width: 36px; height: 36px; margin-bottom: 0; }
+  .m-inst__rs { grid-template-columns: 30px; column-gap: 0; }
+  .m-inst__steps-rail { gap: 14px; } .m-inst__rs + .m-inst__rs::before { top: -14px; height: 10px; }
+}
+@container m-inst (max-width: 559px) {
+  .m-inst__rail { display: none; }
+  .m-inst:not(.is-done) .m-inst__caption, .m-inst:not(.is-done) .m-inst__pane { grid-column: 1 / -1; }
+  .m-inst { column-gap: 0; }
+}
+@container m-inst (max-width: 599px) {
+  .m-inst__page { padding: 16px 18px 14px; }
+  .m-inst__head { gap: 12px; }
+  .m-inst__glyph { width: 40px; height: 40px; } .m-inst__glyph .m-icon { width: 22px; height: 22px; } .m-inst__glyph-spin { width: 28px; height: 28px; }
+  .m-inst__fact { gap: 12px; } .m-inst__fact-icon { width: 32px; height: 32px; } .m-inst__fact-icon .m-icon { width: 20px; height: 20px; }
+  .m-inst__foot { gap: 8px; } .m-inst__foot-end { gap: 6px; }
+  .m-inst__foot .m-btn { height: 36px; min-height: 36px; padding-inline: 14px; }
+  .m-inst__btn--start { margin-inline-start: -8px; }
+}
+/* ---- a low window ---- */
+@container m-inst (max-height: 440px) {
+  .m-inst__page { padding-block: 12px 12px; }
+  .m-inst__title { font: var(--m-title-large-emphasized); }
+  .m-inst__lead { margin-top: 2px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .m-inst__glyph { width: 40px; height: 40px; } .m-inst__glyph .m-icon { width: 22px; height: 22px; }
+  .m-inst__facts { margin-top: 12px; gap: 10px; }
+  .m-inst__fact-icon { width: 32px; height: 32px; } .m-inst__fact-icon .m-icon { width: 20px; height: 20px; }
+  .m-inst__fact-text b { font: var(--m-title-small, var(--m-label-large)); }
+  .m-inst__note { margin-top: 8px; padding: 6px 12px; }
+  .m-inst__comps { margin-top: 8px; } .m-inst__row { min-height: 48px; padding-block: 4px; } .m-inst__row-icon { width: 32px; height: 32px; }
+  .m-inst__run { margin-top: 8px; }
+  .m-inst__foot { padding-top: 8px; }
+  .m-inst__foot .m-btn { height: 36px; min-height: 36px; }
+  .m-inst__seal, .m-inst__seal-art, .m-inst__seal-spin { width: 80px; height: 80px; } .m-inst__seal { margin-bottom: 6px; }
+  .m-inst__title--hero { font: var(--m-headline-small-emphasized); }
+  .m-inst__page--done .m-inst__foot { margin-top: 16px; }
+  .m-inst__rail { gap: 14px; padding-block: 14px; } .m-inst__steps-rail { gap: 10px; } .m-inst__rs + .m-inst__rs::before { top: -10px; height: 6px; }
+  .m-inst__rs-text small { display: none; }
+}
+
+/* ---- motion that means something (M3 tokens: emphasized decelerate for entrances, standard for moves; the Panel springs where it has them) ----
+   the welcome page arrives: its header and facts rise in, one after another; the rows of the running group come in staggered; a failed page gives one gentle
+   shake of its mark; the overall bar eases to each value and creeps toward the next step (InstallerSteps.vue) while its wave runs on */
+.m-inst__page--welcome .m-inst__head, .m-inst__page--welcome .m-inst__fact, .m-inst__page--maintenance .m-inst__fact { animation: m-inst-rise 420ms var(--m-ease-decelerate) both; }
+.m-inst__page--welcome .m-inst__fact:nth-child(1), .m-inst__page--maintenance .m-inst__fact:nth-child(1) { animation-delay: 80ms; }
+.m-inst__page--welcome .m-inst__fact:nth-child(2), .m-inst__page--maintenance .m-inst__fact:nth-child(2) { animation-delay: 140ms; }
+.m-inst__page--welcome .m-inst__fact:nth-child(3), .m-inst__page--maintenance .m-inst__fact:nth-child(3) { animation-delay: 200ms; }
+.m-inst__step { animation: m-inst-rise 360ms var(--m-ease-decelerate) both; animation-delay: calc(var(--i, 0) * 45ms); }
+.m-inst__page--failed .m-inst__glyph { animation: m-inst-attention 520ms var(--m-ease-standard) 220ms both; }
+.m-inst__rs.is-running .m-inst__dot { animation: m-inst-pulse 1.6s var(--m-ease-standard) infinite; }
+@keyframes m-inst-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes m-inst-attention { 0%, 100% { transform: none; } 20% { transform: translateX(-5px) rotate(-4deg); } 45% { transform: translateX(4px) rotate(3deg); } 70% { transform: translateX(-2px); } }
+@keyframes m-inst-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--md-sys-color-primary) 34%, transparent); } 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--md-sys-color-primary) 0%, transparent); } }
+.m-inst__total .m-wave__active { transition: width 480ms var(--m-ease-standard); } .m-inst__total .m-wave__track { transition: left 480ms var(--m-ease-standard); }
+.m-inst__total .m-wave.is-creeping .m-wave__active { transition: width 14s cubic-bezier(0.1, 0.5, 0.3, 1); } .m-inst__total .m-wave.is-creeping .m-wave__track { transition: left 14s cubic-bezier(0.1, 0.5, 0.3, 1); }
+
+/* ---- reduced motion: a slide becomes a cut, a finite animation ends in its final state, a busy indicator keeps a calm fade (the same rule as the Panel, motion.css) ---- */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) .m-inst *, html:not([data-motion='full']) .m-inst *::before, html:not([data-motion='full']) .m-inst *::after { animation-iteration-count: 1 !important; animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
+  html:not([data-motion='full']) .m-inst :is(.m-wave-circle--spin) { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
+  html:not([data-motion='full']) .m-inst .m-wave--indeterminate .m-wave__active--run { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
+}
+html[data-motion='reduced'] .m-inst *, html[data-motion='reduced'] .m-inst *::before, html[data-motion='reduced'] .m-inst *::after { animation-iteration-count: 1 !important; animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
+html[data-motion='reduced'] .m-inst :is(.m-wave-circle--spin) { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
+/* the overall progress bar keeps telling that work goes on under reduced motion too (a progress indicator, not decoration): its wave runs slower and
+   its value still eases, briefly; nothing else moves */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) .m-inst .m-inst__total .m-wave__active i { animation: m-wave-run 2.4s linear infinite !important; }
+  html:not([data-motion='full']) .m-inst .m-inst__total .m-wave__active { transition: width 300ms var(--m-ease-standard) !important; }
+  html:not([data-motion='full']) .m-inst .m-inst__total .m-wave__track { transition: left 300ms var(--m-ease-standard) !important; }
+}
+/* the free-software notice and the support line of the first page: secondary body text under the lead */
+.m-inst__legal { display: grid; gap: 4px; margin-top: 12px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); text-wrap: pretty; }
+.m-inst__legal p { margin: 0; }

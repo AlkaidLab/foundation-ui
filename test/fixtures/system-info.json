@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "checked_at": "2026-11-03T02:10:00Z",
+  "cpu": { "model": "Intel(R) Core(TM) i7-13700KF", "vendor": "intel", "cores": 16, "threads": 24, "base_mhz": 3400 },
+  "gpus": [
+    { "name": "NVIDIA GeForce RTX 4080", "vendor": "nvidia", "driver_version": "572.83", "vram_mb": 16384, "is_streaming_adapter": true },
+    { "name": "Intel(R) UHD Graphics 770", "vendor": "intel", "driver_version": "31.0.101.5186", "vram_mb": 128, "is_streaming_adapter": false }
+  ],
+  "nics": [
+    { "name": "Ethernet", "description": "Realtek Gaming 2.5GbE Family Controller", "type": "ethernet", "up": true, "link_speed_mbps": 2500, "ipv4": ["192.168.7.188"], "ipv6": ["2408:8207:1c00::188"], "mac": "a8:a1:59", "is_default_route": true, "wifi": { "ssid_masked": "", "signal": null } },
+    { "name": "Wi-Fi", "description": "Intel(R) Wi-Fi 6E AX211 160MHz", "type": "wifi", "up": true, "link_speed_mbps": 1201, "ipv4": ["192.168.7.77"], "ipv6": [], "mac": "d0:c6:37", "is_default_route": false, "wifi": { "ssid_masked": "Sk***", "signal": 82 } },
+    { "name": "Tailscale", "description": "WireGuard Tunnel", "type": "mesh", "up": true, "link_speed_mbps": 100, "ipv4": ["100.72.128.84"], "ipv6": [], "mac": "", "is_default_route": false, "wifi": { "ssid_masked": "", "signal": null } },
+    { "name": "vEthernet (WSL)", "description": "Hyper-V Virtual Ethernet Adapter", "type": "virtual", "up": true, "link_speed_mbps": 10000, "ipv4": ["172.24.64.1"], "ipv6": [], "mac": "00:15:5d", "is_default_route": false, "wifi": { "ssid_masked": "", "signal": null } }
+  ],
+  "os": { "name": "Windows 11 Pro", "version": "24H2", "build": "26100.2605" },
+  "host": { "name": "Skyward" }
+}

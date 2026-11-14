@@ -1,0 +1,33 @@
+export default {
+  "pageTitle": "Sunshine yanıt vermiyor",
+  "title": "Sunshine yanıt vermiyor",
+  "line": "Sunshine çalışmıyor ya da isteklere yanıt vermiyor.",
+  "tipsTitle": "Denetlenecekler:",
+  "tips": {
+    "0": "Sunshine hizmeti çalışıyor mu?",
+    "1": "47990 portu boş ve engellenmemiş mi?",
+    "2": "Güvenlik duvarı Sunshine'ı engelliyor mu?"
+  },
+  "retry": "Yeniden dene",
+  "footer": "Bu sayfa, Sunshine yanıt verdiğinde kendiliğinden geri döner.",
+  "probing": "{n}. deneme: Sunshine aranıyor...",
+  "failed": "{n}. deneme başarısız, {s} s içinde yeniden denenecek...",
+  "awake": "Sunshine geri geldi. Dönülüyor…",
+  "restart": "Sunshine'ı yeniden başlat",
+  "userMode": "Kullanıcı modunda başlat",
+  "viewLog": "Günlüğü görüntüle",
+  "runDoctor": "Sağlık denetimini çalıştır",
+  "retryIn": "{s} s içinde yeniden dene",
+  "attemptFailed": "{n}. deneme başarısız",
+  "restarting": "Sunshine yeniden başlatılıyor...",
+  "restartFailed": "Yeniden başlatma işe yaramadı: {message}",
+  "restartTimeout": "Sunshine, yeniden başlatmadan sonra hâlâ yanıt vermiyor",
+  "troubleshooting": "Sorun giderme",
+  "proxyTitle": "Sunshine WebUI paneline ulaşılamadı",
+  "proxyLine": "Bir proxy veya TUN hizmeti localhost'u, 127.0.0.0/8'i veya IPv6 loopback trafiğini yakalıyor olabilir. Loopback trafiğini proxy'den hariç tutun ve tekrar deneyin.",
+  "proxyChecking": "Yeniden denetleniyor… deneme {n}",
+  "proxyWaiting": "Kısa süre içinde tekrar denenecek",
+  "proxyAttempts": "{n} kez denetlendi; yanıt verdiğinde kendiliğinden düzelir",
+  "unresponsiveTitle": "Ana bilgisayar yanıt vermiyor",
+  "unresponsiveLine": "Sunshine süreci hâlâ çalışıyor ancak isteklere yanıt vermiyor. Genellikle geçer; geçmezse Sunshine'ı yeniden başlatın."
+}

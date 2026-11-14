@@ -1,0 +1,33 @@
+export default {
+  "pageTitle": "Sunshine nie odpowiada",
+  "title": "Sunshine nie odpowiada",
+  "line": "Sunshine nie działa albo nie odpowiada na żądania.",
+  "tipsTitle": "Co sprawdzić:",
+  "tips": {
+    "0": "Czy usługa Sunshine działa?",
+    "1": "Czy port 47990 jest wolny i nieblokowany?",
+    "2": "Czy zapora blokuje Sunshine?"
+  },
+  "retry": "Spróbuj ponownie",
+  "footer": "Ta strona wróci sama, gdy Sunshine odpowie.",
+  "probing": "Sonda {n}: szukanie Sunshine...",
+  "failed": "Sonda {n} nie powiodła się, ponowna próba za {s} s...",
+  "awake": "Sunshine wróciło. Powrót…",
+  "restart": "Zrestartuj Sunshine",
+  "userMode": "Uruchom w trybie użytkownika",
+  "viewLog": "Wyświetl dziennik",
+  "runDoctor": "Uruchom kontrolę stanu",
+  "retryIn": "Ponów za {s} s",
+  "attemptFailed": "Sonda {n} nie powiodła się",
+  "restarting": "Ponowne uruchamianie Sunshine...",
+  "restartFailed": "Restart nie zadziałał: {message}",
+  "restartTimeout": "Sunshine nadal nie odpowiada po restarcie",
+  "troubleshooting": "Rozwiązywanie problemów",
+  "proxyTitle": "Nie udało się dotrzeć do panelu WebUI Sunshine",
+  "proxyLine": "Serwer proxy lub usługa TUN może przechwytywać ruch localhost, 127.0.0.0/8 lub pętlę IPv6. Wyklucz ruch zwrotny z proxy i spróbuj ponownie.",
+  "proxyChecking": "Sprawdzam ponownie… próba {n}",
+  "proxyWaiting": "Ponowna próba wkrótce",
+  "proxyAttempts": "Sprawdzono {n} razy; odzyskuje samo, gdy odpowie",
+  "unresponsiveTitle": "Host nie odpowiada",
+  "unresponsiveLine": "Proces Sunshine nadal działa, ale nie odpowiada na żądania. Zwykle mija; jeśli nie, zrestartuj Sunshine."
+}

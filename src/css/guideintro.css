@@ -1,0 +1,59 @@
+/* the first screen of the guide (MGuideFlow, step intro) and its consent step */
+/* the hero of the first screen is the hero card of the About page (MProductHero: the rules of .m-about__top--a); only the room around it is the flow's */
+.m-guide__herocard { margin: 0 0 2px; order: -1; } /* the card comes first, then the notice, then the language list (the notice is the first child of the body for every first step) */
+html.m-has-wallpaper .m-guide__herocard.m-about__top--a { padding-block: 10px; }
+.m-guide__sub, .m-guide__consentlead { text-wrap: balance; }
+.m-guide__sub { margin: 4px 0 8px; font: var(--m-title-small-emphasized); color: var(--md-sys-color-on-surface-variant); }
+/* the language block: one row looks selected, the checked one; every other is the same neutral card. An airy list: 56 px rows with 8 px between them, the checked one a tonal fill and a check at its end, no outline; 更多语言 is a text button under the list */
+.m-guide__langs.m-group { display: flex; flex-direction: column; gap: 8px; overflow: visible; background: transparent; border-radius: 0; }
+.m-guide .m-guide__langs.m-group > .m-item, .m-onboard .m-guide .m-guide__langs.m-group > .m-item { min-height: 56px; border-radius: 20px; background: transparent; color: var(--md-sys-color-on-surface); box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); }
+.m-guide .m-guide__langs.m-group > .m-item.m-item--selected, .m-onboard .m-guide .m-guide__langs.m-group > .m-item.m-item--selected { background: color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent); color: var(--md-sys-color-on-surface); box-shadow: none; } /* the dialog's own tonal colours (secondary and primary container) are near its surface: a checked row of those would look like no card at all, so the fill is the primary colour over the surface */
+.m-guide .m-guide__langs.m-group > .m-item.m-item--selected .m-icon:last-child { color: var(--md-sys-color-primary-text); }
+.m-guide__more { display: flex; margin-top: -4px; }
+/* the first screen fits the window without a scroll from 1280 x 800 up: the main area is tight, the notice is one line, the step text moves to the foot where the left of the footer would be empty */
+.m-guide[data-step='intro'] .m-guide__main { padding-top: 4px; padding-bottom: 12px; }
+.m-guide[data-step='intro'] .m-guide__body { gap: 8px; }
+.m-guide[data-step='intro'] .m-guide__open { margin-bottom: 8px; padding-block: 2px; }
+.m-guide[data-step='intro'] .m-guide__open p { font: var(--m-body-small, var(--m-body-medium)); }
+.m-guide__open a { flex: none; }
+.m-guide__body > .m-guide__open { margin: 0; }
+.m-guide__footstep { display: none; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); }
+@container guide (min-width: 600px) {
+  .m-guide[data-step='intro'] .m-guide__footstep, .m-guide[data-step='consent'] .m-guide__footstep { display: block; margin-inline-end: auto; }
+  .m-guide[data-step='intro'] .m-guide__stepof, .m-guide[data-step='consent'] .m-guide__stepof { display: none; }
+}
+/* The edges of the scroll area of every step say nothing while the content fits: no divider and no shadow. While it scrolls, a hairline fades in at the foot while there is more below and under the header
+   once it has scrolled (MGuideFlow sets data-below and data-scrolled from two sentinels). */
+.m-guide .m-guide__actions, .m-onboard .m-guide .m-guide__actions { border-top: 0; box-shadow: none; }
+.m-onboard .m-guide .m-guide__actions { position: relative; }
+.m-guide__actions::before, .m-guide__steps::after { content: ''; position: absolute; inset-inline: 0; height: 1px; background: var(--md-sys-color-outline-variant); opacity: 0; transition: opacity var(--m-spring-fast-effects-duration, 150ms) linear; pointer-events: none; }
+.m-guide__actions::before { top: 0; }
+.m-guide__steps { position: relative; }
+.m-guide__steps::after { bottom: 0; }
+.m-guide[data-below] .m-guide__actions::before, .m-guide[data-scrolled] .m-guide__steps::after { opacity: 1; }
+.m-guide__sentinel { height: 1px; margin: 0; pointer-events: none; }
+.m-guide__consentlead { margin: 0 0 8px; font: var(--m-body-large); color: var(--md-sys-color-on-surface); }
+.m-guide__consenttext { margin: 8px 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+/* the big 开始 button of the first screen */
+.m-guide[data-step='intro'] .m-guide__actions > :last-child { min-width: min(100%, 240px); height: 56px; border-radius: 28px; font: var(--m-title-medium-emphasized); }
+/* 上一步 sits at the left of the foot on every step but the first; the other buttons stay together on the right */
+.m-guide .m-guide__prev { margin-inline-end: auto; }
+/* a phone: the whole foot is ONE row, nothing wraps (c223a38 wrapped it; the main button then sat under the others and the foot took a third of the screen). Compact buttons: 40 high, label-medium, 8 px of side space,
+   the main one a little wider and in label-large. 上一步 is the icon only (the label stays for screen readers and as the tooltip); a label that is too long for the width (the English 跳到下一页, the finish-and-tools button) is icon only too (.is-long). */
+@media (max-width: 599.98px) {
+  .m-guide .m-guide__actions.m-guide__actions { flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 4px; padding: 8px 12px; }
+  .m-guide .m-guide__actions.m-guide__actions .m-btn { flex: 0 0 auto; width: auto; min-width: 0; height: 40px; min-height: 40px; padding: 0 12px 0 8px; gap: 4px; font: var(--m-label-medium); --m-btn-icon: 18px; }
+  .m-guide:not([data-step='intro']) .m-guide__actions.m-guide__actions .m-btn:last-child { flex: 0 1 auto; margin-inline-start: auto; padding: 0 16px 0 12px; font: var(--m-label-large); }
+  .m-guide .m-guide__actions.m-guide__actions .m-guide__prev { margin-inline-end: 0; width: 40px; padding: 0; }
+  .m-guide .m-guide__actions.m-guide__actions .m-guide__prev .m-btn__lead { margin-left: 0; }
+  .m-guide .m-guide__actions .m-guide__lbl.is-long, .m-guide .m-guide__prev .m-guide__lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .m-guide .m-guide__actions.m-guide__actions .m-btn:has(> .m-guide__lbl.is-long) { width: 40px; padding: 0; }
+  .m-guide .m-guide__actions.m-guide__actions .m-btn:has(> .m-guide__lbl.is-long) .m-btn__lead { margin-left: 0; }
+}
+/* the first screen's notes: secondary, body-small, at the foot above the buttons */
+.m-guide__notes { padding: 8px 32px 4px; display: grid; gap: 4px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); text-wrap: pretty; }
+.m-guide__notes p { margin: 0; }
+.m-guide__notelink { appearance: none; background: none; border: 0; padding: 0; font: inherit; color: var(--md-sys-color-primary-text, var(--md-sys-color-primary)); text-decoration: underline; cursor: pointer; }
+.m-about__notes { display: grid; gap: 4px; margin: 4px 0 12px; padding: 0 4px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); text-wrap: pretty; }
+.m-about__notes p { margin: 0; }
+.m-about__notelink { appearance: none; background: none; border: 0; padding: 0; font: inherit; text-align: start; color: var(--md-sys-color-primary-text, var(--md-sys-color-primary)); text-decoration: underline; cursor: pointer; }

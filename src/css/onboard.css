@@ -1,0 +1,142 @@
+/* The first-run window (MOnboardWindow): a floating dialog over a translucent scrim (the one scrim of every modal, the Material 3 scrim at 44 %: the page behind stays faintly visible). 'sheet' rises from the bottom edge instead; a compact window gets the whole screen.
+   The window is as tall as its step needs (never under 560 px, never over 90 % of the window) and the body scrolls. */
+/* a <dialog> shown modally (the top layer, the page behind it inert): the user agent's own box (a border, a margin, a size cap, a canvas background) is taken off, the window and its scrim are ours */
+/* the window is teleported to <body>, outside .m-app, which is where the border-box reset lives: without it every row of a group was its padding wider than the group and ran off the right edge of a phone */
+.m-onboard, .m-onboard *, .m-onboard *::before, .m-onboard *::after { box-sizing: border-box; }
+.m-onboard { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; overflow: visible; }
+.m-onboard:not([open]) { display: none; }
+.m-onboard::backdrop { background: transparent; }
+.m-onboard { position: fixed; inset: 0; z-index: 1500; display: flex; justify-content: center; align-items: flex-end; --m-onboard-w: min(92vw, 880px); --m-onboard-h: 90vh; }
+@supports (height: 1dvh) { .m-onboard { --m-onboard-h: 90dvh; } }
+.m-onboard--dialog { align-items: center; }
+.m-onboard--sheet { --m-onboard-w: min(90vw, 1480px); }
+.m-onboard__scrim { position: absolute; inset: 0; background: var(--m-modal-scrim, color-mix(in srgb, var(--md-sys-color-scrim, #000) 44%, transparent)); backdrop-filter: var(--m-modal-blur, none); animation: m-onb-fade var(--m-spring-default-effects-duration, 300ms) var(--m-spring-default-effects, ease) both; }
+.m-onboard__window { position: relative; width: var(--m-onboard-w); height: auto; min-height: min(var(--m-onboard-h), 560px); max-height: var(--m-onboard-h); display: flex; flex-direction: column; overflow: hidden; outline: 0; container-type: inline-size; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); --m-page: transparent; --m-page-solid: var(--md-sys-color-surface-container-high); box-shadow: 0 -8px 40px color-mix(in srgb, var(--md-sys-color-shadow, #000) 28%, transparent); transition: width var(--m-spring-default-spatial-duration, 450ms) var(--m-spring-default-spatial, ease); }
+.m-onboard--sheet .m-onboard__window { height: var(--m-onboard-h); border-radius: 28px 28px 0 0; animation: m-onb-up var(--m-spring-default-spatial-duration, 450ms) var(--m-spring-default-spatial, ease) both; }
+.m-onboard--dialog .m-onboard__window { border-radius: 28px; box-shadow: 0 24px 64px color-mix(in srgb, var(--md-sys-color-shadow, #000) 36%, transparent); animation: m-onb-pop var(--m-spring-default-spatial-duration, 450ms) var(--m-spring-default-spatial, ease) both; }
+/* every step has the same window: a step-specific width made the pairing and the remote access steps wider on a desktop and, on a phone (where this rule beat the full-screen one below), narrower than the screen */
+@keyframes m-onb-fade { from { opacity: 0; } }
+@keyframes m-onb-up { from { transform: translateY(100%); } }
+@keyframes m-onb-pop { from { opacity: 0; transform: scale(.94); } }
+@media (max-width: 599.98px) { .m-onboard { --m-onboard-w: 100vw; --m-onboard-h: 100vh; } @supports (height: 1dvh) { .m-onboard { --m-onboard-h: 100dvh; } } .m-onboard__window { border-radius: 0 !important; height: var(--m-onboard-h); } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-onboard__window, html:not([data-motion='full']) .m-onboard__scrim { animation: none; transition: none; } }
+html[data-motion='reduced'] .m-onboard__window, html[data-motion='reduced'] .m-onboard__scrim { animation: none; transition: none; }
+
+/* The Material 3 type scale of the reference (body 16 and 14, labels 14), not the one step smaller desktop scale of the settings pages: this window is read from a chair, once, and its buttons are the ones that matter */
+.m-onboard {
+  --m-body-large: 400 16px/24px var(--md-ref-typeface-brand); --m-body-medium: 400 14px/20px var(--md-ref-typeface-brand);
+  --m-title-medium: 500 16px/24px var(--md-ref-typeface-brand); --m-title-medium-emphasized: 700 16px/24px var(--md-ref-typeface-brand);
+  --m-label-large: 500 14px/20px var(--md-ref-typeface-brand); --m-headline-medium-emphasized: 500 28px/36px var(--md-ref-typeface-brand);
+}
+
+/* what goes in the window lays itself out as a column: the head and the progress stay, the body scrolls, the actions sit at the foot (dismissive left, the primary one right) */
+.m-onboard .m-guide, .m-onboard .m-welcome, .m-onboard .panel-guide, .m-onboard .panel-guide .m-guide { height: auto; min-height: 0; flex: 1; background: transparent; }
+.m-onboard .panel-guide { display: flex; flex-direction: column; }
+.m-onboard .m-guide__main, .m-onboard .m-welcome__col { overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+.m-onboard .m-guide__bar, .m-onboard .m-guide__steps, .m-onboard .m-guide__main, .m-onboard .m-guide__actions { width: 100%; box-sizing: border-box; padding-inline: 32px; }
+.m-onboard .m-guide__bar { padding-top: 20px; padding-bottom: 8px; }
+.m-onboard .m-guide__steps { padding-bottom: 4px; }
+.m-onboard .m-guide__main { padding-top: 12px; padding-bottom: 24px; }
+.m-onboard .m-guide__stepof { font: var(--m-label-large); }
+.m-onboard .m-guide__title { font: var(--m-headline-medium-emphasized); font-variation-settings: 'wght' 480; }
+.m-onboard .m-guide__lead { font: var(--m-body-large); }
+.m-onboard .m-guide__head { gap: 16px; }
+.m-onboard .m-welcome__bar, .m-onboard .m-welcome__col, .m-onboard .m-welcome__actions { width: min(100%, 640px); }
+.m-onboard .m-guide__actions, .m-onboard .m-welcome__actions { position: static; flex: none; flex-direction: row; justify-content: space-between; align-items: center; backdrop-filter: none; background: transparent; border-top: 1px solid var(--md-sys-color-outline-variant); padding-block: 16px; }
+.m-onboard .m-welcome__actions { flex-direction: row-reverse; }
+/* the buttons of the foot: the Material 3 Expressive medium size, 56 high with the 16 px label (the settings pages use the 40 high ones inside rows) */
+.m-onboard .m-guide__actions .m-btn, .m-onboard .m-welcome__actions .m-btn { width: auto; min-width: 144px; height: 56px; min-height: 56px; padding: 0 32px; font: var(--m-title-medium); }
+.m-onboard .m-guide__actions .m-btn--text { min-width: 0; padding: 0 20px; }
+/* the primary action is at the end of the foot on every step, also when there is no skip button before it */
+.m-onboard .m-guide__actions .m-btn:last-child { margin-inline-start: auto; }
+.m-onboard .m-guide__actions .m-btn .m-icon, .m-onboard .m-welcome__actions .m-btn .m-icon { font-size: 20px; }
+.m-onboard .m-guide__actions .m-btn:disabled { font-variant-numeric: tabular-nums; }
+html.m-has-wallpaper .m-onboard :is(.m-guide__lead, .m-guide__stepof, .m-guide__note, .m-guide__brand, .setup-sub, .m-footer, .m-btn--text) { text-shadow: none; }
+html.m-has-wallpaper .m-onboard :is(.m-guide__lead, .m-guide__stepof, .m-guide__note, .setup-sub, .m-footer) { color: var(--md-sys-color-on-surface-variant); }
+html.m-has-wallpaper .m-onboard .m-btn--text { color: var(--md-sys-color-primary-text); }
+.m-onboard .m-guide__main, .m-onboard .m-welcome__col { padding-bottom: 24px; }
+/* a window that is not compact: the rows do not carry the page card colour (the window already is a surface container) */
+.m-onboard .m-guide .m-group > .m-item { background: var(--md-sys-color-surface-container-highest); }
+/* the chosen row keeps the base of the others (the window is a secondary container already) and is the selected container (--m-sel-fill) of every other list; no outline */
+.m-onboard .m-guide .m-group > .m-item.m-item--selected { background: var(--m-sel-fill); color: var(--m-sel-ink); box-shadow: none; }
+@container (max-width: 520px) { .m-onboard .m-guide__bar, .m-onboard .m-guide__steps, .m-onboard .m-guide__main, .m-onboard .m-guide__actions { padding-inline: 16px; } .m-onboard .m-guide__actions .m-btn { min-width: 112px; padding: 0 20px; } }
+
+/* the picture of a display handling mode (MPrepArt) */
+.m-prepart { width: 100%; max-width: 168px; height: auto; }
+.m-prepart__mon rect { fill: color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent); stroke: var(--md-sys-color-primary); stroke-width: 2.4; }
+.m-prepart__mon path { fill: none; stroke: var(--md-sys-color-primary); stroke-width: 2.4; stroke-linecap: round; }
+.m-prepart__link { fill: none; stroke: var(--md-sys-color-outline); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 3 5; }
+.m-prepart__off, .m-prepart__star { display: none; }
+.m-prepart__star { fill: var(--md-sys-color-primary); stroke: none !important; }
+.m-prepart.is-no_operation .m-prepart__mon rect { fill: none; stroke: var(--md-sys-color-outline); stroke-dasharray: 4 4; } .m-prepart.is-no_operation .m-prepart__mon path { stroke: var(--md-sys-color-outline); }
+.m-prepart.is-ensure_primary .m-prepart__star { display: block; }
+.m-prepart.is-ensure_only_display .m-prepart__host rect { fill: none; stroke: var(--md-sys-color-outline); } .m-prepart.is-ensure_only_display .m-prepart__host path:not(.m-prepart__off) { stroke: var(--md-sys-color-outline); } .m-prepart.is-ensure_only_display .m-prepart__off { display: block; stroke: var(--md-sys-color-error); }
+.m-prepart.is-ensure_secondary .m-prepart__link { stroke-dasharray: none; stroke: var(--md-sys-color-primary); }
+.m-prepart.is-ensure_secondary .m-prepart__host rect { fill: none; stroke: var(--md-sys-color-outline); } .m-prepart.is-ensure_secondary .m-prepart__host path { stroke: var(--md-sys-color-outline); }
+
+/* the remote access tutorial (MRemoteAccess): mode cards, the UPnP and port-forward guide, the mesh guide */
+.m-remote { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.m-webaccess { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.m-webaccess__open { display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 28px; background: var(--m-card); min-width: 0; }
+.m-webaccess__h { margin: 0; font: var(--m-title-medium-emphasized); color: var(--md-sys-color-on-surface); }
+.m-webaccess__body { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.m-webaccess__body .m-group { min-width: 0; }
+.m-webaccess__qr svg { width: 168px; height: 168px; }
+.m-webaccess__note { margin: 0; display: flex; gap: 10px; align-items: flex-start; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); } .m-webaccess__note .m-icon { flex: none; font-size: 20px; }
+.m-webaccess__more { font: var(--m-label-large); color: var(--md-sys-color-primary-text, var(--md-sys-color-primary)); }
+@container (min-width: 560px) { .m-webaccess__body.has-qr { flex-direction: row; align-items: center; } .m-webaccess__body.has-qr .m-webaccess__list { flex: 1 1 auto; } }
+@media (min-width: 640px) { .m-webaccess__body.has-qr { flex-direction: row; align-items: center; } .m-webaccess__body.has-qr .m-webaccess__list { flex: 1 1 auto; } }
+.m-remote__h { margin: 10px 0 -6px; font: var(--m-title-medium-emphasized); color: var(--md-sys-color-on-surface); }
+.m-remote__p { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-remote__risks { margin: 6px 0 0; padding-inline-start: 18px; font: var(--m-body-medium); }
+.m-remote__card { display: flex; gap: 14px; align-items: flex-start; padding: 14px 18px; border-radius: 24px; background: var(--md-sys-color-surface-container); }
+.m-remote__card > .m-icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); font-size: 22px; }
+.m-remote__card b { font: var(--m-title-small-emphasized); } .m-remote__card p { margin: 4px 0 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-remote__art { width: 100%; max-width: 520px; height: auto; align-self: center; }
+.m-remote__art .ra-node rect { fill: var(--md-sys-color-secondary-container); } .m-remote__art .ra-mid rect { fill: var(--md-sys-color-primary-container); }
+.m-remote__art text { font: 600 13px inherit; fill: var(--md-sys-color-on-surface); }
+.m-remote__art .ra-link { stroke: var(--md-sys-color-outline); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 2 8; fill: none; }
+.m-remote__art .ra-head { stroke: var(--md-sys-color-outline); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.m-remote__art .ra-rule rect { fill: var(--md-sys-color-tertiary-container); } .m-remote__art .ra-rule text { fill: var(--md-sys-color-on-tertiary-container); font-size: 11px; }
+.m-remote__steps { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; font: var(--m-body-medium); }
+.m-remote__steps li { display: flex; align-items: center; gap: 12px; }
+.m-remote__steps b { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font: var(--m-label-large); }
+.m-remote__chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.m-remote__chip { font-style: normal; padding: 4px 12px; border-radius: 9999px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font: var(--m-label-large); font-variant-numeric: tabular-nums; }
+.m-remote__chip.is-opt { background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); } .m-remote__chip small { font-size: 11px; opacity: .8; }
+.m-remote__note { margin: 0; display: flex; gap: 10px; align-items: flex-start; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); } .m-remote__note .m-icon { flex: none; font-size: 20px; }
+.m-remote__field { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 16px; background: var(--md-sys-color-surface-container-highest); min-width: 0; }
+.m-remote__field > span { flex: none; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); } .m-remote__field code { flex: 1; min-width: 0; overflow-wrap: anywhere; font: var(--m-body-small); }
+.m-remote__row { display: flex; gap: 8px; }
+@container (max-width: 520px) { .m-remote__field { flex-wrap: wrap; } .m-remote__field code { flex-basis: 100%; order: 2; } }
+
+.m-remote__ports { margin: 0; display: flex; flex-direction: column; border-radius: 24px; overflow: hidden; background: var(--md-sys-color-surface-container); }
+.m-remote__ports > div { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 14px 20px; } .m-remote__ports > div + div { border-top: 1px solid var(--md-sys-color-outline-variant); }
+.m-remote__ports dt { flex: none; min-width: 56px; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); } .m-remote__ports dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.m-remote__chip.is-target { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+
+.m-remotewin { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.m-remotewin__bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 24px 8px; width: min(100%, 940px); margin-inline: auto; box-sizing: border-box; } .m-remotewin__bar h2 { margin: 0; font: var(--m-headline-small-emphasized); }
+.m-remotewin__body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; } .m-remotewin__col { width: min(100%, 940px); margin-inline: auto; padding: 8px 24px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; }
+.m-remotewin__lead { margin: 0; font: var(--m-body-large); color: var(--md-sys-color-on-surface-variant); }
+
+/* the first-use tour (MCoachMarks): the page dimmed by the scrim of a modal with a rounded hole around the lit element, a ring on it, and a card that says what it is for */
+.m-coach { position: fixed; inset: 0; z-index: 2100; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; overflow: visible; }
+.m-coach::backdrop { background: transparent; }
+.m-coach__scrim { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto; } .m-coach__scrim path { fill: color-mix(in srgb, var(--md-sys-color-scrim) 52%, transparent); }
+.m-coach__ring { position: absolute; border-radius: 18px; box-shadow: 0 0 0 3px var(--md-sys-color-primary), 0 0 0 8px color-mix(in srgb, var(--md-sys-color-primary) 28%, transparent); pointer-events: none; transition: left var(--m-spring-default-spatial-duration, 400ms) var(--m-spring-default-spatial, ease), top var(--m-spring-default-spatial-duration, 400ms) var(--m-spring-default-spatial, ease), width var(--m-spring-default-spatial-duration, 400ms) var(--m-spring-default-spatial, ease), height var(--m-spring-default-spatial-duration, 400ms) var(--m-spring-default-spatial, ease); }
+.m-coach__card { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 14px; border-radius: 28px; outline: 0; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); box-shadow: 0 16px 48px color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent); }
+.m-coach__title { margin: 0; font: var(--m-title-large-emphasized); } .m-coach__text { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-coach__foot { display: flex; align-items: center; gap: 8px; margin-top: 6px; } .m-coach__spacer { flex: 1; } .m-coach__count { font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.m-coach__dots { display: inline-flex; gap: 5px; } .m-coach__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--md-sys-color-outline-variant); } .m-coach__dots i.is-on { width: 16px; border-radius: 3px; background: var(--md-sys-color-primary); }
+.m-coach-enter-active, .m-coach-leave-active { transition: opacity var(--m-spring-default-effects-duration, 300ms) var(--m-spring-default-effects, ease); } .m-coach-enter-from, .m-coach-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-coach__ring, html:not([data-motion='full']) .m-coach-enter-active, html:not([data-motion='full']) .m-coach-leave-active { transition: none; } }
+html[data-motion='reduced'] .m-coach__ring, html[data-motion='reduced'] .m-coach-enter-active, html[data-motion='reduced'] .m-coach-leave-active { transition: none; }
+
+/* announcement popups, the caption button and the 公告 page: announce.css */
+
+/* the global unsaved bar and the page-level notices wait while the first-run window is open: it is a modal flow of its own */
+html.m-onboarding .m-pbar { display: none; }
+
+/* The fields of the window sit on its surface (surface-container-high). The outlined field is transparent and its outline is the quiet one by default, which on a tinted surface
+   reads as a hole in it: a lighter container and the full outline colour keep field and surface apart. */

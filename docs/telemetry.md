@@ -1,0 +1,69 @@
+# Error reports and usage counts
+
+What Foundation Sunshine sends out and when. Code: `src/telemetry/` (pure), `src/vue/MErrorHost.vue`, `useErrors.js`, `useAutoReport.js`, `useTelemetryConsent.js`; the events of telemetry v1 `src/telemetry/events.js` (Web `config/telemetry.js`, Panel `composables/panelTelemetry.js`). **Nothing here uses Google any more: usage counts, experience numbers, error events and the error reports E1/E2 all go to the host the page belongs to, which sends them to the developers' own server (api.alkaidlab.com). The Firestore path, its rules file and every `firestore.googleapis.com` reference are gone.**
+
+## Four paths, four rules
+
+| | What | Goes to | Needs |
+| --- | --- | --- | --- |
+| Usage counts and experience | `app_start`, `feature_used`, `panel_page` (time until a page's first painted frame), version / OS / channel; the host adds streams and their quality | the host the page is served from (`POST /api/telemetry/events`), which sends them to `https://api.alkaidlab.com/v1/events`; **no Google script is loaded** | usage statistics **on** (the default; `telemetry_consent`) |
+| Errors and counters of known limits | `error` events (component, code, severity, count; no text); a known limit is an `error` of severity `warning` with a category and a code | the same path | error reports **on** (the default; `telemetry_errors`) |
+| Automatic issues (E2) | the first occurrence of an UNEXPECTED error of our own code per release: one `error` event (component, code `category.code`, severity; the text of the error stays on the computer); later ones: one `error` event with a count | the host (`POST /api/telemetry/events`), then the developers' server | error reports **on** (the default) |
+| A report the person sends (E1) | one `error` event named `user_report` (telemetry-v1-spec, "Worker additions"): category from the sheet's type (问题/崩溃 `bug`, 功能建议 `suggestion`, 体验改进 `performance`, 其他 `other`), component (the product), page, error code, and one scrubbed message of at most 2000 characters: title, description, then a short summary of the error (its text, the top frames of the stack, the last events) | the same path | the person pressing 发送; it follows the **error reports** choice like every error event (with it off the sheet says so and nothing is requested), at most 10 a day per install (the server answers 429 beyond) |
+
+The report sheet (`DevReport.vue`, opened by the error dialog, 反馈 and the context menu) has two ways out and nothing public: send privately to the developers' own server, or save the diagnostic zip on this computer (no page opens). There is no GitHub issue, no repository choice, no sign-in and no contact field. The screenshot and the log go only into the zip; the event has an `attachment` field for the reference the developer panel returns for an uploaded file, but the deployed devapi `/feedback/attachment` returns an opaque `id`, not `att-YYYY-MM/<sha256>.<ext>`, so no attachment is sent yet.
+
+Usage statistics are **on by default** (「遥测默认开」) and nobody is asked: the first run says so once, in one notice that covers them and the error reports (`errorsNotice`, with the link to 关于 › 隐私). The switch is kept on the host in the config key `telemetry_consent` (`on` / `off`) so the control panel and the Web UI agree, cached in the window's storage (`foundation-ui.telemetry.consent`), and changed any time in 关于 › 隐私, at once and without a reload: an off stops collection and drops what was waiting. Only the person's own answer is stored; the default is not written anywhere, and an `ask` stored by an older version reads as the default. The host applies the two choices again to every event it is handed (it keeps them in the same config keys), so an off made on the panel holds in a new browser too, and a page behind a content blocker still counts.
+
+**Assumption to check on a real host:** the host must keep a config key it does not know. Check: `POST /api/config` with `telemetry_consent: "on"` added, then `GET /api/config` shows it. If the host drops it, the choice only lives in each window's storage and the C++ side needs the key.
+
+## What an error is (E2)
+
+1. **Levels.** `DEBUG / INFO / WARN / ERROR / FATAL`. Every product writes short lines into a ring buffer in memory (`addBreadcrumb`, and the last `console.warn` / `console.error` lines); the last 50, scrubbed, go along with an error report as `breadcrumbs`. DEBUG and INFO never leave the window on their own: only an ERROR or a FATAL can be the reason for an upload.
+2. **Classification at the source** (`classify.js`). Each error gets a `category` (network, encoder, display, driver, input, audio, ui, config, auth, update, storage), a stable `code` and a `kind`:
+   - `EXPECTED-ENV` (offline, wrong password, cancelled, host unreachable): shown to the person as a note with its action, **never uploaded**.
+   - `KNOWN-ENV` (unsupported GPU, missing component, an old host, a chunk that failed to load after an update): a **counter** (an `error` event of severity `warning`, category + code, no text), no report.
+   - `UNEXPECTED` (unhandled exception, broken invariant, crash): the only kind that can be reported automatically, and only when the stack is ours.
+   Code that knows what it is doing throws `new SunshineError(msg, { category, code, kind })` or tags an error with `classified(error, {…})`; the rest is classified by its name, status and text, with the page as the hint for the category.
+3. **Noise filters.** Only stacks from our own bundle (our origin, `tauri:`, `asset:`) count. Dropped: ResizeObserver loops, a fetch aborted because the page went away, extension and injected scripts (`chrome-extension:`, user scripts), "Script error.", dev hot-reload failures. An error without any frame of ours is kept on the screen and in the breadcrumbs, not uploaded.
+4. **Fingerprint** (`fingerprint.js`) = category + code + the top 3 frames of our code (`function@file`, no line numbers and no bundle hashes) + the release. The same fault in the same release has the same fingerprint on every install: one issue with a count. The `stem` (the same without the release) is the same in the next release, which is how a regression shows.
+5. **Policy** (`auto.js`): the first occurrence of a fingerprint in a release is uploaded **with details** (`issues/{fingerprint}`); later ones only add to the count (batched, at most one write per fingerprint every 10 minutes, 1 to 50 at a time). At most **5 detailed issues per install per day** (the rest are deferred and counted locally); a flood (more than 20 errors a minute) is cut off. A first occurrence that cannot be sent waits in a small queue (5) and is sent when the window comes back online or the person says yes.
+6. **Payload** (all scrubbed): message, name, stack, release, OS, product (panel / web), page, locale, component versions (`components`), the last 50 breadcrumbs, and three custom keys `encoder`, `gpu_vendor`, `capture_backend`. Never user names, paths, addresses, game titles or device names.
+7. **Manual reports** (E1) carry the same payload plus title / description / contact, and `issue` = the fingerprint of the automatic issue of the same error when there is one.
+
+## Sending a report by hand (E1): what the person sees
+
+Entries: the error dialog's 报告给开发者, and 发送反馈给开发者 on 诊断与日志 (both products; `reportFeedback()` opens the same form with `kind: 'manual'` and the last log lines; the row shows only where `MErrorHost` is mounted, so not in an embedded frame). 在 GitHub 上报告 on the same page is the way out that sends nothing.
+
+| State | When | What the form shows |
+| --- | --- | --- |
+| nothing yet | title or description empty | the fields say what is missing; no request |
+| sending | one request on its way | the button is busy and the fields are locked; a second press does nothing |
+| sent | the request was accepted | 已发送，编号 `XXXXXXXX` (the first 8 characters of the document id) |
+| sent before | the same report was pressed again | 已经发送过，编号 …; no request |
+| kept, offline | the window is offline | nothing is requested; 没有网络连接, kept, button 重试 |
+| kept, unreachable | timeout, no answer, 5xx, 429 (mainland China) | the server-cannot-be-reached text, button 重试 |
+| kept, held | error information is switched off | kept, sent only when 重试 is pressed |
+| refused | the rules said no (4xx) | says so; copy, save, GitHub; no retry that cannot help |
+| limited | 6 reports an hour from one window | copy, save, GitHub |
+
+Rules the code keeps (`src/telemetry/send.js`, tests `test/feedbacksend.test.js`):
+- **One report is one document.** The document id is made from the content (`reportIdOf`), sent as `?documentId=`. A press while the same report is on its way gets that request's answer; a press after it is answered "sent before" without a request; a report in the queue is kept once (a second press replaces the entry) and its retry does not use the hourly allowance. A lost answer that did arrive (timeout, 5xx) marks the entry `maybeArrived`, and only then is 409/403 "it is there already" counted as sent.
+- **Bounded.** Presses are sequential, one request each (8 s timeout). A kept report is tried at most 8 times by the automatic flush; the automatic flush runs at start, when the connection is back and when the choice changes, **at most once in 30 s**.
+- **Consent.** The press is the consent for that report. The automatic flush never runs while the choice is *off* (what was pressed stays on the computer until 重试 is pressed); with *on* (the default) it may. Automatic issues need error reports *on*, counts need usage statistics *on*.
+- **Scrubbing.** Title, description, message, stack, log lines and events go through `scrubText` in `buildReport` / `reportToDocument` before the document exists; the form's "exactly what is sent" is that document.
+- A failure is a dialog banner or a snackbar on a page that still works, never a failure page.
+
+## What the person reads
+
+关于 › 隐私 (`MAbout`, rows from `MPrivacyMore`) puts the purpose first for each switch (error reports: find and fix crashes and errors faster; usage statistics: which features are used and whether streams run smoothly, so the developers know what to improve first), and a dialog lists, per switch, what is sent, what is never sent, where it goes and how long it is kept. "See what will be sent" opens the records waiting for the next send with the fields every batch carries, as the host answers `GET /api/telemetry/preview` (the product passes `previewLoader`). The words are `errorTexts.js` and `src/locale/texts/<locale>/error.js`; the facts are the host's `docs/privacy-data-inventory.md`.
+
+**No error event carries text.** A host log line or an exception message can hold what a person chose or typed, so an `error` event has a component, a code, a severity and a count, nothing else. The only free text is the report the person writes (`user_report`).
+
+## Scrubbing
+
+`scrubText` (`src/telemetry/scrub.js`) replaces: the origin of a page, the account name in `C:\Users\…`, `/Users/…`, `/home/…`, e-mail addresses, the last part of an IPv4 address, MAC addresses, IPv6 addresses (compressed form included: link-local fe80::/10 and unique-local fc00::/7), UUIDs, sk- keys, the value of `token`, `password`, `secret`, `api_key`, `auth`, `cookie`, `session`, `pin`, `cdk`, Bearer and Basic tokens, query string values and any 32+ character token. Also: `S-1-…` Windows account ids, 17-digit Steam ids, `DESKTOP-`/`LAPTOP-`/`WIN-` computer names, network shares, and a home folder whose account name has spaces (the name ends at the next separator). Controls are removed and the text is cut to its limit. The same rules and the same test vectors run in the host (C++), here (JS) and in the Worker (TS): `test/scrub-vectors.json`.
+
+## Mainland China (not verified here)
+
+Every event and report goes to the host the page is served from and from there to `https://api.alkaidlab.com` (a Cloudflare domain of ours), not to a Google host. A report that cannot be sent (no network, the server out of reach) waits in a local queue (20 reports, 8 tries) and the person is told in plain words, with copy, download and a GitHub issue offered; automatic first occurrences wait in a queue of 5. Whether api.alkaidlab.com is reachable from every network in China is **not proven**.

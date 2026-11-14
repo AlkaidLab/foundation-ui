@@ -1,0 +1,264 @@
+/* The about page: the one page that may be bold. Large type and the mascot in the hero; the rest is ordinary grouped rows. */
+.m-about__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.m-about .m-item__lead:has(.m-about__avatar) { width: 40px; height: 40px; }
+.m-about__avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--md-sys-color-surface-container-high); display: block; }
+.m-about__projects { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.m-about__project { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 12px; border: 0; border-radius: 9999px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font: var(--m-label-large); cursor: pointer; }
+.m-about__project .m-icon { font-size: 16px; }
+.m-about__project:hover { background: color-mix(in srgb, var(--md-sys-color-secondary-container) 86%, var(--md-sys-color-on-secondary-container)); }
+.m-about__grid { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.m-about__face { display: block; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; overflow: hidden; background: var(--md-sys-color-surface-container-high); cursor: pointer; transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-about__face:hover, .m-about__face:focus-visible { transform: scale(1.18); }
+.m-about__face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+@media (max-width: 599px) { .m-about__top--c { padding: 24px 24px 150px; } .m-about__mascot--stand { right: 50%; transform: translateX(50%); height: 140px; } }
+
+/* component status page and cards */
+.m-compstat { }
+.m-compstat__group { margin-bottom: 8px; }
+.m-compstat__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.m-compstat__check .m-item__lead { font-size: 20px; }
+.m-compstat__check--ok .m-item__lead { color: var(--md-sys-color-success, var(--md-sys-color-primary)); }
+.m-compstat__check--warn .m-item__lead { color: var(--md-sys-color-warning, var(--md-sys-color-tertiary)); }
+.m-compstat__check--error .m-item__lead { color: var(--md-sys-color-error); }
+.m-compstat__path .m-item__title { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-dcomp__body { gap: 6px; align-items: flex-start; }
+.m-dcomp__sub { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.m-dcomp__check { margin-top: auto; }
+
+/* component status cards: one compact card per component, two to a row where the page is wide */
+.m-comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 8px; }
+.m-comp { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 24px; background: var(--m-card); color: var(--md-sys-color-on-surface); min-width: 0; }
+.m-comp__head { display: flex; align-items: center; gap: 12px; }
+.m-comp__icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 14px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font-size: 22px; }
+.m-comp--error .m-comp__icon { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-comp--ok .m-comp__icon { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-comp__id { flex: 1; min-width: 0; }
+.m-comp__name { margin: 0; font: var(--m-title-small); }
+.m-comp__line { margin: 0; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-comp__ring { flex: none; }
+.m-comp__ringtext { font: var(--m-label-medium); line-height: 1; font-variant-numeric: tabular-nums; color: var(--md-sys-color-on-surface); }
+.m-comp__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.m-comp__nopath { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px 0 8px; border-radius: 9999px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface-variant); font: var(--m-label-small); }
+.m-comp__nopath .m-icon { font-size: 14px; }
+.m-comp__time { margin-inline-start: auto; font: var(--m-label-small); color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.m-comp__checks { list-style: none; margin: 0; padding: 8px 10px; border-radius: 14px; background: var(--md-sys-color-surface-container-high); display: grid; gap: 4px; }
+.m-comp__checks li { display: flex; align-items: center; gap: 8px; font: var(--m-body-small); }
+.m-comp__checks .m-icon { font-size: 16px; flex: none; }
+.m-comp__checks b { margin-inline-start: auto; font-weight: 500; color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; text-align: end; }
+.m-comp__checks .is-ok .m-icon { color: var(--md-sys-color-primary-text); }
+.m-comp__checks .is-warn .m-icon { color: var(--md-sys-color-tertiary-text); }
+.m-comp__checks .is-error .m-icon { color: var(--md-sys-color-error); }
+.m-comp__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+
+/* on a wallpaper the section labels sit in a chip of the card colour: 4.5:1 on any picture */
+html.m-has-wallpaper .m-section__title { text-shadow: 0 0 12px color-mix(in srgb, var(--m-page-solid) 80%, transparent); }
+/* the hero text sits on a card when a wallpaper is behind the page */
+
+/* the top area of the about page: three looks of one component */
+.m-about__top { position: relative; display: flex; }
+.m-about__id { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.m-about__name { margin: 0; font: var(--m-headline-large, 700 32px/1.2 var(--md-ref-typeface-brand)); color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; }
+.m-about__slogan { margin: 0; font: var(--m-title-medium, 500 16px/1.3 var(--md-ref-typeface-brand)); color: var(--md-sys-color-primary-text); }
+.m-about__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.m-about__mascot { display: block; object-fit: contain; }
+.m-about__top--a { flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 32px 0 20px; }
+.m-about__top--a .m-about__id { align-items: center; }
+.m-about__top--a .m-about__actions { justify-content: center; }
+.m-about__mascot--plain { width: 112px; height: 112px; }
+.m-about__top--b { flex-direction: column; gap: 14px; padding: 8px 0 20px; }
+.m-about__banner { display: block; width: 100%; border-radius: 32px; overflow: hidden; aspect-ratio: 2172 / 336; background: #fbf4e6; }
+.m-about__banner img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.m-about__banner-dark { display: none !important; }
+[data-theme='dark'] .m-about__banner, [data-bs-theme='dark'] .m-about__banner { aspect-ratio: 4.5 / 1; background: var(--md-sys-color-surface-container); }
+[data-theme='dark'] .m-about__banner-light, [data-bs-theme='dark'] .m-about__banner-light { display: none; }
+[data-theme='dark'] .m-about__banner-dark, [data-bs-theme='dark'] .m-about__banner-dark { display: block !important; }
+.m-about__top--b .m-about__id { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.m-about__top--b .m-about__actions { margin-top: 0; }
+.m-about__top--c { margin: 16px 0 20px; min-height: 220px; align-items: center; padding: 32px 260px 32px 32px; border-radius: 32px; background: var(--md-sys-color-surface-container); overflow: hidden; }
+.m-about__mascot--stand { position: absolute; right: 24px; bottom: 0; height: 200px; width: auto; }
+/* section headers of the about page: plain Material section headers, aligned with the cards (no chip) */
+html.m-has-wallpaper .m-about .m-section__title, .m-about .m-section__title { align-self: stretch; padding: 0 4px; border-radius: 0; background: none; font: var(--m-title-small); color: var(--md-sys-color-primary-text); }
+html.m-has-wallpaper .m-about .m-section__head, .m-about .m-section__head { padding: 0; }
+/* developers: a centred row of avatar cards (the whole card links), wrapping on a narrow page */
+.m-about__team { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.m-about__person { all: unset; box-sizing: border-box; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 18px 8px 16px; border-radius: 28px; background: var(--m-card, var(--md-sys-color-surface-container-low)); color: var(--md-sys-color-on-surface); cursor: pointer; text-align: center; transition: background-color var(--m-spring-default-effects-duration) var(--m-spring-default-effects), border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-about__person:hover { background: color-mix(in srgb, var(--md-sys-color-primary) 8%, var(--m-card, var(--md-sys-color-surface-container-low))); border-radius: 22px; }
+.m-about__person:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-about__portrait { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; background: var(--md-sys-color-surface-container-high); display: block; margin-bottom: 6px; }
+.m-about__person-name { font: var(--m-title-small); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-about__person-role { font: var(--m-label-small); color: var(--md-sys-color-on-surface-variant); line-height: 14px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+html.m-has-wallpaper .m-about__top--a, html.m-has-wallpaper .m-about__top--b .m-about__id { background: var(--m-card); border-radius: 32px; }
+html.m-has-wallpaper .m-about__top--a { padding: 28px 24px; margin-bottom: 8px; }
+html.m-has-wallpaper .m-about__top--b .m-about__id { padding: 12px 20px; }
+html.m-has-wallpaper .m-about__top--c { background: var(--m-card); }
+
+/* the about page: a soft figure of 薇薇 at the end of the page, beside the footer line and under nothing: it never sits behind text or near the header */
+.m-about__end { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 28px; padding-bottom: 8px; }
+.m-about__vivi { padding: 0; border: 0; background: none; cursor: pointer; border-radius: 28px; line-height: 0; -webkit-tap-highlight-color: transparent; }
+.m-about__vivi:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 4px; }
+.m-about__figure { width: 132px; height: auto; opacity: .92; user-select: none; -webkit-user-drag: none; transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-about__vivi:hover .m-about__figure { transform: translateY(-3px); } .m-about__vivi:active .m-about__figure { transform: scale(.97); }
+.m-about__vivislogan { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); text-align: center; }
+.m-about__bubblebox { height: 44px; display: flex; align-items: flex-end; justify-content: center; }
+.m-about__bubble { position: relative; margin: 0; padding: 8px 16px; border-radius: 20px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font: var(--m-body-medium); }
+.m-about__bubble::after { content: ''; position: absolute; left: 50%; bottom: -5px; width: 12px; height: 12px; margin-left: -6px; background: inherit; border-radius: 2px; transform: rotate(45deg); }
+.m-about-bubble-enter-active, .m-about-bubble-leave-active { transition: opacity 160ms ease, transform 200ms var(--m-spring-fast-spatial); }
+.m-about-bubble-enter-from, .m-about-bubble-leave-to { opacity: 0; transform: translateY(6px) scale(.96); }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-about-bubble-enter-active, html:not([data-motion='full']) .m-about-bubble-leave-active, html:not([data-motion='full']) .m-about__figure { transition: none; } }
+html[data-motion='reduced'] .m-about-bubble-enter-active, html[data-motion='reduced'] .m-about-bubble-leave-active, html[data-motion='reduced'] .m-about__figure { transition: none; }
+
+/* the about page, first screen: the compact top area (variant A), the icon tiles, then the developers */
+.m-about__top--a { padding: 12px 0 8px; gap: 6px; }
+.m-about__top--a .m-about__mascot--plain { width: 96px; height: 96px; }
+.m-about__top--a .m-about__name { font-size: 34px; line-height: 1.1; }
+.m-about__top--a .m-about__actions { margin-top: 6px; }
+html.m-has-wallpaper .m-about__top--a { padding: 16px 24px; margin-bottom: 4px; }
+
+/* the "+N" chip after the first two rows of contributor faces: it opens the rest in place */
+.m-about__more { height: 40px; min-width: 40px; padding: 0 12px; border: 0; border-radius: 20px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); font: var(--m-label-large); font-variant-numeric: tabular-nums; cursor: pointer; }
+.m-about__more:hover { background: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 8%, var(--md-sys-color-secondary-container)); }
+.m-about__more:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+
+.m-about__linkgroup + .m-about__linkgroup { margin-top: 8px; }
+
+
+/* 版本: a row of the list (the About of a phone): the tap area (seven quick taps turn developer mode on, a long press copies) and the copy button
+   side by side in one list item; the tap area lights the whole row's state layer (it follows the row's corners), the button keeps its own */
+.m-about__versionsection { margin-top: 4px; }
+.m-about__verrow { padding: 0 8px 0 0; gap: 4px; }
+/* the two rows are divs of the list: their padding stays inside their width wherever the page is (the .m-app reset is the product shell's) */
+.m-about__verrow, .m-about__channel { box-sizing: border-box; }
+.m-about__vertap { all: unset; box-sizing: border-box; position: relative; flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; gap: 16px; padding: 12px 16px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.m-about__verrow::before { content: ''; position: absolute; inset: 0; z-index: -1; background: currentColor; opacity: 0; border-radius: inherit; pointer-events: none; transition: opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+/* hover only where there is a pointer that hovers: a tap on a touch screen leaves no grey row behind */
+@media (hover: hover) { .m-about__verrow:has(.m-about__vertap:hover)::before { opacity: var(--m-state-hover); } }
+.m-about__verrow:has(.m-about__vertap:active)::before { opacity: var(--m-state-pressed); }
+.m-about__verrow:has(.m-about__vertap:focus-visible)::before { opacity: var(--m-state-focus); } .m-about__vertap:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -2px; border-radius: 28px 0 0 28px; }
+.m-about__version { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.m-about__vercopy { flex: none; }
+.m-about__channel .m-item__trail { flex: none; }
+.m-about__devnote { margin: 6px 16px 0; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+
+/* the team: equal cards in the team's choice; the founder alone has a tag. A card holds the profile (avatar and name) and a row of follow and sponsor */
+.m-about__member { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; padding: 14px 8px 14px; border-radius: 28px; background: var(--m-card, var(--md-sys-color-surface-container-low)); }
+.m-about__member .m-about__person { padding: 4px 8px 0; background: none; border-radius: 20px; }
+.m-about__member .m-about__person:hover { background: none; border-radius: 20px; }
+.m-about__member .m-about__person:hover .m-about__portrait { transform: scale(1.04); }
+.m-about__portrait { transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-about__person-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: auto; }
+.m-about__person-actions .m-btn { gap: 6px; }
+.m-about__tag { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 9999px; background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); font: var(--m-label-small); white-space: nowrap; vertical-align: middle; }
+/* room at the end of the page for the pixel friends on the window's edge */
+.m-about--friends .m-about__end { padding-bottom: 96px; }
+/* 薇薇's easter egg: one hop */
+.m-about__vivi.is-hop .m-about__figure { animation: m-about-hop 760ms var(--m-spring-fast-spatial, ease) both; }
+@keyframes m-about-hop { 0% { transform: none; } 30% { transform: translateY(-18px) rotate(-4deg); } 55% { transform: translateY(0) scale(1.04, .96); } 75% { transform: translateY(-6px) rotate(2deg); } 100% { transform: none; } }
+
+/* 制作人员: the credits sheet. The list rolls up through a window that fades at both ends; one transform animation, paused by the button or while a link has the keyboard focus */
+.m-credits-sheet .m-sheet__body { padding: 0 0 8px; overflow: hidden; display: flex; flex-direction: column; }
+.m-credits { display: flex; flex-direction: column; min-height: 0; }
+.m-credits__view { position: relative; height: min(520px, calc(100dvh - 220px)); overflow: hidden; -webkit-mask-image: linear-gradient(transparent, #000 56px, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(transparent, #000 56px, #000 calc(100% - 56px), transparent); }
+.m-credits.is-still .m-credits__view { overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
+.m-credits__roll { display: flex; flex-direction: column; align-items: center; gap: 36px; padding: 32px 24px 48px; text-align: center; }
+.m-credits__roll { --m-credits-d: 60s; --m-credits-from: 520px; }
+.m-credits__roll.is-rolling { animation: m-credits-roll 60s linear infinite; animation-duration: var(--m-credits-d); will-change: transform; }
+@keyframes m-credits-roll { from { transform: translateY(var(--m-credits-from, 520px)); } to { transform: translateY(-100%); } }
+.m-credits.is-paused .m-credits__roll, .m-credits__view:has(:focus-visible) .m-credits__roll { animation-play-state: paused; }
+.m-credits__head { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.m-credits__product { margin: 0; font: var(--m-headline-small, 600 24px/1.25 var(--md-ref-typeface-brand)); color: var(--md-sys-color-on-surface); }
+.m-credits__part { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+.m-credits__title { margin: 0; font: var(--m-label-large); letter-spacing: .12em; text-transform: uppercase; color: var(--md-sys-color-primary-text); }
+.m-credits__team { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.m-credits__member { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.m-credits__member img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: var(--md-sys-color-surface-container-highest); }
+.m-credits__login { display: inline-flex; align-items: center; gap: 8px; font: var(--m-title-medium); color: var(--md-sys-color-on-surface); }
+.m-credits__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 10px; }
+.m-credits__link { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border: 0; border-radius: 8px; background: none; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-small); cursor: pointer; }
+.m-credits__link .m-icon { font-size: 14px; }
+.m-credits__link:hover { color: var(--md-sys-color-primary-text); background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent); }
+.m-credits__link:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 1px; }
+.m-credits__names { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 16px; width: 100%; max-width: 480px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-credits__names li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-credits__names--big { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.m-credits__names--big .m-credits__link { font: var(--m-title-small); color: var(--md-sys-color-on-surface); }
+.m-credits__end { margin: 12px 0 0; max-width: 360px; font: var(--m-body-large); color: var(--md-sys-color-on-surface); }
+.m-credits__bar { display: flex; justify-content: center; padding: 4px 0 0; }
+@media (max-width: 599.98px) { .m-credits__names { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* the pixel friends on the bottom edge of the window. The body is original pixel art of this project (src/about/friends.js), the head the member's own
+   GitHub avatar in a ring. Each figure walks the width and back (a transform), turns at each end (a transform of the body only: the avatar is never
+   mirrored), steps through the four frames of its strip (a transform of the strip in a clipping box) and bobs its badge in step (a transform) */
+.m-friends { --m-friends-bottom: 0px; position: fixed; left: 0; right: 0; bottom: var(--m-friends-bottom); height: 0; z-index: 40; pointer-events: none; animation: m-friends-in 420ms ease both; }
+@keyframes m-friends-in { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 599.98px) { .m-friends { --m-friends-bottom: 72px; } } /* above the bottom navigation */
+/* the defaults of the values each figure sets on itself: its width, the seconds of one crossing, where it starts, its place in the row */
+.m-friend { --m-friend-s: 2px; --m-friend-w: 64px; --m-friend-d: 40s; --m-friend-at: 0s; --m-friend-i: 0; --m-friend-n: 4; position: absolute; left: 0; bottom: 0; width: var(--m-friend-w); animation: m-friend-walk 40s linear infinite alternate; animation-duration: var(--m-friend-d); animation-delay: var(--m-friend-at); will-change: transform; }
+@keyframes m-friend-walk { from { transform: translateX(8px); } to { transform: translateX(calc(100vw - var(--m-friend-w) - 24px)); } }
+.m-friend__body { position: relative; display: block; width: var(--m-friend-w); padding: 0; border: 0; background: none; cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent; border-radius: 8px; }
+.m-friend__body:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-friend__face { display: block; width: 100%; height: 100%; overflow: hidden; animation: m-friend-turn 80s step-end infinite; animation-duration: calc(var(--m-friend-d) * 2); animation-delay: var(--m-friend-at); }
+@keyframes m-friend-turn { 0% { transform: none; } 50% { transform: scaleX(-1); } 100% { transform: scaleX(-1); } }
+.m-friend__strip { display: block; max-width: none; image-rendering: pixelated; user-select: none; -webkit-user-drag: none; animation: m-friend-step 640ms steps(4) infinite; }
+@keyframes m-friend-step { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+/* the badge: the avatar file as it is, cropped to a circle in a ring of the body's outline colour; it rises with the body on the pass frames
+   (the same 640 ms and four steps as the strip, so the two stay in step) */
+.m-friend__badge { position: absolute; box-sizing: border-box; display: block; border: 2px solid currentColor; border-radius: 50%; object-fit: cover; background: #fff; user-select: none; -webkit-user-drag: none; animation: m-friend-bob 640ms step-end infinite; }
+@keyframes m-friend-bob { 0% { transform: none; } 25% { transform: translateY(calc(-1 * var(--m-friend-s))); } 50% { transform: none; } 75% { transform: translateY(calc(-1 * var(--m-friend-s))); } 100% { transform: none; } }
+[data-theme='dark'] .m-friend__badge, [data-bs-theme='dark'] .m-friend__badge { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35); }
+.m-friend__strip--night { display: none; }
+[data-theme='dark'] .m-friend__strip--day, [data-bs-theme='dark'] .m-friend__strip--day { display: none; }
+[data-theme='dark'] .m-friend__strip--night, [data-bs-theme='dark'] .m-friend__strip--night { display: block; }
+.m-friend::after { content: ''; position: absolute; left: 15%; right: 15%; bottom: -2px; height: 4px; border-radius: 50%; background: color-mix(in srgb, var(--md-sys-color-shadow, #000) 22%, transparent); pointer-events: none; }
+.m-friends.is-paused .m-friend, .m-friends.is-paused .m-friend__face, .m-friends.is-paused .m-friend__strip, .m-friends.is-paused .m-friend__badge, .m-friend.is-picked .m-friend__strip, .m-friend.is-picked .m-friend__badge { animation-play-state: paused; }
+.m-friend__bubble { position: absolute; bottom: calc(100% + 8px); left: 50%; margin: 0; padding: 6px 12px; border-radius: 16px; background: var(--md-sys-color-inverse-surface); color: var(--md-sys-color-inverse-on-surface); font: var(--m-body-small); white-space: nowrap; transform: translateX(-50%); box-shadow: 0 2px 8px color-mix(in srgb, var(--md-sys-color-shadow, #000) 18%, transparent); }
+.m-friend__bubble::after { content: ''; position: absolute; left: 50%; bottom: -4px; width: 8px; height: 8px; margin-left: -4px; background: inherit; border-radius: 1px; transform: rotate(45deg); }
+.m-friend__bubble--start { left: 0; transform: none; } .m-friend__bubble--start::after { left: 18px; }
+.m-friend__bubble--end { left: auto; right: 0; transform: none; } .m-friend__bubble--end::after { left: auto; right: 14px; }
+.m-friend-bubble-enter-active, .m-friend-bubble-leave-active { transition: opacity 160ms ease; }
+.m-friend-bubble-enter-from, .m-friend-bubble-leave-to { opacity: 0; }
+.m-friend-card { position: fixed; z-index: 41; bottom: calc(var(--m-friends-bottom) + 100px); width: 312px; display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'fig id close' 'fig act act'; align-items: center; gap: 4px 12px; padding: 12px 8px 12px 14px; border-radius: 24px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); box-shadow: 0 8px 28px color-mix(in srgb, var(--md-sys-color-shadow, #000) 24%, transparent); pointer-events: auto; }
+.m-friend-card__figure { grid-area: fig; position: relative; display: block; width: 96px; height: 120px; overflow: hidden; border-radius: 16px; background: var(--md-sys-color-surface-container-highest); }
+.m-friend-card__body { display: block; max-width: none; image-rendering: pixelated; }
+.m-friend-card__badge { animation: none; }
+.m-friend-card__id { grid-area: id; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.m-friend-card__name { margin: 0; font: var(--m-title-medium); overflow: hidden; text-overflow: ellipsis; }
+.m-friend-card__close { grid-area: close; }
+.m-friend-card__actions { grid-area: act; display: flex; flex-wrap: wrap; gap: 4px; }
+.m-friend-card__actions .m-btn { gap: 6px; }
+.m-friend-card-enter-active, .m-friend-card-leave-active { transition: opacity 160ms ease, transform 220ms var(--m-spring-fast-spatial, ease); }
+.m-friend-card-enter-from, .m-friend-card-leave-to { opacity: 0; transform: translateY(8px) scale(.98); }
+/* reduced motion: nothing walks or rolls. The friends stand in a row at the end of the edge, the credits are a list to scroll, no hop */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) .m-friends, html:not([data-motion='full']) .m-friend, html:not([data-motion='full']) .m-friend__face, html:not([data-motion='full']) .m-friend__strip, html:not([data-motion='full']) .m-friend__badge, html:not([data-motion='full']) .m-about__vivi.is-hop .m-about__figure, html:not([data-motion='full']) .m-credits__roll.is-rolling { animation: none; }
+  html:not([data-motion='full']) .m-friend { transform: translateX(calc(100vw - (var(--m-friend-n) - var(--m-friend-i)) * 76px - 16px)); }
+  html:not([data-motion='full']) .m-friend-bubble-enter-active, html:not([data-motion='full']) .m-friend-bubble-leave-active, html:not([data-motion='full']) .m-friend-card-enter-active, html:not([data-motion='full']) .m-friend-card-leave-active, html:not([data-motion='full']) .m-about__portrait { transition: none; }
+}
+html[data-motion='reduced'] .m-friends, html[data-motion='reduced'] .m-friend, html[data-motion='reduced'] .m-friend__face, html[data-motion='reduced'] .m-friend__strip, html[data-motion='reduced'] .m-friend__badge, html[data-motion='reduced'] .m-about__vivi.is-hop .m-about__figure, html[data-motion='reduced'] .m-credits__roll.is-rolling { animation: none; }
+html[data-motion='reduced'] .m-friend { transform: translateX(calc(100vw - (var(--m-friend-n) - var(--m-friend-i)) * 76px - 16px)); }
+html[data-motion='reduced'] .m-friend-bubble-enter-active, html[data-motion='reduced'] .m-friend-bubble-leave-active, html[data-motion='reduced'] .m-friend-card-enter-active, html[data-motion='reduced'] .m-friend-card-leave-active, html[data-motion='reduced'] .m-about__portrait { transition: none; }
+
+/* 构建详情 under 版本: a closed row that opens to the build identity (MAbout) */
+.m-about__build { display: block; padding: 0; }
+.m-about__buildsum { display: flex; align-items: center; gap: 16px; padding: 12px 16px; cursor: pointer; list-style: none; }
+.m-about__buildsum::-webkit-details-marker { display: none; }
+.m-about__buildlist { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; padding: 0 16px 14px 56px; font: var(--m-body-small); }
+.m-about__buildlist dt { color: var(--md-sys-color-on-surface-variant); }
+.m-about__buildlist dd { display: flex; align-items: center; gap: 4px; margin: 0; min-width: 0; }
+.m-about__buildval { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+
+/* 官网 and B 站: two cards under the top area. The site card is the product's own colour (primary container); the channel card carries Bilibili's pink as its accent (#FB7299 on the icon, a pink tonal fill),
+   in both schemes. They sit side by side and stack on a narrow page. No logo: the channel is drawn with the neutral video icon. */
+.m-about__brand { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 4px 0 16px; }
+.m-about__brandcard { --brand-bg: var(--md-sys-color-primary-container); --brand-on: var(--md-sys-color-on-primary-container); --brand-ico: var(--md-sys-color-primary); --brand-ico-on: var(--md-sys-color-on-primary); position: relative; display: flex; align-items: center; gap: 16px; min-width: 0; padding: 18px 20px; border: 0; border-radius: 28px; background: var(--brand-bg); color: var(--brand-on); text-align: start; cursor: pointer; font: inherit; transition: border-radius var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-about__brandcard.is-bilibili { --brand-bg: #ffd9e3; --brand-on: #3f001b; --brand-ico: #fb7299; --brand-ico-on: #3f001b; }
+[data-theme='dark'] .m-about__brandcard.is-bilibili, [data-bs-theme='dark'] .m-about__brandcard.is-bilibili { --brand-bg: #5c1636; --brand-on: #ffd9e3; --brand-ico: #fb7299; --brand-ico-on: #3f001b; }
+.m-about__brandcard::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: currentColor; opacity: 0; transition: opacity 120ms linear; pointer-events: none; }
+.m-about__brandcard:hover { border-radius: 20px; } .m-about__brandcard:hover::before { opacity: 0.08; } .m-about__brandcard:active::before { opacity: 0.12; }
+.m-about__brandcard:focus-visible { outline: 2px solid var(--brand-on); outline-offset: 2px; }
+.m-about__brandico { display: grid; place-items: center; flex: none; width: 56px; height: 56px; border-radius: 50%; background: var(--brand-ico); color: var(--brand-ico-on); } .m-about__brandico .m-icon { font-size: 32px; }
+.m-about__brandtext { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; } .m-about__brandtext strong { font: var(--m-title-large-emphasized, var(--m-title-large)); } .m-about__brandtext small { margin-top: 2px; font: var(--m-body-medium); opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-about__brandgo { flex: none; opacity: 0.7; }
+@media (max-width: 599px) { .m-about__brand { grid-template-columns: minmax(0, 1fr); gap: 8px; } .m-about__brandcard { padding: 14px 16px; } .m-about__brandico { width: 48px; height: 48px; } }
+.m-comp__progress { margin: 0; display: flex; align-items: center; gap: 8px; min-height: 28px; padding: 0 12px; border-radius: 9999px; background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); font: var(--m-label-medium); }
+.m-comp__progress b { margin-inline-start: auto; font-variant-numeric: tabular-nums; }

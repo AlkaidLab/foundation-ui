@@ -1,0 +1,28 @@
+export default
+{
+  "apps": "{n} aplicaciones",
+  "paired": "{n} emparejados",
+  "unpaired": "Sin emparejar",
+  "noApps": "Aún no hay aplicaciones",
+  "errors24": "{n} errores en 24 h",
+  "noErrors": "Sin errores",
+  "ready": "{a}/{b} listos",
+  "current": "Actualizado",
+  "updateTo": "Actualizar a {v}",
+  "on": "Activado",
+  "off": "Desactivado",
+  "restartNote": "Tras reiniciar",
+  "clientNote": "Lo define el cliente · tras reiniciar",
+  "padNote": "Se aplica a los mandos nuevos",
+  "addFps": "Añadir una tasa de fotogramas",
+  "add": "Añadir",
+  "errorsUnit": "errores",
+  "last24": "Últimas 24 horas",
+  "warnings": "{n} avisos",
+  "noWarnings": "Sin avisos",
+  "linesUnit": "líneas",
+  "levelErr": "{n} errores",
+  "levelWarn": "{n} avisos",
+  "noLines": "No hay líneas nuevas",
+  "noWallpaper": "Sin fondo"
+}

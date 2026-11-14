@@ -1,0 +1,45 @@
+/* The offline state (MHostOffline), a Material 3 Expressive error state: Vivi, the original title and line, the countdown as a wavy ring, the action group, the tips as a list.
+   No boxes, pills or outlines on the items. The text sits on ONE tonal card of its own (surface-container at 76 %, frosted where the browser can): the wallpaper is never darkened behind the picture or
+   anywhere else (a scrim here once painted a black blob over the face of the wallpaper). One composition: the picture first, one column of text; compact: stacked in one order. */
+.m-offline { container-type: inline-size; position: relative; isolation: isolate; height: 100%; box-sizing: border-box; display: flex; overflow: auto; padding: 24px 20px; }
+/* the mascot and the card are ONE group; `margin: auto` centres it on both axes in the content area, and when the area is too short the group starts at the top and the area scrolls (nothing is cut off) */
+.m-offline__inner { margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; max-width: 100%; text-align: center; }
+.m-offline__art { display: grid; place-items: center; }
+.m-offline__vivi { height: clamp(130px, 21vh, 210px); width: auto; max-width: 100%; object-fit: contain; user-select: none; pointer-events: none; animation: m-offline-float 3.2s ease-in-out infinite; }
+@keyframes m-offline-float { 50% { transform: translateY(-8px); } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-offline__vivi { animation: none; } }
+html[data-motion='reduced'] .m-offline__vivi { animation: none; }
+.m-offline__copy { display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; width: fit-content; max-width: min(100%, 34rem); padding: 24px 28px; border-radius: var(--md-sys-shape-corner-extra-large, 28px); background: color-mix(in srgb, var(--md-sys-color-surface-container) 76%, transparent); }
+@supports (backdrop-filter: blur(1px)) { .m-offline__copy { backdrop-filter: blur(16px) saturate(1.1); } }
+@supports not (backdrop-filter: blur(1px)) { .m-offline__copy { background: color-mix(in srgb, var(--md-sys-color-surface-container) 90%, transparent); } }
+.m-offline__title { margin: 0; font: var(--m-title-large-emphasized); color: var(--md-sys-color-on-surface); text-wrap: balance; }
+.m-offline__line { margin: 0; font: var(--m-body-large); color: var(--md-sys-color-on-surface); opacity: .86; }
+.m-offline__problem { margin: 0; display: inline-flex; align-items: flex-start; gap: 8px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface); text-align: start; }
+.m-offline__problem .m-icon { flex: none; width: 20px; height: 20px; color: var(--md-sys-color-error); }
+.m-offline__connecting { margin: 0; font: var(--m-title-medium-emphasized); color: var(--md-sys-color-on-surface); }
+.m-offline__wait { display: flex; align-items: center; gap: 14px; margin-top: 4px; text-align: start; }
+.m-offline__ring { flex: none; width: 56px; height: 56px; }
+.m-offline__waittext { display: flex; flex-direction: column; gap: 2px; font-variant-numeric: tabular-nums; }
+.m-offline__waittext b { font: var(--m-title-medium-emphasized); color: var(--md-sys-color-on-surface); }
+.m-offline__waittext span { font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+/* the accent of the words on the card: the primary colour pulled toward the text colour, so that a pale or golden primary still reads 4.5:1 on the card over any wallpaper (a golden primary alone reads 2.9:1) */
+.m-offline__copy { --m-offline-accent: color-mix(in srgb, var(--md-sys-color-primary-text) 45%, var(--md-sys-color-on-surface)); }
+.m-offline__copy .m-btn--text { color: var(--m-offline-accent); }
+.m-offline__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px; }
+.m-offline__tips { margin-top: 8px; text-align: start; }
+.m-offline__label { margin: 0 0 10px; font: var(--m-label-large); letter-spacing: .02em; color: var(--m-offline-accent); }
+.m-offline__tips ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.m-offline__tips li { display: flex; align-items: flex-start; gap: 12px; font: var(--m-body-medium); color: var(--md-sys-color-on-surface); }
+.m-offline__tips li .m-icon { flex: none; width: 22px; height: 22px; margin-top: -1px; color: var(--md-sys-color-primary-text); }
+.m-offline__footer { margin: 4px 0 0; display: inline-flex; align-items: center; gap: 6px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-offline__footer .m-icon { width: 14px; height: 14px; color: var(--md-sys-color-primary-text); }
+
+/* wide: the mascot beside the card, still one centred group */
+@container (min-width: 760px) {
+  .m-offline { padding: 32px clamp(32px, 5cqi, 80px); }
+  .m-offline__inner { flex-direction: row; align-items: center; gap: clamp(24px, 4cqi, 64px); text-align: start; }
+  .m-offline__vivi { height: min(44vh, 320px); }
+  .m-offline__copy { align-items: flex-start; gap: 16px; width: 34rem; max-width: 100%; padding: 28px 32px; }
+  .m-offline__actions { justify-content: flex-start; }
+}
+.m-srclabels { display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }

@@ -1,0 +1,33 @@
+export default {
+  "pageTitle": "O Sunshine não responde",
+  "title": "O Sunshine não responde",
+  "line": "O Sunshine não está a correr ou não responde a pedidos.",
+  "tipsTitle": "O que verificar:",
+  "tips": {
+    "0": "O serviço Sunshine está a correr?",
+    "1": "A porta 47990 está livre e não bloqueada?",
+    "2": "A firewall está a bloquear o Sunshine?"
+  },
+  "retry": "Tentar novamente",
+  "footer": "Esta página volta sozinha quando o Sunshine responder.",
+  "probing": "Sonda {n}: à procura do Sunshine...",
+  "failed": "A sonda {n} falhou, nova tentativa dentro de {s} s...",
+  "awake": "O Sunshine voltou. A regressar…",
+  "restart": "Reiniciar o Sunshine",
+  "userMode": "Iniciar em modo de utilizador",
+  "viewLog": "Ver o registo",
+  "runDoctor": "Executar a verificação de saúde",
+  "retryIn": "Tentar novamente em {s} s",
+  "attemptFailed": "A sonda {n} falhou",
+  "restarting": "A reiniciar o Sunshine...",
+  "restartFailed": "O reinício não funcionou: {message}",
+  "restartTimeout": "O Sunshine ainda não responde depois do reinício",
+  "troubleshooting": "Resolução de problemas",
+  "proxyTitle": "Não foi possível alcançar o painel WebUI do Sunshine",
+  "proxyLine": "Um proxy ou serviço TUN pode estar a intercetar localhost, 127.0.0.0/8 ou o tráfego de loopback IPv6. Exclua o tráfego de loopback do proxy e tente novamente.",
+  "proxyChecking": "A verificar de novo… tentativa {n}",
+  "proxyWaiting": "Tentaremos novamente já",
+  "proxyAttempts": "Verificado {n} vezes; recupera sozinho quando responder",
+  "unresponsiveTitle": "O host não responde",
+  "unresponsiveLine": "O processo do Sunshine ainda está a correr mas não responde a pedidos. Normalmente passa; se não passar, reinicie o Sunshine."
+}

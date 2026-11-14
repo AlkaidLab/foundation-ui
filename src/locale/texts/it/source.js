@@ -1,0 +1,52 @@
+export default
+{
+  "source": "Origine aggiornamenti",
+  "channel": "Canale di aggiornamento",
+  "sources": {
+    "auto": "Automatico"
+  },
+  "mirrorAbout": "MirrorChyan è un servizio che accelera i download dei progetti open source e un modo per sostenere i loro sviluppatori. Con un abbonamento, un CDK velocizza i download e i ricavi sono condivisi con gli sviluppatori che usano MirrorChyan, questo progetto compreso. Il CDK è facoltativo; senza, gli aggiornamenti si scaricano da CNB o GitHub.",
+  "tagDomestic": "Veloce in Cina",
+  "cdkOptional": "CDK MirrorChyan (facoltativo)",
+  "getCdk": "Ottieni un CDK",
+  "remainingDays": "Il CDK scade tra {0} giorni.",
+  "fetchFailed": "Impossibile ottenere le informazioni del CDK. Mostro l'ultimo risultato riuscito.",
+  "cdk": "CDK MirrorChyan",
+  "cdkHint": "Nel deposito sicuro del sistema; non più mostrato dopo il salvataggio.",
+  "save": "Salva",
+  "clear": "Rimuovi",
+  "check": "Verifica il CDK",
+  "checking": "Verifica…",
+  "saved": "CDK salvato",
+  "removed": "CDK rimosso",
+  "unavailable": "Il deposito sicuro richiede un pannello più recente.",
+  "status": {
+    "none": "Nessun CDK",
+    "valid": "CDK valido",
+    "expired": "CDK scaduto",
+    "invalid": "CDK non valido",
+    "limit": "Limite giornaliero di download raggiunto",
+    "banned": "CDK bloccato",
+    "type": "Questo CDK non è per questo software",
+    "test": "Questo è un CDK di prova",
+    "unknown": "Non è stato possibile capirlo",
+    "offline": "MirrorChyan non ha risposto"
+  },
+  "errors": {
+    "cdk-expired": "Il CDK è scaduto. Usa un nuovo CDK per l'autorizzazione.",
+    "cdk-invalid": "Il CDK non è valido. Controlla quanto hai scritto.",
+    "cdk-limit": "Il CDK ha raggiunto il limite di download di oggi. Riprova domani.",
+    "cdk-type": "Il tipo di CDK non corrisponde alla risorsa. Controlla l'ambito del CDK.",
+    "cdk-banned": "Il CDK è stato bloccato, forse per un rimborso o un uso anomalo.",
+    "cdk-test": "Il CDK è di prova. Non può essere usato per download reali.",
+    "no-resource": "MirrorChyan non ha ancora una versione per questo sistema e canale.",
+    "params": "MirrorChyan non ha accettato la richiesta. Aggiorna il pannello e riprova.",
+    "server": "MirrorChyan ha avuto un errore. Riprova più tardi.",
+    "malformed": "MirrorChyan ha inviato qualcosa che non è una risposta.",
+    "network": "MirrorChyan non ha risposto. Controlla la rete.",
+    "unknown": "MirrorChyan ha rifiutato per un motivo che questo pannello non conosce."
+  },
+  "tagPaid": "A pagamento",
+  "freeNotice": "Questo programma è software libero e open source. Se lo hai pagato, attraverso qualsiasi canale, chiedi subito il rimborso.",
+  "supportLine": "Per sostenere lo sviluppo, abbonati a MirrorChyan: download più veloci che sostengono direttamente gli sviluppatori."
+}

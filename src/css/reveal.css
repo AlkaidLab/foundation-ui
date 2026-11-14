@@ -1,0 +1,61 @@
+/* Motion in the page (motion everywhere, the descriptor-generated pages such as 编码与码率 too). Material 3 Expressive springs (tokens/springs.css): the spatial spring moves a thing
+   (a small rise that settles with the spring's overshoot), the effects spring fades it. Only transform and opacity, so it runs on the compositor and costs no layout.
+   - a section of a page comes in after the one before it (28 ms apart, eight at most), as does a card of a set of cards;
+   - the first rows of a group follow their section, 16 ms apart (ten at most);
+   - a banner or a snackbar-like note that appears rises in;
+   - a row, a card and a chip answer a press with the spatial spring.
+   Everything is a CSS animation that starts when the element is created, so a page that is replaced (a tab, a place, a page change) plays it again by itself, and nothing here needs the page to know. */
+@keyframes m-reveal-rise { from { transform: translateY(14px) scale(.992); } to { transform: none; } }
+@keyframes m-reveal-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes m-reveal-pop { from { transform: scale(.94); } to { transform: none; } }
+
+.m-page__column .m-section {
+  animation: m-reveal-rise var(--m-spring-default-spatial-duration, 412ms) var(--m-spring-default-spatial, ease) backwards, m-reveal-fade var(--m-spring-default-effects-duration, 212ms) var(--m-spring-default-effects, ease) backwards;
+  animation-delay: calc(var(--m-i, 0) * 28ms);
+}
+.m-page__column .m-cards > * {
+  animation: m-reveal-pop var(--m-spring-default-spatial-duration, 412ms) var(--m-spring-default-spatial, ease) backwards, m-reveal-fade var(--m-spring-default-effects-duration, 212ms) var(--m-spring-default-effects, ease) backwards;
+  animation-delay: calc(var(--m-i, 0) * 28ms + 60ms);
+}
+.m-page__column .m-group > .m-item {
+  animation: m-reveal-rise var(--m-spring-fast-spatial-duration, 348ms) var(--m-spring-fast-spatial, ease) backwards, m-reveal-fade var(--m-spring-fast-effects-duration, 138ms) var(--m-spring-fast-effects, ease) backwards;
+  animation-delay: calc(var(--m-i, 0) * 16ms + 40ms);
+}
+.m-page__column .m-banner { animation: m-reveal-rise var(--m-spring-default-spatial-duration, 412ms) var(--m-spring-default-spatial, ease) backwards, m-reveal-fade var(--m-spring-default-effects-duration, 212ms) var(--m-spring-default-effects, ease) backwards; }
+
+/* the place of an element among its brothers sets its turn */
+.m-page__column .m-section:nth-child(2), .m-page__column .m-cards > :nth-child(2), .m-page__column .m-group > .m-item:nth-child(2) { --m-i: 1; }
+.m-page__column .m-section:nth-child(3), .m-page__column .m-cards > :nth-child(3), .m-page__column .m-group > .m-item:nth-child(3) { --m-i: 2; }
+.m-page__column .m-section:nth-child(4), .m-page__column .m-cards > :nth-child(4), .m-page__column .m-group > .m-item:nth-child(4) { --m-i: 3; }
+.m-page__column .m-section:nth-child(5), .m-page__column .m-cards > :nth-child(5), .m-page__column .m-group > .m-item:nth-child(5) { --m-i: 4; }
+.m-page__column .m-section:nth-child(6), .m-page__column .m-cards > :nth-child(6), .m-page__column .m-group > .m-item:nth-child(6) { --m-i: 5; }
+.m-page__column .m-section:nth-child(7), .m-page__column .m-cards > :nth-child(7), .m-page__column .m-group > .m-item:nth-child(7) { --m-i: 6; }
+.m-page__column .m-section:nth-child(n+8), .m-page__column .m-cards > :nth-child(n+8), .m-page__column .m-group > .m-item:nth-child(8) { --m-i: 7; }
+.m-page__column .m-group > .m-item:nth-child(9) { --m-i: 8; }
+.m-page__column .m-group > .m-item:nth-child(n+10) { --m-i: 9; animation: none; }
+
+/* feedback of a press on a thing that is a button: it gives way a little and returns on the spring */
+.m-item--action, .m-cards__card, .m-chipset__chip, .m-seg__btn { transition: transform var(--m-spring-fast-spatial-duration, 348ms) var(--m-spring-fast-spatial, ease); }
+.m-item--action:active, .m-cards__card:active { transform: scale(.985); }
+.m-chipset__chip:active { transform: scale(.94); }
+
+/* the answer of a state change on a row or a card: the selected one takes its colour and its corner on the spring, the others give theirs back */
+.m-item, .m-cards__card { transition: background-color var(--m-spring-default-effects-duration, 212ms) var(--m-spring-default-effects, ease), border-radius var(--m-spring-fast-spatial-duration, 348ms) var(--m-spring-fast-spatial, ease), transform var(--m-spring-fast-spatial-duration, 348ms) var(--m-spring-fast-spatial, ease); }
+
+/* the system's setting only when the person chose 跟随系统; 减少 always (motion.css also cuts every animation of the app to an instant) */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) .m-page__column :is(.m-section, .m-cards > *, .m-group > .m-item, .m-banner) { animation: none; }
+  html:not([data-motion='full']) :is(.m-item, .m-cards__card, .m-chipset__chip, .m-seg__btn) { transition: none; }
+}
+html[data-motion='reduced'] .m-page__column :is(.m-section, .m-cards > *, .m-group > .m-item, .m-banner) { animation: none; }
+html[data-motion='reduced'] :is(.m-item, .m-cards__card, .m-chipset__chip, .m-seg__btn) { transition: none; }
+
+/* 构建与组件 is made of sections and groups now, so it moves like every other page through the rules above (sections rise one after the other, the rows of a group follow 16 ms apart, ten at most, reduced motion cuts all of it).
+   What is its own: the copy button in the head of the first section turns into its done state, the icon pops in on the spring and the colours cross-fade. The simulation chip of 测试工具 and the other developer pages rises in like a banner. */
+.dm-col[data-dev='build'] .m-btn[data-copied] .m-icon { animation: m-reveal-pop var(--m-spring-default-spatial-duration, 412ms) var(--m-spring-default-spatial, ease) backwards; }
+/* the simulation chip in the header of a developer page rises in like a banner */
+.dm-simchip { display: inline-flex; align-items: center; gap: 8px; animation: m-reveal-pop var(--m-spring-default-spatial-duration, 412ms) var(--m-spring-default-spatial, ease) backwards, m-reveal-fade var(--m-spring-default-effects-duration, 212ms) var(--m-spring-default-effects, ease) backwards; }
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion='full']) :is(.dm-col[data-dev='build'] .m-btn[data-copied] .m-icon, .dm-simchip) { animation: none; }
+}
+html[data-motion='reduced'] :is(.dm-col[data-dev='build'] .m-btn[data-copied] .m-icon, .dm-simchip) { animation: none; }

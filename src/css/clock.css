@@ -1,0 +1,172 @@
+/* The faces of the dock clock (MDockClock.vue). The fonts are open (fonts/FONTS.md); the colours are the theme's tonal palette.
+   --clock-size is the size of a face; each face says how tall (--hf) and how wide (--wf, --wf-s with seconds) its box is per --clock-size, so the dock can fit any face
+   into the space it has in pure CSS (container units): the size follows the window in the same frame, at every frame of a resize, with no script and no settle timer. */
+.m-clock { --clock-size: clamp(72px, 14vh, 168px); --hf: 1; --wf: 3; --wf-s: 3.6; --hf-s: var(--hf); --hf-now: var(--hf); --wf-now: var(--wf); display: block; font-size: var(--clock-size); color: var(--md-sys-color-on-surface); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.m-clock.has-sec { --wf-now: var(--wf-s); --hf-now: var(--hf-s); }
+.m-clock__line, .m-clock__l { display: block; white-space: nowrap; font-size: var(--clock-size); line-height: 1; }
+/* the ink edge: the glyphs' overhang (measured from pixels, clockInk.js; MDockClock sets --ovl, --ovr in em of the element; --ink-xl/--ink-xr for a drawing of a face's own) become margins, so the box is the ink */
+.m-clock [data-ink] { margin-left: calc((var(--ovl, 0) + var(--ink-xl, 0)) * 1em); margin-right: calc((var(--ovr, 0) + var(--ink-xr, 0)) * 1em); }
+/* seconds: small tabular digits beside the minutes, on the same baseline; they tick on transform and opacity only */
+.m-clock__s { display: inline-block; font-size: .34em; margin-left: .16em; line-height: 1; color: var(--md-sys-color-on-surface-variant); }
+
+/* Default: two lines of large digits, light, the minutes in the seed's colour; the weight breathes on the minute */
+.m-clock--default { --hf: 1.48; --wf: 1.04; --wf-s: 1.5; }
+.m-clock--default .m-clock__l { font-family: 'Clock Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 300, 'wdth' 100, 'ROND' 0; line-height: .86; font-size: calc(var(--clock-size) * .86); }
+.m-clock--default .m-clock__l--b { color: var(--md-sys-color-primary); }
+.m-clock--default.is-tick .m-clock__l { animation: m-clock-breathe-default 1.1s var(--m-spring-fast-effects, ease) both; }
+@keyframes m-clock-breathe-default { 0% { font-variation-settings: 'wght' 300, 'wdth' 100, 'ROND' 0; } 40% { font-variation-settings: 'wght' 760, 'wdth' 112, 'ROND' 0; } 100% { font-variation-settings: 'wght' 300, 'wdth' 100, 'ROND' 0; } }
+
+/* Metro: condensed and heavy, stacked, capitals' height */
+.m-clock--metro { --hf: 1.68; --wf: 1.0; --wf-s: 1.4; }
+.m-clock--metro .m-clock__l { font-family: 'Clock Roboto Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 900, 'wdth' 38; line-height: .8; font-size: calc(var(--clock-size) * 1.05); }
+.m-clock--metro .m-clock__l--b { color: var(--md-sys-color-tertiary); }
+.m-clock--metro .m-clock__s { color: var(--md-sys-color-tertiary); }
+.m-clock--metro.is-tick .m-clock__l { animation: m-clock-breathe-metro 1.1s var(--m-spring-fast-effects, ease) both; }
+@keyframes m-clock-breathe-metro { 0% { font-variation-settings: 'wght' 900, 'wdth' 38; } 40% { font-variation-settings: 'wght' 900, 'wdth' 70; } 100% { font-variation-settings: 'wght' 900, 'wdth' 38; } }
+
+/* Calligraphy: an italic serif with soft, flowing strokes (its ink leans past its box on the right: measured) */
+.m-clock--calligraphy { --hf: .92; --wf: 2.28; --wf-s: 2.56; }
+.m-clock--calligraphy .m-clock__line { font-family: 'Clock Fraunces', Georgia, serif; font-style: italic; font-variation-settings: 'wght' 300, 'SOFT' 100; color: var(--md-sys-color-primary); font-size: calc(var(--clock-size) * .92); }
+.m-clock--calligraphy.is-tick .m-clock__line { animation: m-clock-breathe-cal 1.2s ease both; }
+@keyframes m-clock-breathe-cal { 0% { font-variation-settings: 'wght' 300, 'SOFT' 100; } 45% { font-variation-settings: 'wght' 620, 'SOFT' 100; } 100% { font-variation-settings: 'wght' 300, 'SOFT' 100; } }
+
+/* Inflate: wide, round, heavy: the digits swell on the minute */
+.m-clock--inflate { --hf: 1.28; --wf: 1.48; --wf-s: 2.05; }
+.m-clock--inflate .m-clock__l { font-family: 'Clock Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 850, 'wdth' 135, 'ROND' 100; line-height: .86; font-size: calc(var(--clock-size) * .74); color: var(--md-sys-color-primary); }
+.m-clock--inflate .m-clock__l--b { color: var(--md-sys-color-tertiary); }
+.m-clock--inflate.is-tick .m-clock__l { animation: m-clock-inflate 1.1s var(--m-spring-fast-effects, ease) both; }
+@keyframes m-clock-inflate { 0% { font-variation-settings: 'wght' 850, 'wdth' 135, 'ROND' 100; } 40% { font-variation-settings: 'wght' 1000, 'wdth' 151, 'ROND' 100; } 100% { font-variation-settings: 'wght' 850, 'wdth' 135, 'ROND' 100; } }
+
+/* Growth: one line, the weight rises with the seconds and starts again with the minute */
+.m-clock--growth { --hf: 1; --wf: 2.22; --wf-s: 3.0; }
+.m-clock--growth .m-clock__line { font-family: 'Clock Roboto Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' var(--clock-w, 400), 'wdth' 100; transition: font-variation-settings 1s linear; color: var(--md-sys-color-secondary); }
+
+/* Handwritten (its ink leans past its box: measured) */
+.m-clock--handwritten { --hf: 1.04; --wf: 2.34; --wf-s: 2.75; }
+.m-clock--handwritten .m-clock__line { font-family: 'Clock Caveat', 'Segoe Print', cursive; font-weight: 600; font-size: calc(var(--clock-size) * 1.15); line-height: .9; color: var(--md-sys-color-on-surface); }
+.m-clock--handwritten.is-tick .m-clock__line { animation: m-clock-breathe-hand 1.1s ease both; }
+@keyframes m-clock-breathe-hand { 0% { font-weight: 600; } 45% { font-weight: 700; } 100% { font-weight: 600; } }
+
+/* Numoverlap: four digits in the seed's colours that overlap and mix where they meet */
+.m-clock--numoverlap { --hf: .95; --wf: 2.45; --wf-s: 2.92; }
+.m-clock--numoverlap .m-clock__row { display: flex; align-items: center; font-size: var(--clock-size); line-height: 1; white-space: nowrap; }
+.m-clock--numoverlap .m-clock__d { display: block; position: relative; font-family: 'Clock Roboto Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 900, 'wdth' 115; font-size: .95em; margin-right: -.07em; paint-order: stroke fill; -webkit-text-stroke: .045em var(--md-sys-color-surface); }
+.m-clock--numoverlap .m-clock__d--0 { color: var(--md-sys-color-primary); z-index: 1; } .m-clock--numoverlap .m-clock__d--1 { color: var(--md-sys-color-tertiary); z-index: 2; }
+.m-clock--numoverlap .m-clock__d--2 { color: var(--md-sys-color-secondary); z-index: 3; } .m-clock--numoverlap .m-clock__d--3 { color: var(--md-sys-color-primary); z-index: 4; margin-right: 0; }
+.m-clock--numoverlap .m-clock__s { align-self: flex-end; margin-bottom: .14em; font-family: 'Clock Roboto Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 800, 'wdth' 100; }
+.m-clock--numoverlap.is-tick .m-clock__d { animation: m-clock-breathe-num 1.1s ease both; }
+@keyframes m-clock-breathe-num { 0% { font-variation-settings: 'wght' 900, 'wdth' 115; } 40% { font-variation-settings: 'wght' 600, 'wdth' 140; } 100% { font-variation-settings: 'wght' 900, 'wdth' 115; } }
+
+/* Analog: a Material dial, the hours in the seed's colour; the second hand (seconds on) sweeps in the tertiary one */
+.m-clock--analog { --hf: 1.9; --wf: 1.9; --wf-s: 1.9; position: relative; width: calc(var(--clock-size) * 1.9); height: calc(var(--clock-size) * 1.9); }
+.m-clock__dial { width: 100%; height: 100%; display: block; overflow: visible; }
+.m-clock__face { fill: var(--md-sys-color-surface-container-high); } .m-clock--analog .m-clock__tick { stroke: var(--md-sys-color-on-surface-variant); stroke-width: 2; stroke-linecap: round; } .m-clock--analog .m-clock__tick.is-q { stroke: var(--md-sys-color-on-surface); stroke-width: 4; }
+.m-clock__hand { stroke-linecap: round; } .m-clock__hand--h { stroke: var(--md-sys-color-primary); stroke-width: 11; } .m-clock__hand--m { stroke: var(--md-sys-color-on-surface); stroke-width: 7; } .m-clock__hand--s { stroke: var(--md-sys-color-tertiary); stroke-width: 2.5; } .m-clock__dot { fill: var(--md-sys-color-tertiary); } .m-clock__pin { fill: var(--md-sys-color-surface-container-high); stroke: var(--md-sys-color-primary); stroke-width: 4; }
+.m-clock__sweep { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; animation: m-clock-sweep 60s linear infinite; will-change: transform; }
+@keyframes m-clock-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Minimal: small and light */
+.m-clock--minimal { --hf: .5; --wf: 1.48; --wf-s: 1.78; }
+.m-clock--minimal .m-clock__line { font-family: 'Clock Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 200, 'wdth' 100, 'ROND' 0; font-size: calc(var(--clock-size) * .5); letter-spacing: .04em; }
+.m-clock--minimal.is-tick .m-clock__line { animation: m-clock-breathe-min 1s ease both; }
+@keyframes m-clock-breathe-min { 0% { font-variation-settings: 'wght' 200, 'wdth' 100, 'ROND' 0; } 40% { font-variation-settings: 'wght' 500, 'wdth' 100, 'ROND' 0; } 100% { font-variation-settings: 'wght' 200, 'wdth' 100, 'ROND' 0; } }
+
+/* Flex: one line whose weight and width ramp from hairline-narrow to black-wide across the time; on the minute the ramp turns over and back, a wave through the digits */
+.m-clock--flex { --hf: .9; --wf: 2.42; --wf-s: 3.15; }
+.m-clock--flex .m-clock__line { font-family: 'Clock Roboto Flex', 'Roboto Flex', sans-serif; font-size: var(--clock-size); line-height: .9; }
+.m-clock__fx { display: inline-block; font-variation-settings: 'wght' var(--fw), 'wdth' var(--fd); color: var(--md-sys-color-primary); }
+.m-clock__fx--0 { --fw: 240; --fd: 62; --fw2: 1000; --fd2: 151; } .m-clock__fx--1 { --fw: 420; --fd: 82; --fw2: 800; --fd2: 128; }
+.m-clock__fx--2 { --fw: 560; --fd: 100; --fw2: 560; --fd2: 100; color: var(--md-sys-color-on-surface-variant); }
+.m-clock__fx--3 { --fw: 800; --fd: 128; --fw2: 420; --fd2: 82; color: var(--md-sys-color-tertiary); } .m-clock__fx--4 { --fw: 1000; --fd: 151; --fw2: 240; --fd2: 62; color: var(--md-sys-color-tertiary); }
+.m-clock--flex .m-clock__s { font-variation-settings: 'wght' 1000, 'wdth' 151; color: var(--md-sys-color-tertiary); }
+.m-clock--flex.is-tick .m-clock__fx { animation: m-clock-wave 1.3s cubic-bezier(.3, 0, .2, 1) both; } .m-clock--flex.is-tick .m-clock__fx--1 { animation-delay: 70ms; } .m-clock--flex.is-tick .m-clock__fx--2 { animation-delay: 140ms; } .m-clock--flex.is-tick .m-clock__fx--3 { animation-delay: 210ms; } .m-clock--flex.is-tick .m-clock__fx--4 { animation-delay: 280ms; }
+@keyframes m-clock-wave { 0%, 100% { font-variation-settings: 'wght' var(--fw), 'wdth' var(--fd); } 45% { font-variation-settings: 'wght' var(--fw2), 'wdth' var(--fd2); } }
+
+/* Tall: very tall, very condensed digits that fill the height they are given, in a two-tone fill from the primary to the tertiary tone */
+.m-clock--tall { --hf: 1.26; --hf-s: 1.3; --wf: 2.2; --wf-s: 2.76; }
+.m-clock--tall .m-clock__line { font-family: 'Clock Roboto Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 640, 'wdth' 25; font-size: calc(var(--clock-size) * 1.7); line-height: .74; letter-spacing: -.01em;
+  background: linear-gradient(180deg, var(--md-sys-color-primary) 8%, var(--md-sys-color-tertiary) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.m-clock--tall .m-clock__s { color: transparent; font-variation-settings: 'wght' 640, 'wdth' 60; }
+
+/* Dot matrix: round LEDs on a 5 × 7 grid. The lit dots in full contrast (hours and colon primary, minutes and seconds on-surface: WCAG ≥ 3:1 against the wallpaper,
+   QA clock gate); the unlit ones small and very faint (≤ 18 % of the lit dots' perceived contrast), a texture rather than a second digit. Seconds half size at the baseline. */
+.m-clock--dots { --hf: .9; --wf: 3.36; --wf-s: 4.3; }
+.m-clock__dots { display: block; height: calc(var(--clock-size) * .9); width: auto; }
+.m-clock__dots-off { fill: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent); } .m-clock__dots-h, .m-clock__dots-c { fill: var(--md-sys-color-primary); }
+.m-clock__dots-m, .m-clock__dots-s { fill: var(--md-sys-color-on-surface); }
+
+/* Outline: heavy round digits drawn as an outline over a layer of the tertiary container tone set off down and to the right; on the minute the layer slides out and back */
+.m-clock--outline { --hf: 1.4; --wf: 1.4; --wf-s: 1.9; }
+.m-clock--outline .m-clock__l { position: relative; isolation: isolate; font-family: 'Clock Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 820, 'wdth' 118, 'ROND' 100; font-size: calc(var(--clock-size) * .8); line-height: .875;
+  width: fit-content; color: transparent; -webkit-text-stroke: .034em var(--md-sys-color-primary); }
+/* each line as wide as its digits (the layer is drawn from the line's start), placed by the dock's position */
+[data-align='right'] > .m-clock--outline .m-clock__l { margin-left: auto; } [data-align='center'] > .m-clock--outline .m-clock__l { margin-left: auto; margin-right: auto; }
+.m-clock--outline .m-clock__l--b { -webkit-text-stroke-color: var(--md-sys-color-tertiary); }
+.m-clock--outline .m-clock__s { position: relative; color: transparent; }
+.m-clock--outline [data-text]::before { content: attr(data-text); position: absolute; left: 0; top: 0; z-index: -1; color: var(--md-sys-color-tertiary-container); -webkit-text-stroke: 0; transform: translate(.08em, .07em); }
+.m-clock--outline .m-clock__l--b::before { color: var(--md-sys-color-secondary-container); }
+.m-clock--outline.is-tick [data-text]::before { animation: m-clock-layer 1.1s cubic-bezier(.3, 0, .2, 1) both; }
+@keyframes m-clock-layer { 0%, 100% { transform: translate(.08em, .07em); } 45% { transform: translate(.02em, .02em); } }
+
+/* Flip: split-flap cards; a change turns the upper leaf down over the lower one (transform only); hours and minutes in the primary and tertiary containers */
+.m-clock--flip { --hf: .82; --wf: 1.84; --wf-s: 2.33; display: flex; align-items: flex-end; gap: .06em; }
+.m-flip { position: relative; display: block; flex: none; width: 1.42em; height: 1.32em; font-size: .62em; perspective: 4em; font-family: 'Clock Flex', 'Roboto Flex', sans-serif; font-variation-settings: 'wght' 560, 'wdth' 100, 'ROND' 40; text-align: center;
+  --card: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-flip--m { --card: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+.m-flip--s { font-size: .3em; --card: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface); }
+.m-flip__half { position: absolute; left: 0; right: 0; height: calc(50% - .012em); overflow: hidden; background: var(--card); backface-visibility: hidden; }
+.m-flip__half > i { position: absolute; left: 0; right: 0; height: 1.32em; line-height: 1.32em; font-style: normal; }
+.m-flip__top { top: 0; border-radius: .16em .16em .04em .04em; } .m-flip__top > i { top: 0; }
+.m-flip__bot { bottom: 0; border-radius: .04em .04em .16em .16em; } .m-flip__bot > i { bottom: 0; }
+.m-flip__leaf-a { z-index: 2; transform-origin: 50% 100%; animation: m-flip-a .3s cubic-bezier(.5, 0, .9, .5) both; }
+.m-flip__leaf-b { z-index: 3; transform-origin: 50% 0; animation: m-flip-b .36s .28s cubic-bezier(.2, .7, .3, 1.12) both; }
+@keyframes m-flip-a { from { transform: rotateX(0deg); } to { transform: rotateX(-90deg); } }
+@keyframes m-flip-b { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
+
+/* 文字: the time in Chinese words in a brush hand (Ma Shan Zheng): the hour in the primary tone, the minutes below, the seconds a small third line */
+.m-clock--hanzi { --hf: 1.34; --wf: 2.4; --wf-s: 2.4; --hf-s: 1.66; }
+.m-clock--hanzi .m-clock__l { font-family: 'Clock Brush', 'KaiTi', 'STKaiti', serif; font-size: calc(var(--clock-size) * .6); line-height: 1.12; color: var(--md-sys-color-on-surface); }
+.m-clock--hanzi .m-clock__l--a { color: var(--md-sys-color-primary); }
+.m-clock--hanzi .m-clock__l--s { font-size: calc(var(--clock-size) * .26); line-height: 1.2; color: var(--md-sys-color-secondary); }
+
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-clock *, html:not([data-motion='full']) .m-clock, html:not([data-motion='full']) .m-clock *::before { animation: none !important; transition: none !important; } html:not([data-motion='full']) .m-clock--growth .m-clock__line { font-variation-settings: 'wght' 400, 'wdth' 100; } }
+html[data-motion='reduced'] .m-clock *, html[data-motion='reduced'] .m-clock, html[data-motion='reduced'] .m-clock *::before { animation: none !important; transition: none !important; } html[data-motion='reduced'] .m-clock--growth .m-clock__line { font-variation-settings: 'wght' 400, 'wdth' 100; }
+
+/* Previews (the picker): the real face, fitted into the same box whatever its shape */
+.m-clock.is-preview { pointer-events: none; --clock-size: min(calc(58px / var(--hf-now)), calc(128px / var(--wf-now))); }
+
+/* ---- the dock: where the clock sits, its inset and its size ----
+   The header is a size container: its height is what the dock leaves between the banner and the tile row, so the clock (sized in container units, never larger than
+   the header) cannot reach the tiles, the banner or the window's edge. The inset from the content edge grows with the window (16 px compact, ≥ 24 px from 840 px expanded,
+   48 px at most), steplessly; the clock's ink, not its box, sits on it (see [data-ink]). The date and the status line keep the same inset. */
+.m-dock { display: grid; grid-template-rows: minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); } /* a grid, not a flex column: the header's height is a track the dock resolves before its content, so the container units below are right in the first layout */
+.m-dock__head { container: m-clock-head / size; min-height: calc(164px + 4vh); --m-clock-inset: clamp(16px, calc(2vw + 8px), 48px); padding-inline: var(--m-clock-inset); overflow-x: clip; } /* clip: a wide tabular 1's empty advance may reach past the edge; the ink never does */
+.m-dock__head[data-align='left'] { align-items: flex-start; text-align: left; }
+.m-dock__head[data-align='center'] { align-items: center; text-align: center; }
+.m-dock__head[data-align='right'] { align-items: flex-end; text-align: right; }
+/* a face's lines are tighter than its glyphs' content boxes (line-height .86 on a 1.17 em content area): the inline boxes reach past the clock's box by up to .13 em above and below, empty space the digits never fill, but the header counts it as content that scrolls (15 px at 特大 in a 720 x 480 window, 36 px at 1440 x 900). The box is clipped above and below; the ink is inside it (clock-fit.mjs checks it by pixels) */
+.m-dock__head > .m-clock { overflow-y: clip; max-width: 100%; --clock-text-h: 68px; --clock-text-w: 0px; --clock-fit: min(calc((100cqh - var(--clock-text-h)) / var(--hf-now)), calc((100cqw - var(--clock-text-w)) / var(--wf-now))); }
+/* 小 中 大: steps of the window's height, never more than fits; 特大: as large as fits, up to about half the window's height */
+.m-dock__head > .m-clock.is-s { --clock-size: max(28px, min(clamp(44px, 9vh, 104px), var(--clock-fit))); }
+.m-dock__head > .m-clock.is-m { --clock-size: max(28px, min(clamp(72px, 14vh, 168px), var(--clock-fit))); }
+.m-dock__head > .m-clock.is-l { --clock-size: max(28px, min(clamp(96px, 22vh, 280px), var(--clock-fit))); }
+.m-dock__head > .m-clock.is-xl { --clock-size: max(28px, min(calc((48vh - 24px) / var(--hf-now)), var(--clock-fit))); }
+/* 特大 at the left or the right: the date and the status line stand beside the clock, centred on it, so the clock has the header's full height */
+.m-dock:has(> .m-dock__head > .m-clock.is-xl) { min-height: calc(100dvh - 260px); }
+.m-dock__head:not([data-align='center']):has(> .m-clock.is-xl) { display: grid; grid-template-rows: 1fr auto auto 1fr; column-gap: 32px; row-gap: 4px; align-items: center; padding-block: 1vh; }
+.m-dock__head:not([data-align='center']) > .m-clock.is-xl { --clock-text-h: 0px; --clock-text-w: 300px; grid-row: 1 / -1; }
+.m-dock__head[data-align='right']:has(> .m-clock.is-xl) { grid-template-columns: minmax(0, 1fr) auto; }
+.m-dock__head[data-align='right'] > .m-clock.is-xl { grid-column: 2; }
+.m-dock__head[data-align='right']:has(> .m-clock.is-xl) > :not(.m-clock) { grid-column: 1; justify-self: end; white-space: nowrap; }
+.m-dock__head[data-align='left']:has(> .m-clock.is-xl) { grid-template-columns: auto minmax(0, 1fr); }
+.m-dock__head[data-align='left'] > .m-clock.is-xl { grid-column: 1; }
+.m-dock__head[data-align='left']:has(> .m-clock.is-xl) > :not(.m-clock) { grid-column: 2; justify-self: start; white-space: nowrap; }
+.m-dock__head:not([data-align='center']):has(> .m-clock.is-xl) > :nth-child(2) { grid-row: 2; } .m-dock__head:not([data-align='center']):has(> .m-clock.is-xl) > :nth-child(3) { grid-row: 3; }
+
+/* the picker in 个性化: fifteen faces, each drawn live */
+.m-ap__faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }
+.m-ap__face { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 8px 10px; border: 0; border-radius: 20px; background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface-variant); cursor: pointer; transition: background var(--m-spring-fast-effects-duration, 200ms), box-shadow 200ms; }
+.m-ap__face:hover { background: var(--md-sys-color-surface-container-high); } .m-ap__face:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-ap__face.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); }
+.m-ap__facepreview { height: 76px; width: 100%; display: grid; place-items: center; overflow: hidden; }
+.m-ap__facename { font: var(--m-label-medium); }

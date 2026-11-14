@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "checked_at": "2026-11-03T14:20:00+08:00",
+  "ports": [
+    {
+      "proto": "tcp",
+      "port": 47984,
+      "role": "https",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed"
+    },
+    {
+      "proto": "tcp",
+      "port": 47989,
+      "role": "http",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed"
+    },
+    {
+      "proto": "tcp",
+      "port": 47990,
+      "role": "web",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed"
+    },
+    {
+      "proto": "tcp",
+      "port": 48010,
+      "role": "rtsp",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed"
+    },
+    {
+      "proto": "udp",
+      "port": 47998,
+      "role": "video",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed"
+    },
+    {
+      "proto": "udp",
+      "port": 47999,
+      "role": "control",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed"
+    },
+    {
+      "proto": "udp",
+      "port": 48000,
+      "role": "audio",
+      "listening": true,
+      "bound": [
+        "0.0.0.0"
+      ],
+      "firewall": "allowed"
+    }
+  ],
+  "public": {
+    "verdict": "verified",
+    "reasons": [
+      "hairpin_verified",
+      "mappings_complete",
+      "session_evidence"
+    ],
+    "host_public_ip": null,
+    "router": {
+      "protocol": "upnp-igd",
+      "wan_ip": "203.0.113.45",
+      "wan_ip_class": "public",
+      "mappings": [
+        {
+          "proto": "udp",
+          "port": 47998,
+          "present": true,
+          "internal": "192.168.1.10"
+        }
+      ]
+    },
+    "hairpin": {
+      "tried": true,
+      "ok": true,
+      "port": 47984,
+      "identity_match": true
+    },
+    "evidence": [
+      {
+        "kind": "client-connected-from-public",
+        "address": "198.51.100.0/24",
+        "at": "2026-11-03T13:02:00+08:00"
+      }
+    ],
+    "configured_address": {
+      "value": "home.example.net",
+      "kind": "hostname",
+      "resolved": [
+        "203.0.113.45"
+      ],
+      "matches_wan": true,
+      "reasons": []
+    }
+  },
+  "mesh": {
+    "adapters": [
+      {
+        "kind": "tailscale",
+        "name": "wt0",
+        "addresses": [
+          "100.92.14.7"
+        ],
+        "up": true
+      }
+    ],
+    "verdict": "likely",
+    "reasons": [],
+    "listening_on_mesh": true,
+    "web_ui_origin_allows_mesh": true,
+    "evidence": []
+  }
+}

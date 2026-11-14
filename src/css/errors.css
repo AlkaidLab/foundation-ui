@@ -1,0 +1,46 @@
+/* The error surface: the way out first, the secondary actions under it, what would be sent shown as it is */
+.m-err .m-dialog__panel { max-width: min(560px, calc(100vw - 32px)); }
+.m-err__lead { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-err__message { margin: 0 0 10px; padding: 10px 14px; border-radius: 16px; background: var(--md-sys-color-surface-container-highest); font: 500 13px/1.5 ui-monospace, 'Cascadia Mono', Consolas, monospace; overflow-wrap: anywhere; max-height: 7.5em; overflow: auto; }
+.m-err__more { margin: 0 0 8px; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-err__details { margin: 8px 0 0; border-radius: 16px; background: var(--md-sys-color-surface-container-low); } .m-err__details summary { padding: 10px 14px; cursor: pointer; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); }
+.m-err__details pre { margin: 0; padding: 0 14px 12px; max-height: 220px; overflow: auto; font: 12px/1.5 ui-monospace, 'Cascadia Mono', Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--md-sys-color-on-surface-variant); }
+.m-err__sent { margin: 0; padding: 0 14px 8px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-err__actions { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.m-err__primary { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.m-err__secondary { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; }
+.m-err__reason { margin: 0; text-align: end; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-err__spacer { flex: 1; }
+.m-err__files { list-style: none; margin: 0 0 10px; padding: 4px 0; display: flex; flex-direction: column; border-radius: 16px; background: var(--md-sys-color-surface-container-low); }
+.m-err__files li { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; column-gap: 12px; min-height: 40px; padding: 4px 14px; font: var(--m-body-medium); }
+.m-err__files .m-icon { font-size: 20px; color: var(--md-sys-color-on-surface-variant); }
+.m-err__files span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-err__files small { font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-err--form .m-dialog__body { display: flex; flex-direction: column; gap: 12px; } .m-err--form .m-field { width: 100%; }
+.m-err__progress { display: flex; flex-direction: column; gap: 12px; margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-err__bar { display: block; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent); position: relative; overflow: hidden; }
+.m-err__bar::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 35%; border-radius: 2px; background: var(--md-sys-color-primary); animation: m-err-run 1.2s ease-in-out infinite; }
+@keyframes m-err-run { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-err__bar::after { animation: none; width: 100%; } }
+html[data-motion='reduced'] .m-err__bar::after { animation: none; width: 100%; }
+
+/* the stop of the host (E3): the files and the three tools as one quiet section under the lead, no tinted bar; the action row holds two buttons only */
+.m-err--stop .m-dialog__panel { max-width: min(480px, calc(100vw - 32px)); }
+.m-err__note { margin: 0; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-err__diag { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid var(--md-sys-color-outline-variant); }
+.m-err__diaghead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; } .m-err__diaghead span { font: var(--m-title-small); color: var(--md-sys-color-on-surface); }
+.m-err__diaghead small { font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.m-err__diag .m-err__files { margin: 0; }
+.m-err__quiet { margin: 0; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-err__tools { display: flex; flex-wrap: wrap; gap: 0 4px; margin-left: -12px; }
+
+/* 隐私: what is sent and what is not, and the preview of the next send */
+.m-privacy__lead { margin: 0 0 12px; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-medium, 400 14px/20px system-ui, sans-serif); }
+.m-privacy__part { margin: 0 0 16px; }
+.m-privacy__part h3 { margin: 0 0 6px; font: var(--m-title-small, 500 14px/20px system-ui, sans-serif); color: var(--md-sys-color-on-surface); }
+.m-privacy__part dl { margin: 0; display: grid; grid-template-columns: 8.5em minmax(0, 1fr); gap: 6px 14px; }
+.m-privacy__part dt { font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); }
+.m-privacy__part dd { margin: 0; font: var(--m-body-medium, 400 14px/20px system-ui, sans-serif); color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; }
+.m-privacy__empty { margin: 0 0 10px; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-medium, 400 14px/20px system-ui, sans-serif); }
+.m-privacy__json { margin: 0; padding: 12px 14px; max-height: min(52vh, 360px); overflow: auto; border-radius: 16px; background: var(--md-sys-color-surface-container-low); color: var(--md-sys-color-on-surface-variant); font: 12px/1.5 ui-monospace, 'Cascadia Mono', Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .m-privacy__part dl { grid-template-columns: minmax(0, 1fr); gap: 2px; } .m-privacy__part dd { margin-bottom: 8px; } }

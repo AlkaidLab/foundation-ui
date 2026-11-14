@@ -1,0 +1,398 @@
+/* The tray menu (MTrayMenu, docs/tray-menu.md): one card in the Material menu's colours, three layouts. Only theme roles and motion tokens; the card is what the Panel's menu window shows
+   (the window adds POPUP_PAD around it for the shadow).
+
+   RADII - one rule for every corner, so that nothing looks arbitrary: the card has ONE large radius (--tray-r0); a thing that sits in the card's padding gets the radius that is concentric
+   with the card, r1 = r0 - padding; a thing that sits in the padding of THAT thing gets r2 = r1 - padding. A row or a button never has more radius than half its height (then it is a pill).
+   (ChromeOS does the same by hand: Quick Settings tile 16, the icon button inside it 12 - ash/system/unified/feature_tile.cc kDefaultCornerRadius / kIconButtonCornerRadius.) */
+.m-tray {
+  --tray-w: 304px; --tray-row: 48px; --tray-pad: 8px;
+  --tray-r0: 28px; --tray-r1: calc(var(--tray-r0) - var(--tray-pad)); --tray-r2: calc(var(--tray-r1) - var(--tray-pad));
+  --tray-pill: min(var(--tray-r1), calc(var(--tray-row) / 2));
+  position: relative; box-sizing: border-box; width: var(--tray-w); border-radius: var(--tray-r0);
+  color: var(--md-sys-color-on-surface); font: var(--m-label-large); user-select: none; -webkit-user-select: none;
+}
+/* The card, in three layers, all moved by transform (see MTrayMenu): .m-tray__shade is the elevation and the 1 px edge, scaled to the visible height from the taskbar side (a soft shadow does not show a
+   scale of 0.8 to 1.25); .m-tray__clip is a fixed window of the laid-out size; .m-tray__surface is the card itself (colour, radius), moved out of the clip (an inline translateY, set by MTrayMenu) while the height changes. */
+.m-tray__shade { position: absolute; inset: 0; border-radius: var(--tray-r0); transform-origin: 50% 100%; 
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--md-sys-color-outline-variant) 55%, transparent), 0 1px 2px color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent), 0 2px 6px 2px color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent); }
+.m-tray.is-top .m-tray__shade { transform-origin: 50% 0; }
+/* the layers that move are kept as layers: their pixels are drawn once when the menu opens, not at the first frame of every page change */
+.m-tray__shade, .m-tray__surface, .m-tray__chrome { will-change: transform; }
+.m-tray.is-top .m-tray__viewport { will-change: transform; }
+.m-tray__clip { position: relative; overflow: hidden; border-radius: var(--tray-r0); }
+.m-tray__surface { position: relative; overflow: hidden; border-radius: var(--tray-r0); background: var(--md-sys-color-surface-container); }
+.m-tray--v1 { --tray-w: 304px; --tray-row: 44px; }
+.m-tray--v1.is-dense { --tray-row: 42px; }
+.m-tray--v2 { --tray-w: 344px; --tray-row: 40px; }
+/* V3 is the quick panel: 360 px wide (ChromeOS kTrayMenuWidth), a larger card radius so that its pill tiles (56 px high) are concentric with it: 36 - 8 = 28 = 56 / 2 */
+.m-tray--v3 { --tray-w: 360px; --tray-row: 48px; --tray-r0: 36px; }
+:where(.m-tray) button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: start; -webkit-tap-highlight-color: transparent; }
+.m-tray button:disabled { cursor: default; }
+.m-tray .m-icon { width: 24px; height: 24px; flex: none; fill: currentColor; }
+
+.m-tray__viewport { position: relative; overflow: hidden; }
+.m-tray__viewport.is-scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; touch-action: pan-y; }
+/* a page that scrolls scrolls to ITS end: the pages beside it on the track (inert) are as high as the window at most, so a taller neighbour does not make room to scroll into empty space under a shorter page */
+.m-tray__viewport.is-scroll .m-tray__track { height: 100%; }
+.m-tray__viewport.is-scroll .m-tray__track > .m-tray__page[inert] { max-height: 100%; overflow: hidden; }
+/* the dots and the footer of the pager: an opaque strip in the card's colour over the page. The part of the card that stays put is held still against the surface's move: the dots and the footer
+   when the taskbar is at the bottom (the card's top edge moves), the page when it is at the top (the bottom edge moves, and the dots and the footer ride it with the surface). */
+.m-tray__chrome { position: relative; z-index: 1; display: flow-root; background: var(--md-sys-color-surface-container); }
+.m-tray.is-top .m-tray__viewport { }
+.m-tray__page { position: relative; box-sizing: border-box; width: 100%; padding: var(--tray-pad); }
+.m-tray__track { display: flex; transition: transform var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
+.m-tray__track.is-drag { transition: none; }
+.m-tray__track > .m-tray__page { flex: 0 0 100%; align-self: flex-start; }
+/* rows come and go inside a page (a slider the display cannot offer, a notification): the new one fades in, the old one fades out where it stands, and the rows around move to their new place on the spring */
+.m-tray-row-enter-active { transition: opacity 180ms linear 60ms, transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-tray-row-enter-from { opacity: 0; transform: translateY(-6px); }
+.m-tray-row-leave-active { position: absolute; left: var(--tray-pad); right: var(--tray-pad); transition: opacity 90ms linear; }
+.m-tray-row-leave-to { opacity: 0; }
+.m-tray-row-move { transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+
+/* A drill into another page (V1, V2) is a cross-dissolve with a slide, never a fade through a blank card: the page that comes in is on top and starts at once (120 ms), the page that goes stays whole for its
+   first 60 ms and is gone by 150 ms, so the two overlap and the card shows content on every frame (the old 90 ms out, then 90 ms of nothing, then 210 ms in, left the card empty for three frames and half
+   faded for 400 ms: it read as a flicker). Opacity and transform only: the compositor runs it. */
+.m-tray-fwd-enter-active, .m-tray-bck-enter-active { transition: transform var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), opacity 120ms linear; }
+.m-tray-fwd-leave-active, .m-tray-bck-leave-active { position: absolute; left: 0; top: 0; transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), opacity 90ms linear 60ms; }
+.m-tray-fwd-enter-from { opacity: 0; transform: translateX(30px); } .m-tray-fwd-leave-to { opacity: 0; transform: translateX(-30px); }
+.m-tray-bck-enter-from { opacity: 0; transform: translateX(-30px); } .m-tray-bck-leave-to { opacity: 0; transform: translateX(30px); }
+.m-tray.is-still * { transition: none !important; animation: none !important; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-tray * { transition: none !important; } }
+html[data-motion='reduced'] .m-tray * { transition: none !important; }
+
+/* state layers: every pressable thing has one, in its own shape */
+.m-tray__row::before, .m-tray__btn::before, .m-tray__tile-main::before, .m-tray__tile-drill::before, .m-tray__ibtn::before, .m-tray__back::before, .m-tray__update::before, .m-tray__line::before, .m-tray__segb::before { content: ''; position: absolute; inset: 0; background: currentColor; opacity: 0; border-radius: inherit; pointer-events: none; transition: opacity 90ms linear; }
+.m-tray__row:hover:not(:disabled)::before, .m-tray__btn:hover:not(:disabled)::before, .m-tray__tile-main:hover:not(:disabled)::before, .m-tray__tile-drill:hover::before, .m-tray__ibtn:hover:not(:disabled)::before, .m-tray__back:hover::before, .m-tray__update:hover::before, .m-tray__line:hover::before, .m-tray__segb:hover::before { opacity: 0.08; }
+.m-tray__row:active:not(:disabled)::before, .m-tray__btn:active:not(:disabled)::before, .m-tray__tile-main:active:not(:disabled)::before, .m-tray__tile-drill:active::before, .m-tray__ibtn:active:not(:disabled)::before, .m-tray__back:active::before, .m-tray__update:active::before, .m-tray__segb:active::before { opacity: 0.12; }
+.m-tray button:focus-visible { outline: 2px solid var(--md-sys-color-secondary); outline-offset: -2px; }
+.m-tray__row:focus-visible::before { opacity: 0.08; }
+
+/* rows: the shape is the card's concentric radius (a pill when the row is not tall enough) */
+.m-tray__row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; min-height: var(--tray-row); padding: 0 12px 0 12px; border-radius: var(--tray-pill); color: var(--md-sys-color-on-surface); }
+.m-tray__lead { color: var(--md-sys-color-on-surface-variant); }
+.m-tray__label { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-tray__label small, .m-tray__st-name small { font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); overflow: hidden; text-overflow: ellipsis; }
+.m-tray__end { color: var(--md-sys-color-on-surface-variant); }
+.m-tray__row:disabled { opacity: 0.38; }
+.m-tray__row.is-danger, .m-tray__row.is-danger .m-tray__lead { color: var(--md-sys-color-error); }
+.m-tray__row.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-tray__row.is-on .m-tray__lead, .m-tray__row.is-on .m-tray__end { color: inherit; }
+.m-tray__divider { height: 1px; margin: 6px 12px; background: var(--md-sys-color-outline-variant); }
+.m-tray__badge { flex: none; height: 20px; padding: 0 8px; border-radius: 10px; font: var(--m-label-medium); line-height: 20px; background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font-variant-numeric: tabular-nums; }
+
+/* the switch of a row (compact: 36 x 20, a pill) */
+.m-tray__switch { flex: none; position: relative; width: 36px; height: 20px; border-radius: 10px; box-sizing: border-box; border: 2px solid var(--md-sys-color-outline); background: var(--md-sys-color-surface-container-highest); transition: background var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects), border-color var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+.m-tray__switch i { position: absolute; top: 50%; left: 2px; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: var(--md-sys-color-outline); transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), width 120ms, height 120ms, margin-top 120ms, background 120ms; }
+.m-tray__switch.is-on { background: var(--md-sys-color-primary); border-color: var(--md-sys-color-primary); }
+.m-tray__switch.is-on i { width: 14px; height: 14px; margin-top: -7px; background: var(--md-sys-color-on-primary); transform: translateX(14px); }
+
+/* chips (pills), dots */
+.m-tray__chip { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 12px; font: var(--m-label-medium); background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-tray__chip .m-icon { width: 16px; height: 16px; }
+.m-tray__chip.is-ok { background: var(--md-sys-color-success-container); color: var(--md-sys-color-on-success-container); }
+.m-tray__chip.is-act { position: relative; cursor: pointer; background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.m-tray__dot-s { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; margin-inline-end: 6px; background: var(--md-sys-color-outline); vertical-align: 1px; }
+.m-tray__dot-s.is-ok { background: var(--md-sys-color-success); box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-sys-color-success) 24%, transparent); }
+.m-tray__dot-s.is-err { background: var(--md-sys-color-error); }
+
+/* V1: the header (the logo sits in the page's padding: radius r2) */
+.m-tray__head { display: flex; align-items: center; gap: 12px; padding: 4px 12px 10px; }
+.m-tray__logo { flex: none; border-radius: var(--tray-r2); }
+.m-tray__head-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.m-tray__name { font: var(--m-title-small-emphasized); }
+.m-tray__sub { display: flex; align-items: center; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-tray__sub .m-tray__dot-s { margin-inline-end: 6px; }
+.m-tray--v1 .m-tray__head { border-bottom: 1px solid var(--md-sys-color-outline-variant); margin: 0 0 6px; padding-top: 4px; }
+
+/* the page's title: V1 a back row, V2 and V3 a bar with a round back button */
+.m-tray__bar { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+.m-tray__back { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 20px; color: var(--md-sys-color-on-surface-variant); }
+.m-tray__bar-title { font: var(--m-title-small-emphasized); color: var(--md-sys-color-on-surface); }
+.m-tray__bar.is-row { margin: 0 0 4px; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-bottom: 4px; }
+.m-tray__bar.is-row .m-tray__back { width: 100%; justify-content: flex-start; gap: 12px; height: var(--tray-row); border-radius: var(--tray-pill); padding: 0 12px; }
+.m-tray__bar:not(.is-row) { padding: 0 12px 0 0; height: 48px; }
+.m-tray__bar:not(.is-row) .m-tray__bar-title { font: var(--m-title-medium-emphasized, 600 16px/24px var(--md-ref-typeface-brand)); }
+
+/* restart | quit: two pills across the page */
+.m-tray__actions { display: flex; gap: 8px; padding: 2px 0 0; }
+.m-tray__btn { position: relative; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; border-radius: 20px; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-tray__btn .m-icon { width: 20px; height: 20px; }
+.m-tray__btn.is-danger { background: transparent; box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); color: var(--md-sys-color-error); }
+.m-tray__btn:disabled { opacity: 0.38; }
+.m-tray--v1 .m-tray__btn { height: 36px; border-radius: 18px; }
+
+/* V2: the status card (in the page's padding: r1; the things in its padding: r2) */
+.m-tray__card { display: flex; flex-direction: column; gap: 6px; margin: 0 0 8px; padding: var(--tray-pad); border-radius: var(--tray-r1); background: var(--md-sys-color-surface-container-high); }
+.m-tray__card-top { display: flex; align-items: center; gap: 12px; padding: 2px 4px 2px 4px; }
+.m-tray__card .m-tray__name { font: var(--m-title-medium-emphasized, 600 16px/24px var(--md-ref-typeface-brand)); }
+.m-tray__streams { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.m-tray__streams li { display: flex; align-items: center; gap: 12px; padding: 6px 12px; border-radius: var(--tray-r2); background: color-mix(in srgb, var(--md-sys-color-primary) 8%, var(--md-sys-color-surface-container-high)); }
+.m-tray__streams li .m-icon { color: var(--md-sys-color-primary-text); }
+.m-tray__streams li.is-none { background: transparent; } .m-tray__streams li.is-none .m-icon { color: var(--md-sys-color-on-surface-variant); }
+.m-tray__st-name { flex: 1; min-width: 0; display: flex; flex-direction: column; font: var(--m-label-large); }
+.m-tray__st-name small { display: block; white-space: nowrap; }
+.m-tray__st-num { flex: none; text-align: end; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; line-height: 16px; }
+.m-tray__st-num b { font: var(--m-label-large); color: var(--md-sys-color-on-surface); }
+.m-tray__zako { display: flex; align-items: center; gap: 12px; padding: 2px 2px 2px 12px; border-radius: var(--tray-r2); background: var(--md-sys-color-surface-container-highest); }
+.m-tray__zako > .m-icon { color: var(--md-sys-color-tertiary-text); }
+.m-tray__zako.is-off > .m-icon { color: var(--md-sys-color-on-surface-variant); }
+.m-tray__ibtn { position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 20px; color: var(--md-sys-color-on-surface-variant); }
+.m-tray__ibtn:disabled { opacity: 0.38; }
+.m-tray__ibtn.is-danger { color: var(--md-sys-color-error); }
+.m-tray__update { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 6px 0 12px; border-radius: var(--tray-r2); background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); }
+.m-tray__update > span { flex: 1; font: var(--m-label-large); }
+.m-tray__update b { font: var(--m-label-large); padding: 0 12px; line-height: 28px; border-radius: 14px; background: var(--md-sys-color-surface-container); color: var(--md-sys-color-primary-text); }
+.m-tray__update.is-new { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-tray__update.is-new b { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.m-tray__line { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: var(--tray-r2); background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+.m-tray__vdd { display: flex; align-items: center; gap: 12px; margin: 0 0 4px; padding: 10px 12px; border-radius: var(--tray-r1); background: var(--md-sys-color-surface-container-high); }
+.m-tray__vdd > .m-icon { color: var(--md-sys-color-tertiary-text); }
+
+/* V3, the quick panel, after ChromeOS Quick Settings: a status strip, tiles (icon + label + sub-label, two a row; a toggled tile is filled with the primary container), pages with dots under them, a footer. Tiles are 56 px high pills: the card's 36 px radius less the 8 px padding is 28 = half the tile. */
+.m-tray--v1 .m-tray__sliders, .m-tray--v2 .m-tray__sliders { margin-bottom: 8px; }
+.m-tray--v3 .m-tray__strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; padding: 8px; border-radius: var(--tray-r1); background: var(--md-sys-color-surface-container-high); }
+.m-tray__strip-dot { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); }
+.m-tray__strip-dot.is-ok { background: var(--md-sys-color-success-container); color: var(--md-sys-color-on-success-container); }
+.m-tray__strip-dot.is-err { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.m-tray__strip-text { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-inline-start: 4px; }
+.m-tray__strip-text b { font: var(--m-title-small-emphasized); }
+.m-tray__strip-text small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.m-tray__strip .m-tray__chip { margin-inline-end: 4px; }
+.m-tray__strip .m-tray__line { flex: 1 0 100%; }
+
+.m-tray__tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0 0 8px; }
+.m-tray__tile { position: relative; display: flex; align-items: stretch; height: 56px; box-sizing: border-box; border-radius: var(--tray-r1); overflow: hidden; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); transition: background var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects), color var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+.m-tray__tile-main { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px 8px; border-radius: inherit; }
+.m-tray__tile-chip { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--tray-r2); background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); transition: background var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects), color var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+.m-tray__tile-chip .m-icon { width: 22px; height: 22px; }
+.m-tray__tile-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.m-tray__tile-label { font: var(--m-label-large); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-tray__tile-state { font: var(--m-body-small); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.m-tray__tile.is-on { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-tray__tile.is-on .m-tray__tile-chip { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.m-tray__tile.is-on .m-tray__tile-state { color: inherit; opacity: 0.8; }
+.m-tray__tile.is-lock .m-tray__tile-main { cursor: default; } .m-tray__tile.is-lock .m-tray__tile-main::before { display: none; }
+.m-tray__tile.is-off { opacity: 0.38; }
+.m-tray__tile-drill { position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; margin: 8px 4px 8px 0; border-radius: var(--tray-r2); color: inherit; }
+.m-tray__tile-drill .m-icon { width: 20px; height: 20px; }
+.m-tray__tile:has(.m-tray__tile-drill) .m-tray__tile-main { padding-inline-end: 0; gap: 8px; }
+/* the chevron takes 38 px of a tile, 74 px are left for the words: the label is 13 px there so a six-character Japanese name (スリープ防止) is whole and not 「スリープ…」 */
+.m-tray__tile:has(.m-tray__tile-drill) .m-tray__tile-label { font-size: 13px; letter-spacing: 0; }
+
+.m-tray__seg { position: relative; display: flex; margin: 0 0 8px; height: 40px; border-radius: 20px; overflow: hidden; }
+.m-tray__seg::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--md-sys-color-outline); pointer-events: none; }
+.m-tray__segb { position: relative; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center !important; font: var(--m-label-large); }
+.m-tray__segb + .m-tray__segb { box-shadow: inset 1px 0 0 var(--md-sys-color-outline); }
+.m-tray__segb .m-icon { width: 18px; height: 18px; }
+.m-tray__segb.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+
+.m-tray__dots { display: flex; align-items: center; justify-content: center; gap: 2px; height: 24px; margin-top: -2px; }
+.m-tray__dot { position: relative; width: 14px; height: 24px; display: inline-flex; align-items: center; justify-content: center; }
+.m-tray__dot::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 3px; background: var(--md-sys-color-outline-variant); transition: opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+/* the page that is on is a pill: a second shape that grows from the dot by transform and opacity (the dots never change their layout, so a page change costs no layout) */
+.m-tray__dot::after { content: ''; position: absolute; left: 50%; top: 50%; width: 16px; height: 6px; margin: -3px 0 0 -8px; border-radius: 3px; background: var(--md-sys-color-primary); opacity: 0; transform: scaleX(0.375); transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial), opacity var(--m-spring-fast-effects-duration) var(--m-spring-fast-effects); }
+.m-tray__dot.is-on::before { opacity: 0; }
+.m-tray__dot.is-on::after { opacity: 1; transform: none; }
+.m-tray__foot { display: flex; align-items: center; gap: 4px; padding: 0 var(--tray-pad) var(--tray-pad) 20px; }
+.m-tray__foot-title { flex: 1; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-tray__foot .m-tray__ibtn { background: var(--md-sys-color-surface-container-high); }
+
+.m-tray__end-text { flex: none; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
+
+/* the window of the Panel's tray popup (MTrayPopup): the card sits against the edge the taskbar is on, inside the room kept for its shadow */
+.m-tray-host { position: fixed; inset: 16px; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; pointer-events: none; }
+.m-tray-host.is-top { justify-content: flex-start; }
+.m-tray-host > .m-tray { pointer-events: auto; align-self: flex-start; }
+.m-tray-host.is-right > .m-tray { align-self: flex-end; }
+
+/* V3: the sliders (ChromeOS quick settings): a pill as high as a row, filled to the position; the icon sits at its start (the fill is never narrower than the icon zone), the name and the live value lie on it.
+   The range input covers the whole pill, transparent: it is the pointer target, the keyboard control and the accessible slider. */
+.m-tray__sliders { display: flex; flex-direction: column; gap: 8px; margin: 0; }
+.m-tray__sl-target { display: flex; align-items: center; gap: 8px; margin: 0; padding: 0 12px; min-height: 24px; color: var(--md-sys-color-on-surface-variant); font: var(--m-label-medium); }
+.m-tray__sl-target .m-icon { width: 18px; height: 18px; }
+.m-tray__sl-target-text { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; min-width: 0; }
+.m-tray__sl-target-text small { font: var(--m-body-small); font-variant-numeric: tabular-nums; }
+.m-tray__sl-target.is-none { color: var(--md-sys-color-on-surface-variant); }
+.m-tray__slw { display: flex; flex-direction: column; gap: 4px; }
+/* the slider item of the product, on a tray card: the tonal surface of a tile, the shape of the tile pill; its stops, icons and handle are the shared slider's */
+.m-tray__sl { border-radius: var(--tray-pill); background: var(--md-sys-color-surface-container-high); transition: opacity 120ms linear; }
+.m-tray__sl .m-item, .m-tray__sl .m-item * { box-sizing: border-box; }
+.m-tray__sl .m-item { background: transparent; border-radius: inherit; padding-inline: 16px; }
+.m-tray__sl.is-busy { opacity: .72; }
+.m-tray__sl.is-err { box-shadow: inset 0 0 0 2px var(--md-sys-color-error); }
+.m-tray-sl-enter-active { transition: opacity 180ms linear 60ms, transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-tray-sl-enter-from { opacity: 0; transform: translateY(-6px); }
+.m-tray-sl-leave-active { position: absolute; left: 0; right: 0; transition: opacity 90ms linear; }
+.m-tray-sl-leave-to { opacity: 0; }
+.m-tray-sl-move { transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-tray__sliders { position: relative; }
+.m-tray__sl-err { display: flex; align-items: flex-start; gap: 6px; margin: 0; padding: 0 12px; color: var(--md-sys-color-error); font: var(--m-body-small); }
+.m-tray__sl-err .m-icon { width: 16px; height: 16px; margin-top: 1px; }
+.m-tray__tiles:not(.m-tray__grid) > .m-tray__tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
+/* the later pages' grid (V3): the pills of the first page; a pill that is alone in its row, and a group, take the whole row */
+.m-tray__grid > .m-tray__tile.is-wide, .m-tray__grid > .m-tray__sheet { grid-column: 1 / -1; }
+.m-tray__grid { margin-bottom: 0; }
+.m-tray__sliders + .m-tray__grid { margin-top: 8px; } /* a page with sliders in the middle (显示与工具): the pills under them have the grid gap above */
+.m-tray__vdd + .m-tray__tiles { margin-top: 0; }
+/* a pill without a sub-label has room for two lines of its name (a long name in another language is whole, not 「Moonlight s…」) */
+.m-tray__tile.is-plain .m-tray__tile-label { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 1.2; }
+.m-tray__tile.is-danger .m-tray__tile-chip { color: var(--md-sys-color-error); }
+.m-tray__tile.is-danger .m-tray__tile-label { color: var(--md-sys-color-error); }
+/* a group opens its choices in place: the fold arrow turns, the choices are a sheet under the pill, in the grid's own language (a tonal pill, buttons inside it) */
+.m-tray__tile-fold { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: var(--md-sys-color-on-surface-variant); transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-tray__tile-fold .m-icon { width: 22px; height: 22px; }
+.m-tray__tile.is-open .m-tray__tile-fold { transform: rotate(180deg); }
+.m-tray__tile.is-open { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-tray__tile.is-open .m-tray__tile-fold { color: inherit; }
+.m-tray__sheet { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px; border-radius: var(--tray-r1); background: var(--md-sys-color-surface-container-high); }
+.m-tray__sheet.is-choice { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.m-tray__sheet .m-tray__btn { flex: none; min-width: 0; padding: 0 10px; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface); font: var(--m-label-large); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-tray__sheet .m-tray__btn.is-on { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-tray__sheet .m-tray__btn.is-danger { color: var(--md-sys-color-error); }
+.m-tray__sheet:not(.is-choice) > .m-tray__btn:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.m-tray-sheet-enter-active { transition: opacity 180ms linear 40ms, transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-tray-sheet-enter-from { opacity: 0; transform: translateY(-8px); }
+.m-tray-sheet-leave-active { transition: opacity 90ms linear; position: absolute; left: var(--tray-pad); right: var(--tray-pad); }
+.m-tray-sheet-leave-to { opacity: 0; }
+.m-tray__tile.is-plain .m-tray__tile-label { font: var(--m-label-large); }
+.m-tray__tile.is-fresh .m-tray__tile-chip { position: relative; }
+.m-tray__tile.is-fresh .m-tray__tile-chip::after { content: ''; position: absolute; top: 3px; right: 3px; width: 9px; height: 9px; border-radius: 50%; background: var(--md-sys-color-tertiary); box-shadow: 0 0 0 2px var(--md-sys-color-primary); }
+.m-tray__ibtn.is-on { background: var(--md-sys-color-primary-container) !important; color: var(--md-sys-color-on-primary-container); }
+
+
+/* the layout editor (MTrayLayoutEditor): the pencil of the V3 menu, and the same list in 设置 > 个性化. A shown item is a row (handle, icon, name, hide); what is not shown is a chip that adds it. */
+.m-trayed { --ed-row: 44px; display: flex; flex-direction: column; gap: 8px; color: var(--md-sys-color-on-surface); font: var(--m-label-large); }
+:where(.m-trayed) button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: start; }
+.m-trayed button:focus-visible { outline: 2px solid var(--md-sys-color-secondary); outline-offset: -2px; }
+:where(.m-trayed) button:disabled { opacity: 0.38; cursor: default; }
+.m-trayed .m-icon { width: 24px; height: 24px; flex: none; fill: currentColor; }
+.m-trayed:not(.is-compact) { max-width: 520px; }
+.m-trayed__bar { display: flex; align-items: center; gap: 4px; min-height: 48px; padding: 4px 10px 0 12px; box-sizing: border-box; }
+.m-trayed__title { flex: 1; min-width: 0; font: var(--m-title-small-emphasized); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-trayed__text { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px 0 10px; border-radius: 18px; color: var(--md-sys-color-primary-text, var(--md-sys-color-primary)); white-space: nowrap; }
+.m-trayed__text .m-icon { width: 20px; height: 20px; }
+.m-trayed__text.is-off { opacity: 0.38; cursor: default; }
+.m-trayed__text:hover:not(.is-off) { background: color-mix(in srgb, currentColor 8%, transparent); }
+.m-trayed__text.is-filled { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.m-trayed__text.is-filled:hover { background: color-mix(in srgb, var(--md-sys-color-on-primary) 8%, var(--md-sys-color-primary)); }
+.m-trayed__body { display: flex; flex-direction: column; gap: 12px; }
+.m-trayed.is-compact { --ed-row: 40px; }
+.m-trayed.is-compact .m-trayed__body { max-height: 440px; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 4px; }
+.m-trayed__h { margin: 0 0 4px; padding: 0 12px; font: var(--m-label-medium); color: var(--md-sys-color-on-surface-variant); }
+.m-trayed__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; position: relative; }
+.m-trayed__item { display: flex; align-items: center; gap: 8px; height: var(--ed-row); box-sizing: border-box; padding: 0 4px 0 2px; border-radius: calc(var(--ed-row) / 2); background: var(--md-sys-color-surface-container-high); transition: background 120ms linear, box-shadow 120ms linear; }
+.m-trayed__item.is-grabbed, .m-trayed__item.is-drag { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); box-shadow: 0 2px 6px color-mix(in srgb, var(--md-sys-color-shadow) 24%, transparent); z-index: 1; }
+.m-trayed__handle { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; color: var(--md-sys-color-on-surface-variant); cursor: grab; touch-action: none; }
+.m-trayed__handle:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+.m-trayed__item.is-drag .m-trayed__handle { cursor: grabbing; }
+.m-trayed__item.is-grabbed .m-trayed__handle, .m-trayed__item.is-drag .m-trayed__handle { color: inherit; }
+.m-trayed__icon { color: var(--md-sys-color-on-surface-variant); }
+.m-trayed__item.is-grabbed .m-trayed__icon, .m-trayed__item.is-drag .m-trayed__icon { color: inherit; }
+.m-trayed__name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-trayed__btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: var(--md-sys-color-on-surface-variant); }
+.m-trayed__btn:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+.m-trayed__adds { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 2px 0; }
+.m-trayed__chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; height: 32px; padding: 0 12px 0 8px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); font: var(--m-label-medium); }
+.m-trayed__chip .m-icon { width: 18px; height: 18px; }
+.m-trayed__chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-trayed__chip:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+.m-trayed__foot { display: flex; justify-content: flex-start; }
+.m-trayed__sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.m-trayed-flip-move { transition: transform var(--m-spring-fast-spatial-duration, 200ms) var(--m-spring-fast-spatial, ease); }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-trayed-flip-move, html:not([data-motion='full']) .m-trayed__item { transition: none; } }
+html[data-motion='reduced'] .m-trayed-flip-move, html[data-motion='reduced'] .m-trayed__item { transition: none; }
+.m-tray.is-still .m-trayed-flip-move { transition: none; }
+
+/* the settings of the tray icon (MTraySettings, in 个性化): a choice of the three menus with a small preview of each */
+.m-trayset { display: flex; flex-direction: column; gap: 20px; }
+.m-trayset__group { display: flex; flex-direction: column; gap: 8px; }
+.m-trayset__title { font: var(--m-title-small-emphasized); color: var(--md-sys-color-on-surface); }
+.m-trayset__hint { font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-trayset__choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+.m-trayset__choice { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 8px 8px 10px; border-radius: 16px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); cursor: pointer; border: 0; font: var(--m-label-large); text-align: start; box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); }
+.m-trayset__choice:hover { background: var(--md-sys-color-surface-container-highest); }
+.m-trayset__choice:focus-visible { outline: 2px solid var(--md-sys-color-secondary); outline-offset: 2px; }
+.m-trayset__choice.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); box-shadow: none; font-weight: 600; }
+.m-trayset__choice.is-on::after { content: ''; position: absolute; right: 12px; bottom: 12px; width: 20px; height: 20px; background: var(--md-sys-color-primary-text); -webkit-mask: var(--m-check-mask) center / contain no-repeat; mask: var(--m-check-mask) center / contain no-repeat; pointer-events: none; }
+.m-trayset__choice small { display: block; font: var(--m-body-small); opacity: 0.75; }
+.m-trayset__thumb { display: block; width: 100%; height: 72px; border-radius: 8px; overflow: hidden; background: var(--md-sys-color-surface-container-low); }
+.m-trayset__thumb svg { display: block; width: 100%; height: 100%; }
+.m-trayset__choices--plain { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.m-trayset__choice.is-plain { padding: 12px 14px; gap: 4px; min-height: 64px; }
+.m-trayset__switch { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 16px; background: var(--md-sys-color-surface-container-high); cursor: pointer; border: 0; color: inherit; font: var(--m-label-large); text-align: start; }
+.m-trayset__switch .m-tray__switch { margin-inline-start: auto; }
+
+/* the support line at the foot of 帮助: small chips in the card's neutral tone - no brand colour, badge, counter or animation. One line; the sponsor chooser is a second line of the same chips. */
+.m-tray__support { display: flex; flex-direction: column; gap: 6px; padding: 4px 4px 2px; }
+.m-tray__supchips { display: flex; gap: 6px; }
+.m-tray__supchip { position: relative; flex: 1 1 auto; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 3px; height: 28px; padding: 0 6px; overflow: hidden; text-overflow: ellipsis; border-radius: 14px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface-variant); font: var(--m-label-medium, 500 12px/16px var(--md-ref-typeface-plain)); white-space: nowrap; }
+.m-tray__supchip .m-icon { width: 14px; height: 14px; }
+.m-tray__supchip:hover { color: var(--md-sys-color-on-surface); background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container-high)); }
+.m-tray__supchip:active { background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, var(--md-sys-color-surface-container-high)); }
+.m-tray__supchip.is-open { color: var(--md-sys-color-on-surface); background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, var(--md-sys-color-surface-container-high)); }
+.m-tray__supchip:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 1px; }
+
+
+/* ---- touch (2026-11-10) ----
+   The menu knows when a finger opened it (MTrayMenu: the host's facts, the person's choice, then the first pointer) and draws itself for it: `.is-touch` is the touch density, `data-input` is what the last pointer
+   was. Targets follow Microsoft's touch guidance (7.5 mm, 40 x 40 px at 135 PPI and 1.0 scale, larger for what is pressed often; learn.microsoft.com/windows/apps/design/input/guidelines-for-targeting) and the M3 48 dp:
+   rows 52-56, tiles 64, round buttons 48, the slider track 40 with a 44 handle and a hit zone of 48. A mouse sees none of this. */
+.m-tray { touch-action: none; }
+.m-tray-host { touch-action: none; }
+.m-trayed.is-compact .m-trayed__body { touch-action: pan-y; }
+.m-tray.is-touch { --tray-row: 56px; }
+.m-tray--v1.is-touch.is-dense { --tray-row: 52px; }
+.m-tray--v2.is-touch { --tray-row: 52px; }
+.m-tray.is-touch .m-tray__tile { height: 64px; }
+.m-tray.is-touch .m-tray__tile-drill { min-width: 0; }
+.m-tray.is-touch .m-tray__back { width: 48px; height: 48px; border-radius: 24px; }
+.m-tray.is-touch .m-tray__bar.is-row .m-tray__back { width: 100%; height: var(--tray-row); }
+.m-tray.is-touch .m-tray__bar:not(.is-row) { height: 56px; }
+.m-tray.is-touch .m-tray__ibtn { min-width: 48px; height: 48px; border-radius: 24px; }
+.m-tray.is-touch .m-tray__foot .m-tray__ibtn { width: auto; padding: 0 16px 0 12px; gap: 6px; font: var(--m-label-large); }
+.m-tray.is-touch .m-tray__ibtn-t { white-space: nowrap; }
+.m-tray.is-touch .m-tray__zako .m-tray__ibtn { width: auto; padding: 0 14px 0 10px; gap: 6px; font: var(--m-label-large); }
+.m-tray.is-touch .m-tray__btn { height: 48px; border-radius: 24px; }
+.m-tray.is-touch .m-tray__update, .m-tray.is-touch .m-tray__line { height: 48px; }
+.m-tray.is-touch .m-tray__seg { height: 48px; border-radius: 24px; }
+.m-tray.is-touch .m-tray__supchip { height: 40px; border-radius: 20px; }
+.m-tray.is-touch .m-tray__dots { height: 40px; }
+.m-tray.is-touch .m-tray__dot { width: 24px; height: 40px; }
+.m-tray.is-touch .m-tray__dots { gap: 0; }
+.m-tray.is-touch .m-trayed { --ed-row: 56px; }
+.m-tray.is-touch .m-trayed__handle { width: 52px; height: 52px; }
+.m-tray.is-touch .m-trayed__btn { width: 48px; height: 48px; }
+.m-tray.is-touch .m-trayed__chip { height: 44px; border-radius: 22px; padding: 0 16px 0 12px; }
+.m-tray.is-touch .m-trayed__text { height: 48px; border-radius: 24px; padding: 0 16px 0 12px; }
+.m-tray.is-touch .m-slider__handle { width: 6px; margin-left: -3px; border-radius: 3px; }
+.m-tray.is-touch .m-slider--drag .m-slider__handle, .m-tray.is-touch .m-slider--press .m-slider__handle { width: 4px; margin-left: -2px; }
+.m-tray.is-touch .m-slider__handle::before { inset: 0 -30px; }
+/* A slider has one readout in the tray: the number in the title row of its pill, which follows the thumb live (MTraySliders hands it the position under the pointer). The shared slider's
+   bubble floats out of the pill; inside the card it was cut off by the card's edge when the thumb stood at an end of the track, and it lay over the pill's own number, over the line above the
+   pill and over the pill above it, so the number at the top of the control was covered. The tray draws no bubble. A finger gets the readout bigger while it drags: the same number, scaled from its
+   right end (the row keeps its height, so nothing around it moves). */
+.m-tray .m-slider__bubble { display: none; }
+.m-tray .m-tray__sl .m-slider-value { transform-origin: 100% 50%; transition: transform var(--m-spring-fast-spatial-duration) var(--m-spring-fast-spatial); }
+.m-tray.is-touch .m-tray__sl:has(.m-slider--touch.m-slider--drag, .m-slider--touch.m-slider--press) .m-slider-value { transform: scale(1.25); }
+/* the density changes under an open menu once (the first pointer was a finger, or a mouse): the sizes glide, the card follows by its own height spring */
+.m-tray.is-densifying .m-tray__row, .m-tray.is-densifying .m-tray__tile, .m-tray.is-densifying .m-tray__ibtn, .m-tray.is-densifying .m-tray__btn, .m-tray.is-densifying .m-tray__back, .m-tray.is-densifying .m-tray__seg,
+.m-tray.is-densifying .m-tray__update, .m-tray.is-densifying .m-tray__line, .m-tray.is-densifying .m-tray__supchip, .m-tray.is-densifying .m-tray__dot { transition: min-height 240ms var(--m-spring-fast-spatial), height 240ms var(--m-spring-fast-spatial), width 240ms var(--m-spring-fast-spatial), min-width 240ms var(--m-spring-fast-spatial), padding 240ms var(--m-spring-fast-spatial); }
+
+/* a press shows on the frame of the press: the state layer without its fade, and a ripple from the contact point (MTrayMenu draws it for a finger or a pen). A finger has no hover: the hover layers go
+   while the last pointer was a touch, so nothing stays lit where a finger was. `data-pressed` is set by MTrayMenu on the frame of the press (the browser sets :active for a finger only after its show-press delay) and taken off when the press turns into a swipe. */
+.m-tray[data-input='touch'] [class*='m-tray__']:hover::before, .m-tray[data-input='touch'] [class*='m-trayed__']:hover::before { opacity: 0 !important; }
+.m-tray[data-input='touch'] [data-pressed]:not(:disabled)::before { opacity: 0.1 !important; transition: none !important; }
+.m-tray__rip { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; z-index: 1; }
+.m-tray__rip i { position: absolute; border-radius: 50%; background: currentColor; opacity: 0.12; transform: translate(-50%, -50%) scale(0.1); animation: m-tray-rip 460ms cubic-bezier(0.2, 0, 0, 1) forwards; }
+.m-tray__rip.is-out i { animation: m-tray-rip-out 260ms linear forwards; }
+@keyframes m-tray-rip { to { transform: translate(-50%, -50%) scale(1); } }
+@keyframes m-tray-rip-out { from { opacity: 0.12; transform: translate(-50%, -50%) scale(1); } to { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
+/* the hold that opens edit mode: a ring that fills while the finger rests on a tile */
+.m-tray__hold { position: absolute; z-index: 2; width: 44px; height: 44px; margin: -22px 0 0 -22px; pointer-events: none; }
+.m-tray__hold svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.m-tray__hold circle { fill: none; stroke: var(--md-sys-color-primary); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 113.1; stroke-dashoffset: 113.1; opacity: 0; animation: m-tray-hold 420ms linear 180ms forwards; }
+@keyframes m-tray-hold { from { stroke-dashoffset: 113.1; opacity: 1; } to { stroke-dashoffset: 0; opacity: 1; } }
+.m-tray.is-still .m-tray__rip i, .m-tray.is-still .m-tray__hold circle { animation-duration: 1ms; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion='full']) .m-tray__rip i { animation-duration: 1ms; } }
+html[data-motion='reduced'] .m-tray__rip i { animation-duration: 1ms; }

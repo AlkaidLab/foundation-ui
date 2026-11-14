@@ -1,0 +1,239 @@
+export default {
+  "guide": "新手引導",
+  "close": "關閉",
+  "skip": "跳過引導",
+  "skipStep": "跳到下一頁",
+  "skipIn": "跳過引導 ({n})",
+  "finishTools": "完成並開啟測試工具",
+  "steps": "步驟",
+  "intro": {
+    "followSystem": "跟隨系統",
+    "moreLanguages": "更多語言",
+    "start": "開始"
+  },
+  "later": "以後再說",
+  "language": "語言",
+  "saved": "已儲存",
+  "retry": "重試",
+  "working": "處理中…",
+  "unavailable": "這裡不可用",
+  "openSource": {
+    "text": "Foundation Sunshine 是開源、免費的軟體（GPL-3.0）。本專案未授權任何個人、商家或自媒體賬號售賣；如果你是付費購買的，請立即申請退款。",
+    "link": "在 GitHub 檢視",
+    "more": "展開"
+  },
+  "open": "開啟",
+  "copy": "複製",
+  "copied": "已複製",
+  "helpRow": "重新走一遍設定、安裝客戶端、配對和第一次連線。",
+  "titles": {
+    "whatsnew": "新版本有什麼變化",
+    "intro": "歡迎",
+    "account": "設定 WebUI 面板賬號",
+    "appearance": "外觀",
+    "motion": "動畫",
+    "setup": "顯示卡與顯示器",
+    "install": "安裝客戶端",
+    "address": "在已安裝的客戶端與此裝置配對",
+    "pair": "首次配對",
+    "webaccess": "手機和其他裝置訪問",
+    "remote": "遠端訪問",
+    "connect": "首次串流檢查",
+    "apps": "新增遊戲"
+  },
+  "leads": {
+    "whatsnew": "已經做過的步驟會跳過。",
+    "account": "用於在瀏覽器中登入 WebUI 面板",
+    "address": "在同一網路裡客戶端會自動發現；發現不了就手動填一個地址。",
+    "pair": "掃描二維碼，或輸入客戶端顯示的 PIN",
+    "webaccess": "可選。選誰能開啟 WebUI 面板，不選就保持現狀。",
+    "remote": "可選，只有要從外網連線時才需要",
+    "connect": "在客戶端裡開啟這臺電腦，選擇 Desktop",
+    "apps": "可選，以後也可以在應用頁新增"
+  },
+  "whatsnew": {
+    "items": [
+      {
+        "icon": "sports_esports",
+        "title": "首次串流可以自己檢查",
+        "text": "聲音、滑鼠、鍵盤、畫面測試和延遲時鐘，引導裡和測試工具裡都有。"
+      },
+      {
+        "icon": "download",
+        "title": "統一的安裝檢視",
+        "text": "引導、連線裝置、下載頁用同一套客戶端列表、安裝包和二維碼。"
+      },
+      {
+        "icon": "public",
+        "title": "遠端訪問能檢測",
+        "text": "引導會檢測這臺電腦能不能從外網訪問，以及要改什麼。"
+      },
+      {
+        "icon": "system_update_alt",
+        "title": "更新方式",
+        "text": "選擇更新從哪裡來；Mirror醬 CDK 可選。"
+      }
+    ],
+    "note": "每個新版本只彈出一次，可以跳過。"
+  },
+  "account": {
+    "username": "使用者名稱",
+    "password": "密碼",
+    "confirm": "確認密碼",
+    "create": "儲存賬號",
+    "goNow": "立即跳轉",
+    "missing": "請填寫使用者名稱，並輸入兩次密碼。",
+    "mismatch": "兩次輸入的密碼不一致。",
+    "match": "兩次密碼一致。",
+    "note": "密碼之後不會再顯示，賬號只儲存在這臺電腦上。",
+    "done": "賬號已建立。",
+    "exists": "已經有賬號了。"
+  },
+  "setup": {
+    "preps": {
+      "no_operation": "不變更",
+      "ensure_active": "啟用此顯示器",
+      "ensure_primary": "設為主要顯示器",
+      "ensure_only_display": "僅使用此顯示器",
+      "ensure_secondary": "延伸顯示器"
+    },
+    "prep": "顯示器設定",
+    "language": "語言",
+    "gpu": "顯示卡",
+    "auto": "自動選擇",
+    "display": "串流的顯示器",
+    "virtual": "基地虛擬顯示器",
+    "virtualNote": "需要顯示器驅動",
+    "vddNeeded": "基地虛擬顯示器驅動還沒就緒。請在桌面控制面板裡安裝，或改選物理顯示器。",
+    "save": "儲存並繼續",
+    "saving": "正在儲存…",
+    "skipped": "已跳過。設定嚮導仍可在幫助頁重新開啟。",
+    "error": "儲存失敗",
+    "zh": "簡體中文",
+    "none": "這臺主機沒有報告顯示卡。",
+    "noDisplays": "沒有報告物理顯示器。"
+  },
+  "install": {
+    "device": "是哪種裝置？",
+    "recommended": "推薦的客戶端",
+    "download": "開啟下載頁",
+    "scan": "用裝置掃碼開啟下載頁",
+    "permission": "首次啟動時，系統會詢問“本地網路”許可權。請選擇允許，否則客戶端找不到這臺電腦。",
+    "project": "專案主頁",
+    "devices": {
+      "harmony": "鴻蒙",
+      "tv": "電視"
+    },
+    "notes": {
+      "macos": "首次開啟被攔截時，按專案說明放行。",
+      "ios": "在 App Store 下載。",
+      "harmony": "在華為應用市場下載。"
+    }
+  },
+  "address": {
+    "discovery": "自動發現",
+    "discoveryText": "它會出現在客戶端的列表裡，點它即可。",
+    "notShowing": "沒有出現？",
+    "manual": "在客戶端的“新增電腦”入口裡手動填地址：填這臺電腦在你連線方式下的那一個，在下面選你的。",
+    "pick": "客戶端怎麼連過來",
+    "kinds": {
+      "lan": "區域網",
+      "public": "公網地址",
+      "other": "其他網路"
+    },
+    "fill": "通過{way}連線，在客戶端裡填 {address}。",
+    "thisPc": "這臺電腦",
+    "find": "怎麼檢視",
+    "windowsHow": "按 Win + R，輸入 cmd，執行 ipconfig，找到正在使用的乙太網路或 WLAN 介面卡的 IPv4 地址。",
+    "linuxHow": "執行 ip addr，取正在使用的網絡卡的 inet 地址。",
+    "macosHow": "系統設定 > 網路，選中正在使用的連線，IP 地址就在那裡。",
+    "noSource": "這臺主機沒有報告網路地址。",
+    "port": {
+      "check": "檢查連接埠",
+      "checking": "正在檢查…",
+      "checkAgain": "再檢查一次",
+      "checkUnsupported": "這臺主機還沒有連接埠檢查，更新後可以在診斷裡查看。",
+      "checkFailed": "檢查沒能執行。",
+      "checkNone": "檢查沒有發現連接埠方面的問題。",
+      "checkOpen": "開啟診斷"
+    }
+  },
+  "pair": {
+    "qr": "用客戶端掃描",
+    "qrNote": "二維碼只在這一步開啟期間有效，幾分鐘後失效。",
+    "qrRefresh": "換一個碼",
+    "qrExpired": "二維碼已失效。",
+    "qrLoading": "正在開啟配對視窗…",
+    "qrError": "沒能生成二維碼，請用 PIN 配對。",
+    "qrPaired": "已通過二維碼配對。",
+    "qrSeconds": "還剩 {n} 秒",
+    "byPin": "輸入 PIN",
+    "name": "裝置名稱",
+    "send": "配對",
+    "waiting": "等待客戶端完成配對…",
+    "ok": "{name} 已配對。",
+    "error": "配對失敗",
+    "nameMissing": "請先給裝置起個名字。",
+    "hint": "點開這臺電腦後，客戶端會顯示四位 PIN。",
+    "already": "已配對的裝置",
+    "another": "再配一臺",
+    "unavailable": "讀取不到已配對客戶端的列表。",
+    "showQr": "顯示二維碼，給另一臺裝置掃"
+  },
+  "connect": {
+    "waiting": "等待客戶端開始串流…",
+    "noDetect": "即時檢測只在主機這臺電腦上可用。",
+    "check": "請確認",
+    "checks": {
+      "picture": "畫面出現了",
+      "mouse": "滑鼠能移動和點選",
+      "keyboard": "鍵盤能輸入",
+      "sound": "聲音能播放"
+    },
+    "hints": {
+      "picture": "看下面的色條和近黑階。",
+      "mouse": "在測試區裡移動滑鼠、按各個按鍵。",
+      "keyboard": "在測試區裡同時按幾個鍵。",
+      "sound": "點一個聲道，只有它應該出聲。"
+    },
+    "tryTitle": "就在這裡試一試",
+    "tryText": "測試工具裡的工具直接在這個窗口裡執行。在串流畫面裡看它：你在那邊看到、聽到的，就是它們評判的。",
+    "clock": "延遲時鐘",
+    "noDesktop": "客戶端列表裡沒有 Desktop？",
+    "restore": "還原內建應用",
+    "restoring": "正在還原…",
+    "restored": "內建應用已還原。",
+    "restoredNone": "內建應用已經在了。",
+    "restoreFailed": "還原內建應用失敗",
+    "restoreNote": "恢復預設專案；改過的請先備份。",
+    "openApps": "開啟應用頁",
+    "refreshClient": "然後重新整理客戶端的列表。"
+  },
+  "apps": {
+    "sources": "要掃描的遊戲庫",
+    "start": "開始掃描",
+    "again": "重新掃描",
+    "found": "找到 {n} 個遊戲",
+    "none": "這些遊戲庫裡沒有找到遊戲。",
+    "busy": "已經有一次掃描在執行，請稍後再試。",
+    "scanFailed": "掃描失敗。",
+    "addPicked": "新增所選的 {n} 個",
+    "added": "已新增 {n} 個到應用列表。",
+    "addFailed": "沒能新增。",
+    "nameLabel": "名稱",
+    "cmdLabel": "主程式",
+    "cmdHint": "命令或程式的路徑；可以留空。",
+    "addOne": "新增",
+    "backToGuide": "回到引導",
+    "scan": "掃描遊戲庫",
+    "scanText": "Steam、Epic 和 GOG。檢查結果後再新增。",
+    "scanOnly": "這臺主機還不支援掃描遊戲庫，請更新主機。",
+    "manual": "手動新增",
+    "manualText": "填一個名稱和主程式。",
+    "done": "都設定好了",
+    "open": "開啟"
+  },
+  "follow": "關注我們：",
+  "followBilibili": "B 站",
+  "followSite": "官網"
+}

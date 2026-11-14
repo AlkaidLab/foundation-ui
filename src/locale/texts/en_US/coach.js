@@ -1,0 +1,22 @@
+export default {
+  "next": "Next",
+  "done": "Got it",
+  "skip": "Skip",
+  "rerun": "Show the tour",
+  "steps.rail.title": "The sidebar",
+  "steps.rail.text": "Everything is sorted here: streaming, host settings, input, display and system. On a narrow window it is the bar at the bottom.",
+  "steps.search.title": "Search everything",
+  "steps.search.text": "Press Ctrl+K at any time to find a setting, a page or an action by what it does.",
+  "steps.overview.title": "The overview",
+  "steps.overview.text": "These tiles show how the host is doing right now: the picture, the clients, the components.",
+  "steps.edit.title": "Make it yours",
+  "steps.edit.text": "The pencil lets you add, move and resize tiles, and pin the settings you use most.",
+  "steps.pair.title": "Connect a device",
+  "steps.pair.text": "Scan the code with a client or type the PIN it shows, right here.",
+  "steps.config.title": "Host settings",
+  "steps.config.text": "General, network, security and sign-in: the options of this host itself. Resolution, encoders and audio are in Display & video and Audio.",
+  "steps.system.title": "When something is wrong",
+  "steps.system.text": "Component status and Diagnostics and logs show what is missing or failing, and how to fix it.",
+  "steps.help.title": "Help and about",
+  "steps.help.text": "The version, the guide and feedback. To see these tips again, choose \"Show the tour\" here."
+}
