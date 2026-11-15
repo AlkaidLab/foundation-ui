@@ -68,7 +68,7 @@ const valueText = (r) => (r.control === 'switch' ? (on(r) ? props.texts.on : pro
             <button v-for="o in r.options" :key="o.value" type="button" role="radio" :class="{ 'is-on': String(o.value) === String(chosen(r)) }" :aria-checked="String(o.value) === String(chosen(r))" @click.stop="pick(r, o.value)">{{ o.label }}</button>
           </div>
           <template v-else-if="r.control === 'slider' && full">
-            <MSlider :model-value="level(r)" :min="r.min" :max="r.max" :step="r.step" size="m" :label="r.title" @update:model-value="(v) => slide(r, v)" @commit="(v) => commit(r, v)" />
+            <MSlider :model-value="level(r)" :min="r.min" :max="r.max" :step="r.step" size="s" :label="r.title" @update:model-value="(v) => slide(r, v)" @commit="(v) => commit(r, v)" />
             <b class="m-rc__val">{{ levelText(r) }}</b>
           </template>
           <button v-else type="button" class="m-rc__jump" :aria-label="`${r.title}: ${texts.rcOpen}`" @click.stop="open(r)"><span v-if="valueText(r)">{{ valueText(r) }}</span><MIcon name="chevron_right" /></button>

@@ -46,11 +46,11 @@ test('a mark is not drawn under an inset icon, like a stop', () => {
   assert.match(src, /v-show="!markHidden\(f\)"/)
 })
 
-test('the sliders of the home tiles and the mode card are size m (the same 44 px row as s), and the live bitrate tile runs on the segmented bitrate scale', () => {
+test('the sliders of the home tiles and the mode card are the slim size s (a thick m track in a tile read as a block), and the live bitrate tile runs on the segmented bitrate scale', () => {
   const read = (p) => fs.readFileSync(new URL(`../src/vue/${p}`, import.meta.url), 'utf8')
   for (const p of ['tiles/TileLive.vue', 'tiles/TilePin.vue', 'tiles/TileRecent.vue', 'MDashWidget.vue', 'MModeCard.vue']) {
     const text = read(p)
-    assert.match(text, /<MSlider\b/, p); assert.doesNotMatch(text, /<MSlider[^>]*size="(xs|s)"/, p)
+    assert.match(text, /<MSlider\b/, p); assert.doesNotMatch(text, /<MSlider[^>]*size="(m|l|xl)"/, p); assert.match(text, /<MSlider[^>]*size="s"/, p)
   }
   const live = read('tiles/TileLive.vue')
   assert.match(live, /bitrateSliderSpan\(/); assert.doesNotMatch(live, /bitrateChipMarks|:marks=/, 'no unlabeled marks on the tile slider'); assert.match(live, /bitrateFromProgress\(position\)/)

@@ -8,8 +8,7 @@ export const tileIds = ['temperature', 'load', 'budget', 'session-time']
 //     (a closed ring from the top: an open 270° gauge read as a ring broken on one side)
 //     方形: the gauge · 中: + the CPU and the GPU reading as two bars beside it
 //   延迟预算 (the same open gauge): the share of a frame's time the encoder takes, in the colour of its zone; 中 adds the latency curve beside it
-//   串流时长 (Apple Watch's activity ring, drawn as the wavy circular progress of 断线 (MProgress)): the whole ring, turning while the stream runs (a session has no length to fill it with), the time in it as the hero;
-//     the client under the numeral, when the session or a paired client names it
+//   串流时长: the time the stream has run, as the display numeral and nothing else around it (a session has no length to fill a ring with); the client under it, when the session or a paired client names it
 //   CPU 与 GPU (Stocks comparison, iStat's combined graph): both curves edge to edge over one scale, each number in its colour above them. 中 only.
 import { computed } from 'vue'
 import MTileHead from '../MTileHead.vue'
@@ -30,8 +29,6 @@ const zone = computed(() => ({ ok: 'ok', warn: 'warn', err: 'error' }[(d.value.z
 // 'CPU 62 °C · GPU 78 °C' -> [{ label: 'CPU', v: 62 }, ...]
 const readings = computed(() => String(d.value.caption || '').split(' · ').map((s) => { const m = /^(.*?)\s*([\d.]+)\s*°C$/.exec(s.trim()); return m ? { label: m[1], v: +m[2] } : null }).filter(Boolean))
 const series = computed(() => (d.value.series || []).map((s) => ({ ...s, values: finite(s.values) })))
-// a session has no maximum length, so its ring has no fill to read: it is the whole wavy ring, turning slowly while the stream runs, and the time is the hero inside it
-const hour = computed(() => 1)
 const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === undefined ? '' : String(Math.round(v)) }
 </script>
 
@@ -60,10 +57,8 @@ const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === und
     </template>
     <template v-else-if="isTime">
       <MTileHead :icon="d.icon" :title="card.title" />
-      <div class="m-tgauge__body">
-        <MTileRing class="m-tgauge__ring" :value="hour" :sweep="360" :stroke="7" :amp="1.9" :waves="18" spin :style="{ '--chars': String(d.centre || '').length || 4 }">
-          <MTileNumeral :value="d.centre" size="s" />
-        </MTileRing>
+      <div class="m-tgauge__body m-tgauge__clock" :style="{ '--chars': String(d.centre || '').length || 4 }">
+        <MTileNumeral :value="d.centre" :size="size === 's' ? 'l' : 'xl'" />
         <span v-if="d.caption" class="m-tgauge__cap">{{ d.caption }}</span>
       </div>
     </template>

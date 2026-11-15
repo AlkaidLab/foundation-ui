@@ -78,13 +78,12 @@ test('tilefit.css is part of all.css and lifts the ellipsis of the names of a ti
   assert.match(f, /--tn-k/); assert.match(f, /@container m-calq/); assert.match(f, /overflow-x: auto/)
   assert.match(src('vue/MTileNumeral.vue'), /--tn-k/)
 })
-test('the wave of the session ring runs on a transform of its own, as slowly as the wavy progress bar, and stops under reduced motion', () => {
+test('the wave of a spinning ring (MTileRing spin) runs on a transform of its own, as slowly as the wavy progress bar, and stops under reduced motion', () => {
   const k = css('tilekit.css')
   assert.match(k, /\.m-tring__spin > svg \{[^}]*animation: m-tring-run 1\.1s linear infinite/)
   assert.match(k, /@keyframes m-tring-run \{ to \{ transform: rotate\(/)
   assert.match(k, /prefers-reduced-motion: reduce\)[^\n]*\.m-tring__spin > svg \{ animation: none/)
   assert.match(k, /html\[data-motion='reduced'\] \.m-tring__spin > svg \{ animation: none/)
-  assert.match(src('vue/tiles/TileGauge.vue'), /:waves="18" spin/)
   assert.doesNotMatch(src('vue/MTileRing.vue'), /setInterval|requestAnimationFrame/, 'no script drives the wave')
 })
 
