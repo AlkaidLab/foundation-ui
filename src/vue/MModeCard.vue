@@ -53,17 +53,17 @@ const commit = (kind) => emit('apply', { kind, ...model.value })
     </header>
     <div class="m-modecard__row">
       <MIcon name="aspect_ratio" /><span class="m-modecard__name">{{ t.resolution }}</span>
-      <MSlider v-model="resIndex" :min="0" :max="Math.max(1, resolutions.length - 1)" :step="1" size="m" :label="t.resolution" :disabled="!live || resolutions.length < 2" @commit="commit('resolution')" />
+      <MSlider v-model="resIndex" :min="0" :max="Math.max(1, resolutions.length - 1)" :step="1" size="s" :label="t.resolution" :disabled="!live || resolutions.length < 2" @commit="commit('resolution')" />
       <span class="m-modecard__val">{{ size(model.resolution) }}</span>
     </div>
     <div class="m-modecard__row">
       <MIcon name="speed" /><span class="m-modecard__name">{{ t.refresh }}</span>
-      <MSlider v-model="rateIndex" :min="0" :max="Math.max(1, refreshes.length - 1)" :step="1" size="m" :label="t.refresh" :disabled="!live || refreshes.length < 2" @commit="commit('refresh')" />
+      <MSlider v-model="rateIndex" :min="0" :max="Math.max(1, refreshes.length - 1)" :step="1" size="s" :label="t.refresh" :disabled="!live || refreshes.length < 2" @commit="commit('refresh')" />
       <span class="m-modecard__val">{{ model.refresh ? hz(model.refresh) : '—' }}</span>
     </div>
     <div class="m-modecard__row">
       <MIcon name="format_size" /><span class="m-modecard__name">{{ t.scale }}</span>
-      <MSlider v-model="scaleIndex" :min="0" :max="scales.length - 1" :step="1" size="m" :label="t.scale" :disabled="!live" @commit="commit('scale')" />
+      <MSlider v-model="scaleIndex" :min="0" :max="scales.length - 1" :step="1" size="s" :label="t.scale" :disabled="!live" @commit="commit('scale')" />
       <span class="m-modecard__val">{{ model.scale }}%</span>
     </div>
     <footer v-if="status" class="m-modecard__status" :class="`is-${state || 'info'}`"><MIcon :name="state === 'failed' ? 'error' : state === 'applied' ? 'check_circle' : state === 'applying' ? 'sync' : 'info'" />{{ status }}</footer>

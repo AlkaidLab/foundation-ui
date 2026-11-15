@@ -18,23 +18,33 @@ export function useDashDock(D) {
   const sectionCount = computed(() => (!smart.value && layout.state.sectionCount ? layout.state.sectionCount : Math.min(PURPOSES.length, across.value)))
   const sectionOfCard = (c) => { const manual = layout.state.sectionOf[c.id]; return Number.isInteger(manual) && !smart.value ? Math.min(manual, sectionCount.value - 1) : sectionIndexOf(purposeOf(c.id, c.group), sectionCount.value) }
   const SECTION_TITLES = computed(() => ({ 0: T.value.secLive, 1: T.value.secControls, 2: T.value.secClients, 3: T.value.secSystem }))
-  // the smart overview of a window: a row that stops a column short of the right edge gives that column to the single-row tile at its end (no row ends short of the window); the search for the arrangement is not changed
+  // the smart overview of a window: a free run in a row (at its end, or between two tiles) goes to the single-row tile beside it, so no row has a hole; the search for the arrangement is not changed
   const closeRowEnds = (packed, units) => {
+    const cells = [...packed.placed.values()]
     for (let r = 0; r < packed.rows.length; r++) {
-      const here = [...packed.placed.values()].filter((p) => p.row <= r && r < p.row + p.rows)
-      const end = Math.max(0, ...here.map((p) => p.col + p.span))
-      const last = here.find((p) => p.col + p.span === end)
-      if (end < units && last && last.rows === 1 && last.row === r && last.cls !== 'strip' && !here.some((p) => p !== last && p.col >= end)) {
-        const run = units - end
-        last.span += run
-        const cell = packed.rows[r].cells.find((c) => c.col === last.col)
-        if (cell) cell.span += run
+      const used = new Array(units).fill(false)
+      for (const p of cells) if (p.row <= r && r < p.row + p.rows) for (let x = p.col; x < p.col + p.span; x++) used[x] = true
+      for (let x = 0; x < units;) {
+        if (used[x]) { x++; continue }
+        let e = x
+        while (e < units && !used[e]) e++
+        const left = cells.find((p) => p.col + p.span === x && p.row === r && p.rows === 1 && p.cls !== 'strip')
+        const right = cells.find((p) => p.col === e && p.row === r && p.rows === 1 && p.cls !== 'strip')
+        const pick = left || right
+        if (pick) {
+          const run = e - x
+          if (pick === left) pick.span += run; else { pick.col -= run; pick.span += run }
+          const cell = packed.rows[r].cells.find((c) => c.col === (pick === left ? pick.col : pick.col + run))
+          if (cell) { if (pick === left) cell.span += run; else { cell.col -= run; cell.span += run } }
+          for (let k = x; k < e; k++) used[k] = true
+        }
+        x = e
       }
     }
   }
   const blockOf = (key, list, w, more = {}) => {
-    const { light, ghostSection, taken, only, hole, close, ...rest } = more
-    const grid = gridOf(w)
+    const { light, ghostSection, taken, only, hole, close, cols, ...rest } = more
+    const grid = more.cols ? { columns: more.cols, unit: Math.floor(((w - (more.cols - 1) * UNIT_GAP) / more.cols) * 100) / 100 } : gridOf(w)
     // the suggestions of the section's own purpose come first
     const candidates = light ? [] : (only || ghostCards.value).filter((g) => !list.some((x) => x.id === g.id) && !(taken && taken.has(g.id))).sort((a, b) => Number(ghostSection !== undefined && sectionIndexOf(purposeOf(b.id, b.group), sectionCount.value) === ghostSection) - Number(ghostSection !== undefined && sectionIndexOf(purposeOf(a.id, a.group), sectionCount.value) === ghostSection))
     const f = fitDash(list, w, boxFor, { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: hole ?? 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
@@ -113,9 +123,21 @@ export function useDashDock(D) {
     if (!sectioned.value) {
       // the smart overview in one grid fills its window like a section does: the key tiles a size up within their caps, then suggested tiles, toward 80-96 % of the height, and no row is short by a column
       if (!smart.value || windowClass.value === 'compact') return [blockOf('grid', list, width.value)]
-      const unit = gridOf(width.value).unit
-      const avail = availH.value
-      return [blockOf('grid', list, width.value, { hole: 1, close: true, target: { min: 0.8 * avail, max: 0.96 * avail, rowPx: rowPxIn(unit), gap: UNIT_GAP } })]
+      // fewer, wider columns make taller squares: the first column count (from the one the width gives) whose rows reach the bottom of the window within the growth cap is taken
+      const base = gridOf(width.value)
+      const avail = Math.max(420, tall.value - 232)
+      const tries = []
+      for (let n = base.columns; n >= Math.min(base.columns, Math.max(8, base.columns - 5)); n--) {
+        const unit = Math.floor(((width.value - (n - 1) * UNIT_GAP) / n) * 100) / 100
+        const b = blockOf('grid', list, width.value, { cols: n, hole: 1, close: true, target: { min: 0.8 * avail, max: 0.96 * avail, rowPx: rowPxIn(unit), gap: UNIT_GAP } })
+        const unitRows = String(b.template).split(' ').filter((t) => t === `${b.unit}px`).length
+        const rest = b.natural - unitRows * b.unit
+        tries.push({ b, need: unitRows ? (avail - rest) / (unitRows * b.unit) : 1 })
+        if (tries[tries.length - 1].need <= 1.3 + 1e-9) break
+      }
+      // the rows can grow into the window (1 to 1.3 times), else the grid that comes closest to the bottom without going past it, else the one that goes least past
+      const pick = tries.find((t) => t.need >= 1 && t.need <= 1.3 + 1e-9) || [...tries].filter((t) => t.need > 1.3).sort((x, y) => x.need - y.need)[0] || [...tries].sort((x, y) => y.need - x.need)[0]
+      return [pick.b]
     }
     const per = sectionLayout(width.value)
     const groups = Array.from({ length: sectionCount.value }, () => [])

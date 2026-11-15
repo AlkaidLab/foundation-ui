@@ -44,6 +44,12 @@ export const isOn = (key, value) => {
 const TIPS = 8 // how many tips the texts carry (tip0 ... tip7)
 
 /** { [id]: data | null } for the cards above. x is the same input as buildCatalogue; `now` is a timestamp (the tip of the day follows the date). */
+/** The address a host sees for a client that streams through a router or a bridge is the router's: the first or the last address of a private /24 (192.168.1.1). It is not the client, so no tile names it as the client's. */
+export const viaGateway = (address) => {
+  const m = /^(10|172\.(?:1[6-9]|2\d|3[01])|192\.168)\.(?:\d{1,3}\.)?(\d{1,3})\.(\d{1,3})$/.exec(String(address || '').trim())
+  return !!m && (m[3] === '1' || m[3] === '254')
+}
+
 export function moreCatalogue(x, T, now = Date.now()) {
   const d = {}
   const s = realSession(x.session, x.clients)
@@ -56,7 +62,7 @@ export function moreCatalogue(x, T, now = Date.now()) {
   const latest = list && list.length ? list[list.length - 1] : null
   d.pair = list ? { type: 'pair', icon: 'person_add', title: T.c_pair, count: list.length, latest: latest ? { name: latest.name || '–', icon: latest.icon || 'devices' } : null, canPin: x.canAct !== false, qr: x.pairQr || null } : null
   d['stream-resolution'] = s && num(s.width) && num(s.height) ? rows('stream-resolution', 'aspect_ratio', `${s.width}×${s.height}`, [{ icon: 'slow_motion_video', title: T.target, value: num(s.fps) ? `${s.fps} ${T.fpsUnit || 'fps'}` : '' }].filter((r) => r.value)) : null
-  d['stream-client'] = s && (s.client_name || s.client_address) ? { ...rows('stream-client', 'devices', '', [{ icon: 'cast_connected', title: s.client_name || s.client_address, value: s.client_name ? s.client_address || '' : '', tone: 'ok' }]), clientIcon: (x.clients || []).find((c) => c.name === s.client_name)?.icon || '' } : null
+  d['stream-client'] = s && (s.client_name || s.client_address) ? { ...rows('stream-client', 'devices', '', [{ icon: 'cast_connected', title: s.client_name || (viaGateway(s.client_address) ? '' : s.client_address), value: s.client_name && !viaGateway(s.client_address) ? s.client_address || '' : '', tone: 'ok' }]), clientIcon: (x.clients || []).find((c) => c.name === s.client_name)?.icon || '' } : null
   d['stream-fps'] = s && num(s.fps) ? rows('stream-fps', 'slow_motion_video', num(s.fpsMeasured) !== null ? String(Math.round(s.fpsMeasured)) : '', [{ icon: 'check_circle', title: T.target, value: String(s.fps) }, ...(num(s.fpsMeasured) !== null ? [{ icon: 'speed', title: T.measured, value: String(Math.round(s.fpsMeasured)) }] : [])]) : null
   const cap = c && num(Number(c.max_bitrate)) ? Number(c.max_bitrate) : null
   const kbps = num(s?.measured_bitrate_kbps) ?? num(s?.bitrate) // the measured bitrate when the host reports it, else the budget (titled 目标码率)
