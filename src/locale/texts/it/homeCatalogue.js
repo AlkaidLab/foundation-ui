@@ -308,7 +308,7 @@ export default
   "lbNow": "Ora",
   "lbSet": "Imposta",
   "lbCapped": "Limite dell'host: {cap} Mbps",
-  "lbUncapped": "Nessun limite dell'host · fino a 800 Mbps",
+  "lbUncapped": "Nessun limite dell'host",
   "lbApplies": "Vale per lo stream in corso",
   "lbSent": "Richiesta di bitrate inviata a {client}",
   "lbFailed": "L'host non ha accettato la richiesta di bitrate",

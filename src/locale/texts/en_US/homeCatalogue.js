@@ -338,7 +338,7 @@ export default {
   "lbNow": "Now",
   "lbSet": "Set",
   "lbCapped": "Host limit: {cap} Mbps",
-  "lbUncapped": "No host limit · up to 800 Mbps",
+  "lbUncapped": "No host limit",
   "lbApplies": "Applies to the running stream",
   "lbSent": "Bitrate request sent to {client}",
   "lbFailed": "The host did not take the bitrate request",

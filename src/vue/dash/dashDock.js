@@ -1,10 +1,11 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { fitDash, heightOf, sectionLayout, sectionedOf } from '../homeFit.js'
-import { PURPOSES, purposeOf, sectionIndexOf, suggestions } from '../homeSmart.js'
+import { packDash } from '../homePack.js'
+import { PURPOSES, fillOrder, purposeOf, sectionIndexOf, suggestions } from '../homeSmart.js'
 import { clientInUse, clientRecommendation, markClientRec, readClientRec } from '../clientPrompt.js'
 import { starClientInUse } from '../starCard.js'
 import { slotEnter, slotLeave } from '../promptSlot.js'
-import { UNIT_GAP } from '../homeSizes.js'
+import { UNIT_GAP, hasNoData, sizesOf } from '../homeSizes.js'
 import { effectiveClockSize } from '../../appearance/appearance.js'
 
 /** dashDock: one part of the home overview's setup (MHomeDash.vue); D is the shared scope of the parts, in the order they are made. */
@@ -12,47 +13,100 @@ export function useDashDock(D) {
   const { T, allCards, appearance, boxFor, cardById, dockLayout, edit, emit, ghostCards, gridOf, layout, mode, plan, priority, props, replan, rowPxIn, smart, tall, trackTemplate, usage, visibleCards, wide, width, windowClass } = D
   // ---- sections: from 2560 css px or wider than 2.1 : 1 the overview is a row of sections, each its own grid of at most 1000 px
   const rootTop = ref(140)
+  // where the grid starts in the window (below the banner), measured: the free height of the smart overview is what is left under it
+  const blocksTop = ref(0)
+  const measureTop = () => {
+    const el = D.root?.value?.querySelector?.('.m-dash__blocks'); if (!el) return
+    const sc = el.closest('.m-scene__pane, .m-scene')
+    const t = Math.round(el.getBoundingClientRect().top + (sc?.scrollTop || 0))
+    if (Math.abs(t - blocksTop.value) > 2) blocksTop.value = t
+  }
+  onMounted(() => nextTick(measureTop))
+  // the fill waits until the page has settled (the first data, the banner, the measured top): tiles are then added once, at the end, and never move the plan's tiles
+  const fillReady = ref(false)
+  let fillTimer = 0
+  onMounted(() => { fillTimer = setTimeout(() => { fillReady.value = true }, 1200) })
+  onBeforeUnmount(() => clearTimeout(fillTimer))
+  // the tiles taken to fill, in the order they were taken: a later fit takes them first and in the same order, so a tile that arrives or a row that is added puts its tiles after them
+  let fillMemory = { scenario: '', ids: [] }
   const availH = computed(() => Math.max(420, tall.value - rootTop.value - 16))
   const sectioned = computed(() => mode.value === 'wide' && sectionedOf(wide.value, tall.value))
   const across = computed(() => sectionLayout(width.value).across)
   const sectionCount = computed(() => (!smart.value && layout.state.sectionCount ? layout.state.sectionCount : Math.min(PURPOSES.length, across.value)))
   const sectionOfCard = (c) => { const manual = layout.state.sectionOf[c.id]; return Number.isInteger(manual) && !smart.value ? Math.min(manual, sectionCount.value - 1) : sectionIndexOf(purposeOf(c.id, c.group), sectionCount.value) }
   const SECTION_TITLES = computed(() => ({ 0: T.value.secLive, 1: T.value.secControls, 2: T.value.secClients, 3: T.value.secSystem }))
-  // the smart overview of a window: a free run in a row (at its end, or between two tiles) goes to the single-row tile beside it, so no row has a hole; the search for the arrangement is not changed
-  const closeRowEnds = (packed, units) => {
-    const cells = [...packed.placed.values()]
-    for (let r = 0; r < packed.rows.length; r++) {
-      const used = new Array(units).fill(false)
-      for (const p of cells) if (p.row <= r && r < p.row + p.rows) for (let x = p.col; x < p.col + p.span; x++) used[x] = true
-      for (let x = 0; x < units;) {
-        if (used[x]) { x++; continue }
-        let e = x
-        while (e < units && !used[e]) e++
-        const left = cells.find((p) => p.col + p.span === x && p.row === r && p.rows === 1 && p.cls !== 'strip')
-        const right = cells.find((p) => p.col === e && p.row === r && p.rows === 1 && p.cls !== 'strip')
-        const pick = left || right
-        if (pick) {
-          const run = e - x
-          if (pick === left) pick.span += run; else { pick.col -= run; pick.span += run }
-          const cell = packed.rows[r].cells.find((c) => c.col === (pick === left ? pick.col : pick.col + run))
-          if (cell) { if (pick === left) cell.span += run; else { cell.col -= run; cell.span += run } }
-          for (let k = x; k < e; k++) used[k] = true
-        }
-        x = e
-      }
+  // Empty slots of the window are filled with more real tiles at their standard sizes (never by stretching a tile or giving a cell to a neighbour): the catalogue's tiles that have data, in the order of fillOrder
+  // for the state, each at the smallest standard size it offers. A tile is taken when the packer puts it into a free place and the grid stays inside `rows` rows; the list is walked again until no
+  // slot of those rows is free or no tile fits (a lone cell takes a 1 x 1). The tiles already placed never move: a tile is only added after them.
+  const fillCards = computed(() => {
+    if (!smart.value) return []
+    const onPage = new Set(visibleCards.value.map((c) => c.id))
+    const named = new Set(visibleCards.value.map((c) => String(c.title || '').trim().toLowerCase()))
+    const out = []
+    for (const id of fillOrder(plan.value.scenario, allCards.value.map((c) => c.id))) {
+      const c = cardById.value.get(id)
+      if (!c || c.available === false || onPage.has(id) || c.kind === 'stack' || ['strip', 'journey'].includes(c.cls) || id === 'hero' || id === 'table' || hasNoData(c.data)) continue
+      if (layout.state.hiddenSuggest.includes(id)) continue
+      const name = String(c.title || '').trim().toLowerCase()
+      if (name && named.has(name)) continue
+      const offered = ['s', 'm', 'l'].filter((k) => sizesOf(c.id, c, windowClass.value, tall.value).sizes[k])
+      if (!offered.length) continue
+      named.add(name)
+      out.push({ ...c, fillSize: offered[0] })
     }
+    return out
+  })
+  // the free standard slots of the rows that fit under `max` px (a slim strip row is one row of its own height, and is full); rows below the last placed one count as free
+  const freeCells = (packed, units, unit, max) => {
+    const used = new Set()
+    for (const p of packed.placed.values()) for (let r = p.row; r < p.row + p.rows; r++) for (let x = p.col; x < p.col + p.span; x++) used.add(r * units + x)
+    const rowPx = rowPxIn(unit)
+    let free = 0, y = 0
+    for (let r = 0; ; r++) {
+      const cls = r < packed.rows.length ? packed.rows[r].cls : 'unit'
+      const rh = rowPx(cls)
+      if (y + rh > max + 0.5) break
+      if (cls === 'unit') for (let x = 0; x < units; x++) if (!used.has(r * units + x)) free++
+      y += rh + UNIT_GAP
+    }
+    return free
+  }
+  const fillGrid = (boxed0, packed0, units, unit, fill) => {
+    let boxed = boxed0, packed = packed0
+    if (freeCells(packed, units, unit, fill.max) === 0) return { boxed, packed }
+    const scenario = plan.value.scenario
+    if (fillMemory.scenario !== scenario) fillMemory = { scenario, ids: [] }
+    const pool = fillCards.value
+    const byId = new Map(pool.map((c) => [c.id, c]))
+    const ordered = [...fillMemory.ids.filter((id) => byId.has(id)).map((id) => byId.get(id)), ...pool.filter((c) => !fillMemory.ids.includes(c.id))]
+    const taken = []
+    for (let pass = 0; pass < 8; pass++) {
+      let took = false
+      for (const c of ordered) {
+        if (boxed.some((x) => x.id === c.id)) continue
+        const bx = { ...c, ...boxFor(c, units) }
+        const p = packDash([...boxed, bx], units, { dense: true, exact: true })
+        if (heightOf(p, rowPxIn(unit), UNIT_GAP) > fill.max) continue
+        boxed = [...boxed, bx]; packed = p; took = true; taken.push(c.id)
+        if (freeCells(packed, units, unit, fill.max) === 0) { fillMemory = { scenario, ids: taken }; return { boxed, packed } }
+      }
+      if (!took) break
+    }
+    fillMemory = { scenario, ids: taken }
+    return { boxed, packed }
   }
   const blockOf = (key, list, w, more = {}) => {
-    const { light, ghostSection, taken, only, hole, close, cols, ...rest } = more
-    const grid = more.cols ? { columns: more.cols, unit: Math.floor(((w - (more.cols - 1) * UNIT_GAP) / more.cols) * 100) / 100 } : gridOf(w)
+    const { light, ghostSection, taken, only, fill, ...rest } = more
+    const grid = gridOf(w)
     // the suggestions of the section's own purpose come first
-    const candidates = light ? [] : (only || ghostCards.value).filter((g) => !list.some((x) => x.id === g.id) && !(taken && taken.has(g.id))).sort((a, b) => Number(ghostSection !== undefined && sectionIndexOf(purposeOf(b.id, b.group), sectionCount.value) === ghostSection) - Number(ghostSection !== undefined && sectionIndexOf(purposeOf(a.id, a.group), sectionCount.value) === ghostSection))
-    const f = fitDash(list, w, boxFor, { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: hole ?? 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
-    if (close) closeRowEnds(f.packed, f.units)
+    const candidates = light || fill ? [] : (only || ghostCards.value).filter((g) => !list.some((x) => x.id === g.id) && !(taken && taken.has(g.id))).sort((a, b) => Number(ghostSection !== undefined && sectionIndexOf(purposeOf(b.id, b.group), sectionCount.value) === ghostSection) - Number(ghostSection !== undefined && sectionIndexOf(purposeOf(a.id, a.group), sectionCount.value) === ghostSection))
+    const f = fitDash(list, w, boxFor, { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
     const ghosts = new Set(f.ghosts)
-    const boxed = f.boxed.map((c) => (ghosts.has(c.id) ? { ...c, ghost: true } : c))
+    let boxed = f.boxed.map((c) => (ghosts.has(c.id) ? { ...c, ghost: true } : c))
+    let packed = f.packed
+    if (fill) ({ boxed, packed } = fillGrid(boxed, packed, f.units, grid.unit, fill))
     if (typeof window !== 'undefined') (window.__m3eFit ||= {})[key] = { w, units: f.units, trace: f.trace }
-    return { key, units: f.units, unit: grid.unit, boxed, packed: f.packed, natural: heightOf(f.packed, rowPxIn(grid.unit), UNIT_GAP), template: trackTemplate(f.packed.rows, grid.unit), ratio: f.ratio }
+    return { key, units: f.units, unit: grid.unit, boxed, packed, natural: heightOf(packed, rowPxIn(grid.unit), UNIT_GAP), template: trackTemplate(packed.rows, grid.unit), ratio: f.ratio }
   }
   // ---- the dock: not the default. A big clock with the date and a short status line in the upper area, every tile in ONE row along the bottom, scrolling sideways when they do not fit.
   // The tiles keep the one size standard (S, M, L, XL: the same boxes as in the grid); editing shows the grid, where the arrangement is made.
@@ -121,23 +175,12 @@ export function useDashDock(D) {
   const blocks = computed(() => {
     const list = visibleCards.value
     if (!sectioned.value) {
-      // the smart overview in one grid fills its window like a section does: the key tiles a size up within their caps, then suggested tiles, toward 80-96 % of the height, and no row is short by a column
-      if (!smart.value || windowClass.value === 'compact') return [blockOf('grid', list, width.value)]
-      // fewer, wider columns make taller squares: the first column count (from the one the width gives) whose rows reach the bottom of the window within the growth cap is taken
-      const base = gridOf(width.value)
-      const avail = Math.max(420, tall.value - 232)
-      const tries = []
-      for (let n = base.columns; n >= Math.min(base.columns, Math.max(8, base.columns - 5)); n--) {
-        const unit = Math.floor(((width.value - (n - 1) * UNIT_GAP) / n) * 100) / 100
-        const b = blockOf('grid', list, width.value, { cols: n, hole: 1, close: true, target: { min: 0.8 * avail, max: 0.96 * avail, rowPx: rowPxIn(unit), gap: UNIT_GAP } })
-        const unitRows = String(b.template).split(' ').filter((t) => t === `${b.unit}px`).length
-        const rest = b.natural - unitRows * b.unit
-        tries.push({ b, need: unitRows ? (avail - rest) / (unitRows * b.unit) : 1 })
-        if (tries[tries.length - 1].need <= 1.3 + 1e-9) break
-      }
-      // the rows can grow into the window (1 to 1.3 times), else the grid that comes closest to the bottom without going past it, else the one that goes least past
-      const pick = tries.find((t) => t.need >= 1 && t.need <= 1.3 + 1e-9) || [...tries].filter((t) => t.need > 1.3).sort((x, y) => x.need - y.need)[0] || [...tries].sort((x, y) => y.need - x.need)[0]
-      return [pick.b]
+      if (!smart.value || edit.value || windowClass.value === 'compact' || !fillReady.value) return [blockOf('grid', list, width.value)]
+      // the same cell as manual mode (gridOf); the height left under the banner is measured (the banner is one line or three), and the tiles that fill it are chosen by whole rows in the packer
+      const grid = gridOf(width.value)
+      const avail = Math.max(2 * grid.unit, tall.value - (blocksTop.value || 212) - 16)
+      const rows = Math.max(2, Math.floor((avail + UNIT_GAP) / (grid.unit + UNIT_GAP)))
+      return [blockOf('grid', list, width.value, { fill: { rows, max: avail } })]
     }
     const per = sectionLayout(width.value)
     const groups = Array.from({ length: sectionCount.value }, () => [])
@@ -199,27 +242,7 @@ export function useDashDock(D) {
   const shownIds = computed(() => shown.value.filter((c) => !c.ghost).map((c) => c.id))
   const placedOf = (id) => { for (const b of blocks.value) { const p = b.packed.placed.get(id); if (p) return p } return null }
   const cellStyle = (b, id) => { const p = b.packed.placed.get(id); return p ? { gridRow: `${p.row + 1} / span ${p.rows}`, gridColumn: `${p.col + 1} / span ${p.span}` } : {} }
-  // the smart overview in one grid fills the height of its window: the unit rows grow (by up to 30 %) until the grid reaches the bottom of the window, the strip rows keep their height;
-  // a grid that is already taller than the window is not changed
-  const fills = computed(() => smart.value && !sectioned.value && !edit.value && !dockOn.value && windowClass.value !== 'compact')
-  const fillK = ref(1)
-  const measureFill = () => {
-    const el = D.root?.value?.querySelector?.('.m-dash__blocks')
-    const b = blocks.value[0]
-    if (!fills.value || !el || !b || !b.unit) { fillK.value = 1; return }
-    const scroller = el.closest('.m-scene__pane, .m-scene')
-    if (scroller && scroller.scrollTop > 2) return // measured from the top only
-    const rows = String(b.template || '').split(' ')
-    const unitRows = rows.filter((t) => t === `${b.unit}px`).length
-    if (!unitRows) { fillK.value = 1; return }
-    const rest = b.natural - unitRows * b.unit
-    const avail = tall.value - el.getBoundingClientRect().top - 16
-    const k = (avail - rest) / (unitRows * b.unit)
-    fillK.value = Math.max(1, Math.min(1.3, Math.round(k * 100) / 100))
-  }
-  const fillTemplate = (b) => String(b.template || '').split(' ').map((t) => (t === `${b.unit}px` ? `${Math.round(b.unit * fillK.value)}px` : t)).join(' ')
-  watch([fills, blocks, tall, width], async () => { await nextTick(); measureFill() }, { flush: 'post' })
-  onMounted(() => nextTick(measureFill))
+  watch([blocks, width, tall], async () => { await nextTick(); measureTop() }, { flush: 'post' })
   const blockStyle = (b) => (b.width ? { width: `${b.width}px`, maxWidth: '100%' } : undefined)
   const reasonOf = (id) => { const r = plan.value.reasons[id]; return r ? String(T.value[r.key] || '').replace('{n}', r.vars?.n ?? '') : '' }
   const whyRows = computed(() => plan.value.visible.map((id) => ({ id, title: cardById.value.get(id)?.title || id, icon: cardById.value.get(id)?.data?.icon || 'grid_view', reason: reasonOf(id) })))
@@ -255,5 +278,5 @@ export function useDashDock(D) {
     }
     emit('action', a)
   }
-  Object.assign(D, { fills, fillTemplate, availH, slotEnter, slotLeave, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockEdge, dockOn, dockRow, dockScroll, dockStyle, hideGhost, measureDock, onAct, onDockWheel, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
+  Object.assign(D, { availH, slotEnter, slotLeave, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockEdge, dockOn, dockRow, dockScroll, dockStyle, hideGhost, measureDock, onAct, onDockWheel, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
 }

@@ -300,7 +300,7 @@ export default
   "lbNow": "Jetzt",
   "lbSet": "Festlegen",
   "lbCapped": "Host-Limit: {cap} Mbps",
-  "lbUncapped": "Kein Host-Limit · bis 800 Mbps",
+  "lbUncapped": "Kein Host-Limit",
   "lbApplies": "Gilt für den laufenden Stream",
   "lbSent": "Bitrate-Anfrage an {client} gesendet",
   "lbFailed": "Der Host hat die Bitrate-Anfrage nicht angenommen",

@@ -38,14 +38,15 @@ html.m-has-wallpaper :is(.m-rc__text small, .m-rc__note, .m-rc__client) { color:
 .m-rc__all { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; padding: 4px 4px 4px 10px; border: 0; border-radius: 16px; background: transparent; color: var(--md-sys-color-primary-text); font: var(--m-tile-text-13-strong); cursor: pointer; }
 .m-rc__all .m-icon { width: 18px; height: 18px; } .m-rc__all:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
 
-/* the live setting tiles (本次目标码率, DualSense 调校): the value is the hero of the tile or sits on the row of its name, and the shared slider runs the full width under it, with no marks that read as stray bars */
+/* the live setting tiles (本次目标码率, DualSense 调校): the value is the hero of the tile or stands right after the name on the row of the name; the shared slider runs the full width under it */
 .m-rc--live .m-rc__big { display: flex; align-items: baseline; gap: 6px; margin: 2px 0 0; font: 600 36px/40px var(--m-font-display); font-variant-numeric: tabular-nums; color: var(--md-sys-color-on-surface); }
 .m-rc--live .m-rc__big small { font: var(--m-title-medium); color: var(--md-sys-color-on-surface-variant); overflow: visible; text-overflow: clip; }
 .m-rc--live .m-rc__live { margin-top: auto; }
 .m-rc__row.is-hv { column-gap: 12px; }
-.m-rc__row.is-hv .m-rc__text { flex: 1 1 0; }
-.m-rc__row.is-hv .m-rc__val { flex: none; min-width: 0; font: 600 18px/22px var(--m-font-display); }
+.m-rc__row.is-hv .m-rc__text { flex: 1 1 100%; }
+.m-rc__row.is-hv .m-rc__line { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.m-rc__row.is-hv .m-rc__val { flex: none; min-width: 0; font: 600 18px/22px var(--m-font-display); color: var(--md-sys-color-primary-text); font-variant-numeric: tabular-nums; }
 .m-rc__row.is-hv .m-rc__ctl { flex: 1 1 100%; }
 .m-rc--live .m-rc__mid { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
-.m-rc--live .m-rc__mid .m-rc__note { flex: 1 1 0; min-width: 0; text-align: end; }
+.m-rc--live .m-rc__mid .m-rc__note { flex: 1 1 0; min-width: 0; text-align: end; white-space: nowrap; }
 .m-rc--live .m-rc__big { flex: none; margin: 0; }

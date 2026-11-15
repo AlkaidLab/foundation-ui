@@ -304,7 +304,7 @@ export default
   "lbNow": "Maintenant",
   "lbSet": "Définir",
   "lbCapped": "Limite de l'hôte : {cap} Mbps",
-  "lbUncapped": "Aucune limite de l'hôte · jusqu'à 800 Mbps",
+  "lbUncapped": "Aucune limite de l'hôte",
   "lbApplies": "S'applique au flux en cours",
   "lbSent": "Demande de débit envoyée à {client}",
   "lbFailed": "L'hôte n'a pas pris la demande de débit",

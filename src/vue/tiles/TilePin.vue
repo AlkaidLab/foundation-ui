@@ -17,6 +17,8 @@ const emit = defineEmits(['act'])
 const d = computed(() => props.card.data || {})
 const type = computed(() => d.value.type)
 const size = computed(() => (['s', 'm', 'l'].includes(props.card.size) ? props.card.size : 's'))
+// the track of the slider follows the height of the tile: one unit tall (方形, 中) the slim track, taller the full one
+const sliderSize = computed(() => (size.value === 'l' ? 'm' : 's'))
 const ask = ref(null)
 const draft = ref(null)
 const pinOn = computed(() => (draft.value !== null && type.value === 'pin-switch' ? draft.value : d.value.on))
@@ -49,7 +51,7 @@ const open = () => { if (!props.preview) emit('act', { type: d.value.act, value:
   <!-- 滑块: the value in the head, the slider under it -->
   <section v-else-if="type === 'pin-slider'" class="m-tile m-cal m-b3pin m-b3pin--slider" :class="`is-${size}`" :data-size="size" data-accent="primary">
     <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ d.title }}</span><b class="m-calm__peak m-dnum">{{ sliderText }}</b></header>
-    <div class="m-b3pin__slider" @click.stop><MSlider v-model="sliderValue" :min="d.min" :max="d.max" :step="d.step" size="s" :label="d.title" :disabled="preview" @commit="wantPin(Math.round(sliderValue * d.scale))" /></div>
+    <div class="m-b3pin__slider" @click.stop><MSlider v-model="sliderValue" :min="d.min" :max="d.max" :step="d.step" :size="sliderSize" :label="d.title" :disabled="preview" @commit="wantPin(Math.round(sliderValue * d.scale))" /></div>
     <MDialog v-if="d.confirm" :model-value="!!ask" :title="d.confirm.title" icon="warning" @update:model-value="(v) => { if (!v) cancel() }">
       <p>{{ d.confirm.body }}</p>
       <template #actions><button type="button" class="m-dpill" @click.stop="cancel">{{ d.confirm.cancel }}</button><button type="button" class="m-dpill m-dpill--fill" @click.stop="setPin(ask.value)">{{ d.confirm.change }}</button></template>

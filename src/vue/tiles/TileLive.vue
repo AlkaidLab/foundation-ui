@@ -9,7 +9,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import MIcon from '../MIcon.vue'
 import MSlider from '../MSlider.vue'
 import { designProps } from './tileData.js'
-import { bitrateFromProgress, bitrateSliderProgress, bitrateSliderSpan } from '../../settings/bitrate.js'
+import { bitrateChipMarks, bitrateFromProgress, bitrateSliderProgress, bitrateSliderSpan } from '../../settings/bitrate.js'
 
 const props = defineProps(designProps)
 const emit = defineEmits(['act'])
@@ -20,6 +20,9 @@ watch(() => d.value.now, (v) => { if (v !== null && v !== undefined) rate.value 
 // the target bitrate of the stream runs on the shared segmented bitrate scale (the 5-200 Mbps of everyday use spread over the track, marks under the usual values), between the limits the host gave (Mbps)
 const lo = computed(() => Math.round((d.value.min ?? 1) * 1000)), hi = computed(() => Math.round((d.value.max ?? 800) * 1000))
 const span = computed(() => bitrateSliderSpan(lo.value, hi.value))
+const marks = computed(() => bitrateChipMarks([5, 10, 20, 50, 100, 200], lo.value, hi.value))
+// the track follows the height of the tile: 中 is one unit tall (the slim track), 大 two (the full one)
+const sliderSize = computed(() => (props.card.size === 'l' ? 'm' : 's'))
 const rateProgress = computed({
   get: () => Math.min(span.value.max, Math.max(span.value.min, bitrateSliderProgress(rate.value * 1000))),
   set: (position) => { rate.value = Math.max(lo.value, bitrateFromProgress(position)) / 1000 },
@@ -40,16 +43,15 @@ const tune = (s, v) => { levels[s.key] = v; if (!props.preview) emit('act', { ty
     <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span></header>
     <div class="m-rc__mid"><b class="m-rc__big m-dnum"><span>{{ rate }}</span><small>Mbps</small></b><small class="m-rc__note">{{ d.note }}</small></div>
     <div class="m-rc__live">
-      <MSlider v-model="rateProgress" :min="span.min" :max="span.max" :step="1" size="s" :label="card.title" :bubble-text="`${rate} Mbps`" @commit="sendRate" />
+      <MSlider v-model="rateProgress" :min="span.min" :max="span.max" :step="1" :size="sliderSize" :label="card.title" :marks="marks" :bubble-text="`${rate} Mbps`" @commit="sendRate" />
     </div>
   </section>
   <section v-else class="m-tile m-cal m-rc m-rc--live" :class="card.size === 'l' ? 'is-l' : 'is-m'" :data-size="card.size === 'l' ? 'l' : 'm'" data-accent="secondary">
     <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span><button v-if="hidden > 0 && !preview" type="button" class="m-rc__all" :aria-label="d.more || card.title" @click.stop="emit('act', { type: 'open', value: 'gamepad' })"><span v-if="d.more">{{ d.more }}</span><MIcon name="chevron_right" /></button></header>
     <ul class="m-rc__rows">
       <li v-for="s in shown" :key="s.key" class="m-rc__row is-slider is-full is-hv">
-        <span class="m-rc__text"><b>{{ s.label }}</b><small>{{ d.applies }}</small></span>
-        <b class="m-rc__val m-dnum">{{ f2(levelOf(s)) }}</b>
-        <span class="m-rc__ctl"><MSlider :model-value="levelOf(s)" :min="s.min" :max="s.max" :step="s.step" size="s" :label="s.label" @update:model-value="(v) => { levels[s.key] = v }" @commit="(v) => tune(s, v)" /></span>
+        <span class="m-rc__text"><span class="m-rc__line"><b>{{ s.label }}</b><strong class="m-rc__val m-dnum">{{ f2(levelOf(s)) }}</strong></span><small>{{ d.applies }}</small></span>
+        <span class="m-rc__ctl"><MSlider :model-value="levelOf(s)" :min="s.min" :max="s.max" :step="s.step" :size="sliderSize" :label="s.label" @update:model-value="(v) => { levels[s.key] = v }" @commit="(v) => tune(s, v)" /></span>
       </li>
     </ul>
   </section>

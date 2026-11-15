@@ -90,13 +90,13 @@ export function recentCatalogue(x, T) {
 export const RECENT_TEXTS = Object.freeze({
   en: {
     'c_recent-actions': 'Recent actions', 's_recent-actions': 'The settings you used last', rcNone: 'No setting used yet', rcOpen: 'Open the setting', rcOpenSettings: 'Open settings',
-    saveFailed: 'This setting was not saved', 'c_live-bitrate': 'Target bitrate of this stream', 's_live-bitrate': 'The command of the host for a running client', lbNow: 'Now', lbSet: 'Set', lbCapped: 'Host limit: {cap} Mbps', lbUncapped: 'No host limit · up to 800 Mbps', lbApplies: 'Applies to the running stream', lbSent: 'Bitrate request sent to {client}', lbFailed: 'The host did not take the bitrate request', dsFailed: 'The host did not take the tuning',
+    saveFailed: 'This setting was not saved', 'c_live-bitrate': 'Target bitrate of this stream', 's_live-bitrate': 'The command of the host for a running client', lbNow: 'Now', lbSet: 'Set', lbCapped: 'Host limit: {cap} Mbps', lbUncapped: 'No host limit', lbApplies: 'Applies to the running stream', lbSent: 'Bitrate request sent to {client}', lbFailed: 'The host did not take the bitrate request', dsFailed: 'The host did not take the tuning',
     'c_live-ds5': 'DualSense tuning', 's_live-ds5': 'The common tuning of the host', dsLive: 'Applies while the controller is in use', dsMore: 'All tuning',
     rIdleActions: 'The settings you used last', rLiveBitrate: 'The bitrate of the running stream', rLiveDs5: 'DualSense tuning while a controller is in use',
   },
   zh: {
     'c_recent-actions': '最近操作', 's_recent-actions': '你最近用过的设置', rcNone: '还没有用过的设置', rcOpen: '打开设置', rcOpenSettings: '打开设置',
-    saveFailed: '这项设置没有保存', 'c_live-bitrate': '本次目标码率', 's_live-bitrate': '主机对运行中客户端的码率命令', lbNow: '当前', lbSet: '设为', lbCapped: '主机上限 {cap} Mbps', lbUncapped: '主机不设上限，最高 800 Mbps', lbApplies: '对正在进行的串流生效', lbSent: '已向 {client} 发出码率请求', lbFailed: '主机没有接受码率请求', dsFailed: '主机没有接受这项调校',
+    saveFailed: '这项设置没有保存', 'c_live-bitrate': '本次目标码率', 's_live-bitrate': '主机对运行中客户端的码率命令', lbNow: '当前', lbSet: '设为', lbCapped: '主机上限 {cap} Mbps', lbUncapped: '主机不设上限', lbApplies: '对正在进行的串流生效', lbSent: '已向 {client} 发出码率请求', lbFailed: '主机没有接受码率请求', dsFailed: '主机没有接受这项调校',
     'c_live-ds5': 'DualSense 调校', 's_live-ds5': '主机的常用调校', dsLive: '手柄使用中实时生效', dsMore: '全部调校',
     rIdleActions: '你最近用过的设置', rLiveBitrate: '正在进行的串流的码率', rLiveDs5: '使用手柄时的 DualSense 调校',
   },

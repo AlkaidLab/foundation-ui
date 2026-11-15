@@ -315,7 +315,7 @@ export default
   "lbNow": "Ahora",
   "lbSet": "Definir",
   "lbCapped": "Límite del host: {cap} Mbps",
-  "lbUncapped": "Sin límite del host · hasta 800 Mbps",
+  "lbUncapped": "Sin límite del host",
   "lbApplies": "Se aplica a la transmisión en curso",
   "lbSent": "Petición de bitrate enviada a {client}",
   "lbFailed": "El host no aceptó la petición de bitrate",

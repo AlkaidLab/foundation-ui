@@ -323,7 +323,7 @@ export default
   "lbNow": "지금",
   "lbSet": "설정",
   "lbCapped": "호스트 상한: {cap} Mbps",
-  "lbUncapped": "호스트 상한 없음 · 최대 800 Mbps",
+  "lbUncapped": "호스트 상한 없음",
   "lbApplies": "진행 중인 스트림에 적용",
   "lbSent": "{client}에 비트레이트 요청을 보냈습니다",
   "lbFailed": "호스트가 비트레이트 요청을 받지 않았습니다",

@@ -323,7 +323,7 @@ export default
   "lbNow": "今",
   "lbSet": "設定する",
   "lbCapped": "ホストの上限: {cap} Mbps",
-  "lbUncapped": "ホストの上限なし · 最大 800 Mbps",
+  "lbUncapped": "ホストの上限なし",
   "lbApplies": "実行中の配信に適用",
   "lbSent": "{client} にビットレート要求を送りました",
   "lbFailed": "ホストはビットレート要求を受け取りませんでした",

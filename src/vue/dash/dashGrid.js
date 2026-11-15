@@ -63,7 +63,7 @@ export function useDashGrid(D) {
     if (card.kind === 'stack') { const key = stackSizeFor(card); return { ...card, ...boxIn(card, key, u), size: key, sizeKey: key, sizeKeys: commonSizes(card.stackMembers, windowClass.value, tall.value), suggestion: suggestFor(card.stack, card.stackMembers, key), stack: { ...card.stack, activeId: card.stack.members[card.stack.active], members: card.stackMembers.map((m) => ({ ...m, hasDetail: hasDetailOf(m), size: key, sizeKey: key, sizeKeys: [key] })) } } }
     const c = { ...card, hasDetail: hasDetailOf(card) }
     if (dockLayout.value) return dockBox(c, u)
-    const key = drawnSize(c, sizeOf(c.id), lift)
+    const key = drawnSize(c, c.fillSize || sizeOf(c.id), lift)
     return { ...c, ...boxIn(c, key, u), size: key, sizeKey: key, sizeKeys: sizeKeysOf(c) }
   }
   // ---- smart stacks: what a stack turns to (stackModel.js rotationPick), and WHEN (stackRotation.js): never while the person looks at the overview. A stack with the pointer or the focus on it, a pinned

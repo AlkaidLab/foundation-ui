@@ -280,7 +280,7 @@ export default {
   "lbNow": "當前",
   "lbSet": "設為",
   "lbCapped": "主機上限 {cap} Mbps",
-  "lbUncapped": "主機不設上限，最高 800 Mbps",
+  "lbUncapped": "主機不設上限",
   "lbApplies": "對正在進行的串流生效",
   "lbSent": "已向 {client} 發出位元率請求",
   "lbFailed": "主機沒有接受位元率請求",

@@ -48,8 +48,6 @@
 .m-tstream.is-l { justify-content: flex-start; }
 /* 帧时间占用 and 温度: the figure is smaller than the ring's hole, its unit inside the ring too */
 .m-tgauge--budget .m-tnum, .m-tgauge--temperature .m-tnum { --tn: 32px; }
-/* 本主机 in a window that stretches the grid: the band of the stream takes the room that is left */
-.m-dash.is-fill .m-calh__band { max-height: 260px; }
 
 /* 提示 (the tip strip) in a narrow window: the strip keeps its icon and gives the room of its label to the text, so the two lines of the tip stay inside their plate */
 @container (max-width: 399.98px) { .m-b3s--tip .m-calq__title { font-size: 0; gap: 0; } .m-b3s--tip .m-b3s__tip { padding-inline: 14px; } }
@@ -60,3 +58,13 @@
 /* 主机延迟, 帧率, 码率 at 中: the curve is drawn right of the figure, so its line never runs through the caption under the figure */
 .m-calm.is-m .m-calm__chart { left: 46%; }
 .m-tstream:is(.m-tstream--latency, .m-tstream--loss, .m-tstream--dropped).is-m > .m-tile__bleed { left: 46%; }
+
+/* the M3 Expressive slider inside a tile: the fill is the theme's container colour (not the flat on-primary white), the handle keeps the primary, the end of the track has the stop dot of the spec,
+   and the ticks of a scale are dots, not bars */
+.m-tile .m-slider { --md-sys-color-track: var(--md-sys-color-primary-container); }
+.m-tile .m-slider__handle { background: var(--md-sys-color-primary); }
+.m-tile .m-slider__seg:not(.m-slider__seg--active)::after { content: ''; position: absolute; right: 6px; top: 50%; width: 4px; height: 4px; border-radius: 50%; transform: translateY(-50%); background: var(--md-sys-color-primary); opacity: .9; }
+.m-tile .m-slider__mark { width: 4px; height: 4px; border-radius: 50%; background: var(--md-sys-color-on-surface-variant); opacity: .6; }
+
+/* 本主机 at 中 and 大: the band of the stream takes the room that is left in the tile (it stops at 150 px in the base rule), so a two-row tile has no empty lower half */
+.m-calh:is(.is-m, .is-l) .m-calh__band { max-height: 240px; }
