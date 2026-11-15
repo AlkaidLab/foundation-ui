@@ -1,7 +1,7 @@
 export const NAMES = [
   'home', 'download', 'link', 'qr_code_2', 'apps', 'tune', 'wand_stars', 'mouse', 'settings_ethernet', 'sports_esports', 'build', 'settings', 'mic', 'usb', 'desktop_windows',
   'extension', 'stethoscope', 'smart_toy', 'help', 'info', 'chevron_right', 'chevron_left', 'keyboard_arrow_down',
-  'keyboard_arrow_up', 'arrow_back', 'close', 'check_circle', 'error', 'remove', 'crop_square', 'filter_none', 'rule', 'folder_managed', 'tv_gen', 'warning', 'refresh', 'restart_alt', 'light_mode',
+  'keyboard_arrow_up', 'arrow_back', 'close', 'check_circle', 'error', 'remove', 'crop_square', 'rounded_corner', 'filter_none', 'rule', 'folder_managed', 'tv_gen', 'warning', 'refresh', 'restart_alt', 'light_mode',
   'dark_mode', 'account_circle', 'logout', 'folder', 'lock', 'key', 'language', 'palette', 'undo', 'clear_all', 'system_update_alt', 'cleaning_services',
   'content_paste', 'monitor', 'speaker', 'graphic_eq', 'play_arrow', 'stop', 'add', 'delete', 'edit', 'search', 'more_vert',
   'visibility', 'open_in_new', 'bolt', 'mobile_vibrate', 'touch_app', 'lightbulb', 'volume_up', 'headset_mic', 'memory',

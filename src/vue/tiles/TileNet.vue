@@ -15,7 +15,6 @@ import MTileNumeral from '../MTileNumeral.vue'
 import MTileShape from '../MTileShape.vue'
 import MTileRing from '../MTileRing.vue'
 import MTileChip from '../MTileChip.vue'
-import MTileEmpty from '../MTileEmpty.vue'
 import { OPEN, sizeOf, designProps } from './tileData.js'
 
 const props = defineProps(designProps)
@@ -30,7 +29,10 @@ const others = computed(() => (d.value.rows || []).filter((r) => !r.main))
 
 <template>
   <section class="m-tile m-tnet" :class="[`m-tnet--v${variant}`, `is-${size}`, { 'm-tile--tonal': variant === 2 }]" data-accent="primary" :data-size="size">
-    <MTileEmpty v-if="empty || !d.primary" :icon="empty?.icon || 'lan'" :title="empty?.title || card.title" :text="empty?.value || d.empty || ''" :action="empty?.action" :size="size" @act="(a) => emit('act', a)" />
+    <template v-if="empty || !d.primary">
+      <MTileHead :icon="empty?.icon || 'lan'" :title="empty?.title || card.title" />
+      <div class="m-empty-basic"><b>{{ empty?.value || d.empty || '' }}</b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+    </template>
     <template v-else-if="variant === 2">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tnet__body">
