@@ -34,7 +34,7 @@ export function searchEntries(entries, query, max = 12) {
 
 /**
  * Search entries of the settings: pages (the categories) and every setting of the index.
- * index: SEARCH_INDEX; label(key, locale?) -> text; locales: the extra locales whose labels also find a row (English
+ * index: the search index the product supplies (getSearchIndex()); label(key, locale?) -> text; locales: the extra locales whose labels also find a row (English
  * finds a row of the Chinese interface and the other way round).
  */
 export function buildSettingsEntries({ index, label, altLabel = null, categories = [], extra = [] }) {

@@ -1,6 +1,5 @@
-import { computed, ref, unref } from 'vue'
-import { SEARCH_INDEX } from '../settings/searchIndex.js'
-import { labelOf } from '../settings/labels.js'
+import { computed, getCurrentScope, onScopeDispose, ref, unref } from 'vue'
+import { getSearchIndex, labelOf, onSettingsData } from '../settings/provider.js'
 import { buildSettingsEntries } from '../settings/search.js'
 import { dualsenseEntries } from '../settings/dualsense.js'
 import { SETTINGS_CATEGORIES, STANDALONE_CATEGORIES, settingsGroups } from '../settings/model.js'
@@ -18,11 +17,15 @@ export { recentKeys, rememberRecent }
 const recentList = recentKeys
 
 export function useSettingsList({ locale, config = ref(null), dualsenseKeys = ref([]), sources = {}, storageKey } = {}) {
+  // the product supplies the index and the labels at start; a later supply (another data set) redraws what is built from them
+  const supplied = ref(0)
+  const stop = onSettingsData((n) => { supplied.value = n })
+  if (getCurrentScope()) onScopeDispose(stop)
   const lang = computed(() => unref(locale) || 'en')
   const isZh = computed(() => String(lang.value).startsWith('zh'))
-  const label = (key) => labelOf(lang.value, key)
+  const label = (key) => { void supplied.value; return labelOf(lang.value, key) }
   const other = computed(() => (isZh.value ? 'en' : 'zh'))
-  const altLabel = (key) => labelOf(other.value, key)
+  const altLabel = (key) => { void supplied.value; return labelOf(other.value, key) }
   // the second line of every row of the products: the live state where there is one, else what is inside
   const lines = computed(() => rowLines({ locale: lang.value, config: unref(config), clients: unref(sources.clients), apps: unref(sources.apps), components: unref(sources.components), ds: unref(sources.ds), mic: unref(sources.mic), usb: unref(sources.usb), rtss: unref(sources.rtss) }))
   const groups = computed(() => settingsGroups({ label, lines: lines.value }))
@@ -39,7 +42,7 @@ export function useSettingsList({ locale, config = ref(null), dualsenseKeys = re
     }),
   ])
   const entries = computed(() => [
-    ...buildSettingsEntries({ index: SEARCH_INDEX, label, altLabel }),
+    ...buildSettingsEntries({ index: (void supplied.value, getSearchIndex()), label, altLabel }),
     ...dualsenseEntries({ keys: unref(dualsenseKeys) || [], label, locale: lang.value, altLocale: other.value }),
   ])
   const searchItems = computed(() => [...categoryEntries.value, ...entries.value])

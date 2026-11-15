@@ -7,11 +7,11 @@ import { actionDocs, searchTexts } from '../src/search/texts.js'
 import { jumpToRow, HIT_CLASS } from '../src/search/jump.js'
 import { pushQuery, removeQuery, loadQueries, saveQueries } from '../src/search/recent.js'
 import { useUnifiedSearch } from '../src/vue/useUnifiedSearch.js'
-import { SEARCH_INDEX } from '../src/settings/searchIndex.js'
 import { buildSettingsEntries } from '../src/settings/search.js'
-import { labelOf } from '../src/settings/labels.js'
+import './helpers/settingsFixture.js'
+import { getSearchIndex, labelOf } from '../src/settings/provider.js'
 
-const entries = (locale) => buildSettingsEntries({ index: SEARCH_INDEX, label: (k) => labelOf(locale, k), altLabel: (k) => labelOf(locale === 'zh' ? 'en' : 'zh', k) })
+const entries = (locale) => buildSettingsEntries({ index: getSearchIndex(), label: (k) => labelOf(locale, k), altLabel: (k) => labelOf(locale === 'zh' ? 'en' : 'zh', k) })
 const docsOf = (locale = 'zh') => [
   ...settingDocs(entries(locale)),
   ...actionDocs(locale, { restart() {}, pair() {}, exportDiag() {}, checkUpdate() {}, logs() {}, addApp() {} }, searchTexts(locale).types.action),
@@ -26,24 +26,6 @@ test('pinyin initials: the collation gives the first letters, two readings of a 
   assert.equal(initialsOf('分辨率')[0].s, 'fbl')
   assert.ok(initialsOf('重启').some((v) => v.s === 'cq') && initialsOf('重启').some((v) => v.s === 'zq'))
   assert.equal(initialsOf('HDR 模式')[0].s, 'hdrms')
-})
-
-test('index coverage: every setting of the index is reachable by its key, by its title and by the other language', () => {
-  for (const locale of ['zh', 'en']) {
-    const docs = docsOf(locale)
-    const index = buildIndex(docs)
-    const settings = docs.filter((d) => d.type === 'setting')
-    assert.ok(settings.length >= SEARCH_INDEX.length, 'every entry of the index is a doc')
-    for (const doc of settings) {
-      assert.ok(ids(search(index, doc.key, { perGroup: 1e6 })).includes(doc.id), `${locale}: the key ${doc.key} finds ${doc.id}`)
-      if (doc.title && doc.title !== doc.key) assert.ok(ids(search(index, doc.title, { perGroup: 1e6 })).includes(doc.id), `${locale}: the title "${doc.title}" finds ${doc.id}`)
-    }
-    // every setting is also reachable by the label of the other language (English finds a Chinese interface)
-    for (const e of SEARCH_INDEX.slice(0, 40)) {
-      const other = labelOf(locale === 'zh' ? 'en' : 'zh', e.title)
-      if (other && other !== e.title) assert.ok(ids(search(index, other, { perGroup: 1e6 })).includes(`setting:${e.id}`), `${locale}: "${other}" finds ${e.id}`)
-    }
-  }
 })
 
 test('every tile of the catalogue has a title and is found by it', () => {

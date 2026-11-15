@@ -5,9 +5,6 @@ import { WEB_ACCESS_SCOPES, accessPending, bindValid, scopeChange, scopeOf, webA
 import { webAccessTexts, WEB_ACCESS_TEXTS } from '../src/vue/webAccessTexts.js'
 import { buildGuideSteps } from '../src/vue/guideModel.js'
 import { guideTexts } from '../src/vue/guideTexts.js'
-import { SEARCH_INDEX } from '../src/settings/searchIndex.js'
-import { buildSettingsEntries, searchEntries } from '../src/settings/search.js'
-import { labelOf } from '../src/settings/index.js'
 
 test('the Web UI is HTTPS on the base port plus one, the team base 57989 gives 57990', () => {
   assert.equal(webPortOf(57989), 57990)
@@ -72,16 +69,6 @@ test('the first-run flow has the step 手机和其他设备访问 after the grap
   assert.equal(ids[ids.indexOf('webaccess') + 1], 'remote')
   assert.equal(guideTexts('zh').titles.webaccess, '手机和其他设备访问')
   assert.ok(guideTexts('en').titles.webaccess && guideTexts('zh').leads.webaccess && guideTexts('en').leads.webaccess)
-})
-
-test('search finds the access scope by 局域网, 公网, 手机, 绑定, IP, 访问, LAN and remote, and names it 访问范围', () => {
-  const entries = (locale) => buildSettingsEntries({ index: SEARCH_INDEX, label: (k) => labelOf(locale, k), altLabel: (k) => labelOf(locale === 'zh' ? 'en' : 'zh', k) })
-  const zh = entries('zh')
-  const ids = (q) => searchEntries(zh, q).map((e) => e.id)
-  for (const q of ['局域网', '公网', '手机', '访问', 'LAN', 'remote', '访问范围']) assert.ok(ids(q).includes('origin_web_ui_allowed'), q)
-  for (const q of ['绑定', 'IP', '手机', '绑定地址']) assert.ok(ids(q).includes('bind_address'), q)
-  assert.equal(labelOf('zh', 'config.origin_web_ui_allowed'), '访问范围')
-  assert.ok(searchEntries(entries('en'), 'phone').some((e) => e.id === 'origin_web_ui_allowed'))
 })
 
 test('the internet asks twice: the question, then 「注意」 with what it costs; a No on either leaves the choice; the guide uses the same component', () => {

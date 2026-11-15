@@ -15,7 +15,7 @@ Approved design. The tree is data (`src/settings/displayTree.js`); the Web page,
 Rules: one home per setting key (`homeOf`); a row elsewhere is a shortcut that writes the same key (`shortcuts` in the tree); old addresses redirect (`#tab=display&sub=video` → `advanced`, a key in the address decides the place of a moved setting).
 
 ```
-node scripts/display-mapping.mjs          # the old→new table, from code
+node scripts/display-mapping.mjs --data=<module with SEARCH_INDEX and LABELS>   # the old→new table, from code
 npm test                                  # test/displaytree.test.js: every old key is in the tree exactly once
 ```
 

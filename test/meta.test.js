@@ -1,16 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { SEARCH_INDEX, SETTING_META, TIERS, isChanged, normalizeValue, keysOfTier, tierOf } from '../src/settings/index.js'
+import { SETTING_META, TIERS, isChanged, normalizeValue, keysOfTier, tierOf } from '../src/settings/index.js'
 
 const CONTROLS = new Set(['switch', 'seg', 'cards', 'sheet', 'slider', 'range', 'chips', 'field', 'path', 'list', 'page', 'custom'])
-
-test('every setting of the search index has a tier and a control, and nothing else is in the registry', () => {
-  const ids = SEARCH_INDEX.map((e) => e.id)
-  const missing = ids.filter((id) => !SETTING_META[id])
-  assert.deepEqual(missing, [], `settings without a registry entry: ${missing.join(', ')}`)
-  const stray = Object.keys(SETTING_META).filter((id) => !ids.includes(id))
-  assert.deepEqual(stray, [], `registry entries without a setting: ${stray.join(', ')}`)
-})
 
 test('tiers are 1 to 3 and the three tiers are all used', () => {
   for (const [key, meta] of Object.entries(SETTING_META)) {

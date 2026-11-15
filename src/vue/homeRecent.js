@@ -7,9 +7,9 @@
 //                  repeats the number that was sent, so the control says the limit and does not claim the result. The control and the note say the same thing: with a ceiling the ceiling is the
 //                  top, without one the slider reaches the 800 Mbps the host takes (the note lbUncapped says it), in 1 Mbps steps the keyboard and the mouse share.
 //  live-ds5        the DualSense tuning that acts on a running controller (POST /api/dualsense/tuning, schema ALK-DS5T/1): the common sliders the host applies, one per line.
-import { SEARCH_INDEX } from '../settings/searchIndex.js'
+import { getSearchIndex, settingsDataVersion } from '../settings/provider.js'
 import { realSession } from './clientsLive.js'
-import { labelOf } from '../settings/labels.js'
+import { labelOf } from '../settings/provider.js'
 import { pinSpecForSetting } from '../pins/registry.js'
 import { appliesOf, appliesText } from '../settings/applies.js'
 import { DS5_CARDS } from '../settings/dualsense.js'
@@ -31,12 +31,15 @@ export const RECENT_ROWS = Object.freeze({ s: 1, m: 2, l: 4, xl: 8 })
 /** The sizes that draw a row's whole control (a slider, a choice); the smaller ones draw the value and the way to the setting's page. */
 export const FULL_CONTROL_SIZES = Object.freeze(['l', 'xl'])
 
-const byKey = new Map(SEARCH_INDEX.map((e) => [e.id, e]))
+let keyed = null
+let keyedVersion = -1
+/** The entries of the index by key, rebuilt when the product supplies new data. */
+const byKey = () => { if (keyedVersion !== settingsDataVersion() || !keyed) { keyed = new Map(getSearchIndex().map((e) => [e.id, e])); keyedVersion = settingsDataVersion() } return keyed }
 const truthy = (v) => v === true || /^(true|enabled|on|yes|1)$/i.test(String(v))
 
 /** One row: the setting `key`, from the host's configuration. null when the key is not a setting of the index. */
 export function recentRow(key, { config = null, platform = '', locale = 'en' } = {}) {
-  const entry = byKey.get(key)
+  const entry = byKey().get(key)
   if (!entry) return null
   const title = labelOf(locale, entry.title)
   const path = (entry.path || []).map((p) => labelOf(locale, p)).join(' › ')

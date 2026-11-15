@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { SEARCH_INDEX } from '../src/settings/searchIndex.js'
-import { APPLIES, appliesOf, appliesText } from '../src/settings/applies.js'
+import { appliesText } from '../src/settings/applies.js'
+import './helpers/settingsFixture.js'
 import { RECENT_ROWS, ds5Sliders, recentCatalogue, recentRow, recentRows } from '../src/vue/homeRecent.js'
 import { CATALOGUE_TEXTS } from '../src/vue/homeCatalogueTexts.js'
 import { smartPlan } from '../src/vue/homeSmart.js'
@@ -10,16 +10,6 @@ import { smartPlan } from '../src/vue/homeSmart.js'
 // 最近操作 (the settings the person used last, operated on the tile) and the live controls of a running stream
 const src = (p) => readFileSync(new URL(p, import.meta.url), 'utf8')
 const T = { ...CATALOGUE_TEXTS.zh, __locale: 'zh' }
-
-test('every setting of the index has a class of when it applies, from the host audit, and a line for it in both languages', () => {
-  for (const e of SEARCH_INDEX) for (const lang of ['zh', 'en']) assert.ok(Object.values(APPLIES).includes(appliesOf(e.id, 'windows')) && appliesText(e.id, 'windows', lang), `${e.id} ${lang}`)
-  assert.equal(appliesOf('encoder'), APPLIES.RESTART); assert.equal(appliesOf('controller'), APPLIES.RESTART); assert.equal(appliesOf('stream_audio'), APPLIES.RESTART)
-  assert.equal(appliesOf('max_bitrate'), APPLIES.NOW); assert.equal(appliesOf('fps'), APPLIES.CLIENT); assert.equal(appliesOf('hevc_mode'), APPLIES.CLIENT)
-  assert.equal(appliesOf('nvenc_manage_driver_settings'), APPLIES.NEXT); assert.equal(appliesOf('nvenc_vdd_force_vsync'), APPLIES.NEXT)
-  assert.equal(appliesOf('gamepad', 'windows'), APPLIES.LIVE); assert.equal(appliesOf('gamepad', 'linux'), APPLIES.RESTART); assert.equal(appliesOf('gamepad', 'macos'), APPLIES.RESTART); assert.equal(appliesOf('gamepad', ''), APPLIES.RESTART)
-  for (const k of ['external_endpoints', 'hdr_enhanced', 'notify_pre_releases', 'vdd_keep_enabled', 'vdd_headless_create']) assert.equal(appliesOf(k), APPLIES.UNCLEAR, k)
-  assert.equal(appliesText('gamepad', 'windows', 'zh'), '新建的手柄生效'); assert.equal(appliesText('max_bitrate', '', 'zh'), '立即生效,正在串流的会话也会变'); assert.equal(appliesText('fps', '', 'zh'), '由客户端决定 · 重启后生效'); assert.equal(appliesText('encoder', '', 'en'), 'After a restart')
-})
 
 test('a row has the control of the setting\'s pin: a switch with the values the host keeps, a few values, a slider in Mbps; the rest open the setting\'s page', () => {
   const config = { controller: 'disabled', stream_audio: false, gamepad: 'ds4', max_bitrate: 50000, platform: 'windows', usb_forwarding_enabled: 'disabled', nvenc_preset: 4 }

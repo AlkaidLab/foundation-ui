@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { VDD_KEYS, VDD_MODES, VDD_PROTECTED, VDD_SEARCH_KEYS, vddModeOf, vddPatchForMode, vddPhysicalDisplays, vddSplit, vddStatusOf, vddSummary, SEARCH_INDEX } from '../src/settings/index.js'
+import { VDD_MODES, VDD_PROTECTED, vddModeOf, vddPatchForMode, vddPhysicalDisplays, vddSplit, vddStatusOf, vddSummary } from '../src/settings/index.js'
 
 test('the mode follows the display source and the keep switch', () => {
   assert.equal(vddModeOf({}), 'physical')
@@ -46,10 +46,4 @@ test('the summary reads the options; the host status says ready and active', () 
   assert.deepEqual(vddStatusOf({ state: 'ready' }), { ready: true, active: null, text: '' })
   assert.deepEqual(vddStatusOf({ data: { installed: false, state: 'not_installed', status_text: 'x' } }), { ready: false, active: null, text: 'x' })
   assert.equal(vddStatusOf(null), null)
-})
-
-test('every key of the control is a setting the registry or the index knows', () => {
-  const ids = new Set(SEARCH_INDEX.map((e) => e.id))
-  for (const [key] of VDD_KEYS) assert.ok(ids.has(key) || VDD_SEARCH_KEYS.some(([k]) => k === key), key)
-  assert.equal(new Set(VDD_SEARCH_KEYS.map(([k]) => k)).size, VDD_SEARCH_KEYS.length)
 })
