@@ -20,6 +20,8 @@
     "./icons": "./src/icons/icons.js",
     "./announcements": "./src/announcements/index.js",
     "./telemetry": "./src/telemetry/index.js",
+    "./build/private-sourcemaps": "./src/build/privateSourcemaps.js",
+    "./build/sourcemap": "./src/build/sourcemap.js",
     "./community": "./src/community/index.js",
     "./update": "./src/update/index.js",
     "./auth": "./src/auth/index.js",
