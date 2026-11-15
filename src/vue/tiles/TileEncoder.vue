@@ -14,7 +14,6 @@ import MTileNumeral from '../MTileNumeral.vue'
 import MTileShape from '../MTileShape.vue'
 import MTileRing from '../MTileRing.vue'
 import MTileChip from '../MTileChip.vue'
-import MTileEmpty from '../MTileEmpty.vue'
 import { OPEN, sizeOf, designProps } from './tileData.js'
 
 const props = defineProps(designProps)
@@ -33,7 +32,10 @@ const rows = computed(() => d.value.rows || [])
 
 <template>
   <section class="m-tile m-tenc" :class="[`m-tenc--${id}`, `is-${size}`]" :data-accent="id === 'codecs' ? 'tertiary' : 'primary'" :data-size="size">
-    <MTileEmpty v-if="empty" :icon="empty.icon" :title="empty.title" :text="empty.value" :action="empty.action" :size="size" @act="(a) => emit('act', a)" />
+    <template v-if="empty">
+      <MTileHead :icon="empty.icon || d.icon" :title="empty.title || card.title" />
+      <div class="m-empty-basic"><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+    </template>
     <template v-else-if="id === 'codecs'">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron" @open="emit('act', OPEN)" />
       <ul class="m-tenc__codecs">
