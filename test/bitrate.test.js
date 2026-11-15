@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { BITRATE_PRESETS_MBPS, BITRATE_SLIDER_MAX_PROGRESS, bitrateChipMarks, bitrateFromProgress, bitrateSliderProgress, bitrateSliderSpan, bitrateChips, bitrateFromMbps, bitrateKbps, bitrateMbpsText, bitrateNudge, bitrateSliderMbps, bitrateText } from '../src/settings/bitrate.js'
+import { BITRATE_PRESETS_MBPS, BITRATE_SLIDER_MAX_PROGRESS, bitrateSegmentMarks, bitrateChipMarks, bitrateFromProgress, bitrateSliderProgress, bitrateSliderSpan, bitrateChips, bitrateFromMbps, bitrateKbps, bitrateMbpsText, bitrateNudge, bitrateSliderMbps, bitrateText } from '../src/settings/bitrate.js'
 import { buildCatalogue } from '../src/vue/homeCatalogue.js'
 import { homeTexts } from '../src/vue/homeModel.js'
 import { createHistory } from '../src/vue/homeHistory.js'
@@ -81,4 +81,34 @@ test('a limited slider (a live session target, 1..800 Mbps) keeps the segmented 
   assert.ok(marks.every((f, i) => f > 0 && f <= 1 && (i === 0 || f > marks[i - 1])))
   // automatic has no mark; a preset above the limit has none
   assert.deepEqual(bitrateChipMarks([0, 20, 200], 0, 100000), [bitrateSliderProgress(20000) / bitrateSliderProgress(100000)])
+})
+
+test('the scale is geometric: ten positions a decade on the Renard R10 numbers from 0.5 to 800 Mbps, automatic first, and every position round-trips', () => {
+  const ticks = Array.from({ length: BITRATE_SLIDER_MAX_PROGRESS + 1 }, (_, p) => bitrateFromProgress(p))
+  assert.equal(BITRATE_SLIDER_MAX_PROGRESS, 33)
+  assert.equal(ticks[0], 0); assert.equal(ticks[1], 500); assert.equal(ticks.at(-1), 800000, 'the top is what the host takes')
+  assert.ok(ticks.every((k, i) => i === 0 || k > ticks[i - 1]), 'strictly increasing')
+  // the R10 numbers of ISO 3, 1.00 1.25 1.60 2.00 2.50 3.15 4.00 5.00 6.30 8.00, in each decade
+  const r10 = [100, 125, 160, 200, 250, 315, 400, 500, 630, 800]
+  for (const decade of [10, 100, 1000]) for (const r of r10) assert.ok(ticks.includes(r * decade), `${r * decade} Kbps is a position`)
+  assert.deepEqual(ticks.filter((k) => k >= 1000 && k < 10000), r10.map((r) => r * 10), 'ten positions in the decade 1 to 10 Mbps')
+  // a constant ratio, before rounding: no step is more than 1.4 times the one before or under 1.2
+  for (let i = 2; i < ticks.length; i += 1) { const ratio = ticks[i] / ticks[i - 1]; assert.ok(ratio > 1.19 && ratio < 1.41, `${ticks[i - 1]} to ${ticks[i]}: ${ratio}`) }
+  for (let p = 0; p <= BITRATE_SLIDER_MAX_PROGRESS; p += 1) assert.equal(bitrateSliderProgress(bitrateFromProgress(p)), p)
+})
+
+test('a value between two positions is shown at the nearest one by ratio; the ends and bad input are kept in the track', () => {
+  assert.equal(bitrateSliderProgress(0), 0); assert.equal(bitrateSliderProgress(undefined), 0); assert.equal(bitrateSliderProgress('x'), 0)
+  assert.equal(bitrateSliderProgress(1), 1, 'under the lowest position: the lowest, never automatic'); assert.equal(bitrateSliderProgress(499), 1)
+  assert.equal(bitrateSliderProgress(5000000), BITRATE_SLIDER_MAX_PROGRESS)
+  assert.equal(bitrateFromProgress(bitrateSliderProgress(65432)), 63000); assert.equal(bitrateFromProgress(bitrateSliderProgress(70000)), 63000); assert.equal(bitrateFromProgress(bitrateSliderProgress(72000)), 80000)
+  assert.equal(bitrateFromProgress(-4), 0); assert.equal(bitrateFromProgress(500), 800000); assert.equal(bitrateFromProgress('7.4'), bitrateFromProgress(7)); assert.equal(bitrateFromProgress(NaN), 0)
+  // the recommended bitrates that public guidance gives for common formats (Mbps) are each within about 10 % of a position
+  for (const mbps of [6, 8, 12, 17, 24, 34, 35, 50]) { const at = bitrateFromProgress(bitrateSliderProgress(mbps * 1000)) / 1000; assert.ok(Math.abs(at / mbps - 1) <= 0.101, `${mbps} Mbps is shown at ${at}`) }
+})
+
+test('the marks of the track stand at the start and at 1, 10 and 100 Mbps', () => {
+  assert.deepEqual(bitrateSegmentMarks.length, 4); assert.equal(bitrateSegmentMarks[0], 0)
+  assert.deepEqual(bitrateSegmentMarks.slice(1).map((f) => bitrateFromProgress(f * BITRATE_SLIDER_MAX_PROGRESS)), [1000, 10000, 100000])
+  assert.ok(bitrateSegmentMarks.every((f, i) => i === 0 || f > bitrateSegmentMarks[i - 1]))
 })

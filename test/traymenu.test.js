@@ -299,7 +299,7 @@ test('sliders: a list slider snaps to the modes of the display (and keeps the mo
   assert.equal(sliderView('resolution', { ...MOCK_BUSY, sliders: { resolution: { options: [], value: '' } } }), null, 'no mode, no slider')
 })
 
-test('sliders: the scale offers the steps the host sends, the ones Windows lets the display take without a sign-out; the bitrate cap uses the shared 0..67 segmented scale, 0 = 自动', () => {
+test('sliders: the scale offers the steps the host sends, the ones Windows lets the display take without a sign-out; the bitrate cap uses the shared 0..33 segmented scale, 0 = 自动', () => {
   const d = sliderView('dpi', MOCK_BUSY)
   assert.deepEqual([d.min, d.max, d.step, d.pos, d.text, d.valueAt(4), d.textAt(7)], [0, 7, 1, 2, '150%', 200, '300%'], 'a slider over the positions of the host\'s list (there is no 275)')
   // a phone-sized stream display: Windows stops at 200 %, so does the slider
@@ -310,7 +310,7 @@ test('sliders: the scale offers the steps the host sends, the ones Windows lets 
   const odd = sliderView('dpi', { ...MOCK_BUSY, sliders: { dpi: { value: 137, options: [100, 125, 150] } } })
   assert.deepEqual([odd.text, odd.textAt(odd.pos)], ['137%', '137%'], 'a scale off the list is still the one in use: shown as it is and on the slider')
   const b = sliderView('bitrate', MOCK_BUSY)
-  assert.deepEqual([b.min, b.max, b.step, b.pos, b.text], [0, 67, 1, 45, '80 Mbps'])
+  assert.deepEqual([b.min, b.max, b.step, b.pos, b.text], [0, 33, 1, 23, '80 Mbps'])
   assert.equal(b.valueAt(65), bitrateFromProgress(65)); assert.equal(b.valueAt(0), 0)
   const auto = sliderView('bitrate', MOCK_IDLE)
   assert.deepEqual([auto.pos, auto.text, auto.textAt(0)], [0, '自动', '自动']); assert.equal(sliderView('bitrate', { ...MOCK_IDLE, sliders: { bitrate: { kbps: '65432' } } }).text, '65.4 Mbps')
@@ -372,7 +372,7 @@ test('stepped or continuous: resolution, refresh and the scale snap to their sto
   assert.deepEqual(dpi.ticks.slice(0, 3), [0, 1 / 7, 2 / 7]); assert.equal(dpi.ticks[7], 1)
   assert.equal(res.step, 1); assert.equal(hz.step, 1); assert.equal(dpi.step, 1); assert.equal(br.step, 1)
   assert.deepEqual(tickMarks(1), []); assert.deepEqual(tickMarks(17), [], 'too many stops would run into one line'); assert.equal(tickMarks(16).length, 16)
-  // the stops are the shared slider's: it draws one per step up to 24, so the stepped sliders show theirs and the bitrate cap (67 steps) none
+  // the stops are the shared slider's: it draws one per step up to 24, so the stepped sliders show theirs and the bitrate cap (33 steps) none
   const sl = src('../src/vue/MTraySliders.vue')
   assert.match(sl, /:min="v\.min" :max="v\.max" :step="v\.step"/)
 })

@@ -4,15 +4,21 @@
 
 /** The presets of the chips, in Mbps (0 = automatic). */
 export const BITRATE_PRESETS_MBPS = Object.freeze([0, 20, 40, 80, 120, 200])
-/** The top of the shared segmented slider: 67 positions, ending at 800 Mbps. */
-export const BITRATE_SLIDER_MAX_PROGRESS = 67
+/** The top of the shared slider: 33 positions after automatic, ending at 800 Mbps (what the host takes). */
+export const BITRATE_SLIDER_MAX_PROGRESS = 33
 /** Kept for callers that use the logical range for nudge buttons and labels. */
 export const BITRATE_SLIDER_MAX_MBPS = 800
 
-// V+ PR 724 uses a piecewise scale: fine steps below 200 Mbps and wider steps
-// above it. Position zero remains the host/client automatic value in Foundation.
-// Source: ba-vplus-pr724-20261109.
-const SEGMENT_ENDS = Object.freeze([0, 9, 24, 39, 49, 59, 63, BITRATE_SLIDER_MAX_PROGRESS])
+// The scale of the slider: ten positions per decade, spaced by the Renard series R10 (ISO 3:1973, preferred numbers), from 0.5 to 800 Mbps.
+//   Why a geometric scale: what a person notices of a bitrate is a relative change, so a step of 1 Mbps is huge at 2 Mbps and invisible at 200 Mbps.
+//   With a constant ratio between positions (the 10th root of 10, 1.26, before rounding) the largest error of picking the nearest position is the same
+//   at every size, about 12 %. R10 was chosen over R5 (1.58, too coarse for the 5 to 50 Mbps where most streams are) and R20 (1.12, 20 positions a decade
+//   make the track hard to hit with a finger). The recommended encoder bitrates that public guidance gives for common formats (a 1080p60 H.265 or AV1
+//   stream 12 Mbps, 1440p60 24, 2160p60 35; the same formats in H.264 17, 34 and 50) all sit within about 10 % of a position, so each format has a position of its own.
+//   The values are the R10 numbers of the standard, 1.00 1.25 1.60 2.00 2.50 3.15 4.00 5.00 6.30 8.00, times the decade, in whole Kbps.
+//   Position 0 is automatic (the client decides). Sources: m3e-iso3-renard-20261115, m3e-youtube-live-bitrate-20261115 (docs/authority/source-index.tsv).
+const R10 = Object.freeze([100, 125, 160, 200, 250, 315, 400, 500, 630, 800])
+const TICKS_KBPS = Object.freeze([0, ...[1, 10, 100, 1000].flatMap((decade) => R10.map((r) => r * decade)).filter((k) => k >= 500 && k <= BITRATE_SLIDER_MAX_MBPS * 1000)])
 
 /** Whole Kbps from what the host sent: a number or a numeric string; a missing, empty, negative or unreadable value is 0 (automatic), never a made-up number. */
 export function bitrateKbps(raw) {
@@ -23,35 +29,27 @@ export function bitrateKbps(raw) {
 /** The slider position (whole Mbps) of a stored value: 0 for automatic. The stored value itself is not rewritten by showing it. */
 export const bitrateSliderMbps = (raw) => Math.round(bitrateKbps(raw) / 1000)
 
-/** Convert a stored Kbps value to the shared segmented slider position. */
+/** The slider position of a stored Kbps value: the nearest position by ratio (a value between two positions is shown at the closer one, in its own words by bitrateText); 0 is automatic. */
 export function bitrateSliderProgress(raw) {
   const kbps = bitrateKbps(raw)
   if (kbps <= 0) return 0
-  const progress = kbps < 5000 ? Math.min(8, 1 + Math.round((kbps - 500) / 500))
-    : kbps <= 20000 ? 9 + Math.round((kbps - 5000) / 1000)
-      : kbps <= 50000 ? 24 + Math.round((kbps - 20000) / 2000)
-        : kbps <= 100000 ? 39 + Math.round((kbps - 50000) / 5000)
-          : kbps <= 200000 ? 49 + Math.round((kbps - 100000) / 10000)
-            : kbps <= 400000 ? 59 + Math.round((kbps - 200000) / 50000)
-              : 63 + Math.round((kbps - 400000) / 100000)
-  return Math.min(BITRATE_SLIDER_MAX_PROGRESS, Math.max(0, progress))
+  let best = 1
+  let bestDistance = Infinity
+  for (let i = 1; i < TICKS_KBPS.length; i += 1) {
+    const distance = Math.abs(Math.log(kbps / TICKS_KBPS[i]))
+    if (distance < bestDistance - 1e-12) { best = i; bestDistance = distance }
+  }
+  return best
 }
 
-/** Convert a segmented slider position to whole Kbps; zero is always automatic. */
+/** The whole Kbps of a slider position; zero is always automatic, a position outside the track is the nearest end. */
 export function bitrateFromProgress(value) {
   const p = Math.min(BITRATE_SLIDER_MAX_PROGRESS, Math.max(0, Math.round(Number(value) || 0)))
-  if (p === 0) return 0
-  if (p < 9) return 500 + (p - 1) * 500
-  if (p <= 24) return 5000 + (p - 9) * 1000
-  if (p <= 39) return 20000 + (p - 24) * 2000
-  if (p <= 49) return 50000 + (p - 39) * 5000
-  if (p <= 59) return 100000 + (p - 49) * 10000
-  if (p <= 63) return 200000 + (p - 59) * 50000
-  return 400000 + (p - 63) * 100000
+  return TICKS_KBPS[p]
 }
 
-/** Fractions for the visible segment boundaries, including automatic at zero. */
-export const bitrateSegmentMarks = Object.freeze(SEGMENT_ENDS.map((p) => p / BITRATE_SLIDER_MAX_PROGRESS))
+/** Fractions (0..1 of the track) of the visible marks: the start (automatic) and each power of ten, 1, 10 and 100 Mbps. */
+export const bitrateSegmentMarks = Object.freeze([0, 1000, 10000, 100000].map((kbps) => (kbps ? bitrateSliderProgress(kbps) : 0) / BITRATE_SLIDER_MAX_PROGRESS))
 
 /**
  * The positions of a segmented bitrate slider that is limited to minKbps..maxKbps (a live session's target is never automatic and never under 1 Mbps): { min, max } in slider positions.
@@ -62,7 +60,7 @@ export function bitrateSliderSpan(minKbps = 0, maxKbps = BITRATE_SLIDER_MAX_MBPS
 }
 
 /**
- * Fractions (0..1 of the slider) where the values of the chips stand, so a mark sits exactly under the value a chip writes: presets in Mbps (0 = automatic has no mark, it is the start of the track).
+ * Fractions (0..1 of the slider) where the values of the chips stand, so a mark sits under the value a chip writes (the nearest position, exactly under it for a preset that is an R10 number): presets in Mbps (0 = automatic has no mark, it is the start of the track).
  * `minKbps` / `maxKbps` are the limits of the slider (see bitrateSliderSpan); a preset outside them has no mark.
  */
 export function bitrateChipMarks(presetsMbps = BITRATE_PRESETS_MBPS, minKbps = 0, maxKbps = BITRATE_SLIDER_MAX_MBPS * 1000) {
