@@ -6,7 +6,7 @@ import { buildGuideSteps } from '../src/vue/guideModel.js'
 import { guideTexts } from '../src/vue/guideTexts.js'
 import { CONSENT_KEY, ERRORS_KEY, mayCollect, readConsent } from '../src/telemetry/consent.js'
 
-// Usage statistics are ON by default (「遥测默认开」), nobody is asked, one first-run notice covers both choices, and a choice made in 关于 › 隐私 works at once.
+// Usage statistics are ON by default (on by default), nobody is asked, one first-run notice covers both choices, and a choice made in 关于 › 隐私 works at once.
 const read = (p) => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
 const memory = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), m } }
 

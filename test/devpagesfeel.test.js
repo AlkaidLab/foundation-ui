@@ -111,11 +111,11 @@ test('an active simulation: the chosen segment, the value of the row, the banner
 })
 test('发送测试事件: off and known is disabled at once with its reason; not known yet waits with its own indicator, not switched off; on is plain', async () => {
   const off = await html(DevTests, { locale: 'zh', tools: toolsOf(), consentOn: false, consentReady: true })
-  assert.match(off, /<button[^>]*data-dev="telemetry-test"[^>]*disabled|<button[^>]*disabled[^>]*data-dev="telemetry-test"/); assert.match(off, /遥测未开启，不会发送/)
+  assert.match(off, /<button[^>]*data-dev="telemetry-test"[^>]*disabled|<button[^>]*disabled[^>]*data-dev="telemetry-test"/); assert.match(off, /使用统计已关闭，不会发送/)
   const waiting = await html(DevTests, { locale: 'zh', tools: toolsOf(), consentOn: false, consentReady: false })
-  assert.doesNotMatch(waiting, /遥测未开启/); assert.match(waiting, /aria-busy="true"[^>]*data-state="idle"|data-state="idle"[^>]*aria-busy="true"/); assert.match(waiting, /m-loading/)
+  assert.doesNotMatch(waiting, /使用统计已关闭/); assert.match(waiting, /aria-busy="true"[^>]*data-state="idle"|data-state="idle"[^>]*aria-busy="true"/); assert.match(waiting, /m-loading/)
   const on = await html(DevTests, { locale: 'zh', tools: toolsOf(), consentOn: true, consentReady: true })
-  assert.doesNotMatch(on, /遥测未开启/); assert.doesNotMatch(on, /data-dev="telemetry-test"[^>]*disabled/)
+  assert.doesNotMatch(on, /使用统计已关闭/); assert.doesNotMatch(on, /data-dev="telemetry-test"[^>]*disabled/)
 })
 test('the page sends with its own pending state: 「发送中」 on the row, the answer in the same place, never a second send while one runs', () => {
   const v = read('src/vue/devmode/DevTests.vue')

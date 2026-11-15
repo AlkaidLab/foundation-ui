@@ -3,7 +3,7 @@
 // ERROR REPORTS: the redacted error text, the version, the system and the page, sent when the product meets an error of its own. ON by default; the person turns it off in 关于 › 隐私
 // (the first run says so once, in a notice, and asks nothing). Values: 'on' | 'off'. A report the person sends by hand is an explicit action and does not need this choice.
 //
-// USAGE STATISTICS: counts of what is used. A separate switch, ON by default like the error reports (「遥测默认开」); the same first-run notice tells about both and nobody is asked.
+// USAGE STATISTICS: counts of what is used. A separate switch, ON by default like the error reports (on by default); the same first-run notice tells about both and nobody is asked.
 // Values: 'on' | 'off'; 'ask' is only a value an older version may have stored (it meant "not answered yet") and reads as the default. An explicit 'on' or 'off' already given is kept as it is.
 // The collection itself is its own design; this only keeps the answer.
 
