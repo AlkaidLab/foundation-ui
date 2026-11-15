@@ -71,9 +71,10 @@ const inpOf = (visit) => {
 
 /**
  * @param {object} [env] the browser pieces, replaceable for tests
+ * @param {(page: string, ms: number) => void} [options.onReady] called once, when the first page of the document says it is ready
  * @param {(props: object, name: string) => void} options.emit gets the props of an event ready to queue (`page_vitals`, `api_latency`)
  */
-export function createPagePerf({ emit = () => {}, env = {} } = {}) {
+export function createPagePerf({ emit = () => {}, onReady = () => {}, env = {} } = {}) {
   const win = env.win ?? globalThis.window
   const doc = env.doc ?? globalThis.document
   const performanceObject = env.performance ?? win?.performance ?? globalThis.performance
@@ -377,6 +378,8 @@ export function createPagePerf({ emit = () => {}, env = {} } = {}) {
       // a page that was left before it was ready does not make the next page ready
       if (!visit || visit.tti !== null || (forRoute && routeWord(forRoute) !== visit.id)) return
       visit.tti = visit.first ? nowMs() : nowMs() - visit.at
+      // the first page of a document tells at once when it was ready (from the start of the document): the host judges it against its limit and the install's own usual time
+      if (visit.first) { try { onReady(visit.id, Math.round(visit.tti)) } catch { /* a failing listener is not the page's problem */ } }
     },
     get started() { return started },
     get routes() { return routes },

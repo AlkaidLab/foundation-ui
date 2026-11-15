@@ -343,3 +343,16 @@ test('a page says it is ready for its own route only', () => {
   assert.equal(by.home.tti, undefined)
   assert.deepEqual(by.apps.tti, [0, 0, 1, 0, 0, 0, 0, 0]) // 800 ms after the visit began: <= 1000 is the third bucket
 })
+
+test('the first page of a document says at once when it was ready; later pages do not', () => {
+  const rt = fakeRuntime()
+  const ready = []
+  const perf = createPagePerf({ emit: () => {}, onReady: (page, ms) => ready.push([page, ms]), env: { win: rt.win, doc: rt.doc, now: () => rt.now, ...noTimers } })
+  perf.start('home')
+  rt.at(34_200)
+  perf.markInteractive('home')
+  perf.markInteractive('home')
+  rt.at(35_000); perf.visit('apps')
+  rt.at(36_000); perf.markInteractive('apps')
+  assert.deepEqual(ready, [['home', 34_200]])
+})
