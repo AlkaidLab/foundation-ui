@@ -49,7 +49,7 @@ test('the bitrate command: the tile says what the host does with the number, and
   const session = { client_name: 'Pixel 9', bitrate: 56000 }
   const on = recentCatalogue({ session, canRuntime: true, config: { max_bitrate: 50000 } }, T)['live-bitrate']
   assert.deepEqual([on.client, on.now, on.min, on.max, on.cap], ['Pixel 9', 56, 1, 50, 50])
-  assert.ok(on.note.includes('50 Mbps') && /预算/.test(on.note), on.note)
+  assert.ok(on.note.includes('50 Mbps') && /上限/.test(on.note), on.note)
   const free = recentCatalogue({ session, canRuntime: true, config: { max_bitrate: 0 } }, T)['live-bitrate']
   assert.deepEqual([free.cap, free.max], [0, 800], 'with no ceiling the control reaches the 800 Mbps the note says'); assert.ok(free.note.includes('800 Mbps'))
   assert.equal(recentCatalogue({ session, canRuntime: false, config: {} }, T)['live-bitrate'], null, 'the host takes the command from this computer only')

@@ -53,6 +53,6 @@ test('the sliders of the home tiles and the mode card are size m (the same 44 px
     assert.match(text, /<MSlider\b/, p); assert.doesNotMatch(text, /<MSlider[^>]*size="(xs|s)"/, p)
   }
   const live = read('tiles/TileLive.vue')
-  assert.match(live, /bitrateSliderSpan\(/); assert.match(live, /bitrateChipMarks\(\[5, 10, 20, 50, 100, 200\]/); assert.match(live, /bitrateFromProgress\(position\)/)
+  assert.match(live, /bitrateSliderSpan\(/); assert.doesNotMatch(live, /bitrateChipMarks|:marks=/, 'no unlabeled marks on the tile slider'); assert.match(live, /bitrateFromProgress\(position\)/)
   assert.doesNotMatch(live, /<MSlider v-model="rate"/, 'not a linear Mbps track')
 })

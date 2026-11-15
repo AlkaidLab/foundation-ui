@@ -78,7 +78,7 @@ const sc = computed(() => d.value.rows?.[0] || {})
     <!-- 串流客户端 -->
     <template v-else>
       <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span></header>
-      <div class="m-b2plate is-on"><span class="m-b2glyph"><MIcon v-if="deviceGlyph(d.clientIcon)" :name="d.clientIcon" /><b v-else>{{ initialOf(sc.title) }}</b></span><span style="min-width: 0; display: flex; flex-direction: column"><b>{{ sc.title }}</b><small v-if="sc.value">{{ sc.value }}</small></span></div>
+      <div class="m-b2plate is-on"><span class="m-b2glyph"><MIcon v-if="deviceGlyph(d.clientIcon)" :name="d.clientIcon" /><MIcon v-else name="devices" /></span><span style="min-width: 0; display: flex; flex-direction: column"><b>{{ sc.title }}</b><small v-if="sc.value">{{ sc.value }}</small></span></div>
     </template>
   </section>
 </template>
