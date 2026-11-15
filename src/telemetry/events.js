@@ -4,6 +4,7 @@
 // The two choices are the shared ones (consent.js): usage statistics (usage and experience events) and error reports (error events), both on until the person turns them off. Nothing is queued for a kind that is
 // off here, and the host refuses it again when its own copy of the choice says off. Names the person typed or the host holds (apps, devices, games) are never sent: an event carries a fixed word (a catalogue id) or a
 // number, and an error event has no text at all.
+import { installActionTracking } from './actions.js'
 import { mayCollect, mayReportErrors, readConsent, readErrors } from './consent.js'
 
 export const EVENTS_PATH = '/api/telemetry/events'
@@ -99,6 +100,8 @@ export function installEventListeners(sender, win = globalThis.window, doc = glo
   if (!win || typeof win.addEventListener !== 'function') return () => {}
   const on = (name, fn) => { win.addEventListener(name, fn); return () => win.removeEventListener?.(name, fn) }
   const offs = []
+  // the last actions of the person (page changes, marked presses, settings, stream state) for the error reports
+  offs.push(installActionTracking(win, doc))
   offs.push(on('foundation-telemetry-consent', (event) => { if (!mayCollect(event.detail)) sender.drop({ usage: false }) }))
   offs.push(on('foundation-telemetry-errors', (event) => { if (!mayReportErrors(event.detail)) sender.drop({ errors: false }) }))
   // a known limit of this machine or version (an unsupported GPU, a missing component): an error event of severity warning with the category and the code only, at most 20 a minute

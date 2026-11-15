@@ -3,6 +3,7 @@
 // takes it whatever the two choices say. Where the host or the server cannot be reached the report waits in a local queue and is tried again later; the person is told so, and can copy, download or open a GitHub issue.
 import { reportToEvent } from './report.js'
 import { catalogueId } from './events.js'
+import { errorReportEvent } from './errorEvent.js'
 
 export const QUEUE_KEY = 'foundation-ui.errors.queue'
 export const SENT_KEY = 'foundation-ui.errors.sent'
@@ -180,10 +181,17 @@ const sanitizeCode = (value) => catalogueId(String(value || 'unknown').replace(/
 /** The first occurrence of an automatic report: one `error` event with the details the contract has room for. -> `sent`, `offline`, `rejected`. */
 export async function createIssue(doc, options = {}) {
   // the code and the component only: the text of the error stays on this computer (it can hold a path, a name or what the person typed)
-  return request([{ kind: 'error', name: 'error', props: { component: catalogueId(doc.product || 'web', 32) || 'web', code: sanitizeCode(`${doc.category}.${doc.code}`), severity: 'error', count: 1 } }], options)
+  // and the same error as an `error_report`: the stack as function@file:line:column, the place, the last actions (no text) and the fingerprint the server groups by
+  return request([
+    { kind: 'error', name: 'error', props: { component: catalogueId(doc.product || 'web', 32) || 'web', code: sanitizeCode(`${doc.category}.${doc.code}`), severity: 'error', count: 1 } },
+    errorReportEvent(doc),
+  ], options)
 }
 
 /** Later occurrences of the same error: one `error` event that counts them (no new details). `issue` = { component, code } of the first occurrence. -> `sent`, `offline`, `rejected`. */
 export async function bumpIssue(issue, n, options = {}) {
-  return request([{ kind: 'error', name: 'error', props: { component: catalogueId(issue.component || 'web', 32) || 'web', code: sanitizeCode(issue.code), severity: 'error', count: Math.max(1, Math.floor(n)) } }], options)
+  const events = [{ kind: 'error', name: 'error', props: { component: catalogueId(issue.component || 'web', 32) || 'web', code: sanitizeCode(issue.code), severity: 'error', count: Math.max(1, Math.floor(n)) } }]
+  // the count of the same error for the error_report groups (no stack, no actions: the server has the first sample)
+  if (issue.fingerprint) events.push(errorReportEvent({ product: issue.component, category: String(issue.code).split('.')[0], code: String(issue.code).split('.').slice(1).join('.'), fingerprint: issue.fingerprint }, { count: n, withDetail: false }))
+  return request(events, options)
 }
