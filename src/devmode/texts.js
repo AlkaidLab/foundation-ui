@@ -22,7 +22,7 @@ const ZH = {
   mineSent: '已发布 #{n}', mineSaved: '已保存到本机', mineQueued: '未发送（无网络）',
   // the report
   errTitle: '报告问题', fbTitle: '提交反馈', previewTitle: '将要发送的内容',
-  errLead: '已截取窗口并收集日志，个人信息已自动去除。发送前可逐项查看，取消不需要的项目。', fbLead: '描述遇到的问题或建议，可选择附上截图和日志。',
+  errLead: '已截取窗口并附上日志，个人信息已自动去除。发送前可逐项查看，取消不需要的项目。', fbLead: '描述遇到的问题或建议，可选择附上截图和日志。',
   fSubject: '标题', draftError: '错误', draftPage: '页面', draftVersion: '版本', draftSteps: '复现步骤：', draftLogs: '—— 发生错误时的日志 ——', fContent: '内容', fContentHint: '实际情况与期望结果', fContact: '联系方式（可选）', fSubjectHint: '用一句话概括问题',
   repo: '提交到', attach: '随报告附上', aShot: '窗口截图', aShotSub: '出错时的窗口', aLogs: '日志', aLogsSub: '最近的面板与主机日志', aDump: '崩溃转储', aDumpSub: '可能包含内存中的数据，默认不附带',
   aRisk: '有风险', aUnavailable: '此环境不能截图', aAuto: '已脱敏', aShotNote: '已自动遮盖敏感位置，可在预览中框选更多区域', aEmpty: '没有可附的内容',
@@ -48,7 +48,7 @@ const ZH = {
   logsLive: '实时', logsPause: '暂停', logsResume: '继续', logsClear: '清空视图', logsCopy: '复制', logsNone: '没有日志', logsFilter: '过滤', logsLevels: { error: '错误', warn: '警告', info: '信息', debug: '调试' }, logsMore: '只显示最近 {n} 行',
   apiRead: '读取', apiPath: '路径', apiHidden: '密码、令牌和证书内容已隐藏', apiCopy: '复制响应', apiNone: '选择一个端点，或输入以 /api/ 开头的路径', apiBad: '该路径不可读取',
   buildCopy: '复制环境信息', buildCopyTip: '复制内容为固定的英文键值格式，便于粘贴到问题报告', buildNotInstalled: '未安装', buildComponent: '组件', buildVersion: '版本', buildCommit: '提交', buildEnvironment: '本机环境', buildComponents: '组件', envTitle: '环境', buildPanel: '控制面板', buildUi: 'Foundation UI',
-  testsError: '触发错误对话框', testsErrorSub: '预览一键报告', testsHost: '模拟主机状态', testsTelemetry: '发送测试遥测', testsPreviewPayload: '预览错误报告载荷',
+  testsError: '触发错误对话框', testsErrorSub: '预览一键报告', testsHost: '模拟主机状态', testsTelemetry: '发送测试事件', testsPreviewPayload: '预览错误报告载荷',
   flagsHint: '浮层仅在开发者模式开启时生效。',
   // 模拟主机状态: a choice with a confirm step, a banner while it runs, the chip in the header of every developer page
   simNone: '未模拟', simOffline: '离线', simStopped: '已停止', simUnresponsive: '无响应', simRow: '最长 60 秒，到时自动结束', simActive: '模拟中：{kind} · 还剩 {s} s',
@@ -84,7 +84,7 @@ const EN = {
   commentsTitle: 'Comments {n}', commentsLoading: 'Loading comments…', commentsFail: 'Comments could not be loaded', commentsAll: 'Show all {n} comments', commentsHidden: '({n} folded)', commentsFold: 'Fold the comments', commentsMore: '{n} more comments are not shown. ',
   mineSent: 'Published #{n}', mineSaved: 'Saved on this computer', mineQueued: 'Not sent (no network)',
   errTitle: 'Report a problem', fbTitle: 'Send feedback', previewTitle: 'What will be sent',
-  errLead: 'The window was captured and the log collected. Personal data was removed automatically. Review each item before sending and clear what you do not want to include.', fbLead: 'Describe the problem or suggestion. You can attach a screenshot and the log.',
+  errLead: 'The window was captured and the log attached. Personal data was removed automatically. Review each item before sending and clear what you do not want to include.', fbLead: 'Describe the problem or suggestion. You can attach a screenshot and the log.',
   fSubject: 'Title', draftError: 'Error', draftPage: 'Page', draftVersion: 'Version', draftSteps: 'Steps to reproduce:', draftLogs: '-- Log at the time of the error --', fContent: 'Details', fContentHint: 'What happened and what you expected', fContact: 'Contact (optional)', fSubjectHint: 'Summarise the problem in one line',
   repo: 'Send to', attach: 'Attached', aShot: 'Window screenshot', aShotSub: 'The window at the time of the error', aLogs: 'Log', aLogsSub: 'Recent panel and host log', aDump: 'Crash dump', aDumpSub: 'May contain data from memory; off by default',
   aRisk: 'Risk', aUnavailable: 'This environment cannot take a screenshot', aAuto: 'Redacted', aShotNote: 'Sensitive areas are covered automatically. Drag boxes in the preview to cover more.', aEmpty: 'Nothing to attach',

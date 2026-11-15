@@ -23,7 +23,7 @@ Material 3 Expressive tokens, styles and Vue 3 components for the Foundation con
 - **Components** – 212 Vue 3 components: buttons, chips, switches, sliders, dialogs, sheets, menus, navigation, lists, charts and tiles, plus the pages and cards of Foundation Panel and the Web UI. Material Web (`@material/web`) supplies text fields, select, checkbox, radio and menu.
 - **Skins** – CSS for the legacy Bootstrap and Element Plus controls, so older pages follow the same theme.
 - **Tray and context menu models** – the data behind the tray menu, the quick panel and the window-wide context menu, with their layouts, items and popup placement.
-- **Settings and diagnostics models** – settings model and search index, reachability and network overview, display and virtual-display models, update, announcements, telemetry consent, doctor and diagnostics.
+- **Settings and diagnostics models** – settings model and search index, reachability and network overview, display and virtual-display models, update, announcements, error report and usage statistics choices, doctor and diagnostics.
 - **Locales** – 18 interface locales and a locale preference helper.
 - **Testing helpers** – a no-network guard, a Vue script scope checker, a selected-state style checker and a copy linter, importable by the apps that consume this package.
 
@@ -107,7 +107,7 @@ More in [Getting started](docs/en/getting-started.md).
 | [Components](docs/en/components.md) | Every component exported by `foundation-ui/vue` |
 | [Testing](docs/en/testing.md) | `foundation-ui/testing/*` helpers and the no-network loader |
 
-Design notes for individual areas (tile kit, home dashboard, tray, announcements, telemetry, copy style and more) are in [`docs/`](docs).
+Design notes for individual areas (tile kit, home dashboard, tray, announcements, error reports and usage statistics, copy style and more) are in [`docs/`](docs).
 
 ## Development
 
