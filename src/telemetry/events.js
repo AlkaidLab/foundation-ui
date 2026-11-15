@@ -113,7 +113,7 @@ export function installEventListeners(sender, win = globalThis.window, doc = glo
   offs.push(installActionTracking(win, doc))
   // page experience sketches (LCP, CLS, INP, long animation frames, frame times, API latency, heap): one event per route when the page is hidden, nothing in between. Started before the listeners that flush, so its events are queued first.
   if (!sender.perf && typeof win.PerformanceObserver !== 'undefined') {
-    const perf = createPagePerf({ emit: (props, name) => sender.queue('experience', name, props), env: { win, doc } })
+    const perf = createPagePerf({ emit: (props, name) => sender.queue('experience', name, props), onReady: (page, ms) => sender.queue('experience', 'page_ready', { page, ms: Math.min(3_600_000, Math.max(0, ms)) }), env: { win, doc } })
     perf.start(sender._page?.id || 'home')
     sender.perf = perf
     offs.push(() => { perf.stop(); if (sender.perf === perf) sender.perf = null })
