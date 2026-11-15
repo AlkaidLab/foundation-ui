@@ -18,12 +18,27 @@ export function useDashDock(D) {
   const sectionCount = computed(() => (!smart.value && layout.state.sectionCount ? layout.state.sectionCount : Math.min(PURPOSES.length, across.value)))
   const sectionOfCard = (c) => { const manual = layout.state.sectionOf[c.id]; return Number.isInteger(manual) && !smart.value ? Math.min(manual, sectionCount.value - 1) : sectionIndexOf(purposeOf(c.id, c.group), sectionCount.value) }
   const SECTION_TITLES = computed(() => ({ 0: T.value.secLive, 1: T.value.secControls, 2: T.value.secClients, 3: T.value.secSystem }))
+  // the smart overview of a window: a row that stops a column short of the right edge gives that column to the single-row tile at its end (no row ends short of the window); the search for the arrangement is not changed
+  const closeRowEnds = (packed, units) => {
+    for (let r = 0; r < packed.rows.length; r++) {
+      const here = [...packed.placed.values()].filter((p) => p.row <= r && r < p.row + p.rows)
+      const end = Math.max(0, ...here.map((p) => p.col + p.span))
+      const last = here.find((p) => p.col + p.span === end)
+      if (end < units && last && last.rows === 1 && last.row === r && last.cls !== 'strip' && !here.some((p) => p !== last && p.col >= end)) {
+        const run = units - end
+        last.span += run
+        const cell = packed.rows[r].cells.find((c) => c.col === last.col)
+        if (cell) cell.span += run
+      }
+    }
+  }
   const blockOf = (key, list, w, more = {}) => {
-    const { light, ghostSection, taken, only, ...rest } = more
+    const { light, ghostSection, taken, only, hole, close, ...rest } = more
     const grid = gridOf(w)
     // the suggestions of the section's own purpose come first
     const candidates = light ? [] : (only || ghostCards.value).filter((g) => !list.some((x) => x.id === g.id) && !(taken && taken.has(g.id))).sort((a, b) => Number(ghostSection !== undefined && sectionIndexOf(purposeOf(b.id, b.group), sectionCount.value) === ghostSection) - Number(ghostSection !== undefined && sectionIndexOf(purposeOf(a.id, a.group), sectionCount.value) === ghostSection))
-    const f = fitDash(list, w, boxFor, { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
+    const f = fitDash(list, w, boxFor, { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: hole ?? 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
+    if (close) closeRowEnds(f.packed, f.units)
     const ghosts = new Set(f.ghosts)
     const boxed = f.boxed.map((c) => (ghosts.has(c.id) ? { ...c, ghost: true } : c))
     if (typeof window !== 'undefined') (window.__m3eFit ||= {})[key] = { w, units: f.units, trace: f.trace }
@@ -95,7 +110,13 @@ export function useDashDock(D) {
   }
   const blocks = computed(() => {
     const list = visibleCards.value
-    if (!sectioned.value) return [blockOf('grid', list, width.value)]
+    if (!sectioned.value) {
+      // the smart overview in one grid fills its window like a section does: the key tiles a size up within their caps, then suggested tiles, toward 80-96 % of the height, and no row is short by a column
+      if (!smart.value || windowClass.value === 'compact') return [blockOf('grid', list, width.value)]
+      const unit = gridOf(width.value).unit
+      const avail = availH.value
+      return [blockOf('grid', list, width.value, { hole: 1, close: true, target: { min: 0.8 * avail, max: 0.96 * avail, rowPx: rowPxIn(unit), gap: UNIT_GAP } })]
+    }
     const per = sectionLayout(width.value)
     const groups = Array.from({ length: sectionCount.value }, () => [])
     for (const c of list) groups[sectionOfCard(c)].push(c)
@@ -156,6 +177,27 @@ export function useDashDock(D) {
   const shownIds = computed(() => shown.value.filter((c) => !c.ghost).map((c) => c.id))
   const placedOf = (id) => { for (const b of blocks.value) { const p = b.packed.placed.get(id); if (p) return p } return null }
   const cellStyle = (b, id) => { const p = b.packed.placed.get(id); return p ? { gridRow: `${p.row + 1} / span ${p.rows}`, gridColumn: `${p.col + 1} / span ${p.span}` } : {} }
+  // the smart overview in one grid fills the height of its window: the unit rows grow (by up to 30 %) until the grid reaches the bottom of the window, the strip rows keep their height;
+  // a grid that is already taller than the window is not changed
+  const fills = computed(() => smart.value && !sectioned.value && !edit.value && !dockOn.value && windowClass.value !== 'compact')
+  const fillK = ref(1)
+  const measureFill = () => {
+    const el = D.root?.value?.querySelector?.('.m-dash__blocks')
+    const b = blocks.value[0]
+    if (!fills.value || !el || !b || !b.unit) { fillK.value = 1; return }
+    const scroller = el.closest('.m-scene__pane, .m-scene')
+    if (scroller && scroller.scrollTop > 2) return // measured from the top only
+    const rows = String(b.template || '').split(' ')
+    const unitRows = rows.filter((t) => t === `${b.unit}px`).length
+    if (!unitRows) { fillK.value = 1; return }
+    const rest = b.natural - unitRows * b.unit
+    const avail = tall.value - el.getBoundingClientRect().top - 16
+    const k = (avail - rest) / (unitRows * b.unit)
+    fillK.value = Math.max(1, Math.min(1.3, Math.round(k * 100) / 100))
+  }
+  const fillTemplate = (b) => String(b.template || '').split(' ').map((t) => (t === `${b.unit}px` ? `${Math.round(b.unit * fillK.value)}px` : t)).join(' ')
+  watch([fills, blocks, tall, width], async () => { await nextTick(); measureFill() }, { flush: 'post' })
+  onMounted(() => nextTick(measureFill))
   const blockStyle = (b) => (b.width ? { width: `${b.width}px`, maxWidth: '100%' } : undefined)
   const reasonOf = (id) => { const r = plan.value.reasons[id]; return r ? String(T.value[r.key] || '').replace('{n}', r.vars?.n ?? '') : '' }
   const whyRows = computed(() => plan.value.visible.map((id) => ({ id, title: cardById.value.get(id)?.title || id, icon: cardById.value.get(id)?.data?.icon || 'grid_view', reason: reasonOf(id) })))
@@ -191,5 +233,5 @@ export function useDashDock(D) {
     }
     emit('action', a)
   }
-  Object.assign(D, { availH, slotEnter, slotLeave, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockEdge, dockOn, dockRow, dockScroll, dockStyle, hideGhost, measureDock, onAct, onDockWheel, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
+  Object.assign(D, { fills, fillTemplate, availH, slotEnter, slotLeave, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockEdge, dockOn, dockRow, dockScroll, dockStyle, hideGhost, measureDock, onAct, onDockWheel, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
 }

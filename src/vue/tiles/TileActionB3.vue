@@ -47,7 +47,7 @@ const go = () => { if (!props.preview) emit('act', { type: d.value.act, value: d
 <template>
   <button type="button" class="m-tile m-cal m-cala m-b3a" :class="{ 'has-state': !!view.state, 'is-alert': view.alert, 'is-quiet': card.quiet }" data-size="s" :data-accent="view.accent || 'secondary'" :data-act="id"
     :aria-label="[card.title, view.state].filter(Boolean).join(' · ')" @click="go">
-    <span class="m-cala__glyph"><MIcon :name="view.glyph || d.icon" /></span>
+    <span class="m-cala__glyph"><MIcon :name="view.glyph || d.icon" :fill="(view.glyph || d.icon) === 'stop'" /></span>
     <MIcon v-if="OUT.has(id)" class="m-b3a__out" name="open_in_new" />
     <span class="m-b3a__text"><b class="m-cala__name">{{ card.title }}</b><small v-if="view.state" class="m-b3a__state m-dnum" data-redact="client">{{ view.state }}</small></span>
   </button>

@@ -50,7 +50,7 @@ const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTon
     <template v-else-if="id === 'stream-bitrate' || id === 'stream-fps'">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tstream__gauge">
-        <MTileRing v-if="id === 'stream-fps' ? sfTarget : cap" class="m-tstream__ring" :value="(num(id === 'stream-fps' ? d.big : bigNum.v) ?? 0) / (id === 'stream-fps' ? sfTarget : cap)" :sweep="id === 'stream-bitrate' ? 270 : 360" :wavy="id === 'stream-fps'" :stroke="11">
+        <MTileRing v-if="id === 'stream-fps' ? sfTarget : cap" class="m-tstream__ring" :value="(num(id === 'stream-fps' ? d.big : bigNum.v) ?? 0) / (id === 'stream-fps' ? sfTarget : cap)" :sweep="360" :wavy="id === 'stream-fps'" :stroke="11">
           <MTileNumeral :value="id === 'stream-fps' ? String(d.big || '') : bigNum.v" :unit="id === 'stream-fps' ? 'fps' : bigNum.u" size="s" />
         </MTileRing>
         <template v-else>
@@ -85,7 +85,7 @@ const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTon
     <template v-else>
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)"><MTileChip v-if="size !== 's' && peak" :label="peak" /></MTileHead>
       <div class="m-tstream__top">
-        <MTileNumeral :value="d.value" :unit="d.unit" :size="size" :caption="size !== 's' ? d.caption : ''" />
+        <MTileNumeral :value="d.value" :unit="d.unit" :size="size === 'l' ? 'xl' : size" :caption="size !== 's' ? d.caption : ''" />
         <dl v-if="(size === 'l' || (size === 'm' && ['loss', 'dropped'].includes(id))) && stats.length" class="m-tstream__stats"><div v-for="x in stats" :key="x.k"><dt>{{ label(x.k) }}</dt><dd class="m-dnum">{{ x.value }}</dd></div></dl>
       </div>
       <MTileChart v-if="pts.length > 1" class="m-tile__bleed" :points="pts" :max="id === 'fps' && target ? target * 1.1 : null" :target="id === 'fps' ? target : null"

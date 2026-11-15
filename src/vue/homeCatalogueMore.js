@@ -63,7 +63,7 @@ export function moreCatalogue(x, T, now = Date.now()) {
   d['stream-bitrate'] = s && kbps !== null ? { ...rows('stream-bitrate', 'speed', `${(kbps / 1000).toFixed(1)} ${T.mbps}`, [{ icon: 'vertical_align_top', title: T.capLabel, value: cap ? `${cap / 1000} ${T.mbps}` : T.auto }]), points: num(s.measured_bitrate_kbps) !== null ? (x.history?.samples?.bitrate || []).map((v) => v / 1000) : [], unit: T.mbps, ...(num(s.measured_bitrate_kbps) !== null ? { title: T['c_stream-bitrate_measured'] } : {}) } : null
   d['stream-mic'] = s && s.enable_mic !== undefined ? { type: 'chips', icon: 'mic', title: T['c_stream-mic'], big: s.enable_mic ? T.on : T.off, tone: s.enable_mic ? 'ok' : '', chips: [] } : null
   d['stream-vdd'] = s && s.use_vdd !== undefined ? { type: 'chips', icon: 'desktop_windows', title: T['c_stream-vdd'], big: s.use_vdd ? T.on : T.off, tone: s.use_vdd ? 'ok' : '', chips: [] } : null
-  d['act-stop'] = s && x.canAct !== false ? { type: 'action', icon: 'stop_circle', title: T['c_act-stop'], label: T.stopAction, act: 'hero', client: s.client_name || '', uptimeMs: num(s.uptimeMs) } : null
+  d['act-stop'] = s && x.canAct !== false ? { type: 'action', icon: 'stop', title: T['c_act-stop'], label: T.stopAction, act: 'hero', client: s.client_name || '', uptimeMs: num(s.uptimeMs) } : null
 
   d['host-ports'] = c ? rows('host-ports', 'lan', String(c.port || 47989), [{ icon: 'router', title: 'UPnP', value: state(isOn('upnp', c.upnp)) }]) : null
   d['host-name'] = c && c.sunshine_name ? rows('host-name', 'dns', c.sunshine_name, [c.platform && { icon: 'computer', title: T.platform, value: platformName(c.platform) }].filter(Boolean)) : null
