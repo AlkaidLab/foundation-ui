@@ -9,7 +9,7 @@
 // Exit 1 on any finding. One browser, from the shared launcher when QA_ENV is set (a module that exports chromium), else playwright-core (PW_REQUIRE_FROM names a directory with node_modules).
 import fs from 'node:fs'
 import path from 'node:path'
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 const { chromium } = process.env.QA_ENV ? await import(process.env.QA_ENV) : createRequire(process.env.PW_REQUIRE_FROM ? path.join(process.env.PW_REQUIRE_FROM, 'x.js') : import.meta.url)('playwright-core')
 const args = process.argv.slice(2)
@@ -20,7 +20,7 @@ const UI = one('--ui', path.resolve(path.dirname(new URL(import.meta.url).pathna
 const WIDTHS = one('--widths', '1280,1440').split(',').map(Number), THEMES = one('--themes', 'dark,light').split(','), STATES = one('--states', 'idle,live').split(',')
 const MODES = one('--modes', 'smart,manual-s,manual-m,manual-l,manual-xl').split(','), OUT = one('--out', '')
 const HEIGHT_OF = (w) => (w < 1300 ? 800 : w < 1700 ? 900 : 1080)
-const IDS = JSON.parse(execSync(`cd ${UI} && node --import ./scripts/register.mjs --import ./scripts/no-network.mjs -e "import('./src/vue/homeCards.js').then((c) => console.log(JSON.stringify(c.DEFAULT_ORDER)))"`, { encoding: 'utf8' }).trim().split('\n').pop())
+const IDS = JSON.parse(execFileSync(process.execPath, ['--import', './scripts/register.mjs', '--import', './scripts/no-network.mjs', '-e', "import('./src/vue/homeCards.js').then((c) => console.log(JSON.stringify(c.DEFAULT_ORDER)))"], { cwd: UI, encoding: 'utf8' }).trim().split('\n').pop())
 const manualOf = (k) => JSON.stringify({ v: 8, order: IDS, overrides: Object.fromEntries(IDS.map((id) => [id, true])), sizes: Object.fromEntries(IDS.map((id) => [id, k])), pins: {}, mode: 'manual' })
 
 /** In the page: the faults of every tile. */
@@ -53,7 +53,8 @@ function read() {
     }
     for (const t of texts) {
       const cls = String(t.el.className?.baseVal ?? t.el.className)
-      const isTitle = /title|__head|thead|__text/.test(cls) || t.el.closest('header')
+      const parentCls = String(t.el.parentElement?.className?.baseVal ?? t.el.parentElement?.className ?? '')
+      const isTitle = /title|__head|thead|__text/.test(cls) || /__text/.test(parentCls) || t.el.closest('header')
       const rows = new Map(); for (const r of t.rects) { const k = Math.round(r.top / 4); rows.set(k, (rows.get(k) || 0) + r.width) }
       const lines = rows.size, fs = parseFloat(getComputedStyle(t.el).fontSize) || 14, minW = Math.min(...rows.values())
       const orphan = lines >= 2 && minW < 2.4 * fs && t.label.replace(/\s/g, '').length >= 3
@@ -64,12 +65,13 @@ function read() {
   return out
 }
 
-await fetch(`${new URL(PANEL).protocol}//${new URL(PANEL).hostname}:${RAWHP}/__mock/measured?on=1`).catch(() => {})
+const mock = async (path) => { const r = await fetch(`${new URL(PANEL).protocol}//${new URL(PANEL).hostname}:${RAWHP}${path}`); if (!r.ok) throw new Error(`the host mock answered ${r.status} to ${path}`) }
+await mock('/__mock/measured?on=1')
 const b = await chromium.launch({ args: ['--no-sandbox'] })
 const findings = []
 try {
   for (const w of WIDTHS) for (const theme of THEMES) for (const state of STATES) for (const mode of MODES) {
-    await fetch(`${new URL(PANEL).protocol}//${new URL(PANEL).hostname}:${RAWHP}/__mock/live?on=${state === 'live' ? 1 : 0}`).catch(() => {})
+    await mock(`/__mock/live?on=${state === 'live' ? 1 : 0}`)
     const ctx = await b.newContext({ viewport: { width: w, height: HEIGHT_OF(w) }, reducedMotion: 'reduce' })
     const page = await ctx.newPage()
     await page.addInitScript('window.__TAURI_EVENT_PLUGIN_INTERNALS__ = window.__TAURI_EVENT_PLUGIN_INTERNALS__ || { unregisterListener() {} }')
