@@ -86,7 +86,7 @@ export default {
   "errorsNoticeLink": "About › Privacy",
   "privacyMore": "What is sent and what is not",
   "privacyTitle": "Error reports and usage statistics",
-  "privacyLead": "Each switch works on its own. When it is off, nothing of that kind is sent.",
+  "privacyLead": "Each switch works on its own. Turning one off sends one small record that it was turned off (which switch, the product and its version, and this computer's anonymous number); after that nothing of that kind is sent.",
   "lblCollected": "Sent",
   "lblNever": "Never sent",
   "lblWhere": "Goes to",
