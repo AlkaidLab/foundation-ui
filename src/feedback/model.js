@@ -10,11 +10,12 @@ export const FEEDBACK_TYPES = Object.freeze(['bug', 'suggestion', 'performance',
 /**
  * The state of the panel's rows.
  *   offline: the window has no network (the report is kept and sent by itself)
- *   hasShot / canSendShot: there is a screenshot / the product can upload one (the row shows only when both are true)
+ *   hasShot / canSendShot: there is a screenshot attached / the product can send one (the row shows whenever the product can: with the picture, or with the ways to add one)
  * The log is always part of a report the person sends: no switch for it. Pressing 发送 is the consent for this one send, so the error-report switch does not decide whether it can go.
+ * `shot` is the state of the row: 'attached' (a picture, with preview and remove) or 'empty' (the ways to add one); '' when there is no row.
  */
 export function feedbackPlan({ offline = false, hasShot = false, canSendShot = false } = {}) {
-  return { sendMode: offline ? 'queue' : 'send', shotRow: hasShot && canSendShot, logRow: true, banner: offline ? 'offline' : '' }
+  return { sendMode: offline ? 'queue' : 'send', shotRow: canSendShot, shot: canSendShot ? (hasShot ? 'attached' : 'empty') : '', logRow: true, banner: offline ? 'offline' : '' }
 }
 
 /** What the title of the report is: the first line of what the person wrote, at most 80 characters. */
@@ -36,8 +37,9 @@ export function contextLine({ page = '', element = '', error = null, texts }) {
  */
 export function phaseOf(answer) {
   const state = answer?.state
-  if (state === 'sent') return { phase: 'done', kind: 'sent', again: !!answer.again }
-  if (state === 'queued') return { phase: 'done', kind: 'queued' }
+  // `shot`: what the host did with the screenshot it was given ('uploaded', or why it was left out); '' when the host did not say (an older host): the panel then does not claim the picture went
+  if (state === 'sent') return { phase: 'done', kind: 'sent', again: !!answer.again, shot: typeof answer.shot === 'string' ? answer.shot : '' }
+  if (state === 'queued') return { phase: 'done', kind: 'queued', ...(answer.shotLost ? { shotLost: true } : {}) }
   if (state === 'limited') return { phase: 'edit', problem: 'limited' }
   return { phase: 'edit', problem: 'rejected' }
 }

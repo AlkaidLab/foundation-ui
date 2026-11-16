@@ -3,18 +3,31 @@ import { mergeRects } from '../../devmode/shot.js'
 import { collectAllRects } from '../../devmode/frameRects.js'
 import { withCarriedLogs } from '../../devmode/feedback.js'
 import { maskCapture, paintMasks } from '../../devmode/shotCanvas.js'
+import { SHOT_LIMITS, canvasCodec, checkShotFile, compressShot } from '../../feedback/shotImage.js'
 
 // The state of the report and sign-in sheets of the developer-mode flows. The product registers what only it can give (the screenshot, the log text, the environment, saving a file, opening an address),
 // anything can open the sheets (the error dialog, the Issue page, the context menu), and one DevReportHost mounted at the root draws them.
 //   The screenshot is redacted before the sheet exists: the marked boxes (data-redact) are measured around the capture and painted over (shot.js, shotCanvas.js); `shotBase` is that automatic result and the original is never kept.
 //   The person adds boxes by hand on top of shotBase (`shotManual`); `shot` is always the exact image that will be sent. An automatic box cannot be removed.
-//   providers: { mask(png, cssRects, view) and paint(png, rects) replace the canvas work (tests); capture() -> Uint8Array | null (PNG), logs() -> string, env() -> string, hostNames() -> string[], save(name, bytes, mime), openUrl(url), anon(report) -> 'sent' | 'queued' | 'rejected' | 'limited' }
+//   providers: { mask(png, cssRects, view) and paint(png, rects) replace the canvas work (tests); codec() replaces the picture codec (tests); capture() -> Uint8Array | null (PNG), logs() -> string, env() -> string, hostNames() -> string[], save(name, bytes, mime), openUrl(url), anon(report) -> 'sent' | 'queued' | 'rejected' | 'limited',
+//     shots: true when the host takes a screenshot with a feedback report (the feedback panel then has its screenshot row: the window capture where capture() exists, a picture chosen, pasted or dropped everywhere) }
 const providers = {}
-export const devReport = reactive({ open: false, kind: 'feedback', error: null, context: { page: '', place: '', element: '' }, decision: '', repo: '', shot: null, shotBase: null, shotAuto: [], shotManual: [], shotSize: null, shotFailed: false, shotMaskFailed: false, logs: '', env: '', signIn: false, token: 0, draft: { title: '', description: '' } })
+export const devReport = reactive({ open: false, kind: 'feedback', error: null, context: { page: '', place: '', element: '' }, decision: '', repo: '', shot: null, shotBase: null, shotAuto: [], shotManual: [], shotSize: null, shotFailed: false, shotMaskFailed: false, shotSource: '', shotError: '', hidden: false, logs: '', env: '', signIn: false, token: 0, draft: { title: '', description: '' } })
 export const registerDevReport = (next = {}) => { Object.assign(providers, next) }
 export const devProviders = () => providers
 
 async function safe(fn, fallback) { try { return (await fn?.()) ?? fallback } catch { return fallback } }
+
+/** The capture of the window and its automatic redaction: -> { shot: { bytes, regions, width, height } | null, maskFailed } (the boxes are measured before and after the capture; both count). */
+async function takeWindowShot() {
+  const view = () => ({ width: globalThis.innerWidth || 0, height: globalThis.innerHeight || 0, dpr: globalThis.devicePixelRatio || 1 })
+  const boxes = async () => (typeof document === 'undefined' ? [] : (providers.collect || collectAllRects)(document, view()))
+  const before = await boxes()
+  const raw = await safe(providers.capture, null)
+  const rects = mergeRects([...before, ...(await boxes())])
+  const shot = raw && raw.length ? await (providers.mask || maskCapture)(raw, rects, view()) : null
+  return { shot, maskFailed: !!(raw && raw.length && !shot) }
+}
 
 /** Opens the report. The screenshot and the log are taken now, before the sheet is drawn, so the screenshot shows the window as it was when it failed. */
 export async function openDevReport({ kind = 'feedback', error = null, repo = '', draft = null, carriedLogs = '', carriedLabel = '', context = null } = {}) {
@@ -25,20 +38,17 @@ export async function openDevReport({ kind = 'feedback', error = null, repo = ''
   // where the report was opened from: the page (a static name the product gives), the id of what was under the pointer and its short text (the text only shows in the panel; it is not sent)
   devReport.context = { page: String(context?.page || ''), place: String(context?.place || ''), element: String(context?.element || '') }
   devReport.draft = { title: String(draft?.title || ''), description: String(draft?.description || '') }
-  const view = () => ({ width: globalThis.innerWidth || 0, height: globalThis.innerHeight || 0, dpr: globalThis.devicePixelRatio || 1 })
-  const boxes = async () => (typeof document === 'undefined' ? [] : (providers.collect || collectAllRects)(document, view()))
-  // the boxes are measured before and after the capture (the window may move a little while it is taken); both count
-  const before = await boxes()
-  const [raw, logs, env] = await Promise.all([safe(providers.capture, null), safe(providers.logs, ''), safe(providers.env, '')])
-  const rects = mergeRects([...before, ...(await boxes())])
-  const masked = raw && raw.length ? await (providers.mask || maskCapture)(raw, rects, view()) : null
-  devReport.shotBase = masked ? masked.bytes : null
-  devReport.shot = masked ? masked.bytes : null
-  devReport.shotAuto = masked ? masked.regions : []
+  const taken = await takeWindowShot()
+  devReport.shotBase = taken.shot ? taken.shot.bytes : null
+  devReport.shot = taken.shot ? taken.shot.bytes : null
+  devReport.shotAuto = taken.shot ? taken.shot.regions : []
   devReport.shotManual = []
-  devReport.shotSize = masked ? { width: masked.width, height: masked.height } : null
-  devReport.shotMaskFailed = !!(raw && raw.length && !masked)
+  devReport.shotSize = taken.shot ? { width: taken.shot.width, height: taken.shot.height } : null
+  devReport.shotMaskFailed = taken.maskFailed
   devReport.shotFailed = !devReport.shot
+  devReport.shotSource = taken.shot ? 'window' : ''
+  devReport.shotError = ''
+  const [logs, env] = await Promise.all([safe(providers.logs, ''), safe(providers.env, '')])
   // the log of the window as it is now, and the lines the error report carried from the time of the error
   devReport.logs = withCarriedLogs(logs, carriedLogs, carriedLabel)
   devReport.env = env
@@ -54,8 +64,54 @@ export const closeDevReport = () => { devReport.open = false }
 export const askDevReport = (ask = 'crash', context = null) => { devReport.decision = ask; devReport.context = { page: String(context?.page || ''), place: String(context?.place || ''), element: String(context?.element || '') } }
 export const clearDevReportAsk = () => { devReport.decision = '' }
 
-// the hand-drawn boxes: always painted on shotBase, so the automatic ones stay whatever is done here
 let paintToken = 0
+const paintFrame = () => new Promise((resolve) => { if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 60))); else setTimeout(resolve, 0) })
+const clearShot = () => { devReport.shot = null; devReport.shotBase = null; devReport.shotAuto = []; devReport.shotManual = []; devReport.shotSize = null; devReport.shotFailed = true; devReport.shotMaskFailed = false; devReport.shotSource = '' }
+
+/**
+ * A picture the person chose, pasted or dropped (never the window itself: that is the capture). Only PNG, JPEG and WebP up to SHOT_LIMITS.inputBytes; it is scaled to the long side the report keeps and written again as
+ * PNG with the metadata gone (the same canvas pass the hand-drawn boxes use), so the preview, the boxes and the bytes that go out are one picture. Nothing about it is covered automatically (it comes from outside the window).
+ * -> { ok: true } or { ok: false, reason: 'type' | 'input_too_large' | 'unreadable' } (also kept in `devReport.shotError`, which the panel shows).
+ */
+export async function setDevShot(bytes, { source = 'file' } = {}) {
+  const found = checkShotFile(bytes, SHOT_LIMITS)
+  const fail = (reason) => { devReport.shotError = reason; return { ok: false, reason } }
+  if (!found.ok) return fail(found.reason === 'empty' ? 'unreadable' : found.reason)
+  const size = await compressShot(bytes, { codec: (providers.codec || canvasCodec)(), maxBytes: Infinity, formats: ['image/png'] })
+  if (!size.ok) return fail('unreadable')
+  const clean = await (providers.paint || paintMasks)(size.bytes, [])
+  if (!clean) return fail('unreadable')
+  paintToken += 1
+  devReport.shotBase = clean.bytes
+  devReport.shot = clean.bytes
+  devReport.shotAuto = []
+  devReport.shotManual = []
+  devReport.shotSize = { width: clean.width, height: clean.height }
+  devReport.shotFailed = false
+  devReport.shotMaskFailed = false
+  devReport.shotSource = source
+  devReport.shotError = ''
+  return { ok: true }
+}
+/** 移除: the person does not want a screenshot (or wants to take another). */
+export function removeDevShot() { paintToken += 1; clearShot(); devReport.shotError = '' }
+/** 重新截取窗口: the sheet is hidden for the capture (it would be in the picture otherwise), then the window is taken and redacted again. Only where the product has a capture. */
+export async function retakeDevShot() {
+  if (typeof providers.capture !== 'function' || !devReport.open) return { ok: false }
+  devReport.hidden = true
+  try {
+    await paintFrame()
+    const taken = await takeWindowShot()
+    if (!taken.shot) { devReport.shotError = 'unreadable'; devReport.shotMaskFailed = taken.maskFailed; return { ok: false } }
+    paintToken += 1
+    devReport.shotBase = taken.shot.bytes; devReport.shot = taken.shot.bytes; devReport.shotAuto = taken.shot.regions; devReport.shotManual = []
+    devReport.shotSize = { width: taken.shot.width, height: taken.shot.height }
+    devReport.shotFailed = false; devReport.shotMaskFailed = false; devReport.shotSource = 'window'; devReport.shotError = ''
+    return { ok: true }
+  } finally { devReport.hidden = false }
+}
+
+// the hand-drawn boxes: always painted on shotBase, so the automatic ones stay whatever is done here
 async function repaint() {
   const token = (paintToken += 1)
   const done = devReport.shotManual.length ? await (providers.paint || paintMasks)(devReport.shotBase, devReport.shotManual) : { bytes: devReport.shotBase }
