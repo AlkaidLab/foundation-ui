@@ -160,6 +160,16 @@ test('LAN addresses: private first, loopback and link-local never, IPv6 left out
   assert.equal(picked[0].name, 'eth0')
 })
 
+test('the benchmarking range 198.18.0.0/15 (the fake-IP gateway of a proxy TUN) is no LAN address', () => {
+  for (const tun of ['198.18.0.1', '198.18.255.254', '198.19.0.1', '198.19.255.254']) assert.equal(lanRank(tun), null, tun)
+  assert.equal(lanRank('198.17.255.255'), 2)
+  assert.equal(lanRank('198.20.0.1'), 2)
+  const picked = pickLanAddresses([{ name: '以太网', address: '192.168.3.172' }, { name: 'Mihomo', address: '198.18.0.1' }])
+  assert.deepEqual(picked.map((a) => a.address), ['192.168.3.172'])
+  // a computer whose only address is the TUN's has none to offer
+  assert.deepEqual(pickLanAddresses([{ name: 'Mihomo', address: '198.18.0.1' }]), [])
+})
+
 test('no address list is an empty list, not an error', () => {
   assert.deepEqual(pickLanAddresses(null), [])
   assert.deepEqual(pickLanAddresses('x'), [])
@@ -279,9 +289,20 @@ test('跳过 is held back for the first seconds of the flow, 下一步 is not', 
   assert.equal(skipSecondsLeft(0, 0, 0), 0) // a product can turn it off
 })
 
+test('the Windows build of the host tells whether the base virtual display can do HDR: not on Windows 10', () => {
+  // IddCx 1.5 is the newest an IDD gets on Windows 10 (build 19045); HDR colour modes of an indirect display start with IddCx 1.10, which the Windows 11 22H2 September update brings
+  assert.equal(setupStateFromConfig({ windows_build: 19045 }).win10, true)
+  assert.equal(setupStateFromConfig({ windows_build: '10240' }).win10, true)
+  assert.equal(setupStateFromConfig({ windows_build: 22000 }).win10, false)
+  assert.equal(setupStateFromConfig({ windows_build: 26100 }).win10, false)
+  assert.equal(setupStateFromConfig({ windows_build: 26100 }).windowsBuild, 26100)
+  // a host that does not report it (older, or not Windows) says nothing about Windows 10
+  for (const c of [{}, { windows_build: 0 }, { windows_build: 'x' }, null]) assert.equal(setupStateFromConfig(c).win10, false)
+})
+
 test('the setup state is read from the host config, with safe defaults', () => {
   const s = setupStateFromConfig({ platform: 'windows', locale: 'en', setup_wizard_completed: 'false', adapters: [{ name: 'A' }], display_devices: [{ device_id: 'D' }], adapter_name: 'A', output_name: 'D', display_device_prep: 'ensure_primary' })
-  assert.deepEqual(s, { completed: false, locale: 'en', showLanguage: true, adapters: [{ name: 'A' }], displayDevices: [{ device_id: 'D' }], adapter: 'A', display: 'D', prep: 'ensure_primary', hdr: false, virtual: true })
+  assert.deepEqual(s, { completed: false, locale: 'en', showLanguage: true, adapters: [{ name: 'A' }], displayDevices: [{ device_id: 'D' }], adapter: 'A', display: 'D', prep: 'ensure_primary', hdr: false, windowsBuild: 0, win10: false, virtual: true })
   const bare = setupStateFromConfig(null)
   assert.equal(bare.completed, false)
   assert.equal(bare.prep, 'ensure_only_display')
