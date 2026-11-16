@@ -491,10 +491,10 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
               <div v-if="hasMoreLanguages" class="m-guide__more">
                 <MButton variant="text" :icon="moreOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" data-locale-more :aria-expanded="moreOpen" @click="moreOpen = !moreOpen">{{ moreOpen ? T.intro.fewerLanguages : T.intro.moreLanguages }}</MButton>
               </div>
-              <!-- light or dark: under the language on a wide window; on a phone a compact icon row right under the name card, where the first screen always shows it -->
+              <!-- light or dark: one row right under the name card, where the first screen always shows it; icons only on a phone -->
               <section class="m-guide__mode">
                 <h2 class="m-guide__sub">{{ T.titles.appearance }}</h2>
-                <MSeg class="m-guide__look" :block="!narrow" :icon-only="narrow" :model-value="appearance.state.mode" :label="T.titles.appearance" :options="lookOptions" @update:model-value="(v) => appearance.set({ mode: v })" />
+                <MSeg class="m-guide__look" :icon-only="narrow" :model-value="appearance.state.mode" :label="T.titles.appearance" :options="lookOptions" @update:model-value="(v) => appearance.set({ mode: v })" />
               </section>
               <!-- the plain small print of the first screen: how to support the project and, once, that error reports are on; it scrolls with the screen -->
               <div v-if="pageId === 'intro'" class="m-guide__notes" data-guide-notes>

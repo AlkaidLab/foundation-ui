@@ -70,12 +70,8 @@
   .m-guide__free { padding: 12px 16px; }
 }
 
-/* light or dark: a block of its own. On a phone it is one row right under the name card (the heading left, the three icons right), above the notice and the language list, so it is in view on the first screen */
-.m-guide__mode { display: flex; flex-direction: column; gap: 4px; }
-.m-guide__mode .m-guide__sub { margin: 4px 0 4px; }
-@media (max-width: 599.98px) {
-  .m-guide__welcome .m-guide__herocard { order: -2; }
-  .m-guide__mode { order: -1; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding-inline: 4px; }
-  .m-guide__mode .m-guide__sub { margin: 0; }
-  .m-guide__mode .m-seg { flex: none; width: auto; }
-}
+/* light or dark: one row right under the name card (the heading left, the choice right), above the notice and the language list, so it is in view on the first screen at every size; a phone shows icons only */
+.m-guide__welcome .m-guide__herocard { order: -2; }
+.m-guide__mode { order: -1; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding-inline: 4px; }
+.m-guide__mode .m-guide__sub { margin: 0; }
+.m-guide__mode .m-seg { flex: none; width: auto; }
