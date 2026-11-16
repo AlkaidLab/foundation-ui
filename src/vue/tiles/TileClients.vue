@@ -41,7 +41,7 @@ onBeforeUnmount(() => { if (qrShown.value) emit('act', { type: 'pair-qr-stop' })
   <section class="m-tile m-cal m-b2" :class="[`m-b2--${id}`, `is-${size}`, id === 'pair' ? 'm-b2pair' : 'm-b2paired']" :data-size="size" data-accent="primary">
     <template v-if="empty">
       <header class="m-calm__head"><MIcon :name="empty.icon || d.icon || 'devices'" /><span class="m-calm__title">{{ empty.title || card.title }}</span></header>
-      <div class="m-b2empty"><span class="m-b2glyph"><MIcon :name="d.icon || 'devices'" /></span><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+      <div class="m-empty-basic"><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
     </template>
 
     <!-- 已配对客户端 -->

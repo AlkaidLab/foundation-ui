@@ -17,8 +17,12 @@ const FLUSH_AT = 20
 /** A catalogue id: lower case letters, digits, '.', '_' and '-', starting with a letter or a digit, at most `max` characters (what the contract accepts as an id). */
 export const catalogueId = (value, max = 48) => String(value ?? '').toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^[^a-z0-9]+/, '').slice(0, max).replace(/-+$/, '')
 
-/** The update source setting (auto | cnb | github | mirror) as the contract names where an update came from: mirror (Mirror酱), github, other. */
-export const updateSourceOf = (source) => (source === 'mirror' ? 'mirror' : source === 'github' ? 'github' : 'other')
+/** The update source (the setting auto | cnb | github | mirror, or the source a download really came from) as the contract names where an update came from: mirror (Mirror酱), cnb, github, other (auto and anything else). */
+export const updateSourceOf = (source) => (source === 'mirror' || source === 'cnb' || source === 'github' ? source : 'other')
+
+/** Why the chosen source (Mirror酱) was not the one used, as the contract names it; anything else is dropped. */
+export const UPDATE_SOURCE_MISSES = Object.freeze(['version_lag', 'cdk_invalid', 'quota', 'network', 'no_cdk'])
+export const updateSourceMissOf = (miss) => (UPDATE_SOURCE_MISSES.includes(miss) ? miss : '')
 
 const defaultNow = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now())
 
@@ -71,11 +75,11 @@ export function createEventSender({ product, post, usageOn = () => mayCollect(re
     drop: ({ usage = true, errors = true } = {}) => { pending = pending.filter((e) => (e.kind === 'error' ? errors : usage)) },
     get pending() { return pending.length },
     track: {
-      /** The product was opened: once per load (cold: the first load in this session of the window); `startMs` is the time it took to get here; `updateSource` the setting of the update source. */
-      appStart: ({ startMs, updateSource } = {}) => {
+      /** The product was opened: once per load (cold: the first load in this session of the window); `startMs` is the time it took to get here; `updateSource` the source the last update really came from (else the setting); `updateSourceMiss` why the chosen source was not used (UPDATE_SOURCE_MISSES), only when it was not. */
+      appStart: ({ startMs, updateSource, updateSourceMiss } = {}) => {
         if (started) return
         started = true
-        queue('usage', 'app_start', { cold: sessionFlag(`foundation-ui.telemetry.started.${product}`), ...(Number.isFinite(startMs) ? { start_ms: Math.round(startMs) } : {}), ...(updateSource ? { update_source: updateSourceOf(updateSource) } : {}) })
+        queue('usage', 'app_start', { cold: sessionFlag(`foundation-ui.telemetry.started.${product}`), ...(Number.isFinite(startMs) ? { start_ms: Math.round(startMs) } : {}), ...(updateSource ? { update_source: updateSourceOf(updateSource) } : {}), ...(updateSourceMissOf(updateSourceMiss) ? { update_source_miss: updateSourceMissOf(updateSourceMiss) } : {}) })
       },
       /** A page was opened: the time until its first painted frame, as the first number of how quickly a page has something to show. */
       pageView: (page) => {

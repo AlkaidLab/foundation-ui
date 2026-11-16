@@ -83,6 +83,9 @@
 .m-calq__title:has(+ .m-b3s__row) { flex: 0 1 auto; max-width: 46%; }
 /* strips with a button row: the title column gives room to the row, its note wraps to two lines */
 .m-calq:has(> .m-b3s__row) > .m-calq__title { flex: 0 1 46%; min-width: 0; }
+.m-b3s.m-calq:has(> .m-b3s__row) > .m-calq__title { flex: 0 0 auto; max-width: none; }
+.m-b3s.m-calq .m-b3s__row > * { flex: 0 1 auto; width: auto; max-width: 240px; }
+.m-b3s.m-calq .m-b3s__row button { padding-right: 18px; }
 .m-calq:has(> .m-b3s__row) .m-b3s__tt small { white-space: normal; line-height: 14px; }
 /* 上次串流 at 中 in a short tile: the numeral and its line stay, the stats row (it needs 36 px more) goes */
 

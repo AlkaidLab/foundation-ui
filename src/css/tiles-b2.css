@@ -54,6 +54,9 @@ button.m-b2item { cursor: pointer; } button.m-b2item:focus-visible { outline: 3p
 .m-b2pair__go { width: 100%; }
 .m-b2empty { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 10px; min-height: 0; }
 .m-b2empty > b { font: 500 17px/22px var(--m-font-display); color: var(--md-sys-color-on-surface); }
+.m-empty-basic { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 8px; }
+.m-empty-basic > b { min-width: 0; max-width: 100%; overflow-wrap: anywhere; font: 500 15px/20px var(--m-font-display); color: var(--md-sys-color-on-surface); }
+.m-empty-basic .m-b2__btn { flex: none; }
 .m-b2.is-m .m-b2empty { flex-direction: row; align-items: center; justify-content: flex-start; gap: 16px; } .m-b2.is-m .m-b2empty > b { flex: 1; min-width: 0; }
 /* the glyph is the focal element of an empty tile: 方形 has no header line, the line under the glyph says what is missing */
 .m-b2empty .m-b2glyph { --g: 116px; } .m-b2.is-s .m-b2empty { gap: 6px; } .m-b2.is-s .m-b2empty .m-b2glyph { --g: 84px; } .m-b2.is-s .m-b2empty > b { font-size: 15px; line-height: 20px; }
@@ -124,6 +127,7 @@ button.m-b2item { cursor: pointer; } button.m-b2item:focus-visible { outline: 3p
 .m-b2name .m-b2glyph { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); clip-path: circle(50%); }
 .m-b2name__side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .m-b2ports .m-b2plate { flex: 1 1 auto; gap: 6px; margin-top: 10px; } .m-b2ports .m-b2plate b { --pv: 40px; letter-spacing: -.03em; }
+.m-b2ports.is-s .m-b2plate b { --pv: 36px; }
 .m-b2ports.is-m .m-b2ports__body { flex: 1 1 auto; min-height: 0; display: flex; gap: 12px; margin-top: 10px; }
 .m-b2ports.is-m .m-b2plate { flex: 0 0 46%; margin-top: 0; } .m-b2ports.is-m .m-b2plate b { --pv: 44px; }
 .m-b2ports__family { flex: 1; min-width: 0; margin: 0; display: grid; grid-template-columns: 1fr; align-content: center; gap: 3px; }

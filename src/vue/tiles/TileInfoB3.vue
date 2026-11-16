@@ -12,8 +12,8 @@ export const tileIds = ['announcements', 'errors', 'logs', 'update', 'tip', 'spo
 //   vivi: Vivi on a tonal ground with the greeting of the hour (Duolingo's widget).
 import { computed } from 'vue'
 import MIcon from '../MIcon.vue'
+import MTileHead from '../MTileHead.vue'
 import MTileShape from '../MTileShape.vue'
-import MTileEmpty from '../MTileEmpty.vue'
 import { VIVI } from '../../about/mascot.js'
 import { coverOk } from '../coverOk.js'
 import { announcementHero } from '../../announcements/hero.js'
@@ -86,7 +86,8 @@ const part = hour < 5 ? 'night' : hour < 11 ? 'morning' : hour < 18 ? 'day' : 'e
 
   <!-- 日志 -->
   <section v-else-if="id === 'logs' && (empty || !lines.length)" class="m-tile m-cal" data-accent="secondary">
-    <MTileEmpty icon="description" shape="squircle" :title="card.title" :text="empty?.value || d.empty || L.noLines" :action="empty?.action || null" :size="size === 'l' ? 'l' : size === 'm' ? 'm' : 's'" @act="(a) => emit('act', a)" />
+    <MTileHead icon="description" :title="card.title" />
+    <div class="m-empty-basic"><b>{{ empty?.value || d.empty || L.noLines }}</b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
   </section>
   <section v-else-if="id === 'logs'" class="m-tile m-cal m-calm m-b3l" :class="`is-${size}`" :data-size="size" :data-accent="lines.some((r) => r.tone === 'err') ? 'error' : 'secondary'">
     <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span><span v-if="size === 'l'" class="m-calm__peak m-dnum">{{ lines.length }}</span><button type="button" class="m-calm__more" :aria-label="texts.more || card.title" @click.stop="act('open', 'diagnostics')"><MIcon name="chevron_right" /></button></header>
@@ -100,7 +101,8 @@ const part = hour < 5 ? 'night' : hour < 11 ? 'morning' : hour < 18 ? 'day' : 'e
 
   <!-- 公告 -->
   <section v-else-if="id === 'announcements' && (empty || !lead)" class="m-tile m-cal" data-accent="primary">
-    <MTileEmpty icon="campaign" shape="sunny" :title="card.title" :text="empty?.value || d.empty" :action="empty?.action || null" :size="size === 'l' ? 'l' : size === 'm' ? 'm' : 's'" @act="(a) => emit('act', a)" />
+    <MTileHead icon="campaign" :title="card.title" />
+    <div class="m-empty-basic"><b>{{ empty?.value || d.empty }}</b><button v-if="empty?.action" type="button" class="m-b2__btn" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
   </section>
   <section v-else-if="id === 'announcements'" class="m-tile m-cal m-b3n" :class="[`is-${size}`, { 'has-banner': !!banner || !!gen }]" :data-size="size" data-accent="primary">
     <button type="button" class="m-b3n__lead" :aria-label="lead.title" @click="openPost(lead)">

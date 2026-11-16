@@ -153,13 +153,15 @@ const octets = (text) => {
   return numbers.every((n) => n <= 255) ? numbers : null
 }
 
-/** 0 private LAN (10/8, 172.16/12, 192.168/16), 1 shared address space (100.64/10), 2 other public; null = not usable (loopback, link-local, any, not IPv4). */
+/** 0 private LAN (10/8, 172.16/12, 192.168/16), 1 shared address space (100.64/10), 2 other public; null = not usable (loopback, link-local, benchmarking 198.18/15, any, not IPv4). */
 export function lanRank(address) {
   const o = octets(address)
   if (!o) return null
   const [a, b] = o
   if (a === 0 || a === 127 || a >= 224) return null
   if (a === 169 && b === 254) return null
+  // 198.18.0.0/15 is the benchmarking range (RFC 2544): a TUN of a proxy tool (Mihomo, Clash) puts its fake-IP gateway there; no phone on the network can be reached through it
+  if (a === 198 && (b === 18 || b === 19)) return null
   if (a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168)) return 0
   if (a === 100 && b >= 64 && b <= 127) return 1
   return 2
@@ -306,6 +308,9 @@ export function setupStateFromConfig(config, { showLanguage } = {}) {
     display: c.output_name || '',
     prep: c.display_device_prep || 'ensure_only_display',
     hdr: hdrOf(c),
+    // Windows build of the host (windows_build of the host configuration): the base virtual display has no HDR on Windows 10, whose newest build is 19045 (IddCx 1.5); Windows 11 starts at 22000
+    windowsBuild: Number(c.windows_build) || 0,
+    win10: Number(c.windows_build) > 0 && Number(c.windows_build) < 22000,
     virtual: String(c.platform || 'windows').toLowerCase() === 'windows',
   }
 }

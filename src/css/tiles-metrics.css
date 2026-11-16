@@ -73,6 +73,7 @@
 /* 网卡 */
 .m-tnet__main { margin-top: auto; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .m-tnet.is-l .m-tnet__main { margin-top: 18px; }
+.m-tnet.is-s .m-tnum--s { --tn: 36px; }
 .m-tnet__name { font: var(--m-tile-text-15-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-tnet__name small { font-weight: 500; color: var(--md-sys-color-on-surface-variant); }
 .m-tnet__name--s { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); }
@@ -138,7 +139,7 @@
 
 /* HDR, 串流分辨率, 系统, 串流热度 */
 .m-tfacts__foot { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
-.m-tfacts--hdr .m-tnum--s { --tn: 48px; }
+.m-tfacts--hdr .m-tnum--s { --tn: 40px; }
 .m-tfacts__chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .m-tile--tonal .m-tchip { background: color-mix(in srgb, var(--on-tk-c) 12%, transparent); color: var(--on-tk-c); }
 .m-tfacts__screenrow { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 6px; }
@@ -149,8 +150,8 @@
 .m-tfacts.is-m .m-tfacts__screenrow { justify-content: flex-start; } .m-tfacts.is-m .m-tfacts__screen { height: 82%; }
 .m-tfacts__side { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; } .m-tfacts__side > b { font: 600 22px/26px var(--m-font-display); }
 .m-tfacts__cap { margin-top: 12px; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.m-tfacts__os { font: 600 26px/30px var(--m-font-display); letter-spacing: -.015em; }
-.m-tfacts.is-m .m-tfacts__os { font-size: 34px; line-height: 38px; }
+.m-tfacts__os { font: 600 22px/26px var(--m-font-display); letter-spacing: -.015em; }
+.m-tfacts.is-m .m-tfacts__os { font-size: 30px; line-height: 34px; }
 .m-tfacts__rows { display: flex; gap: 20px; } .m-tfacts__rows div { display: flex; flex-direction: column; } .m-tfacts__rows dt { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); } .m-tfacts__rows dd { margin: 0; font: var(--m-tile-text-14-strong); line-height: 18px; }
 .m-tfacts.is-s .m-tfacts__cap { margin-top: 0; text-align: left; }
 .m-tfacts__heatrow { margin-top: 6px; }

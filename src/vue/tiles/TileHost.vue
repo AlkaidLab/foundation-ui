@@ -40,7 +40,7 @@ const kind = computed(() => ({ 'host-name': 'm-b2name', 'audio-out': 'm-b2name',
   <section class="m-tile m-cal m-b2" :class="[`m-b2--${id}`, `is-${size}`, kind]" :data-size="size" data-accent="primary">
     <template v-if="empty">
       <header class="m-calm__head"><MIcon :name="empty.icon || d.icon" /><span class="m-calm__title">{{ empty.title || card.title }}</span></header>
-      <div class="m-b2empty"><span class="m-b2glyph"><MIcon :name="d.icon || 'public'" /></span><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+      <div class="m-empty-basic"><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
     </template>
 
     <template v-else-if="(id === 'host-name' || id === 'audio-out') && size === 's'">
