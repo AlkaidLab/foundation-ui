@@ -16,7 +16,7 @@ const ZH = {
     exportDiag: { title: '导出诊断包', keywords: 'diagnostic diagnostics export bundle logs 诊断 日志 导出' },
     checkUpdate: { title: '检查更新', keywords: 'update upgrade version check 升级 新版本 版本' },
     logs: { title: '查看日志', keywords: 'log logs view 日志 记录' },
-    feedback: { title: '发送反馈', keywords: '反馈 意见 建议 报告问题 吐槽 联系开发者 bug feedback report suggestion contact developers' },
+    feedback: { title: '反馈问题或建议', keywords: '反馈 意见 建议 报告问题 吐槽 联系开发者 bug feedback report suggestion contact developers' },
     doctor: { title: '开始体检', keywords: '体检 健康检查 检查 诊断 自检 问题 故障 排查 doctor health check diagnose troubleshoot' },
     addApp: { title: '添加应用', keywords: 'add application app 新建应用 游戏' },
     scanGames: { title: '扫描游戏库', keywords: 'scan games library steam epic gog import 扫描 游戏 导入 添加游戏' },

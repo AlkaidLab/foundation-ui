@@ -82,7 +82,7 @@ const ZH = {
   export: '导出诊断包', exportRow: '保存诊断包', exportLead: '除非你把文件发给别人，否则不会离开这台电脑。', collecting: '整理中…', preview: '预览', hidePreview: '收起预览', save: '保存', saving: '保存中…', saved: '已保存', cancel: '取消',
   includeNetwork: '包含 IP 地址和机器名', networkOn: '地址与名称已打码', networkOff: '包含地址与名称', notAvailable: '这里取不到', redactions: '已移除 {secrets} 处凭据', masked: '已打码 {n} 处', total: '共 {size}', crashWarn: '崩溃转储无法脱敏。只有在发给你信任的人时才勾选。', nothing: '至少勾选一个文件',
   parts: { log: '被控端日志', panel: '面板日志', config: '配置（已去除凭据）', versions: '版本', os: '操作系统', gpu: '显卡与驱动', displays: '显示器', devices: '设备', sessions: '最近的会话', doctor: '体检结果', crash: '崩溃转储' },
-  summary: '复制问题摘要', summaryHint: '版本、系统和最后一个错误', feedback: '发送反馈给开发者', feedbackHint: '你写的文字和最近的日志行；按下「发送」之前会完整显示要发送的内容', truncated: '日志摘录已缩短以适应地址长度。',
+  summary: '复制问题摘要', summaryHint: '版本、系统和最后一个错误', feedback: '反馈问题或建议', feedbackHint: '私下发给开发者，附已脱敏的运行日志', truncated: '日志摘录已缩短以适应地址长度。',
 }
 const deep = (a, b) => { const o = { ...a }; for (const k of Object.keys(b || {})) o[k] = b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) ? deep(a[k] || {}, b[k]) : b[k]; return o }
 const LEVELS = {
