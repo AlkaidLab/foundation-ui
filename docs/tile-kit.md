@@ -13,7 +13,7 @@ Import from `foundation-ui/vue`; styles are in `src/css/tilekit.css` (part of `a
 | `data-accent="primary\|secondary\|tertiary\|ok\|warn\|error"` | The tile's accent: sets `--tk`, `--on-tk`, `--tk-c`, `--on-tk-c` from the scheme. Default primary. `.is-hot` = error (a load at its limit). |
 | `.m-tile--tonal` | The whole tile filled with the accent's container (`--tk-c`), text in `--on-tk-c`. Use for a tile that is a state or must read from a distance. |
 | `.m-tile__bleed` | A layer on the card's left, right and bottom edges, under the content; height `--tile-bleed` (default 56 %). Put a chart in it. |
-| `.m-tile__corner` | A layer cut by the top-right corner (moved out by 18 %). Put a large `MTileShape` in it. |
+| `.m-tile__corner` | A decoration in the free top-right corner, under every layer of the tile: 60 px at one and two cells, 88 px at 大 and 特大, 6 px past the edges. A word never runs over it: the head keeps clear of it (padding), and at one cell the head's glyph is dropped and the name wraps in balance. Put an `MTileShape` in it, no larger. Checked by the decoration gate (a decoration's box against every text box of its tile). |
 | `.m-tile__head` | The header row: `<MIcon>` in the accent, a `<span>` title, optional `.m-tile__more` chevron button. |
 | `--tk-fill-top`, `--tk-fill-mid` | Opacity of the chart's gradient at the top of the plot area and at 60 % (0 at the bottom edge). Light .36/.12, dark .44/.15. |
 | `--tk-line` | The chart's line width (3 px). |
@@ -89,3 +89,11 @@ a decorative layer under 15 % alpha; a state dot under 12 px; a whole-tile actio
 - Props from `MDashCardView`: `card` (`{ id, title, group, size, data }`; `size` is the effectiveSize: s, m, l, xl, xlp), `texts`, `details`, `variant` (1 or 2), `chevron` (a detail sheet exists), `preview` (drawn in the gallery or the edit sheet: start nothing), `empty` (null, or `{ icon, title, value, action }` of the square while the card has no data: draw `MTileEmpty` with it). Emit `act` with `{ type, value }` (`detail` opens the sheet; pass an empty state's action through as it is).
 - The root is `<section class="m-tile" :data-accent>` and fills the cell; draw every size of the tile's range (homeRanges.js), each with its hero.
 - Dev flag: `?tiles=bold` (or localStorage `foundation-ui.dev.tiles` = `bold`); variants `?tv=cpu:2,net:2`. Off: the tiles are drawn as before.
+
+## Tiles that are a number or a state (round 3)
+
+- A resolution (串流分辨率, 虚拟显示器) is display type on the tile's own surface, the state or the mode in a caption under it, as the name of 编码器 is. No block of colour and no drawn frame behind it. 
+- An end action (停止串流) is an error action on the calm card: the glyph uses the error role, a slight tint of it is on the card, the words keep the surface text colour.
+- The head of a tile breaks a Chinese or Japanese title between its words (`MTileHead` keeps each word whole), never inside one.
+
+Round 3, second pass: the hero of a resolution tile is its name (`resNameOf` in `tiles/b2.js`: 3840x2160 and 4096x2160 -> 4K, 2560x1440 -> 2K, 7680x4320 -> 8K, the others keep their height, 1080p); it is set in the type of the name of 编码器 (600, 28 px at one cell, 36 px at two). A switch tile at one cell (HDR, 使用虚拟显示器) puts the word of the state at the bottom left and its picture at the bottom right: an expressive shape (sunny for HDR, cookie for the display) with the glyph, solid in the accent when on, tonal when off. Switching it changes colours only: the boxes of the tile, the word and the shape stay where they are (measured per frame).

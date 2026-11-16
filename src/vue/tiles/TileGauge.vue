@@ -36,7 +36,7 @@ const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === und
 </script>
 
 <template>
-  <section class="m-tile m-tgauge" :class="[`m-tgauge--${card.id}`, `is-${size}`]" :data-accent="isTemp || isBudget ? zone : isTime ? 'tertiary' : 'primary'" :data-size="size">
+  <section class="m-tile m-tgauge" :class="[`m-tgauge--${card.id}`, `is-${size}`]" :data-accent="isTemp || isBudget ? (zone === 'ok' ? 'primary' : zone) : isTime ? 'secondary' : 'primary'" :data-size="size">
     <MTileEmpty v-if="empty" :icon="empty.icon" :title="empty.title" :text="empty.value" :action="empty.action" :size="size" @act="(a) => emit('act', a)" />
     <template v-else-if="isTemp">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />

@@ -31,7 +31,7 @@ const rows = computed(() => d.value.rows || [])
 </script>
 
 <template>
-  <section class="m-tile m-tenc" :class="[`m-tenc--${id}`, `is-${size}`]" :data-accent="id === 'codecs' ? 'tertiary' : 'primary'" :data-size="size">
+  <section class="m-tile m-tenc" :class="[`m-tenc--${id}`, `is-${size}`]" :data-accent="id === 'codecs' ? 'secondary' : 'primary'" :data-size="size">
     <template v-if="empty">
       <MTileHead :icon="empty.icon || d.icon" :title="empty.title || card.title" />
       <div class="m-empty-basic"><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>

@@ -114,7 +114,7 @@ const part = hour < 5 ? 'night' : hour < 11 ? 'morning' : hour < 18 ? 'day' : 'e
   </section>
 
   <!-- 版本 -->
-  <section v-else-if="id === 'update'" class="m-tile m-cal m-calm m-b3u" data-size="s" :data-accent="hasUpdate ? 'tertiary' : 'ok'" :class="{ 'm-tile--tonal': hasUpdate }" :style="{ '--chars': heroChars, '--rl': restLines }">
+  <section v-else-if="id === 'update'" class="m-tile m-cal m-calm m-b3u" data-size="s" :data-accent="hasUpdate ? 'tertiary' : 'primary'" :class="{ 'm-tile--tonal': hasUpdate }" :style="{ '--chars': heroChars, '--rl': restLines }">
     <button type="button" class="m-b3-hit" :aria-label="`${card.title} ${vp.main.join('')}${vp.build} ${vp.rest} · ${stateText}`" @click="act('detail')" />
     <span class="m-calm__head"><MIcon :name="hasUpdate ? 'system_update_alt' : 'check_circle'" /><span class="m-calm__title">{{ card.title }}</span></span>
     <span class="m-b3u__hero m-dnum"><b v-if="vp.main.length > 1">{{ vp.main[0] }}</b><b>{{ vp.main[vp.main.length - 1] }}<small v-if="vp.build">{{ vp.build }}</small></b></span>
