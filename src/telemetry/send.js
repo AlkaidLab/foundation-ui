@@ -43,10 +43,10 @@ async function request(events, { transport: use = transport, timeoutMs = SEND_TI
   try {
     const response = await Promise.race([use(events), new Promise((_, reject) => { timer = setTimeout(() => reject(Object.assign(new Error('timeout'), { name: 'AbortError' })), timeoutMs) })])
     if (response && response.ok) {
-      // the host answers how many events it kept: none means it refused them
-      let accepted = null
-      try { accepted = (await response.json())?.accepted } catch { /* an answer without a body is an answer */ }
-      return accepted === 0 ? { state: 'rejected', reason: 'not-accepted' } : { state: 'sent' }
+      // the host answers how many events it kept: none means it refused them; with a screenshot in the report it also says what became of the screenshot (`shot`: 'uploaded' or the reason it was left out)
+      let accepted = null, shot = ''
+      try { const answer = await response.json(); accepted = answer?.accepted; shot = typeof answer?.shot === 'string' ? answer.shot : '' } catch { /* an answer without a body is an answer */ }
+      return accepted === 0 ? { state: 'rejected', reason: 'not-accepted' } : { state: 'sent', ...(shot ? { shot } : {}) }
     }
     const status = response ? response.status : 0
     if (status === 429 || status >= 500 || status === 408 || status === 0) return { state: 'offline', reason: status ? `http-${status}` : 'network', maybeArrived: status >= 500 || status === 408 }
@@ -65,7 +65,7 @@ async function request(events, { transport: use = transport, timeoutMs = SEND_TI
  */
 export async function sendDocument(doc, { transport: use, timeoutMs = SEND_TIMEOUT_MS, id = '' } = {}) {
   const answer = await request([reportToEvent(doc)], { transport: use, timeoutMs })
-  return answer.state === 'sent' && id ? { state: 'sent', id } : answer
+  return answer.state === 'sent' && id ? { ...answer, id } : answer
 }
 
 const store = (storage) => { try { return storage ?? globalThis.localStorage ?? null } catch { return null } }
@@ -74,16 +74,32 @@ const writeJson = (storage, key, value) => { try { store(storage)?.setItem(key, 
 
 export const loadQueue = (storage) => { const v = readJson(storage, QUEUE_KEY); return Array.isArray(v) ? v.filter((x) => x && typeof x === 'object' && x.doc && typeof x.doc === 'object').slice(-QUEUE_MAX) : [] }
 export const saveQueue = (queue, storage) => writeJson(storage, QUEUE_KEY, queue.slice(-QUEUE_MAX))
-/** Keep a report for later. With an `id` the same report is kept once: a second press replaces the entry instead of adding a copy. */
-export function enqueue(doc, storage, now = Date.now(), { id = '', maybeArrived = false, explicit = false } = {}) {
+/** The newest reports that keep a screenshot in the queue: the picture is the largest part of an entry and the window's storage is small, so older entries keep their text and lose the picture. */
+export const QUEUE_SHOTS_MAX = 3
+/**
+ * Keep a report for later. With an `id` the same report is kept once: a second press replaces the entry instead of adding a copy.
+ * -> { length, shotLost }: `shotLost` when the report carried a screenshot and had to be kept without it (the storage was full); the text is never given up for the picture.
+ */
+export function enqueueReport(doc, storage, now = Date.now(), { id = '', maybeArrived = false, explicit = false } = {}) {
   const queue = loadQueue(storage)
   const at = id ? queue.findIndex((e) => e.id === id) : -1
   const entry = { doc, attempts: 0, at: now, ...(id ? { id } : {}), ...(maybeArrived ? { maybeArrived: true } : {}), ...(explicit ? { explicit: true } : {}) }
   if (at >= 0) queue[at] = { ...queue[at], doc, ...(maybeArrived ? { maybeArrived: true } : {}), ...(explicit ? { explicit: true } : {}) }
   else queue.push(entry)
-  saveQueue(queue, storage)
-  return queue.length
+  let withShot = 0
+  for (let i = queue.length - 1; i >= 0; i -= 1) if (queue[i].doc.shot && (withShot += 1) > QUEUE_SHOTS_MAX) queue[i] = { ...queue[i], doc: dropShot(queue[i].doc) }
+  let shotLost = false
+  if (!saveQueue(queue, storage)) {
+    // the storage said no (the picture is large): the same entry without its picture, then the older pictures go too
+    const key = at >= 0 ? at : queue.length - 1
+    shotLost = !!queue[key].doc.shot
+    queue[key] = { ...queue[key], doc: dropShot(queue[key].doc) }
+    if (!saveQueue(queue, storage)) saveQueue(queue.map((e) => ({ ...e, doc: dropShot(e.doc) })), storage)
+  }
+  return { length: queue.length, shotLost }
 }
+const dropShot = (doc) => { const { shot, ...rest } = doc; return rest }
+export const enqueue = (doc, storage, now, options) => enqueueReport(doc, storage, now, options).length
 export const isQueued = (id, storage) => !!id && loadQueue(storage).some((e) => e.id === id)
 export const removeQueued = (id, storage) => { const queue = loadQueue(storage); const left = queue.filter((e) => e.id !== id); if (left.length !== queue.length) saveQueue(left, storage); return queue.length - left.length }
 const sentListeners = new Set()
@@ -168,13 +184,13 @@ async function submitOnce(doc, id, options) {
   if (wasSent(id, storage)) return { state: 'sent', id, again: true }
   const queued = loadQueue(storage).find((e) => e.id === id)
   if (!queued && !allowReport(storage, options.now)) return { state: 'limited' }
-  if (isOffline(options)) { enqueue(doc, storage, options.now, { id, explicit: !!options.explicit }); return { state: 'queued', id, reason: 'offline' } }
+  if (isOffline(options)) { const kept = enqueueReport(doc, storage, options.now, { id, explicit: !!options.explicit }); return { state: 'queued', id, reason: 'offline', ...(kept.shotLost ? { shotLost: true } : {}) } }
   const answer = await sendDocument(doc, { ...options, id })
   if (answer.state === 'sent') { removeQueued(id, storage); rememberSent(id, storage); return { ...answer, id } }
   if (answer.state === 'offline') {
     if (queued) { const queue = loadQueue(storage).map((e) => (e.id === id ? { ...e, attempts: Math.min(e.attempts + 1, QUEUE_MAX_ATTEMPTS - 1), ...(answer.maybeArrived ? { maybeArrived: true } : {}), ...(options.explicit ? { explicit: true } : {}) } : e)); saveQueue(queue, storage) }
-    else enqueue(doc, storage, options.now, { id, maybeArrived: !!answer.maybeArrived, explicit: !!options.explicit })
-    return { state: 'queued', id, reason: answer.reason }
+    const kept = queued ? { shotLost: false } : enqueueReport(doc, storage, options.now, { id, maybeArrived: !!answer.maybeArrived, explicit: !!options.explicit })
+    return { state: 'queued', id, reason: answer.reason, ...(kept.shotLost ? { shotLost: true } : {}) }
   }
   if (queued) removeQueued(id, storage)
   return { ...answer, id }
