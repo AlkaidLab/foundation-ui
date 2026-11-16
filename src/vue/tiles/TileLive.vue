@@ -21,8 +21,8 @@ watch(() => d.value.now, (v) => { if (v !== null && v !== undefined) rate.value 
 const lo = computed(() => Math.round((d.value.min ?? 1) * 1000)), hi = computed(() => Math.round((d.value.max ?? 800) * 1000))
 const span = computed(() => bitrateSliderSpan(lo.value, hi.value))
 const marks = computed(() => bitrateChipMarks([5, 10, 20, 50, 100, 200], lo.value, hi.value))
-// the track follows the height of the tile: 中 is one unit tall (the slim track), 大 two (the full one)
-const sliderSize = computed(() => (props.card.size === 'l' ? 'm' : 's'))
+// the shared M3 Expressive slider at every size of the tile; the layout makes room for it
+const sliderSize = 'm'
 const rateProgress = computed({
   get: () => Math.min(span.value.max, Math.max(span.value.min, bitrateSliderProgress(rate.value * 1000))),
   set: (position) => { rate.value = Math.max(lo.value, bitrateFromProgress(position)) / 1000 },

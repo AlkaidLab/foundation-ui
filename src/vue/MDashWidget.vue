@@ -151,7 +151,7 @@ onBeforeUnmount(() => stripObserver?.disconnect())
 
   <section v-else-if="data.type === 'pin-slider'" class="m-dcard m-dpin m-dpin--slider" :class="`m-dpin--${size}`">
     <header class="m-dcard__head"><MIcon class="m-dcard__icon" :name="data.icon" /><h3 class="m-dcard__title">{{ data.title }}</h3><b class="m-dnum m-dpin__value">{{ sliderText }}</b></header>
-    <MSlider v-model="sliderValue" :min="data.min" :max="data.max" :step="data.step" :size="props.size === 'l' || props.size === 'xl' ? 'm' : 's'" :label="data.title" @commit="wantPin(Math.round(sliderValue * data.scale))" />
+    <MSlider v-model="sliderValue" :min="data.min" :max="data.max" :step="data.step" size="m" :label="data.title" @commit="wantPin(Math.round(sliderValue * data.scale))" />
     <MDialog v-if="data.confirm" :model-value="!!ask" :title="data.confirm.title" icon="warning" @update:model-value="(v) => { if (!v) { ask = null; sliderValue = data.value } }">
       <p>{{ data.confirm.body }}</p>
       <template #actions><button type="button" class="m-dpill" @click="ask = null; sliderValue = data.value">{{ data.confirm.cancel }}</button><button type="button" class="m-dpill m-dpill--fill" @click="setPin(ask.value)">{{ data.confirm.change }}</button></template>
@@ -188,7 +188,7 @@ onBeforeUnmount(() => stripObserver?.disconnect())
 
   <MDashCard v-else :title="data.title" :icon="data.icon" :chevron="chevron" :chevron-label="texts.more" class="m-dwidget" @open="emit('act', 'detail')" :class="`m-dwidget--${data.type} m-dwidget--${size}`">
     <!-- ring timer -->
-    <div v-if="data.type === 'ring'" class="m-dwidget__centre"><MRing :value="data.value" :size="size === 's' ? 96 : 120" :thickness="12" :label="data.title"><b class="m-dnum m-dwidget__clock">{{ data.centre }}</b></MRing><span v-if="data.caption && size !== 's'" class="m-dwidget__cap">{{ data.caption }}</span></div>
+    <div v-if="data.type === 'ring'" class="m-dwidget__centre"><MRing :value="data.value" :size="size === 's' ? 96 : 120" :label="data.title"><b class="m-dnum m-dwidget__clock">{{ data.centre }}</b></MRing><span v-if="data.caption && size !== 's'" class="m-dwidget__cap">{{ data.caption }}</span></div>
 
     <!-- arc gauge with the latency behind it -->
     <div v-else-if="data.type === 'gauge'" class="m-dwidget__centre m-dwidget__gauge"><MArcGauge :value="data.value" :zones="data.zones" :size="size === 's' ? 120 : 140" :label="data.title"><b class="m-dnum m-dwidget__clock">{{ data.centre }}</b><small>{{ data.unit }}</small></MArcGauge><MSparkline v-if="data.spark && size !== 's'" :points="data.spark" :width="140" :height="44" /></div>

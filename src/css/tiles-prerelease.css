@@ -1,9 +1,6 @@
 /* Overview tiles, round of the 2026.1114 test build: faults found on a real window and not by the fit gates. Loaded last. */
 
-/* 串流时长: the time is the whole tile (display numeral, bottom left), the client under it; no ring */
-.m-tgauge--session-time .m-tgauge__clock { align-items: flex-start; justify-content: flex-end; gap: 4px; padding-bottom: 2px; container-type: inline-size; min-width: 0; }
-.m-tgauge--session-time .m-tgauge__clock .m-tnum { --tn: clamp(28px, calc(100cqw / (var(--chars, 4) * 0.62)), 84px); max-width: 100%; }
-.m-tgauge--session-time .m-tgauge__cap { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis; text-align: start; max-width: 100%; overflow-wrap: anywhere; }
+.m-tgauge--session-time .m-tgauge__cap { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis; text-align: center; max-width: 100%; overflow-wrap: anywhere; } .m-tgauge--session-time .m-tgauge__cap { font-size: 12px; line-height: 15px; }
 
 /* 帧时间占用 and 温度: a closed ring from the top; no stub of the track is left on one side */
 .m-tgauge--budget .m-tgauge__ring, .m-tgauge--temperature .m-tgauge__ring { aspect-ratio: 1; }
@@ -12,20 +9,12 @@
 .m-b2sc .m-b2plate b, .m-dash__cell .m-b2sc .m-b2plate b { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal !important; overflow: hidden !important; text-overflow: ellipsis !important; overflow-wrap: anywhere; line-clamp: 2; max-height: 2.4em; font-size: min(var(--pv, 19px), 17px); }
 .m-b2sc .m-b2plate small { max-width: 100%; }
 .m-b2sc.is-s .m-b2plate b, .m-dash__cell .m-b2sc.is-s .m-b2plate b { font-size: 13px; display: block !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; max-height: none; overflow-wrap: break-word; line-height: 1.15; }
-.m-b2sc .m-b2plate .m-b2glyph { opacity: .28; pointer-events: none; }
 
 /* 当前在线: the ring of the streaming device keeps its 5 px outside the tile's clip */
 .m-calo.is-s .m-calo__rings { margin: auto 0 8px; padding-left: 5px; } .m-calo.is-s .m-calo__rings li { width: 34px; height: 34px; } .m-calo.is-s .m-calo__count { margin-top: 0; } .m-calo.is-s .m-calo__count.m-tnum--s { --tn: 42px; }
 
-/* 正在玩 at 方形: the poster is the upper part of the tile and the name has a band of its own under it (a poster that carries its own title is never written over) */
-.m-caln.is-s.has-art .m-caln__art { inset: 0 0 72px 0; }
-.m-caln.is-s.has-art .m-caln__art.has-art { background-position: 50% 0; }
-.m-caln.is-s.has-art::after { display: none; }
-.m-caln.is-s.has-art { background: var(--cal-inner, var(--md-sys-color-surface-container-high)); }
-.m-caln.is-s.has-art .m-caln__text { color: var(--md-sys-color-on-surface); bottom: 12px; } .m-caln.is-s.has-art .m-caln__name { text-shadow: none; }
-
 /* 码率 (session) at 方形: the clover behind the figure is smaller and fainter so it never lies over the digits */
-.m-tstream--stream-bitrate.is-s .m-tile__corner { width: 80px; height: 80px; right: -8px; top: 4px; opacity: .3; }
+.m-tstream--stream-bitrate.is-s .m-tile__corner { width: 96px; height: 96px; right: -14px; top: -22px; opacity: 1; }
 
 /* 主机延迟, 丢包, 丢帧: the curve takes the lower part, the figure and its caption keep the upper part */
 .m-tstream:is(.m-tstream--latency, .m-tstream--loss, .m-tstream--dropped):is(.is-s, .is-m) { --tile-bleed: 38%; }
@@ -33,21 +22,10 @@
 /* 帧率 and 码率 at 大: the curve fills the height of the tile, the figure and its numbers lie over it, so the tile has no empty middle */
 .m-tstream.is-l { --tile-bleed: 100%; }
 
-/* 应用 and 最近游戏 at 方形: the picture is the upper part of the tile and the name and the title stand in a band under it; a poster with its own title (桌面) is never cut at the top or written over */
-.m-tile.m-b2apps.is-s .m-b2art, .m-tile.m-b2recent.is-s .m-b2art { inset: 0 0 58px 0; }
-.m-tile.m-b2apps.is-s .m-b2art::after, .m-tile.m-b2recent.is-s .m-b2art::after { display: none; }
-.m-tile.m-b2apps.is-s .m-b2art .m-tcover.has-art, .m-tile.m-b2recent.is-s .m-b2art .m-tcover.has-art, .m-tile.m-b2apps.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'], .m-tile.m-b2recent.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'] { background-position: 50% 0; }
-.m-tile.m-b2apps.is-s, .m-tile.m-b2recent.is-s { --on-art: var(--md-sys-color-on-surface); --on-art-2: var(--md-sys-color-on-surface-variant); --art-shadow: none; }
-.m-tile.m-b2apps.is-s > .m-calm__head, .m-tile.m-b2recent.is-s > .m-calm__head { margin-top: 0; }
-.m-tile.m-b2apps.is-s > .m-calm__head > .m-icon, .m-tile.m-b2recent.is-s > .m-calm__head > .m-icon { filter: none; }
-/* the default 桌面 poster carries its own title: it is shown whole (contained, from the top) in the picture area of a square tile, never cut through its words */
-.m-caln.is-s.has-art .m-caln__art.has-art[style*='desktop.png'], .m-tile.m-b2apps.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'], .m-tile.m-b2recent.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'] { background-size: contain; background-position: 50% 0; background-repeat: no-repeat; }
-
 /* 帧率 and 码率 at 大: the figure stands in the middle of the free height, over the curve; the numbers of the session stay at the foot */
 .m-tstream.is-l .m-tstream__top { flex: 1 1 auto; align-items: center; margin-top: 0; }
 .m-tstream.is-l { justify-content: flex-start; }
 /* 帧时间占用 and 温度: the figure is smaller than the ring's hole, its unit inside the ring too */
-.m-tgauge--budget .m-tnum, .m-tgauge--temperature .m-tnum { --tn: 32px; }
 
 /* 提示 (the tip strip) in a narrow window: the strip keeps its icon and gives the room of its label to the text, so the two lines of the tip stay inside their plate */
 @container (max-width: 399.98px) { .m-b3s--tip .m-calq__title { font-size: 0; gap: 0; } .m-b3s--tip .m-b3s__tip { padding-inline: 14px; } }
@@ -68,3 +46,36 @@
 
 /* 本主机 at 中 and 大: the band of the stream takes the room that is left in the tile (it stops at 150 px in the base rule), so a two-row tile has no empty lower half */
 .m-calh:is(.is-m, .is-l) .m-calh__band { max-height: 240px; }
+
+/* the live setting tiles keep the full M3 Expressive slider at every height (MSlider size m, 40 px track): at one unit tall (中) the note under the name gives its line to the slider, and the rows of a taller
+   tile share the height by their content so the label of one row is never under the slider of the row above */
+.m-rc--live.is-m .m-rc__row.is-hv .m-rc__text small { display: none; }
+.m-rc--live.is-l .m-rc__row.is-hv:not(:first-child) .m-rc__text small { display: none; }
+.m-rc--live .m-rc__rows { grid-auto-rows: auto; align-content: space-between; gap: 6px 0; padding: 8px 0 0; }
+.m-rc--live .m-rc__row.is-hv { padding: 0 2px; align-content: center; row-gap: 4px; }
+.m-rc--live .m-rc__row.is-hv .m-rc__ctl { flex: 1 1 100%; min-height: 44px; }
+.m-rc--live.is-m .m-rc__big { font-size: 32px; line-height: 36px; }
+
+/* 应用, 最近游戏 and 正在玩 at 方形: the picture is the whole tile (bold, edge to edge) with the name on the scrim at the foot; the host's desktop.png has its monitor at 20-49 % and the word 「DESKTOP」 at 54-63 % of its height:
+   it is placed so the whole monitor and the whole word show above the name, not cut at the top and not under the words */
+.m-tile.m-b2recent.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'], .m-tile.m-b2apps.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'], .m-caln.is-s .m-caln__art.has-art[style*='desktop.png'] { background-position: 50% 72%; }
+.m-rc--live.is-m .m-rc__rows { align-content: end; }
+/* 编码器 with the budget ring: the ring is the picture, no shape behind it */
+.m-tenc.is-m .m-tenc__budget { width: 92px; }
+/* 应用 at 方形: the name is the one line of words on the picture, the tile's title stays for assistive technology (as at 最近游戏) */
+.m-tile.m-b2apps.is-s > .m-calm__head { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* 正在玩, 应用 and 最近游戏 at 方形: the words on the poster are compact (name 16 px, the line under it 12 px) so the poster's own word stays above them at every square size */
+.m-caln.is-s .m-caln__text { bottom: 10px; gap: 1px; } .m-caln.is-s .m-caln__name { font-size: 16px; line-height: 20px; } .m-caln.is-s .m-caln__sub { font-size: 11.5px; line-height: 14px; }
+.m-tile.m-b2recent.is-s .m-b2__name, .m-tile.m-b2apps.is-s .m-b2__name { --b2n: 16px; line-height: 20px; } .m-tile.m-b2recent.is-s .m-b2__cap { margin: 0; font-size: 11.5px; line-height: 14px; }
+
+/* 滑块 pin (one unit tall): the name, the full M3 Expressive slider and the value on one row, so the 40 px track fits without a thin variant */
+.m-b3pin--slider { --tile-pad: 6px 16px; flex-direction: row; align-items: center; gap: 12px; }
+.m-b3pin--slider > .m-calm__head { flex: 0 1 auto; max-width: 42%; min-width: 0; } .m-b3pin--slider > .m-calm__head .m-calm__title { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 16px; }
+.m-b3pin--slider .m-b3pin__slider { flex: 1 1 0; min-width: 96px; }
+.m-b3pin--slider .m-b3pin__val { flex: none; min-width: 3.2ch; text-align: end; font: 600 16px/20px var(--m-font-display); color: var(--md-sys-color-primary-text); }
+/* 大 of the DualSense tuning in a small window: a row that does not fit with its full slider is left to the page of all the sliders (the head opens it) instead of being cut */
+.m-rc--live.is-l .m-rc__rows { container-type: size; }
+@container (max-height: 205px) { .m-rc__row:nth-child(n + 3) { display: none; } }
+@container (max-height: 132px) { .m-rc__row:nth-child(n + 2) { display: none; } }
+/* 串流时长 at 方形: the ring takes the room the two lines of the client leave */
+.m-tgauge--session-time .m-tgauge__body { margin-top: 0; gap: 2px; }
