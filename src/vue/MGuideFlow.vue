@@ -27,7 +27,7 @@ import MGuideTry from './MGuideTry.vue'
 import MGuideChannel from './MGuideChannel.vue'
 import MAppearance from './MAppearance.vue'
 import MSeg from './MSeg.vue'
-import { useAppearance } from './useAppearance.js'
+import { useGuideLook } from './guideLook.js'
 import MGuideAddress from './MGuideAddress.vue'
 import { useReleaseAssets } from './useReleaseAssets.js'
 import { readOs, writeOs } from '../clients/osChoice.js'
@@ -100,13 +100,11 @@ if (props.mode === 'upgrade' && !sameUpgrade) { progress.visited = []; progress.
 const idx = ref(props.restart || (props.mode === 'upgrade' && !sameUpgrade) ? 0 : progress.done.length ? resumeIndex(flow.value, progress.done) : startIndex(flow.value, progress))
 const current = computed(() => flow.value[idx.value] || flow.value[0])
 const id = computed(() => current.value?.id)
-const step = computed(() => current.value)
 // the optional pages of the done page open here as a sub-flow: the page of the old guide (显示与 HDR, 动效, 更新, 网页远程管理, 远程串流) in the same window; its foot returns to the done page
 const sub = ref('')
 const pageId = computed(() => sub.value || id.value)
 const advancedSub = computed(() => ['webaccess', 'remote'].includes(sub.value))
-const doneStep = computed(() => flow.value.find((s) => s.id === 'done'))
-const optionalIds = computed(() => doneStep.value?.optional)
+const optionalIds = computed(() => flow.value.find((s) => s.id === 'done')?.optional)
 // pages of the done page the host cannot offer now: no display was read (显示与 HDR), the host has no network check (远程串流与组网)
 const setupRead = ref(false)
 const unavailable = computed(() => ({
@@ -117,8 +115,7 @@ const maxIdx = ref(Math.max(idx.value, ...progress.visited.map((v) => flow.value
 const guideDevice = deviceId()
 // the anonymous funnel of this run (guide_funnel): a step reached, skipped, finished or closed, the time on a step, the optional pages opened; the product sends it (callbacks.funnel), fixed words and numbers only
 const funnel = createGuideFunnel({ send: (p) => props.callbacks.funnel?.(p), mode: props.mode })
-const appearance = useAppearance()
-const lookOptions = computed(() => [['system', 'contrast'], ['light', 'light_mode'], ['dark', 'dark_mode']].map(([value, icon]) => ({ value, icon, label: T.value.welcome.modes[value] })))
+const { appearance, lookOptions, narrow } = useGuideLook(() => T.value)
 let beats = 0 // beats of the host heartbeat since the last step
 
 function save(extra = {}) {
@@ -332,7 +329,7 @@ async function enter(stepId) {
   } else if (stepId === 'done') {
     await Promise.all([props.callbacks.loadSetup?.().then(() => { setupRead.value = true }), props.callbacks.checkReach?.(false)])
   } else if (stepId === 'channel') {
-    await Promise.all([props.callbacks.loadChannel?.(), step.value?.source === false ? null : props.callbacks.loadUpdate?.()])
+    await Promise.all([props.callbacks.loadChannel?.(), current.value?.source === false ? null : props.callbacks.loadUpdate?.()])
   } else if (stepId === 'connect') {
     await props.callbacks.refreshSessions?.()
     timer = setInterval(() => { if (!document.hidden) props.callbacks.refreshSessions?.() }, props.pollMs)
@@ -496,8 +493,11 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
               <div v-if="hasMoreLanguages" class="m-guide__more">
                 <MButton variant="text" :icon="moreOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" data-locale-more :aria-expanded="moreOpen" @click="moreOpen = !moreOpen">{{ moreOpen ? T.intro.fewerLanguages : T.intro.moreLanguages }}</MButton>
               </div>
-              <h2 class="m-guide__sub">{{ T.welcome.mode }}</h2>
-              <MSeg class="m-guide__look" block :model-value="appearance.state.mode" :label="T.welcome.mode" :options="lookOptions" @update:model-value="(v) => appearance.set({ mode: v })" />
+              <!-- light or dark: under the language on a wide window; on a phone a compact icon row right under the name card, where the first screen always shows it -->
+              <section class="m-guide__mode">
+                <h2 class="m-guide__sub">{{ T.welcome.mode }}</h2>
+                <MSeg class="m-guide__look" :block="!narrow" :icon-only="narrow" :model-value="appearance.state.mode" :label="T.welcome.mode" :options="lookOptions" @update:model-value="(v) => appearance.set({ mode: v })" />
+              </section>
               <!-- the plain small print of the first screen: how to support the project and, once, that error reports are on; it scrolls with the screen -->
               <div v-if="pageId === 'intro'" class="m-guide__notes" data-guide-notes>
       <p data-note="support">{{ S.supportLine }}</p>
@@ -540,7 +540,7 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
           <MGuideMotion v-else-if="pageId === 'motion'" :locale="locale" />
 
           <!-- 3 update channel, and where the downloads come from (Mirror酱) -->
-          <MGuideChannel v-else-if="pageId === 'channel'" :T="T" :locale="locale" :state="state" :callbacks="callbacks" :source="step?.source !== false" @open-url="openLink" />
+          <MGuideChannel v-else-if="pageId === 'channel'" :T="T" :locale="locale" :state="state" :callbacks="callbacks" :source="current?.source !== false" @open-url="openLink" />
 
           <!-- what is new: the first screen of an upgrade -->
           <template v-else-if="pageId === 'whatsnew'">

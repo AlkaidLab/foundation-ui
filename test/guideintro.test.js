@@ -38,7 +38,9 @@ test('the flow shows the intro first: the mark, the plain notice that the progra
   assert.match(vue, /<section class="m-guide__free" data-guide-free role="note"[^>]*>[\s\S]*S\.freeNotice[\s\S]*T\.openSource\.text[\s\S]*T\.openSource\.link[\s\S]*<\/section>/)
   const intro = vue.slice(vue.indexOf(`<template v-if="pageId === 'intro'">`), vue.indexOf('<!-- 2 account -->'))
   assert.ok(intro.indexOf('m-guide__free') < intro.indexOf('T.language') && intro.indexOf('T.language') < intro.indexOf('T.welcome.mode'), 'notice, language, light or dark, top to bottom')
-  assert.match(intro, /<MSeg class="m-guide__look" block :model-value="appearance\.state\.mode"/)
+  assert.match(intro, /<MSeg class="m-guide__look" :block="!narrow" :icon-only="narrow" :model-value="appearance\.state\.mode"/)
+  // on a phone the choice is one icon row right under the name card (CSS order), so the first screen always shows it
+  assert.match(read('src/css/guideflow.css'), /@media \(max-width: 599\.98px\) \{\s*\.m-guide__welcome \.m-guide__herocard \{ order: -2; \}\s*\.m-guide__mode \{ order: -1; flex-direction: row;/)
   assert.doesNotMatch(intro, /MAppearance/, 'the colours and the background are an optional page of the done page, not the first screen')
   assert.match(vue, /<header v-if="pageId !== 'intro'" class="m-guide__head">/)
   assert.match(css, /\.m-guide\[data-step='intro'\] \.m-guide__actions > :last-child \{ min-width: min\(100%, 240px\); height: 56px;/)
