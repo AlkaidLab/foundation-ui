@@ -19,35 +19,43 @@ import { aboutTexts } from '../about/texts.js'
 import { errorTexts } from './errorTexts.js'
 import { updateSourceTexts } from '../update/sourceTexts.js'
 import { errorsNoticeSeen, markErrorsNoticeSeen } from '../telemetry/consent.js'
-import MAppearance from './MAppearance.vue'
 import MGuideMotion from './MGuideMotion.vue'
 import MConnectPanel from './MConnectPanel.vue'
-import MGuideAppsSheet from './MGuideAppsSheet.vue'
+import MGuideDone from './MGuideDone.vue'
+import MGuideRemote from './MGuideRemote.vue'
 import MGuideTry from './MGuideTry.vue'
-import MGuideHostDone from './MGuideHostDone.vue'
-import MGuideUpdate from './MGuideUpdate.vue'
+import MGuideChannel from './MGuideChannel.vue'
+import MAppearance from './MAppearance.vue'
+import MSeg from './MSeg.vue'
+import { useAppearance } from './useAppearance.js'
 import MGuideAddress from './MGuideAddress.vue'
 import { useReleaseAssets } from './useReleaseAssets.js'
 import { readOs, writeOs } from '../clients/osChoice.js'
 import { CONNECT_CHECKS, PIN_LENGTH, SKIP_DELAY_S, canPair, skipSecondsLeft, deviceOf, findNewClient, isLast, pickSession, qrPath, readProgress, sessionLine, startIndex, validateAccount, writeProgress } from './guideModel.js'
 import { fillText, guideTexts } from './guideTexts.js'
+import { createGuideFunnel } from '../telemetry/guideEvents.js'
+import { useGuideLibrary } from './guideLibrary.js'
 import { HEARTBEAT_MAX, HEARTBEAT_S, deviceId, isPhoneLike, resumeIndex, unionDone } from './guideHost.js'
 import { submitOnEnter } from './submitOnEnter.js'
 import { PRODUCT, brandUrl } from '../about/data.js'
 
-// One first-run flow for both products (the control panel's welcome and the Web UI's setup): ten screens at most, one thing on each, large type, a stepper, a small
-// mascot beside the title, back and next, every step skippable. The account step is offered only where the product has no account yet.
+// One first-run flow for both products (the control panel's welcome and the Web UI's setup): six steps and a done page (guideModel.js), one thing on each, large type, a stepper, a small
+// mascot beside the title, back and next, every step skippable. The account step is offered only where the product has no account yet. The done page lists the optional pages (look, animations, display and HDR,
+// web access, remote streaming), each opened in the same window and returning to the done page.
 // The product fills `state` with real data (or leaves a field out when it has none) and supplies the actions that differ as `callbacks`:
 //   openLink(url), copy(text), createAccount({ username, password, confirm }) -> { ok, error?, leave? },
 //   loadSetup(), saveSetup({ locale?, adapter, display }) -> { ok, error?, vdd? }, skipSetup(),
 //   refreshAddresses(), refreshClients(), pair(pin, name) -> { ok, error? }, pairQr: { start, poll, cancel } (the QR window of the host: open only while the pair step is shown),
 //   loadNetwork(), setUpnp(on) -> { ok, error? }, setPort(port) -> { ok, error? } (the base port, applied after a restart), openDiagnostics(), restartHost() -> { ok, error? }, refreshSessions(),
 //   restoreApps() -> { ok, result: 'done' | 'none', error? }, openApps('scan' | 'add' | 'restore'),
-//   loadUpdate(), setUpdateSource('auto' | 'cnb' | 'github' | 'mirror'), saveCdk(cdk) -> { ok } (the product keeps it and checks it once, then `state.update.status` holds the result), clearCdk().
+//   loadChannel(), setChannel('stable' | 'prerelease') -> { ok } (the update channel step saves a choice at once),
+//   loadUpdate(), setUpdateSource('auto' | 'cnb' | 'github' | 'mirror'), saveCdk(cdk) -> { ok } (the product keeps it and checks it once, then `state.update.status` holds the result), clearCdk(),
+//   scanGames(sources) -> { ok, games: [{ key, name, platform }], unsupported? } and addGames(games) -> { ok, added? } (the done page), checkReach(force) (the remote page and the done page),
+//   funnel(props) (the anonymous guide_funnel event, telemetry/guideEvents.js; the product hands it to its event sender).
 // state: { locale: { choice ('system' or a code), resolved (the code the system's language gives), languages: [{ code, name }] } (the intro step; callbacks.setLocale(choice) applies it at once),
 //   account: { exists }, setup: { completed, locale, showLanguage, adapters, displayDevices, adapter, display, vddReady },
 //   host: { platform, name (the name clients list), addresses }, network: { port (saved), activePort (the host listens on it now), upnpActive, upnpSaved, loaded }, clients: [] | null, sessions: [] | null, pair: { name }, apps: { scanAvailable },
-//   update: { source, cdk (false when the product cannot hold a CDK), available, hasCdk, status: { state, expiresAt, kind }, lastValid, busy } } (the update step: the product that has no update source skips it)
+//   channel: { value: 'stable' | 'prerelease' }, update: { source, cdk (false when the product cannot hold a CDK), available, hasCdk, status: { state, expiresAt, kind }, lastValid, busy } } (the source part of the update channel step: a product that has no update source skips it)
 // Progress (step, device, finished) is kept under `storageKey`. The finish button is the "do not show again".
 const props = defineProps({
   steps: { type: Array, required: true },
@@ -92,8 +100,25 @@ if (props.mode === 'upgrade' && !sameUpgrade) { progress.visited = []; progress.
 const idx = ref(props.restart || (props.mode === 'upgrade' && !sameUpgrade) ? 0 : progress.done.length ? resumeIndex(flow.value, progress.done) : startIndex(flow.value, progress))
 const current = computed(() => flow.value[idx.value] || flow.value[0])
 const id = computed(() => current.value?.id)
+const step = computed(() => current.value)
+// the optional pages of the done page open here as a sub-flow: the page of the old guide (显示与 HDR, 动效, 更新, 网页远程管理, 远程串流) in the same window; its foot returns to the done page
+const sub = ref('')
+const pageId = computed(() => sub.value || id.value)
+const advancedSub = computed(() => ['webaccess', 'remote'].includes(sub.value))
+const doneStep = computed(() => flow.value.find((s) => s.id === 'done'))
+const optionalIds = computed(() => doneStep.value?.optional)
+// pages of the done page the host cannot offer now: no display was read (显示与 HDR), the host has no network check (远程串流与组网)
+const setupRead = ref(false)
+const unavailable = computed(() => ({
+  ...(setupRead.value && !(props.state.setup?.adapters || []).length && !(props.state.setup?.displayDevices || []).length ? { setup: true } : {}),
+  ...(props.state.reach?.status === 'unavailable' ? { remote: true } : {}),
+}))
 const maxIdx = ref(Math.max(idx.value, ...progress.visited.map((v) => flow.value.findIndex((s) => s.id === v))))
 const guideDevice = deviceId()
+// the anonymous funnel of this run (guide_funnel): a step reached, skipped, finished or closed, the time on a step, the optional pages opened; the product sends it (callbacks.funnel), fixed words and numbers only
+const funnel = createGuideFunnel({ send: (p) => props.callbacks.funnel?.(p), mode: props.mode })
+const appearance = useAppearance()
+const lookOptions = computed(() => [['system', 'contrast'], ['light', 'light_mode'], ['dark', 'dark_mode']].map(([value, icon]) => ({ value, icon, label: T.value.welcome.modes[value] })))
 let beats = 0 // beats of the host heartbeat since the last step
 
 function save(extra = {}) {
@@ -117,10 +142,14 @@ function go(i) {
 }
 const next = () => go(idx.value + 1)
 // closing with the X counts as having seen this version's flow (an upgrade is shown once); a first install that was not finished still opens again where it was
-function close() { save({ closed: props.version || '-' }); emit('close') }
-const back = () => go(idx.value - 1)
+function close() { funnel.close(); save({ closed: props.version || '-' }); emit('close') }
+const closeSub = () => { sub.value = '' }
+const back = () => (sub.value ? closeSub() : go(idx.value - 1))
 /** `next` names what the person chose to do after finishing ('scan', 'add'): the product then goes there instead of back to the page. */
 function finish(next = '') {
+  if (!skipping) funnel.finish()
+  // the host's setup flag is set when the guide ends, as the setup step did: the display settings are an optional page now and keep what they are unless the person changes them
+  if (!props.state.setup?.completed) { try { void Promise.resolve(props.callbacks.skipSetup?.()).catch(() => {}) } catch { /* the flag stays as it was */ } }
   if (!progress.done.includes(id.value)) progress.done = [...progress.done, id.value]
   save({ finished: true, closed: props.version || '-' }) // finishing counts as having seen this version, on every device
   emit('finish', typeof next === 'string' && next ? { next } : {})
@@ -277,15 +306,9 @@ async function restoreApps() {
     restore.failed = true; restore.note = error?.message || T.value.connect.restoreFailed
   } finally { restore.busy = false; await nextTick(); restoreResult.value?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }) } // the step is long: the answer is a banner under the button, scrolled into view
 }
-// the apps step stays in the flow: scanning and adding by hand open a sheet over it (MGuideAppsSheet; the product's callbacks scanGames and addGames); a host that cannot do that leaves for the apps page as before
-const inFlowApps = computed(() => !!props.callbacks.scanGames && !!props.callbacks.addGames)
-const appsSheet = ref('')
-const appsAdded = ref(0)
-function openTools() { finish('tools'); props.callbacks.openTools?.() }
-function openApps(mode) {
-  if (inFlowApps.value && (mode === 'scan' || mode === 'add')) { appsSheet.value = mode; return }
-  finish(mode); props.callbacks.openApps?.(mode)
-}
+// the game libraries are scanned in the background from the first screen on, so the done page has the result ready (guideLibrary.js)
+const { library, scanLibrary, addLibrary, toggleGame } = useGuideLibrary(() => props.callbacks)
+onMounted(() => { void scanLibrary() })
 
 /* ---------- entering a step: load what it shows, poll what changes ---------- */
 let timer = 0
@@ -306,14 +329,19 @@ async function enter(stepId) {
     timer = setInterval(() => { if (!pairedClient.value && !document.hidden) props.callbacks.refreshClients?.() }, props.pollMs)
   } else if (stepId === 'remote') {
     await Promise.all([props.callbacks.loadNetwork?.(), props.callbacks.refreshAddresses?.()])
-  } else if (stepId === 'update') {
-    await props.callbacks.loadUpdate?.()
+  } else if (stepId === 'done') {
+    await Promise.all([props.callbacks.loadSetup?.().then(() => { setupRead.value = true }), props.callbacks.checkReach?.(false)])
+  } else if (stepId === 'channel') {
+    await Promise.all([props.callbacks.loadChannel?.(), step.value?.source === false ? null : props.callbacks.loadUpdate?.()])
   } else if (stepId === 'connect') {
     await props.callbacks.refreshSessions?.()
     timer = setInterval(() => { if (!document.hidden) props.callbacks.refreshSessions?.() }, props.pollMs)
   }
 }
-watch(id, (value) => { if (value) void enter(value) }, { immediate: true })
+watch(pageId, (value) => { if (value) void enter(value) }, { immediate: true })
+// a page of the sub-flow (and the way back) opens at its top
+watch(id, (value) => { if (value) funnel.enter(value) }, { immediate: true })
+watch(sub, () => { void nextTick(() => { const el = document.querySelector('.m-guide__main'); if (el) el.scrollTop = 0 }) })
 onBeforeUnmount(() => { stopPoll(); qrPair?.stop(); clearTimeout(copiedTimer); clearInterval(skipTimer) })
 // the first seconds of the flow: 跳过 counts down, then opens. 下一步 is not held back
 const startedAt = Date.now()
@@ -342,63 +370,51 @@ async function submitAccount() {
     next()
   } catch (error) { failure.value = error?.message || '' } finally { busy.value = false }
 }
+const leaveSetup = () => (sub.value ? closeSub() : next())
 async function saveSetup() {
   if (busy.value) return
-  if (!setupDirty.value) { next(); return }
+  if (!setupDirty.value) { leaveSetup(); return }
   busy.value = true; failure.value = ''; vddWarn.value = false
   try {
     const payload = { adapter: choice.adapter, display: choice.display }
     if (choice.locale && choice.locale !== props.state.setup?.locale) payload.locale = choice.locale
     const result = (await props.callbacks.saveSetup?.(payload)) || { ok: false }
-    if (result.ok) next()
+    if (result.ok) leaveSetup()
     else { vddWarn.value = result.vdd === false; failure.value = result.vdd === false ? '' : (result.error || T.value.setup.error) }
   } catch (error) { failure.value = error?.message || T.value.setup.error } finally { busy.value = false }
 }
-// 跳到下一页: the next screen without doing what this one asks (the setup is marked as completed without changes, as 跳过 does for the whole flow)
-async function skipStep() {
-  if (busy.value || isLast(flow.value, idx.value)) return
-  if (id.value === 'setup' && !props.state.setup?.completed) { try { await props.callbacks.skipSetup?.() } catch { /* the setup stays as it was */ } }
-  next()
-}
-const showSkipStep = computed(() => !isLast(flow.value, idx.value) && ['setup', 'pair'].includes(id.value) && !(id.value === 'pair' && pairedClient.value) && !props.required.includes(id.value))
-// what the last screen offers once the flow ends: the test tools, for a first try in the stream
-const finishWithTools = computed(() => isLast(flow.value, idx.value) && !!props.callbacks.openTools)
 // 跳过 leaves the rest of the flow (the flow is finished, as with 完成); a step that is required (the Web UI account) cannot be skipped, so 跳过 is not offered on it. The setup that
 // would have been saved on its step is marked completed without changes, so the host does not ask for it again.
+let skipping = false
 async function skip() {
   if (skipLeft.value > 0 || props.required.includes(id.value)) return
-  const setupAhead = flow.value.findIndex((s) => s.id === 'setup') >= idx.value
-  if (setupAhead && !props.state.setup?.completed) { try { await props.callbacks.skipSetup?.() } catch { /* the setup stays as it was */ } }
+  skipping = true
+  funnel.skip()
   finish()
 }
+// a page of the done page opens as a sub-flow; the funnel counts which ones are opened
+const openOptional = (page) => { funnel.optional(page); sub.value = page }
 
 const primary = computed(() => {
   const t = T.value
+  if (sub.value === 'setup') return { label: setupDirty.value ? t.done.save : t.done.back, run: saveSetup, icon: 'check' }
+  if (sub.value) return { label: t.done.back, run: closeSub, icon: 'check' }
   switch (id.value) {
     case 'intro': return { label: t.intro.start, run: next, icon: 'arrow_forward' }
     case 'account': return accountDone.value ? (leaving.value && leaveNow ? { label: t.account.goNow, run: () => leaveNow(), icon: 'arrow_forward' } : { label: t.next, run: next, icon: 'arrow_forward', disabled: leaving.value, loading: leaving.value }) : { label: t.account.create, run: submitAccount, disabled: !accountOk.value, icon: 'login' }
-    case 'setup': return { label: setupDirty.value ? t.setup.save : t.next, run: saveSetup, icon: 'arrow_forward' }
-    case 'pair': return pairedClient.value ? { label: t.next, run: next, icon: 'arrow_forward' } : { label: t.pair.send, run: submitPin, disabled: !pinTyped || !canPair(pin.value, pairName.value), icon: 'link' }
-    default: return isLast(flow.value, idx.value) ? { label: t.finish, run: () => finish(), icon: 'check' } : { label: t.next, run: next, icon: 'arrow_forward' }
+    case 'done': return { label: t.done.start, run: () => finish(), icon: 'check' }
+    default: return { label: t.next, run: next, icon: 'arrow_forward' }
   }
 })
-const showSkip = computed(() => !isLast(flow.value, idx.value) && id.value !== 'intro' && !props.required.includes(id.value) && !(id.value === 'account' && accountDone.value) && !(id.value === 'pair' && pairedClient.value))
-const stepLine = computed(() => fillText(T.value.stepOf, { n: idx.value + 1, total: flow.value.length }))
+const showSkip = computed(() => !sub.value && !isLast(flow.value, idx.value) && id.value !== 'intro' && !props.required.includes(id.value) && !(id.value === 'account' && accountDone.value))
+// the done page is not one of the steps: the bar and the count are the steps before it, and it ends with every segment filled
+const counted = computed(() => flow.value.filter((s) => s.id !== 'done'))
+const stepLine = computed(() => (id.value === 'done' ? '' : fillText(T.value.stepOf, { n: idx.value + 1, total: counted.value.length })))
 const vivi = viviImage(64, typeof window !== 'undefined' ? Math.min(2, window.devicePixelRatio || 1) : 1)
 const dpr = typeof window !== 'undefined' ? Math.min(2, window.devicePixelRatio || 1) : 1
 // the tagline of the first screen is the slogan of the About page (one string)
 const slogan = computed(() => aboutTexts(props.locale).slogan)
 
-const openFull = ref(false) // the notice is one line with its link; a button opens the rest where the line does not fit
-const openClamped = ref(false)
-let openObserver = null
-const openRef = (el) => {
-  openObserver?.disconnect(); openObserver = null
-  if (!el || typeof ResizeObserver === 'undefined') return
-  const measure = () => { if (!openFull.value) openClamped.value = el.scrollHeight > el.clientHeight + 1 }
-  openObserver = new ResizeObserver(measure); openObserver.observe(el); measure()
-}
-onBeforeUnmount(() => openObserver?.disconnect())
 
 // The edges of the scroll area say nothing while the content fits. When it scrolls, a hairline (outline-variant) shows at the foot while there is more below and under the header once it has
 // scrolled: two one-pixel sentinels at the ends of the main area and an IntersectionObserver, no scroll listener (the CSS fades the lines in and out).
@@ -428,9 +444,9 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
 </script>
 
 <template>
-  <div class="m-guide" :data-step="id" :data-below="below || undefined" :data-scrolled="scrolled || undefined">
+  <div class="m-guide" :data-step="pageId" :data-below="below || undefined" :data-scrolled="scrolled || undefined">
     <header class="m-guide__bar">
-      <button v-if="idx > 0" type="button" class="m-page__back" :aria-label="T.back" :data-tip="T.back" @click="back"><MIcon name="arrow_back" /></button>
+      <button v-if="idx > 0 || sub" type="button" class="m-page__back" :aria-label="T.back" :data-tip="T.back" @click="back"><MIcon name="arrow_back" /></button>
       <span class="m-guide__brand">{{ T.guide }}</span>
       <span class="m-guide__spacer" />
       <slot name="top" />
@@ -440,8 +456,8 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
     <nav class="m-guide__steps" :aria-label="T.steps">
       <ol>
 <!-- one segment per step of THIS flow (a step left out has none); every step reached before can be clicked to go back to it -->
-        <li v-for="(s, i) in flow" :key="s.id">
-          <button type="button" class="m-guide__seg" :class="{ 'is-done': i < idx || progress.done.includes(s.id), 'is-now': i === idx }" :disabled="i > maxIdx || busy" :aria-current="i === idx ? 'step' : undefined" :aria-label="T.titles[s.id]" :data-tip="T.titles[s.id]" @click="go(i)" />
+        <li v-for="(s, i) in counted" :key="s.id">
+          <button type="button" class="m-guide__seg" :class="{ 'is-done': i < idx || id === 'done' || progress.done.includes(s.id), 'is-now': i === idx && id !== 'done' }" :disabled="i > maxIdx || busy" :aria-current="i === idx ? 'step' : undefined" :aria-label="T.titles[s.id]" :data-tip="T.titles[s.id]" @click="go(i)" />
         </li>
       </ol>
       <p class="m-guide__stepof" aria-live="polite">{{ stepLine }}</p>
@@ -450,39 +466,48 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
     <main class="m-guide__main">
       <div ref="topSentinel" class="m-guide__sentinel" aria-hidden="true" />
       <section :key="id" class="m-guide__content">
-        <header v-if="id !== 'intro'" class="m-guide__head">
+        <header v-if="pageId !== 'intro'" class="m-guide__head">
           <span class="m-guide__avatar" aria-hidden="true"><img :src="vivi.src" alt="" width="48" height="48"></span>
           <div class="m-guide__headtext">
-            <h1 class="m-guide__title">{{ T.titles[id] }}</h1>
-            <p v-if="T.leads[id]" class="m-guide__lead">{{ T.leads[id] }}</p>
+            <h1 class="m-guide__title">{{ T.titles[pageId] }}<span v-if="sub && advancedSub" class="m-guide__advtag">{{ T.done.advanced }}</span></h1>
+            <p v-if="T.leads[pageId]" class="m-guide__lead">{{ T.leads[pageId] }}</p>
           </div>
         </header>
 
         <div class="m-guide__body">
-          <!-- the first screen says it plainly: open source and free, and not for sale (the wording of MAA and ZZZ OneDragon, by name and licence) -->
-          <aside v-if="id === flow[0]?.id && id !== 'whatsnew'" class="m-guide__open" :class="{ 'is-open': openFull }" role="note">
-            <MIcon name="info" />
-            <p :ref="openRef">{{ T.openSource.text }}</p>
-            <a :href="PRODUCT.repo" target="_blank" rel="noopener noreferrer" @click.prevent="openLink(PRODUCT.repo)">{{ T.openSource.link }}</a>
-            <button v-if="openClamped || openFull" type="button" class="m-guide__openmore" :aria-expanded="openFull" :aria-label="openFull ? T.openSource.less : T.openSource.more" :data-tip="openFull ? T.openSource.less : T.openSource.more" @click="openFull = !openFull"><MIcon :name="openFull ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" /></button>
-          </aside>
-          <!-- 0 intro: the project, the plain notice (above) and the language -->
-          <template v-if="id === 'intro'">
-            <!-- the hero of the About page: 薇薇, the name, the slogan, on the card colour -->
-            <MProductHero class="m-guide__herocard" :slogan="slogan" :mascot="72" />
-            <h2 class="m-guide__sub">{{ T.language }}</h2>
-            <!-- an airy list; the rest opens in place from a text button under it -->
-            <MGroup class="m-guide__langs" role="radiogroup" :aria-label="T.language">
-              <MItem action role="radio" icon="language" :title="followSystemTitle" data-locale="system" :selected="localeChoice === 'system'" :aria-checked="localeChoice === 'system'" @click="pickLocale('system')"><template #trail><MIcon v-if="localeChoice === 'system'" name="check" /></template></MItem>
-              <MItem v-for="l in shownLanguages" :key="l.code" action role="radio" :title="l.name" :data-locale="l.code" :selected="localeChoice === l.code" :aria-checked="localeChoice === l.code" @click="pickLocale(l.code)"><template #trail><MIcon v-if="localeChoice === l.code" name="check" /></template></MItem>
-            </MGroup>
-            <div v-if="hasMoreLanguages" class="m-guide__more">
-              <MButton variant="text" :icon="moreOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" data-locale-more :aria-expanded="moreOpen" @click="moreOpen = !moreOpen">{{ moreOpen ? T.intro.fewerLanguages : T.intro.moreLanguages }}</MButton>
+          <!-- 0 intro: the project, the plain notice that it is free and open source (always in full), the language, light or dark -->
+          <template v-if="pageId === 'intro'">
+            <div class="m-guide__welcome">
+              <!-- the hero of the About page: 薇薇, the name, the slogan, on the card colour -->
+              <MProductHero class="m-guide__herocard" :slogan="slogan" :mascot="72" />
+              <section class="m-guide__free" data-guide-free role="note" :aria-label="T.openSource.title">
+                <MIcon name="info" />
+                <div>
+                  <p class="m-guide__freetext" data-note="free">{{ S.freeNotice }}</p>
+                  <p class="m-guide__opentext">{{ T.openSource.text }} <a :href="PRODUCT.repo" target="_blank" rel="noopener noreferrer" @click.prevent="openLink(PRODUCT.repo)">{{ T.openSource.link }}</a></p>
+                </div>
+              </section>
+              <h2 class="m-guide__sub">{{ T.language }}</h2>
+              <!-- an airy list; the rest opens in place from a text button under it -->
+              <MGroup class="m-guide__langs" role="radiogroup" :aria-label="T.language">
+                <MItem action role="radio" icon="language" :title="followSystemTitle" data-locale="system" :selected="localeChoice === 'system'" :aria-checked="localeChoice === 'system'" @click="pickLocale('system')"><template #trail><MIcon v-if="localeChoice === 'system'" name="check" /></template></MItem>
+                <MItem v-for="l in shownLanguages" :key="l.code" action role="radio" :title="l.name" :data-locale="l.code" :selected="localeChoice === l.code" :aria-checked="localeChoice === l.code" @click="pickLocale(l.code)"><template #trail><MIcon v-if="localeChoice === l.code" name="check" /></template></MItem>
+              </MGroup>
+              <div v-if="hasMoreLanguages" class="m-guide__more">
+                <MButton variant="text" :icon="moreOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" data-locale-more :aria-expanded="moreOpen" @click="moreOpen = !moreOpen">{{ moreOpen ? T.intro.fewerLanguages : T.intro.moreLanguages }}</MButton>
+              </div>
+              <h2 class="m-guide__sub">{{ T.welcome.mode }}</h2>
+              <MSeg class="m-guide__look" block :model-value="appearance.state.mode" :label="T.welcome.mode" :options="lookOptions" @update:model-value="(v) => appearance.set({ mode: v })" />
+              <!-- the plain small print of the first screen: how to support the project and, once, that error reports are on; it scrolls with the screen -->
+              <div v-if="pageId === 'intro'" class="m-guide__notes" data-guide-notes>
+      <p data-note="support">{{ S.supportLine }}</p>
+      <p v-if="errorsNotice" data-note="errors">{{ errorsParts[0] }}<button v-if="callbacks.openPrivacy" type="button" class="m-guide__notelink" data-note-link @click="callbacks.openPrivacy()">{{ C.errorsNoticeLink }}</button><template v-else>{{ C.errorsNoticeLink }}</template>{{ errorsParts[1] }}</p>
+    </div>
             </div>
           </template>
 
           <!-- 2 account -->
-          <template v-else-if="id === 'account'">
+          <template v-else-if="pageId === 'account'">
             <form id="m-guide-account" class="m-guide__form" novalidate @submit.prevent="submitAccount" @keydown="submitOnEnter">
               <MGroup>
                 <MFieldItem v-model="form.username" :label="T.account.username" autocomplete="username" :disabled="accountDone" />
@@ -495,7 +520,7 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
           </template>
 
           <!-- 4 graphics card and display (and what happens to the other displays while streaming) -->
-          <template v-else-if="id === 'setup'">
+          <template v-else-if="pageId === 'setup'">
             <MGroup v-if="uniqueAdapters.length">
               <MChoiceItem v-model="choice.adapter" icon="developer_board" :title="T.setup.gpu" :options="adapterOptions" :cancel-label="T.close" />
             </MGroup>
@@ -510,32 +535,31 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
             <MBanner v-if="failure" tone="error" icon="error">{{ failure }}</MBanner>
           </template>
 
-          <!-- 3 appearance and motion: the same components as the 个性化 page, live in this window -->
-          <MAppearance v-else-if="id === 'appearance'" :locale="locale" compact essential :show-icons="false" />
-          <MGuideMotion v-else-if="id === 'motion'" :locale="locale" />
+          <!-- the look and the animations: the same components as the 个性化 page, live in this window; pages of the done page -->
+          <MAppearance v-else-if="pageId === 'appearance'" :locale="locale" compact essential :show-icons="false" />
+          <MGuideMotion v-else-if="pageId === 'motion'" :locale="locale" />
+
+          <!-- 3 update channel, and where the downloads come from (Mirror酱) -->
+          <MGuideChannel v-else-if="pageId === 'channel'" :T="T" :locale="locale" :state="state" :callbacks="callbacks" :source="step?.source !== false" @open-url="openLink" />
 
           <!-- what is new: the first screen of an upgrade -->
-          <template v-else-if="id === 'whatsnew'">
+          <template v-else-if="pageId === 'whatsnew'">
             <MGroup>
               <MItem v-for="item in T.whatsnew.items" :key="item.title" :icon="item.icon" :title="item.title" :text="item.text" />
             </MGroup>
             <p v-if="T.whatsnew.note" class="m-guide__note"><MIcon name="info" />{{ T.whatsnew.note }}</p>
           </template>
 
-          <!-- the end of the host part: it is ready; the clients to get for the devices one will play on -->
-          <MGuideHostDone v-else-if="id === 'hostdone'" :T="T" :locale="locale" @open-url="openLink" />
-
           <!-- 5 install the client: the one view of 连接设备 and the download page for every system (the chips, the recommended client with its QR code for a phone, its files in one column, the other clients) -->
-          <template v-else-if="id === 'install'">
-            <MConnectPanel class="m-guide__install" :os="device" :locale="locale" :qr="props.qr" :assets-of="releases.assetsOf" :version-of="releases.versionOf" no-downloads-link @update:os="pickDevice" @open-url="openLink" />
+          <template v-else-if="pageId === 'install'">
+            <MConnectPanel class="m-guide__install" lean :os="device" :locale="locale" :qr="props.qr" :assets-of="releases.assetsOf" :version-of="releases.versionOf" no-downloads-link @update:os="pickDevice" @open-url="openLink" />
             <p v-if="deviceInfo?.lanNote" class="m-guide__note"><MIcon name="wifi" />{{ T.install.permission }}</p>
           </template>
 
-          <!-- 6 pair from an installed client: it finds this computer by itself; else the address, picked by the way the client connects -->
-          <MGuideAddress v-else-if="id === 'address'" :T="T" :addresses="state.host?.addresses" :host-name="state.host?.name || ''" :network="state.network || {}" :copied="copied" :pair-qr="hasQr && !phone ? qrView : null" :callbacks="callbacks" @copy="copyText" @qr-begin="qrPair?.begin()" @qr-stop="qrPair?.stop()" />
-
           <!-- 7 pair: the QR code and the PIN side by side (the QR opens a pairing window on the host only while this step is shown) -->
-          <template v-else-if="id === 'pair'">
+          <template v-else-if="pageId === 'pair'">
+            <!-- 1 the client finds this computer by itself -->
+            <MGuideAddress v-if="!pairedClient" only="listed" :T="T" :addresses="state.host?.addresses" :host-name="state.host?.name || ''" :network="state.network || {}" :copied="copied" :callbacks="callbacks" />
             <MGroup v-if="pairedClient" role="status">
               <MItem icon="check_circle" :title="pairedClient.name ? fillText(T.pair.ok, { name: pairedClient.name }) : T.pair.qrPaired">
                 <template #trail><MButton variant="tonal" icon="person_add" @click="pairAnother">{{ T.pair.another }}</MButton></template>
@@ -564,18 +588,24 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
                 <p v-if="busy" class="m-guide__note"><MIcon name="sync" />{{ T.pair.waiting }}</p>
                 <p v-else class="m-guide__note"><MIcon name="info" />{{ T.pair.hint }}</p>
                 <MBanner v-if="pairError" tone="error" icon="error">{{ pairError }}</MBanner>
+                <MButton class="m-guide__pairgo" icon="link" :loading="busy" :disabled="busy || !pinTyped || !canPair(pin, pairName)" @click="submitPin">{{ T.pair.send }}</MButton>
                 <MButton v-if="hasQr && !qrShown" class="m-guide__showqr" variant="text" icon="qr_code_2" @click="revealQr">{{ T.pair.showQr }}</MButton>
               </section>
             </div>
             <p v-if="!Array.isArray(state.clients)" class="m-guide__note"><MIcon name="info" />{{ T.pair.unavailable }}</p>
+            <!-- 2 only when the client does not find it: the address to type, the usual causes, the port -->
+            <MGuideAddress v-if="!pairedClient" only="trouble" :T="T" :addresses="state.host?.addresses" :host-name="state.host?.name || ''" :network="state.network || {}" :copied="copied" :callbacks="callbacks" @copy="copyText" />
           </template>
 
+          <!-- done: the game library the guide found and the optional pages -->
+          <MGuideDone v-else-if="pageId === 'done'" :T="T" :library="library" :optional="optionalIds" :unavailable="unavailable" @open="openOptional" @toggle="toggleGame" @add="addLibrary" @rescan="scanLibrary" />
+
           <!-- 8 who may open the Web UI and 9 remote access (both optional) -->
-          <MGuideWebAccess v-else-if="id === 'webaccess'" :locale="locale" :state="state" :callbacks="callbacks" :qr="qr" />
-          <MRemoteAccess v-else-if="id === 'remote'" :locale="locale" :state="state" :callbacks="callbacks" />
+          <MGuideWebAccess v-else-if="pageId === 'webaccess'" :locale="locale" :state="state" :callbacks="callbacks" :qr="qr" />
+          <MGuideRemote v-else-if="pageId === 'remote'" :T="T" :locale="locale" :state="state" :callbacks="callbacks" />
 
           <!-- 9 first stream check: what to confirm, and the test tools to try it with, in place -->
-          <template v-else-if="id === 'connect'">
+          <template v-else-if="pageId === 'connect'">
             <div v-if="sessionsKnown" class="m-guide__live" :class="{ 'is-on': !!session }" role="status">
               <MIcon :name="session ? 'cast_connected' : 'sensors'" />
               <span>{{ session ? fillText(T.connect.live, { line: sessionLine(session) }) : T.connect.waiting }}</span>
@@ -599,42 +629,22 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
             <div v-if="restore.note" ref="restoreResult" class="m-guide__result" :class="{ 'is-bad': restore.failed }" role="status"><MBanner :tone="restore.failed ? 'error' : 'info'" :icon="restore.failed ? 'error' : 'check_circle'">{{ restore.note }}</MBanner></div>
           </template>
 
-          <!-- 10 add games -->
-          <template v-else-if="id === 'apps'">
-            <MGroup>
-              <MItem action icon="search" :title="T.apps.scan" :text="state.apps?.scanAvailable ? T.apps.scanText : T.apps.scanOnly" :disabled="!state.apps?.scanAvailable" @click="openApps('scan')" />
-              <MItem action icon="add_circle" :title="T.apps.manual" :text="T.apps.manualText" @click="openApps('add')" />
-            </MGroup>
-            <MBanner v-if="appsAdded" tone="info" icon="check_circle">{{ fillText(T.apps.added, { n: appsAdded }) }}</MBanner>
-          </template>
-
           <!-- 11 update method -->
-          <MGuideUpdate v-else-if="id === 'update'" :locale="locale" :state="state" :callbacks="callbacks" @open-url="openLink" />
           <!-- the last page of the guide: one quiet line under the step, the project's two doors outside GitHub (the website follows the language) -->
-          <p v-if="isLast(flow, idx)" class="m-guide__follow" data-follow>{{ T.follow }}<a :href="brandUrl('bilibili', locale)" target="_blank" rel="noopener noreferrer" @click.prevent="openLink(brandUrl('bilibili', locale))">{{ T.followBilibili }}</a><span aria-hidden="true"> · </span><a :href="brandUrl('site', locale)" target="_blank" rel="noopener noreferrer" @click.prevent="openLink(brandUrl('site', locale))">{{ T.followSite }}</a></p>
+          <p v-if="isLast(flow, idx) && !sub" class="m-guide__follow" data-follow>{{ T.follow }}<a :href="brandUrl('bilibili', locale)" target="_blank" rel="noopener noreferrer" @click.prevent="openLink(brandUrl('bilibili', locale))">{{ T.followBilibili }}</a><span aria-hidden="true"> · </span><a :href="brandUrl('site', locale)" target="_blank" rel="noopener noreferrer" @click.prevent="openLink(brandUrl('site', locale))">{{ T.followSite }}</a></p>
         </div>
       </section>
       <div ref="bottomSentinel" class="m-guide__sentinel" aria-hidden="true" />
     </main>
 
-    <!-- the first screen's plain notes, at the foot where they are seen without scrolling and are not a question: the program is free (and what to do if it was paid for), how to support it, and, once, that error reports are on -->
-    <div v-if="id === 'intro'" class="m-guide__notes" data-guide-notes>
-      <p data-note="free">{{ S.freeNotice }}</p>
-      <p data-note="support">{{ S.supportLine }}</p>
-      <p v-if="errorsNotice" data-note="errors">{{ errorsParts[0] }}<button v-if="callbacks.openPrivacy" type="button" class="m-guide__notelink" data-note-link @click="callbacks.openPrivacy()">{{ C.errorsNoticeLink }}</button><template v-else>{{ C.errorsNoticeLink }}</template>{{ errorsParts[1] }}</p>
-    </div>
 
     <footer class="m-guide__actions">
       <!-- the first screens say where the person is at the foot, where the left of the footer would be empty -->
-      <span v-if="id === 'intro'" class="m-guide__footstep" aria-hidden="true">{{ stepLine }}</span>
-      <MButton v-if="idx > 0" class="m-guide__prev" variant="text" size="lg" icon="arrow_back" :disabled="busy" :aria-label="T.back" :title="T.back" @click="back"><span class="m-guide__lbl">{{ T.back }}</span></MButton>
+      <span v-if="pageId === 'intro'" class="m-guide__footstep" aria-hidden="true">{{ stepLine }}</span>
+      <MButton v-if="idx > 0 && !sub" class="m-guide__prev" variant="text" size="lg" icon="arrow_back" :disabled="busy" :aria-label="T.back" :title="T.back" @click="back"><span class="m-guide__lbl">{{ T.back }}</span></MButton>
       <MButton v-if="showSkip" variant="text" size="lg" icon="skip_next" :disabled="busy || skipLeft > 0" @click="skip">{{ skipLeft > 0 ? fillText(T.skipIn, { n: skipLeft }) : T.skip }}</MButton>
-      <MButton v-if="showSkipStep" class="m-guide__skipstep" variant="text" size="lg" icon="arrow_forward" :disabled="busy" :aria-label="T.skipStep" :title="T.skipStep" @click="skipStep"><span class="m-guide__lbl" :class="{ 'is-long': T.skipStep.length > 8 }">{{ T.skipStep }}</span></MButton>
-      <MButton v-if="finishWithTools" variant="tonal" size="lg" icon="build" :disabled="busy" :aria-label="T.finishTools" :title="T.finishTools" @click="openTools"><span class="m-guide__lbl" :class="{ 'is-long': T.finishTools.length > 12 }">{{ T.finishTools }}</span></MButton>
       <MButton size="lg" :icon="primary.icon" :loading="busy || primary.loading" :disabled="primary.disabled || busy" @click="primary.run">{{ primary.label }}</MButton>
     </footer>
 
-    <!-- the game library scan and adding by hand: a sheet over the apps step; closing it returns to the flow -->
-    <MGuideAppsSheet v-model="appsSheet" :T="T" :callbacks="callbacks" @added="appsAdded += $event" />
   </div>
 </template>

@@ -51,7 +51,7 @@ test('guide: the last page ends with one line, 关注我们：B 站 · 官网', 
   assert.equal(zh.followSite, '官网')
   assert.ok(en.follow && en.followBilibili && en.followSite)
   const flow = read('../src/vue/MGuideFlow.vue')
-  assert.match(flow, /<p v-if="isLast\(flow, idx\)" class="m-guide__follow"/)
+  assert.match(flow, /<p v-if="isLast\(flow, idx\) && !sub" class="m-guide__follow"/)
   assert.match(flow, /brandUrl\('site', locale\)/)
 })
 

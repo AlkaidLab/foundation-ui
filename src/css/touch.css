@@ -14,7 +14,7 @@
   :is(.m-chipset__chip, .m-pin__key, .m-usearch__open, .m-usearch__clear, .m-usearch__back, .m-usearch__remove, .m-item__more, .m-mpick__chip, .m-mpick__outchip, .m-sprompt__later, .m-guide__notelink,
       .m-cover__act, .m-cover__label, .m-journey__close, .m-b2__icbtn, .m-calm__more, .m-rail__menu, .m-login__forgot, .m-announce__btn, .m-actions__btn, .m-mchip__btn, .m-support__row, .m-ap__swatch, .dm-fchip, .dm-call, .m-rail__item) { position: relative; }
   :is(.m-btn, .m-icon-btn, .m-chipset__chip, .m-switch, .m-capver__btn, .m-capver__update, .m-page__back, .m-info__btn, .m-pin__key, .m-seg__btn, .m-mpick__chip, .m-mpick__outchip, .m-guide__seg,
-      .m-sprompt__btn, .m-sprompt__later, .m-item__more, .m-usearch__open, .m-usearch__clear, .m-usearch__back, .m-usearch__remove, .m-caption-connect, .m-guide__openmore, .m-guide__notelink,
+      .m-sprompt__btn, .m-sprompt__later, .m-item__more, .m-usearch__open, .m-usearch__clear, .m-usearch__back, .m-usearch__remove, .m-caption-connect, .m-guide__notelink,
       .m-cover__act, .m-cover__label, .m-journey__close, .m-b2__icbtn, .m-calm__more, .m-split__main, .m-split__more, .m-rail__menu, .m-login__forgot, .m-b2__btn, .m-capback, .m-caption-avatar,
       .m-announce__btn, .m-actions__btn, .m-ap__swatch, .m-support__row, .m-mchip__btn, .dm-fchip, .dm-call)::after {
     content: ''; position: absolute;
