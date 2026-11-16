@@ -35,7 +35,7 @@ import { CONNECT_CHECKS, PIN_LENGTH, unavailablePages, canPair, deviceOf, findNe
 import { fillText, guideTexts } from './guideTexts.js'
 import { createGuideFunnel } from '../telemetry/guideEvents.js'
 import { useGuideLibrary } from './guideLibrary.js'
-import { HEARTBEAT_MAX, HEARTBEAT_S, deviceId, isPhoneLike, resumeIndex, unionDone } from './guideHost.js'
+import { HEARTBEAT_MAX, HEARTBEAT_S, deviceId, isPhoneLike, progressSavePatch, resumeIndex, unionDone } from './guideHost.js'
 import { submitOnEnter } from './submitOnEnter.js'
 import { PRODUCT, brandUrl } from '../about/data.js'
 
@@ -123,7 +123,7 @@ function save(extra = {}) {
   // the host keeps what every device shares: the steps done, finished, closed, and which device is running the guide now (none once it is closed or finished)
   const ended = progress.finished || progress.closed === (props.version || '-')
   beats = 0
-  void props.callbacks.saveGuideProgress?.({ done: progress.done, finished: progress.finished, closed: progress.closed, active: ended ? null : { device: guideDevice, at: Date.now() / 1000 } })
+  void props.callbacks.saveGuideProgress?.(progressSavePatch({ done: progress.done, finished: progress.finished, closed: progress.closed, ended, device: guideDevice, now: Date.now() / 1000 }))
 }
 function go(i) {
   const to = Math.max(0, Math.min(flow.value.length - 1, i))
