@@ -31,7 +31,7 @@ import { useGuideLook } from './guideLook.js'
 import MGuideAddress from './MGuideAddress.vue'
 import { useReleaseAssets } from './useReleaseAssets.js'
 import { readOs, writeOs } from '../clients/osChoice.js'
-import { CONNECT_CHECKS, PIN_LENGTH, SKIP_DELAY_S, unavailablePages, canPair, skipSecondsLeft, deviceOf, findNewClient, isLast, pickSession, qrPath, readProgress, sessionLine, startIndex, validateAccount, writeProgress } from './guideModel.js'
+import { CONNECT_CHECKS, PIN_LENGTH, unavailablePages, canPair, deviceOf, findNewClient, isLast, pickSession, qrPath, readProgress, sessionLine, startIndex, validateAccount, writeProgress } from './guideModel.js'
 import { fillText, guideTexts } from './guideTexts.js'
 import { createGuideFunnel } from '../telemetry/guideEvents.js'
 import { useGuideLibrary } from './guideLibrary.js'
@@ -40,7 +40,7 @@ import { submitOnEnter } from './submitOnEnter.js'
 import { PRODUCT, brandUrl } from '../about/data.js'
 
 // One first-run flow for both products (the control panel's welcome and the Web UI's setup): six steps and a done page (guideModel.js), one thing on each, large type, a stepper, a small
-// mascot beside the title, back and next, every step skippable. The account step is offered only where the product has no account yet. The done page lists the optional pages (look, animations, display and HDR,
+// mascot beside the title, back and next. The foot has one button, 下一步; only the two steps that ask the person to do something (pair, try) add 跳过这一步 beside it, and 下一步 waits there until the thing is done. The account step is offered only where the product has no account yet. The done page lists the optional pages (look, animations, display and HDR,
 // web access, remote streaming), each opened in the same window and returning to the done page.
 // The product fills `state` with real data (or leaves a field out when it has none) and supplies the actions that differ as `callbacks`:
 //   openLink(url), copy(text), createAccount({ username, password, confirm }) -> { ok, error?, leave? },
@@ -71,8 +71,6 @@ const props = defineProps({
   /** ids of steps that cannot be skipped (the account step on the page that is served while the host has no account) */
   required: { type: Array, default: () => [] },
   pollMs: { type: Number, default: 2500 },
-  /** seconds from the start of the flow in which 跳过 is shown but cannot be used (a person who clicks through at once skips the account and the setup by accident) */
-  skipDelay: { type: Number, default: SKIP_DELAY_S },
   /** the version of the product the flow belongs to: closing, skipping or finishing stores it, so an upgrade shows the flow once per version (guideEntry) */
   version: { type: String, default: '' },
   /** 'fresh' (the first install: the whole flow) or 'upgrade' (an existing install that updated: what is new first, the steps already done left out by the product) */
@@ -142,7 +140,7 @@ const closeSub = () => { sub.value = '' }
 const back = () => (sub.value ? closeSub() : go(idx.value - 1))
 /** `next` names what the person chose to do after finishing ('scan', 'add'): the product then goes there instead of back to the page. */
 function finish(next = '') {
-  if (!skipping) funnel.finish()
+  funnel.finish()
   // the host's setup flag is set when the guide ends, as the setup step did: the display settings are an optional page now and keep what they are unless the person changes them
   if (!props.state.setup?.completed) { try { void Promise.resolve(props.callbacks.skipSetup?.()).catch(() => {}) } catch { /* the flag stays as it was */ } }
   if (!progress.done.includes(id.value)) progress.done = [...progress.done, id.value]
@@ -337,13 +335,7 @@ watch(pageId, (value) => { if (value) void enter(value) }, { immediate: true })
 // a page of the sub-flow (and the way back) opens at its top
 watch(id, (value) => { if (value) funnel.enter(value) }, { immediate: true })
 watch(sub, () => { void nextTick(() => { const el = document.querySelector('.m-guide__main'); if (el) el.scrollTop = 0 }) })
-onBeforeUnmount(() => { stopPoll(); qrPair?.stop(); clearTimeout(copiedTimer); clearInterval(skipTimer) })
-// the first seconds of the flow: 跳过 counts down, then opens. 下一步 is not held back
-const startedAt = Date.now()
-const effectiveDelay = props.mode === 'upgrade' ? 0 : props.skipDelay
-const skipLeft = ref(skipSecondsLeft(startedAt, startedAt, effectiveDelay))
-let skipTimer = 0
-if (skipLeft.value > 0) skipTimer = setInterval(() => { skipLeft.value = skipSecondsLeft(startedAt, Date.now(), effectiveDelay); if (skipLeft.value <= 0) clearInterval(skipTimer) }, 250)
+onBeforeUnmount(() => { stopPoll(); qrPair?.stop(); clearTimeout(copiedTimer) })
 // no pairing window stays open behind a hidden window
 const onVisible = () => { if (id.value !== 'pair' || pairedClient.value || !qrShown.value) return; if (document.hidden) qrPair.stop(); else void qrPair.begin() }
 // a guide that stays on one step (the client is being installed) keeps telling the host it runs here, so no other device opens its own meanwhile (the host forgets it after ACTIVE_WINDOW_S)
@@ -378,14 +370,15 @@ async function saveSetup() {
     else { vddWarn.value = result.vdd === false; failure.value = result.vdd === false ? '' : (result.error || T.value.setup.error) }
   } catch (error) { failure.value = error?.message || T.value.setup.error } finally { busy.value = false }
 }
-// 跳过 leaves the rest of the flow (the flow is finished, as with 完成); a step that is required (the Web UI account) cannot be skipped, so 跳过 is not offered on it. The setup that
-// would have been saved on its step is marked completed without changes, so the host does not ask for it again.
-let skipping = false
-async function skip() {
-  if (skipLeft.value > 0 || props.required.includes(id.value)) return
-  skipping = true
+// The two steps that ask the person to do something (pair a client, try the first stream) can be left without doing it: 跳过这一步 goes to the next step, and 下一步 waits for the thing to be done, so the foot never
+// offers two buttons that do the same. Every other step has 下一步 only; leaving the whole guide is the X (it counts as having seen this version).
+const ACTION_STEPS = ['pair', 'connect']
+const stepDone = computed(() => (id.value === 'pair' ? !!pairedClient.value || !Array.isArray(props.state.clients) : id.value === 'connect' ? !!session.value || Object.values(checks).some(Boolean) : true))
+const canSkipThis = computed(() => !sub.value && ACTION_STEPS.includes(id.value) && !stepDone.value && !props.required.includes(id.value))
+function skipThis() {
+  if (!canSkipThis.value || busy.value) return
   funnel.skip()
-  finish()
+  next()
 }
 // a page of the done page opens as a sub-flow; the funnel counts which ones are opened
 const openOptional = (page) => { funnel.optional(page); sub.value = page }
@@ -398,10 +391,9 @@ const primary = computed(() => {
     case 'intro': return { label: t.intro.start, run: next, icon: 'arrow_forward' }
     case 'account': return accountDone.value ? (leaving.value && leaveNow ? { label: t.account.goNow, run: () => leaveNow(), icon: 'arrow_forward' } : { label: t.next, run: next, icon: 'arrow_forward', disabled: leaving.value, loading: leaving.value }) : { label: t.account.create, run: submitAccount, disabled: !accountOk.value, icon: 'login' }
     case 'done': return { label: t.done.start, run: () => finish(), icon: 'check' }
-    default: return { label: t.next, run: next, icon: 'arrow_forward' }
+    default: return { label: t.next, run: next, icon: 'arrow_forward', disabled: ACTION_STEPS.includes(id.value) && !stepDone.value && !props.required.includes(id.value) }
   }
 })
-const showSkip = computed(() => !sub.value && !isLast(flow.value, idx.value) && id.value !== 'intro' && !props.required.includes(id.value) && !(id.value === 'account' && accountDone.value))
 // the done page is not one of the steps: the bar and the count are the steps before it, and it ends with every segment filled
 const counted = computed(() => flow.value.filter((s) => s.id !== 'done'))
 const stepLine = computed(() => (id.value === 'done' ? '' : fillText(T.value.stepOf, { n: idx.value + 1, total: counted.value.length })))
@@ -640,7 +632,7 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
       <!-- the first screens say where the person is at the foot, where the left of the footer would be empty -->
       <span v-if="pageId === 'intro'" class="m-guide__footstep" aria-hidden="true">{{ stepLine }}</span>
       <MButton v-if="idx > 0 && !sub" class="m-guide__prev" variant="text" size="lg" icon="arrow_back" :disabled="busy" :aria-label="T.back" :title="T.back" @click="back"><span class="m-guide__lbl">{{ T.back }}</span></MButton>
-      <MButton v-if="showSkip" variant="text" size="lg" icon="skip_next" :disabled="busy || skipLeft > 0" @click="skip">{{ skipLeft > 0 ? fillText(T.skipIn, { n: skipLeft }) : T.skip }}</MButton>
+      <MButton v-if="canSkipThis" class="m-guide__skip" variant="text" size="lg" icon="skip_next" :disabled="busy" @click="skipThis">{{ T.skipThis }}</MButton>
       <MButton size="lg" :icon="primary.icon" :loading="busy || primary.loading" :disabled="primary.disabled || busy" @click="primary.run">{{ primary.label }}</MButton>
     </footer>
 

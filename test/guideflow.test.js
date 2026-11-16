@@ -121,11 +121,10 @@ test('the game libraries are scanned in the background from the first screen on;
   const failing = useGuideLibrary(() => ({ scanGames: async () => { throw new Error('down') } })); await failing.scanLibrary(); assert.equal(failing.library.status, 'failed')
 })
 
-test('closing, skipping or finishing stores the version of the flow; an upgrade starts at the top and does not wait to skip', () => {
+test('closing, skipping or finishing stores the version of the flow; an upgrade starts at the top', () => {
   const flow = read('MGuideFlow.vue')
   assert.match(flow, /progress\.version = props\.version/)
   assert.match(flow, /function close\(\) \{ funnel\.close\(\); save\(\{ closed: props\.version \|\| '-' \}\); emit\('close'\) \}/, 'the X stores that this version was closed, which stops the guide from opening on its own again')
-  assert.match(flow, /props\.mode === 'upgrade' \? 0 : props\.skipDelay/)
 })
 
 test('every first-run step has the same window: no rule sets the window width by step (the remote access and pairing steps were wider on a desktop and not full screen on a phone)', () => {
