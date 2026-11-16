@@ -100,7 +100,7 @@ function key(event) {
 
 <template>
   <nav ref="root" class="m-rail" :class="`m-rail--${mode}`" :aria-label="label" @keydown="key">
-    <div v-if="mode !== 'bar'" class="m-rail__head">
+    <div v-if="mode !== 'bar'" class="m-rail__head" data-tauri-drag-region="deep">
       <button v-if="canToggle" type="button" class="m-rail__menu" :aria-expanded="mode === 'expanded'" :aria-label="mode === 'expanded' ? collapseLabel : expandLabel" :data-tip="mode === 'expanded' ? collapseLabel : expandLabel" @click="emit('toggle')">
         <MIcon :name="mode === 'expanded' ? 'menu_open' : 'menu'" />
       </button>

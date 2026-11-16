@@ -5,6 +5,7 @@ import MRail from './MRail.vue'
 import MSheet from './MSheet.vue'
 import { watchPixelRatio } from '../nav/dpr.js'
 import { playPageEnter } from '../nav/pageEnter.js'
+import { createPaneScroll, placeOf } from '../nav/paneScroll.js'
 import { noteResize, trackWindowResize, watchResizing } from '../nav/resizing.js'
 import { useFabLift } from './useFabLift.js'
 import { MODAL_CLOSE, MODAL_FRAME, MODAL_OPEN, modalsAfter, modalsAfterFrameGone } from './useModalBridge.js'
@@ -111,6 +112,19 @@ watch(detailEntry, (e) => { if (e) lastDetail.value = e }, { immediate: true })
 // Every change of the destination plays the one page enter on the detail pane (nav/pageEnter.js), whether or not the page draws an MPage; pages in a frame (the `overlay` slot) are the product's.
 const detailInner = ref(null)
 watch(() => detailEntry.value?.key, (key, before) => { if (key && before !== undefined && key !== before) nextTick(() => playPageEnter(detailInner.value)) })
+// The detail pane is one scroll box whose content is swapped: a page that is opened starts at the top, and a page that is reached again by going back (the page's own back, or the global back of
+// a jump) opens where it was left (nav/paneScroll.js). The watcher runs before the DOM is patched, so the pane still has the height of the page being left.
+const detailPane = ref(null)
+const paneScroll = createPaneScroll()
+const shown = new Set() // the entries that were on show: one that comes again was reached by going back
+watch(() => detailEntry.value, (entry, before) => {
+  if (!entry || !before || entry.key === before.key || !detailPane.value) return
+  const back = shown.has(entry.key) || !!props.jumps?.returning?.()
+  shown.add(before.key)
+  if (shown.size > 64) shown.delete(shown.values().next().value)
+  paneScroll.leave(placeOf(before), detailPane.value.scrollTop)
+  nextTick(() => { if (detailPane.value) detailPane.value.scrollTop = paneScroll.enter(placeOf(entry), back) })
+}, { flush: 'pre' })
 const listEntry = computed(() => scene.value.panes.list || props.nav.list.value)
 const supportingEntry = computed(() => scene.value.panes.supporting || null)
 
@@ -283,7 +297,7 @@ const allShortcuts = computed(() => [
     <section class="m-scene__pane m-scene__pane--list" :class="{ 'is-hidden': hidden(0) }" @scroll.passive="keepSide" :inert="hidden(0) || modalOpen || status ? '' : undefined" :aria-hidden="hidden(0) || undefined">
       <div class="m-scene__inner"><slot v-if="listEntry" name="list" :entry="listEntry" :scene="scene" /></div>
     </section>
-    <section class="m-scene__pane m-scene__pane--detail" :class="{ 'is-hidden': hidden(1) }" @scroll.passive="keepSide" :inert="hidden(1) || status ? '' : undefined" :aria-hidden="hidden(1) || undefined">
+    <section ref="detailPane" class="m-scene__pane m-scene__pane--detail" :class="{ 'is-hidden': hidden(1) }" @scroll.passive="keepSide" :inert="hidden(1) || status ? '' : undefined" :aria-hidden="hidden(1) || undefined">
       <div ref="detailInner" class="m-scene__inner"><slot v-if="detailEntry" name="detail" :key="detailEntry.key" :entry="detailEntry" :scene="scene" /></div>
     </section>
     <section class="m-scene__pane m-scene__pane--supporting" :class="{ 'is-hidden': hidden(2) }" @scroll.passive="keepSide" :inert="hidden(2) || status ? '' : undefined" :aria-hidden="hidden(2) || undefined">
