@@ -9,7 +9,6 @@ export const tileIds = ['clients-paired', 'pair']
 //     columns, each also with its streamed time in words. A device that streams comes first.
 //   配对 (the iOS HIG's one control; a Pixel VIPs count): 方形 the paired count with its word on the baseline, one button; 中 the QR code on white beside one PIN field and its button.
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import MField from '../MField.vue'
 import MIcon from '../MIcon.vue'
 import MTileChip from '../MTileChip.vue'
 import MTileNumeral from '../MTileNumeral.vue'
@@ -73,9 +72,12 @@ onBeforeUnmount(() => { if (qrShown.value) emit('act', { type: 'pair-qr-stop' })
     <template v-else>
       <div class="m-b2pair__qr" :class="{ 'is-wait': !qr?.image }"><img v-if="qr?.image" :src="qr.image" :alt="T.pairQr" decoding="async"><button v-else-if="qr && (qr.state === 'expired' || qr.state === 'error')" type="button" class="m-b2__icbtn" :aria-label="T.pairRefresh" @click.stop="emit('act', { type: 'pair-qr-begin' })"><MIcon name="refresh" /></button><MIcon v-else name="qr_code_2" /></div>
       <div class="m-b2pair__side">
-        <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span><span class="m-calm__peak">{{ count }} {{ T.pairedCount }}</span></header>
-        <MField v-model="pinText" class="m-b2pair__pin" :label="T.pairPin" :disabled="!d.canPin" inputmode="numeric" autocomplete="one-time-code" @input="$event.target.value = pin" @click.stop @keydown.enter="sendPin" />
-        <button type="button" class="m-b2__btn m-b2pair__go" :disabled="pin.length < 4 || !d.canPin" @click.stop="sendPin"><MIcon name="check" />{{ T.pairGo }}</button>
+        <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span></header>
+        <small class="m-b2pair__count m-dnum">{{ count }} {{ T.pairedCount }}</small>
+        <div class="m-b2pair__row">
+          <input v-model="pinText" class="m-b2__field m-b2pair__pin" type="text" inputmode="numeric" maxlength="4" autocomplete="one-time-code" :placeholder="T.pairPin" :aria-label="T.pairPin" :disabled="!d.canPin" @click.stop @keydown.enter="sendPin">
+          <button type="button" class="m-b2__btn is-tonal m-b2pair__go" :disabled="pin.length < 4 || !d.canPin" @click.stop="sendPin"><MIcon name="check" />{{ T.pairGo }}</button>
+        </div>
       </div>
     </template>
   </section>

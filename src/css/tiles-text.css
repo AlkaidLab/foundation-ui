@@ -10,13 +10,8 @@
 /* The decorative glyph in a shape and the shape itself sit under figures. Their ink is the accent moved towards the shape's own fill (--tile-deco-ink), so a figure over it keeps 3 : 1 whatever the accent. */
 .m-tile { --tile-deco-ink: color-mix(in srgb, var(--tk) 60%, var(--tk-c)); }
 .m-tile .m-tile__corner.m-tshape--tonal, .m-tile .m-tile__corner .m-tshape--tonal { color: var(--tile-deco-ink); }
-/* One unit: the shape in the corner is pushed up and out so it does not run under the figure at the bottom. */
-.m-tile[data-size='s'] .m-tile__corner { translate: 20% -24%; }
 /* The name of a setting row is its glyph only in a narrow tile: the glyph takes its own width, not the 46 % reserved for the name, so the presets keep the room and no preset sits under the fade at the end of the row. */
 @container m-calq (max-width: 479px) { .m-calq:has(> .m-b3s__row) > .m-calq__title { flex: 0 0 auto; max-width: none; } }
-/* The name of a tonal tile of one unit runs under the shape in the corner (1.4 : 1 where the two are the same family of colour, whatever the theme). It gets the tile's own fill as its plate, so the shape passes behind
-   it like a label stuck on the card, and the words keep the contrast of the tile. The shape goes up and out, clear of the figure at the bottom. */
-.m-tile--tonal[data-size='s'] .m-tile__head > span { flex: 0 1 auto; width: fit-content; background: var(--tk-c); border-radius: 8px; padding: 1px 6px; margin-inline-start: -6px; }
 /* The frame of 串流分辨率 at two cells is 16 : 9 of the tile's height, under 90 px inside; the figure is wider than that and a stroke of the frame ran through its first digit and its last. At two cells the frame is as wide as the figure needs (the aspect ratio of the screen goes to the figure, the height stays). */
 .m-tfacts.is-m .m-tfacts__screen { aspect-ratio: auto !important; width: 124px; max-width: none; }
 .m-tfacts.is-m .m-tfacts__screen .m-tnum--s { --tn: 28px; }

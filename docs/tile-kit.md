@@ -13,7 +13,7 @@ Import from `foundation-ui/vue`; styles are in `src/css/tilekit.css` (part of `a
 | `data-accent="primary\|secondary\|tertiary\|ok\|warn\|error"` | The tile's accent: sets `--tk`, `--on-tk`, `--tk-c`, `--on-tk-c` from the scheme. Default primary. `.is-hot` = error (a load at its limit). |
 | `.m-tile--tonal` | The whole tile filled with the accent's container (`--tk-c`), text in `--on-tk-c`. Use for a tile that is a state or must read from a distance. |
 | `.m-tile__bleed` | A layer on the card's left, right and bottom edges, under the content; height `--tile-bleed` (default 56 %). Put a chart in it. |
-| `.m-tile__corner` | A layer cut by the top-right corner (moved out by 18 %). Put a large `MTileShape` in it. |
+| `.m-tile__corner` | A decoration in the free top-right corner, under every layer of the tile: 60 px at one and two cells, 88 px at 大 and 特大, 6 px past the edges. A word never runs over it: the head keeps clear of it (padding), and at one cell the head's glyph is dropped and the name wraps in balance. Put an `MTileShape` in it, no larger. Checked by the decoration gate (a decoration's box against every text box of its tile). |
 | `.m-tile__head` | The header row: `<MIcon>` in the accent, a `<span>` title, optional `.m-tile__more` chevron button. |
 | `--tk-fill-top`, `--tk-fill-mid` | Opacity of the chart's gradient at the top of the plot area and at 60 % (0 at the bottom edge). Light .36/.12, dark .44/.15. |
 | `--tk-line` | The chart's line width (3 px). |

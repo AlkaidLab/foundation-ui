@@ -22,11 +22,10 @@ export function useDashDock(D) {
     if (Math.abs(t - blocksTop.value) > 2) blocksTop.value = t
   }
   onMounted(() => nextTick(measureTop))
-  // the fill waits until the page has settled (the first data, the banner, the measured top): tiles are then added once, at the end, and never move the plan's tiles
-  const fillReady = ref(false)
-  let fillTimer = 0
-  onMounted(() => { fillTimer = setTimeout(() => { fillReady.value = true }, 1200) })
-  onBeforeUnmount(() => clearTimeout(fillTimer))
+  // the fill is part of the first drawn plan: the tiles of the plan and the ones that fill around them are laid out in the same frame, as soon as the product knows what decides the page (ctx.pending, the
+  // skeleton stands until then). A timer here drew half a screen of tiles for 1.2 s on every visit and then added the rest. The tiles it takes are the ones that
+  // have data when the page is drawn; a tile whose data arrives later is added after them and never moves the plan's tiles (fillMemory).
+  const fillReady = computed(() => !props.ctx.pending)
   // the tiles taken to fill, in the order they were taken: a later fit takes them first and in the same order, so a tile that arrives or a row that is added puts its tiles after them
   let fillMemory = { scenario: '', ids: [] }
   const availH = computed(() => Math.max(420, tall.value - rootTop.value - 16))

@@ -129,8 +129,47 @@
 .m-tgauge--budget.is-m .m-tgauge__side--stages { gap: 6px; padding-top: 0; }
 .m-tgauge__stagebar { flex: none; } .m-tgauge__stagelist { flex: none; gap: 2px 12px; } .m-tgauge__stagelist li { line-height: 14px; }
 
-/* the shapes behind the tiles (the cookie of 编码器 and 网卡, the gem of 显卡, the squircle of 系统, the sunny of HDR, the clover of 码率): one rule, the one the 编码器 tile had. The shape is 104 px (70 % of a square tile), 10 px in from the right
-   edge and 8 px down from the top, inside the tile; 大 is 144 px, the glyph in it 46 % of the shape (48 px, 66 px at 大), the same for every tile. Its tone stays what it is: tonal (the accent at 15 %), solid where the shape is a state (HDR on). Nothing of it is bigger than that. */
-.m-tile .m-tile__corner { top: 0; right: 0; translate: 10% 8%; width: 104px; height: 104px; opacity: 1; }
-.m-tile .m-tile__corner > .m-icon { font-size: 48px; }
-.m-tile[data-size='l'] .m-tile__corner, .m-tile[data-size='xl'] .m-tile__corner { width: 144px; height: 144px; } .m-tile[data-size='l'] .m-tile__corner > .m-icon, .m-tile[data-size='xl'] .m-tile__corner > .m-icon { font-size: 66px; }
+/* the shapes behind the tiles (the cookie of 编码器 and 网卡, the gem of 显卡, the squircle of 系统, the sunny of HDR, the clover of 码率): one rule for all. The shape sits in the free corner of the tile, under every layer of it,
+   and a word never runs over it: it is 60 px (the glyph in it 28 px) at one and two cells, 88 px (glyph 40 px) at 大 and 特大, 6 px past the top and right edges, so what shows is a corner of 54 px or 82 px. A tile that draws
+   it keeps its head clear of that corner (the head's right padding), and a name that would not fit the room left of it drops its leading glyph (the shape carries one) and wraps in balance. */
+.m-tile .m-tile__corner { top: -6px; right: -6px; translate: none; width: 60px; height: 60px; opacity: 1; }
+.m-tile .m-tile__corner > .m-icon { font-size: 28px; }
+.m-tile[data-size='l'] .m-tile__corner, .m-tile[data-size='xl'] .m-tile__corner { width: 88px; height: 88px; } .m-tile[data-size='l'] .m-tile__corner > .m-icon, .m-tile[data-size='xl'] .m-tile__corner > .m-icon { font-size: 40px; }
+.m-tile:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head) { padding-inline-end: 44px; }
+.m-tile[data-size='l']:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head), .m-tile[data-size='xl']:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head) { padding-inline-end: 72px; }
+.m-tile[data-size='s']:has(.m-tile__corner) > .m-tile__head > .m-icon { display: none; }
+.m-tile[data-size='s']:has(.m-tile__corner) > .m-tile__head > span { white-space: normal; overflow: visible; text-overflow: clip; text-wrap: balance; line-height: 16px; overflow-wrap: anywhere; }
+
+/* 配对 at two cells: the QR code on a light plate tinted by the theme (a code needs dark modules on a light ground, so the plate stays light, but it is not a white block), and beside it the name with the count under it,
+   one field and one button in a row, in the type and colours of every other tile (14 px strong, the tile's inner fill, the tonal button). */
+.m-b2pair__qr { background: var(--md-sys-color-surface-container-lowest); }
+html[data-bs-theme='dark'] .m-b2pair__qr, html[data-theme='dark'] .m-b2pair__qr, html.dark .m-b2pair__qr { background: var(--md-sys-color-inverse-surface); }
+.m-b2pair__qr > img { mix-blend-mode: multiply; }
+.m-b2pair__side { gap: 0; justify-content: space-between; }
+.m-b2pair__count { margin-top: -2px; font: var(--m-tile-text-12); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; }
+.m-b2pair__row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.m-b2__field { flex: 1 1 0; min-width: 0; width: 100%; height: 40px; padding: 0 14px; box-sizing: border-box; border: 0; border-radius: 14px; background: var(--cal-inner); color: var(--md-sys-color-on-surface); font: var(--m-tile-text-14-strong); letter-spacing: .12em; font-feature-settings: 'tnum' 1; outline: none; }
+.m-b2__field::placeholder { color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); letter-spacing: 0; font-weight: 500; opacity: 1; }
+.m-b2__field:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 0; }
+.m-b2__field:disabled { opacity: .6; }
+.m-b2pair__row .m-b2pair__go { flex: none; width: auto; height: 40px; margin: 0; }
+.m-b2pair__go.is-tonal:disabled { background: color-mix(in srgb, var(--md-sys-color-secondary-container) 55%, var(--cal-inner)); color: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 70%, transparent); }
+
+/* 组件状态 at one cell: the glyph is in the plate, so the head carries the name alone (no glyph, no chevron) and it fits on one line. */
+.m-b2comp.is-s > .m-calm__head > :is(.m-icon, .m-calm__more) { display: none; }
+.m-b2comp.is-s > .m-calm__head > .m-calm__title { white-space: normal; text-wrap: balance; line-height: 16px; overflow: visible; }
+
+/* 公告 at two cells: the plate takes 40 %, so the title (20 px) is one line when it can be, and a break falls between words (balance). */
+.m-b3n.is-m .m-b3n__pic { width: 40%; }
+.m-b3n.is-m:not(.has-banner) .m-b3n__text b { font-size: 20px; line-height: 26px; text-wrap: balance; }
+
+/* the line of an empty tile ('还没有结束的会话') breaks in balance, never leaving one character on a line */
+.m-empty-basic > b { text-wrap: balance; }
+
+/* 码率 at two cells has its figure, its chips and its curve: no shape behind it (the chips sit where the corner is). */
+.m-tstream--stream-bitrate.is-m .m-tile__corner { display: none; }
+.m-tstream--stream-bitrate.is-m:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head) { padding-inline-end: 0; }
+/* the name of an action tile ('在 GitHub 点 Star') breaks between words, in balance */
+.m-b2__name, .m-cala__name { text-wrap: balance; }
+/* the line of facts of 本主机 at one cell ('运行中 · 已运行 3h 12m') breaks in balance, so the time is not cut in two */
+.m-calh--sq .m-calh__fact { text-wrap: balance; word-break: keep-all; }
