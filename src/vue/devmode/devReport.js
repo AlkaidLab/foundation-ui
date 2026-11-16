@@ -10,18 +10,20 @@ import { maskCapture, paintMasks } from '../../devmode/shotCanvas.js'
 //   The person adds boxes by hand on top of shotBase (`shotManual`); `shot` is always the exact image that will be sent. An automatic box cannot be removed.
 //   providers: { mask(png, cssRects, view) and paint(png, rects) replace the canvas work (tests); capture() -> Uint8Array | null (PNG), logs() -> string, env() -> string, hostNames() -> string[], save(name, bytes, mime), openUrl(url), anon(report) -> 'sent' | 'queued' | 'rejected' | 'limited' }
 const providers = {}
-export const devReport = reactive({ open: false, kind: 'feedback', error: null, repo: '', shot: null, shotBase: null, shotAuto: [], shotManual: [], shotSize: null, shotFailed: false, shotMaskFailed: false, logs: '', env: '', signIn: false, token: 0, draft: { title: '', description: '' } })
+export const devReport = reactive({ open: false, kind: 'feedback', error: null, context: { page: '', place: '', element: '' }, decision: '', repo: '', shot: null, shotBase: null, shotAuto: [], shotManual: [], shotSize: null, shotFailed: false, shotMaskFailed: false, logs: '', env: '', signIn: false, token: 0, draft: { title: '', description: '' } })
 export const registerDevReport = (next = {}) => { Object.assign(providers, next) }
 export const devProviders = () => providers
 
 async function safe(fn, fallback) { try { return (await fn?.()) ?? fallback } catch { return fallback } }
 
 /** Opens the report. The screenshot and the log are taken now, before the sheet is drawn, so the screenshot shows the window as it was when it failed. */
-export async function openDevReport({ kind = 'feedback', error = null, repo = '', draft = null, carriedLogs = '', carriedLabel = '' } = {}) {
+export async function openDevReport({ kind = 'feedback', error = null, repo = '', draft = null, carriedLogs = '', carriedLabel = '', context = null } = {}) {
   if (devReport.open) return
   devReport.kind = kind
   devReport.error = error
   devReport.repo = repo
+  // where the report was opened from: the page (a static name the product gives), the id of what was under the pointer and its short text (the text only shows in the panel; it is not sent)
+  devReport.context = { page: String(context?.page || ''), place: String(context?.place || ''), element: String(context?.element || '') }
   devReport.draft = { title: String(draft?.title || ''), description: String(draft?.description || '') }
   const view = () => ({ width: globalThis.innerWidth || 0, height: globalThis.innerHeight || 0, dpr: globalThis.devicePixelRatio || 1 })
   const boxes = async () => (typeof document === 'undefined' ? [] : (providers.collect || collectAllRects)(document, view()))
@@ -43,7 +45,14 @@ export async function openDevReport({ kind = 'feedback', error = null, repo = ''
   devReport.token += 1
   devReport.open = true
 }
+/** 反馈此处的问题 of the context menu: the panel with where it was opened from. `page` is the static name of the page the product gives; `text` (what was under the pointer) only shows in the panel and is not sent. */
+export const openFeedbackHere = ({ page = '', place = '', text = '' } = {}) => openDevReport({ kind: 'feedback', context: { page: page || currentPageName(), place, element: text } })
+/** The name of the page the person is on: the title of the page in the window (the same static words the page shows), or '' when there is none. */
+export const currentPageName = () => { try { return String(globalThis.document?.querySelector('.m-page__title')?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40) } catch { return '' } }
 export const closeDevReport = () => { devReport.open = false }
+/** A short decision in a centred dialog before the panel (the crash that was just recovered): `ask` is its kind, the panel opens after the person chose 发送反馈. */
+export const askDevReport = (ask = 'crash', context = null) => { devReport.decision = ask; devReport.context = { page: String(context?.page || ''), place: String(context?.place || ''), element: String(context?.element || '') } }
+export const clearDevReportAsk = () => { devReport.decision = '' }
 
 // the hand-drawn boxes: always painted on shotBase, so the automatic ones stay whatever is done here
 let paintToken = 0
