@@ -85,6 +85,9 @@
 .m-pick__opt:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 6%, var(--m-card)); }
 .m-pick__opt:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -2px; }
 .m-pick__opt.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.m-pick__opt.is-disabled { cursor: default; color: var(--md-sys-color-on-surface-variant); }
+.m-pick__opt.is-disabled:hover { background: var(--m-card); }
+.m-pick__opt.is-disabled .m-pick__text > span { opacity: 0.6; }
 .m-pick__text { flex: 1; min-width: 0; display: flex; flex-direction: column; font: var(--m-body-large); }
 .m-pick__text small { font: var(--m-body-small); }
 .m-pick__empty { margin: 16px; text-align: center; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
