@@ -19,7 +19,7 @@ test('an event is fixed words and numbers: anything else is dropped, a time is a
   assert.equal(guideFunnelProps({ phase: 'reached', step: 'hostdone' }), null, 'a step of the old flow is not counted')
   assert.equal(guideFunnelProps({ phase: 'optional_opened', step: 'done', optional: 'update' }), null, 'the update source is on the channel step now, not an optional page')
   assert.equal(guideFunnelProps({ phase: 'optional_opened', step: 'done' }), null)
-  assert.deepEqual(Object.keys(guideFunnelProps({ phase: 'reached', step: 'intro', name: 'Skyindows', address: '192.168.1.2', text: 'typed' })).sort(), ['mode', 'phase', 'step'], 'no other field gets through')
+  assert.deepEqual(Object.keys(guideFunnelProps({ phase: 'reached', step: 'intro', name: 'Living room PC', address: '192.0.2.2', text: 'typed' })).sort(), ['mode', 'phase', 'step'], 'no other field gets through')
 })
 
 test('a run of the guide: each step reached with the time on the one before, then skip, finish or close on the open step, and the pages opened', () => {
