@@ -89,3 +89,10 @@ a decorative layer under 15 % alpha; a state dot under 12 px; a whole-tile actio
 - Props from `MDashCardView`: `card` (`{ id, title, group, size, data }`; `size` is the effectiveSize: s, m, l, xl, xlp), `texts`, `details`, `variant` (1 or 2), `chevron` (a detail sheet exists), `preview` (drawn in the gallery or the edit sheet: start nothing), `empty` (null, or `{ icon, title, value, action }` of the square while the card has no data: draw `MTileEmpty` with it). Emit `act` with `{ type, value }` (`detail` opens the sheet; pass an empty state's action through as it is).
 - The root is `<section class="m-tile" :data-accent>` and fills the cell; draw every size of the tile's range (homeRanges.js), each with its hero.
 - Dev flag: `?tiles=bold` (or localStorage `foundation-ui.dev.tiles` = `bold`); variants `?tv=cpu:2,net:2`. Off: the tiles are drawn as before.
+
+## Tiles that are a number or a state (round 3)
+
+- A resolution (串流分辨率, 虚拟显示器) is display type on the tile's own surface, the state or the mode in a caption under it, as the name of 编码器 is. No block of colour and no drawn frame behind it. Variant 2 (`?tv=vdd:2`, `?tv=stream-resolution:2`) makes the class name (4K) the numeral and moves the exact size to the caption.
+- A switch tile at one cell (HDR, 使用虚拟显示器) is a round badge with its glyph (container colour when on, quiet fill when off) over the word of the state; no shape in the corner, no tonal fill, no plate under the name.
+- An end action (停止串流) is an error action on the calm card: the glyph uses the error role, a slight tint of it is on the card, the words keep the surface text colour.
+- The head of a tile breaks a Chinese or Japanese title between its words (`MTileHead` keeps each word whole), never inside one.

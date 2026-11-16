@@ -30,3 +30,6 @@ export const padChoices = (options, value, limit = 3) => choicesOf(options, valu
 /** The note under the controller type: a live note the product set on the strip (a client pad runs as a DS4) comes
  *  first, then the note of when a change of the type applies. */
 export const padNoteOf = (data, texts) => String(data?.note || '') || (data?.applies === 'next' ? texts.padNote : texts.restartNote)
+
+/** The name a resolution goes by, from its height in pixels: 2160 -> '4K', 1440 -> '2K', 1080 -> 'FHD'; shorter ones have none. */
+export const resClassOf = (h) => (h >= 2160 ? '4K' : h >= 1440 ? '2K' : h >= 1080 ? 'FHD' : '')
