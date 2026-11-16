@@ -8,6 +8,7 @@ export * from './provider.js'
 export * from './meta.js'
 export * from "./virtualDisplay.js"
 export * from './rowLines.js'
+export * from './audioDevice.js'
 export * from './reachability.js'
 export { reachTexts, failureWords } from './reachTexts.js'
 export * from './remoteFlow.js'

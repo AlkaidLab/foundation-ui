@@ -3,6 +3,7 @@
 // when there is no source here (the card then shows as unavailable in the catalogue and cannot be added). Nothing is invented.
 import { codecChips, formatClock } from './homeModel.js'
 import { reachView } from '../settings/reachability.js'
+import { audioDeviceName } from '../settings/audioDevice.js'
 import { bitrateChips, bitrateKbps } from '../settings/bitrate.js'
 import { encoderName, codecName as encoderCodec } from '../settings/model.js'
 import { errorsByHour, heatDays, logDays, recentApps } from './homeHistory.js'
@@ -116,7 +117,7 @@ export function buildCatalogue(x, T) {
   d.codecs = x.codecModes ? { type: 'chips', icon: 'movie', title: T.c_codecs, chips: codecChips(x.codecModes, T) } : null
   const hdr = s ? !!s.enable_hdr : x.display?.hdr
   d.hdr = hdr === undefined || hdr === null ? null : { type: 'chips', icon: 'hdr_on', title: T.c_hdr, big: hdr ? T.hdrOn : T.hdrOff, tone: hdr ? 'ok' : '', chips: [!s && x.display?.hdrText && { label: x.display.hdrText }, x.display?.nits && { label: `${Math.round(x.display.nits)} nits`, icon: 'light_mode' }].filter(Boolean) }
-  d['audio-out'] = x.config && typeof x.config.audio_sink === 'string' ? { type: 'rows', icon: 'volume_up', title: T['c_audio-out'], rows: [{ icon: 'speaker', title: T.device, value: x.config.audio_sink || T.auto }] } : null
+  d['audio-out'] = x.config && typeof x.config.audio_sink === 'string' ? { type: 'rows', icon: 'volume_up', title: T['c_audio-out'], rows: [{ icon: 'speaker', title: T.device, value: audioDeviceName(x.config.audio_sink, x.audio, T.audioDevice) || T.auto }] } : null
   d['gamepad-status'] = x.pads ? { type: 'rows', icon: 'sports_esports', title: T['c_gamepad-status'], rows: [{ icon: 'sports_esports', title: x.pads.title || T.gamepad, value: x.pads.text, tone: x.pads.tone }] } : null
   d['usb-devices'] = typeof x.usb === 'number' ? { type: 'rows', icon: 'usb', title: T['c_usb-devices'], big: String(x.usb), rows: [{ icon: 'usb', title: x.usb ? T.usbCount : T.usbNone, value: '' }] } : null
 

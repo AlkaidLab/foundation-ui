@@ -10,7 +10,7 @@ const model = defineModel({ type: [String, Number, Boolean], default: '' })
 const open = defineModel('open', { type: Boolean, default: false })
 const props = defineProps({
   title: { type: String, required: true },
-  /** [{ value, label, text? }] */
+  /** [{ value, label, text?, disabled? }]: a disabled option is shown with its reason (text) and cannot be chosen */
   options: { type: Array, required: true },
   searchLabel: { type: String, default: 'Search' },
   emptyText: { type: String, default: 'Nothing found' },
@@ -27,7 +27,7 @@ const shown = computed(() => {
   return props.options.filter((o) => norm(`${o.label} ${o.text || ''} ${o.value}`).includes(q))
 })
 watch(open, (value) => { if (value) query.value = '' })
-const choose = (value) => { model.value = value; open.value = false }
+const choose = (option) => { if (option.disabled) return; model.value = option.value; open.value = false }
 </script>
 
 <template>
@@ -40,7 +40,7 @@ const choose = (value) => { model.value = value; open.value = false }
       </label>
       <ul class="m-pick__list" role="listbox" :aria-label="title">
         <li v-for="option in shown" :key="String(option.value)" role="presentation">
-          <button type="button" role="option" class="m-pick__opt" :class="{ 'is-on': option.value === model }" :aria-selected="option.value === model" @click="choose(option.value)">
+          <button type="button" role="option" class="m-pick__opt" :class="{ 'is-on': option.value === model, 'is-disabled': option.disabled }" :aria-selected="option.value === model" :aria-disabled="option.disabled ? 'true' : undefined" :disabled="option.disabled" @click="choose(option)">
             <span class="m-pick__text"><span>{{ option.label }}</span><small v-if="option.text">{{ option.text }}</small></span>
             <MIcon v-if="option.value === model" name="check" />
           </button>
