@@ -172,7 +172,7 @@ html[data-motion='reduced'] .m-rail--expanded :is(.m-rail__pill, .m-rail__label-
 .m-navlist__label { font: var(--m-title-medium); white-space: normal; overflow-wrap: break-word; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } /* a long row name (Russian 分辨率与刷新率) wraps to a second line instead of ellipsizing */
 .m-navlist__item[aria-current='page'] .m-navlist__label { font: var(--m-title-medium-emphasized); }
 .m-navlist__text { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.m-navlist__item[aria-current='page'] .m-navlist__text { color: inherit; opacity: .92; }
+.m-navlist__item[aria-current='page'] .m-navlist__text { color: inherit; }
 .m-navlist__badge { width: 8px; height: 8px; border-radius: 50%; background: var(--md-sys-color-outline); }
 .m-navlist__badge--ok { background: var(--md-sys-color-success); } .m-navlist__badge--warn { background: var(--md-sys-color-warning); } .m-navlist__badge--error { background: var(--md-sys-color-error); }
 .m-filterbar input:focus, .m-filterbar input:focus-visible { outline: 0; box-shadow: none; }
@@ -245,7 +245,7 @@ html { --m-check-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2
 .m-item__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .m-item__title { font: var(--m-title-medium); letter-spacing: 0; overflow-wrap: anywhere; }
 .m-item__text { font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; }
-.m-item--selected .m-item__text { color: inherit; opacity: .94; }
+.m-item--selected .m-item__text { color: inherit; }
 .m-item__trail { margin-left: auto; display: flex; align-items: center; gap: 12px; flex: none; color: var(--md-sys-color-on-surface-variant); }
 .m-item__chev { font-size: 24px; }
 .m-item--stack { flex-wrap: wrap; row-gap: 8px; }

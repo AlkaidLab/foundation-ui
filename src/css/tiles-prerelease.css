@@ -84,7 +84,7 @@
 /* 帧时间占用 at 中: the ring on the left, the two numbers it is made of on the right, and the latency curve against the frame time (dashed) in the lower right, so the right half has something to say */
 .m-tgauge--budget.is-m .m-tgauge__side { flex: 1; min-width: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 6px; }
 .m-tgauge__facts { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
-.m-tgauge__facts > div { min-width: 0; } .m-tgauge__facts dt { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; } .m-tgauge__facts dd { margin: 2px 0 0; font: 600 22px/26px var(--m-font-display); color: var(--md-sys-color-on-surface); white-space: nowrap; }
+.m-tgauge__facts > div { min-width: 0; } .m-tgauge__facts dt { font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); overflow-wrap: anywhere; } .m-tgauge__facts dd { margin: 2px 0 0; font: 600 22px/26px var(--m-font-display); color: var(--md-sys-color-on-surface); white-space: nowrap; }
 .m-tgauge--budget.is-m .m-tgauge__history { left: 42%; --tile-bleed: 46%; }
 
 /* 串流历史 at 中: the number and its caption on the left, the 30 days as a calendar of bigger cells on the right (it was one thin row of dots under the number, the right half empty) */
@@ -101,9 +101,9 @@
 .m-b3u { --tile-pad: 12px 14px; gap: 3px; justify-content: flex-start; }
 .m-b3u__hero { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; max-width: 100%; min-width: 0; --vh: clamp(13px, min(calc(100cqw / (var(--chars, 5) * 0.6)), calc((100cqh - 24px - 30px - var(--rl, 0) * 15px - 12px) / 2.1)), 31px); font: 700 var(--vh)/1 var(--m-font-display); letter-spacing: -.02em; }
 .m-b3u__hero > b { display: block; max-width: 100%; white-space: nowrap; font: inherit; }
-.m-b3u__hero small { margin-inline-start: 2px; font: 600 max(11px, calc(var(--vh) * .4))/1 var(--m-font-display); letter-spacing: 0; opacity: .75; }
-.m-b3u__rest { max-width: 100%; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; } .m-b3u.m-tile--tonal .m-b3u__rest { color: var(--on-tk-c); opacity: .85; }
-.m-b3u__state { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; }
+.m-b3u__hero small { margin-inline-start: 2px; font: 600 max(11px, calc(var(--vh) * .4))/1 var(--m-font-display); letter-spacing: 0; }
+.m-b3u__rest { max-width: 100%; font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); overflow-wrap: anywhere; } .m-b3u.m-tile--tonal .m-b3u__rest { color: var(--on-tk-c); }
+.m-b3u__state { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; font: var(--m-tile-text-13-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); overflow-wrap: anywhere; }
 .m-b3u__state.is-update { align-self: flex-start; padding: 5px 6px 5px 12px; border-radius: 16px; background: color-mix(in srgb, var(--on-tk-c) 16%, transparent); color: var(--on-tk-c); font: var(--m-tile-text-13-strong); }
 .m-b3u__state .m-icon { width: 16px; height: 16px; flex: none; }
 
@@ -117,7 +117,7 @@
 .m-tgauge__stagebar { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; background: var(--md-sys-color-secondary-container); }
 .m-tgauge__stagebar > i { min-width: 3px; border-radius: 2px; } .m-tgauge__stagebar > i.is-rest { background: transparent; min-width: 0; }
 .m-tgauge__stagelist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 12px; }
-.m-tgauge__stagelist li { display: flex; align-items: baseline; gap: 5px; min-width: 0; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-tgauge__stagelist li { display: flex; align-items: baseline; gap: 5px; min-width: 0; font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
 .m-tgauge__stagelist li > i { width: 8px; height: 8px; border-radius: 50%; flex: none; align-self: center; } .m-tgauge__stagelist li > span { min-width: 0; overflow-wrap: anywhere; } .m-tgauge__stagelist li > b { margin-inline-start: auto; font-weight: 600; color: var(--md-sys-color-on-surface); white-space: nowrap; }
 .m-tgauge__stagelist li.is-frame > i { background: transparent; box-shadow: inset 0 0 0 2px var(--md-sys-color-on-surface-variant); }
 .m-tgauge__stagebar > i.is-s0, .m-tgauge__stagelist li > i.is-s0 { background: color-mix(in srgb, var(--tk) 38%, var(--md-sys-color-secondary-container)); }
