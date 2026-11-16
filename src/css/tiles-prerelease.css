@@ -1,0 +1,136 @@
+/* Overview tiles, round of the 2026.1114 test build: faults found on a real window and not by the fit gates. Loaded last. */
+
+.m-tgauge--session-time .m-tgauge__cap { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis; text-align: start; max-width: 100%; overflow-wrap: anywhere; } .m-tgauge--session-time .m-tgauge__cap { font-size: 13px; line-height: 16px; }
+
+/* 帧时间占用 and 温度: a closed ring from the top; no stub of the track is left on one side */
+.m-tgauge--budget .m-tgauge__ring, .m-tgauge--temperature .m-tgauge__ring { aspect-ratio: 1; }
+
+/* 正在串流到: the client's name wraps to two lines and ends in an ellipsis; the glyph is a watermark behind it */
+.m-b2sc .m-b2plate b, .m-dash__cell .m-b2sc .m-b2plate b { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal !important; overflow: hidden !important; text-overflow: ellipsis !important; overflow-wrap: anywhere; line-clamp: 2; max-height: 2.4em; font-size: min(var(--pv, 19px), 17px); }
+.m-b2sc .m-b2plate small { max-width: 100%; }
+.m-b2sc.is-s .m-b2plate b, .m-dash__cell .m-b2sc.is-s .m-b2plate b { font-size: 13px; display: block !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; max-height: none; overflow-wrap: break-word; line-height: 1.15; }
+
+/* 当前在线: the ring of the streaming device keeps its 5 px outside the tile's clip */
+.m-calo.is-s .m-calo__rings { margin: auto 0 8px; padding-left: 5px; } .m-calo.is-s .m-calo__rings li { width: 34px; height: 34px; } .m-calo.is-s .m-calo__count { margin-top: 0; } .m-calo.is-s .m-calo__count.m-tnum--s { --tn: 42px; }
+
+/* (the clover of 码率 (session) follows the one rule of the background shapes below) 码率 (session) at 方形: the clover behind the figure is smaller and fainter so it never lies over the digits */
+
+/* 主机延迟, 丢包, 丢帧: the curve takes the lower part, the figure and its caption keep the upper part */
+.m-tstream:is(.m-tstream--latency, .m-tstream--loss, .m-tstream--dropped):is(.is-s, .is-m) { --tile-bleed: 38%; }
+.m-tstream .m-tstream__top { position: relative; z-index: 1; }
+/* 帧率 and 码率 at 大: the curve fills the height of the tile, the figure and its numbers lie over it, so the tile has no empty middle */
+.m-tstream.is-l { --tile-bleed: 100%; }
+
+/* 帧率 and 码率 at 大: the figure stands in the middle of the free height, over the curve; the numbers of the session stay at the foot */
+.m-tstream.is-l .m-tstream__top { flex: 1 1 auto; align-items: center; margin-top: 0; }
+.m-tstream.is-l { justify-content: flex-start; }
+/* 帧时间占用 and 温度: the figure is smaller than the ring's hole, its unit inside the ring too */
+
+/* 提示 (the tip strip) in a narrow window: the strip keeps its icon and gives the room of its label to the text, so the two lines of the tip stay inside their plate */
+@container (max-width: 399.98px) { .m-b3s--tip .m-calq__title { font-size: 0; gap: 0; } .m-b3s--tip .m-b3s__tip { padding-inline: 14px; } }
+/* 组件 at 方形: the state (「未安装」) has the whole plate; the glyph repeats the one of the header, so it is not drawn here */
+.m-b2comp.is-s .m-b2plate .m-b2glyph { display: none; }
+.m-b2comp .m-b2__state b { white-space: nowrap; }
+
+/* 主机延迟, 帧率, 码率 at 中: the curve is drawn right of the figure, so its line never runs through the caption under the figure */
+.m-calm.is-m .m-calm__chart { left: 46%; }
+.m-tstream:is(.m-tstream--latency, .m-tstream--loss, .m-tstream--dropped).is-m > .m-tile__bleed { left: 46%; }
+
+/* the M3 Expressive slider inside a tile: the fill is the theme's container colour (not the flat on-primary white), the handle keeps the primary, the end of the track has the stop dot of the spec,
+   and the ticks of a scale are dots, not bars */
+.m-tile .m-slider { --md-sys-color-track: var(--md-sys-color-primary-container); }
+.m-tile .m-slider__handle { background: var(--md-sys-color-primary); }
+.m-tile .m-slider__seg:not(.m-slider__seg--active)::after { content: ''; position: absolute; right: 6px; top: 50%; width: 4px; height: 4px; border-radius: 50%; transform: translateY(-50%); background: var(--md-sys-color-primary); opacity: .9; }
+.m-tile .m-slider__mark { width: 4px; height: 4px; border-radius: 50%; background: var(--md-sys-color-on-surface-variant); opacity: .6; }
+
+/* 本主机 at 中 and 大: the band of the stream takes the room that is left in the tile (it stops at 150 px in the base rule), so a two-row tile has no empty lower half */
+.m-calh:is(.is-m, .is-l) .m-calh__band { max-height: 240px; }
+
+/* the live setting tiles keep the full M3 Expressive slider at every height (MSlider size m, 40 px track): at one unit tall (中) the note under the name gives its line to the slider, and the rows of a taller
+   tile share the height by their content so the label of one row is never under the slider of the row above */
+.m-rc--live.is-m .m-rc__row.is-hv .m-rc__text small { display: none; }
+.m-rc--live.is-l .m-rc__row.is-hv:not(:first-child) .m-rc__text small { display: none; }
+.m-rc--live .m-rc__rows { grid-auto-rows: auto; align-content: space-between; gap: 6px 0; padding: 8px 0 0; }
+.m-rc--live .m-rc__row.is-hv { padding: 0 2px; align-content: center; row-gap: 4px; }
+.m-rc--live .m-rc__row.is-hv .m-rc__ctl { flex: 1 1 100%; min-height: 44px; }
+.m-rc--live.is-m .m-rc__big { font-size: 32px; line-height: 36px; }
+
+/* 应用, 最近游戏 and 正在玩 at 方形: the picture is the whole tile (bold, edge to edge) with the name on the scrim at the foot; the host's desktop.png has its monitor at 20-49 % and the word 「DESKTOP」 at 54-63 % of its height:
+   it is placed so the whole monitor and the whole word show above the name, not cut at the top and not under the words */
+.m-tile.m-b2recent.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'], .m-tile.m-b2apps.is-s .m-b2art .m-tcover.has-art[style*='/boxart/desktop.png'], .m-caln.is-s .m-caln__art.has-art[style*='desktop.png'] { background-position: 50% 72%; }
+.m-rc--live.is-m .m-rc__rows { align-content: end; }
+/* 编码器 with the budget ring: the ring is the picture, no shape behind it */
+.m-tenc.is-m .m-tenc__budget { width: 92px; }
+/* 应用 at 方形: the name is the one line of words on the picture, the tile's title stays for assistive technology (as at 最近游戏) */
+.m-tile.m-b2apps.is-s > .m-calm__head { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* 正在玩, 应用 and 最近游戏 at 方形: the words on the poster are compact (name 16 px, the line under it 12 px) so the poster's own word stays above them at every square size */
+.m-caln.is-s .m-caln__text { bottom: 10px; gap: 1px; } .m-caln.is-s .m-caln__name { font-size: 16px; line-height: 20px; } .m-caln.is-s .m-caln__sub { font-size: 11.5px; line-height: 14px; }
+.m-tile.m-b2recent.is-s .m-b2__name, .m-tile.m-b2apps.is-s .m-b2__name { --b2n: 16px; line-height: 20px; } .m-tile.m-b2recent.is-s .m-b2__cap { margin: 0; font-size: 11.5px; line-height: 14px; }
+
+/* 滑块 pin, the smallest slider tile (one slim row): the tile is the control. The name in bold at the start, the full M3 Expressive slider (40 px track, the tile's glyph inside its start, the word for the
+   lowest position written in the empty track) filling the rest of the row, the value in display type at the end; the handle has its own room inside the row, nothing is cut by the tile's corners */
+.m-b3pin--slider { --tile-pad: 8px 20px 8px 22px; flex-direction: row; align-items: center; gap: 14px; }
+.m-b3pin--slider > .m-calm__head { flex: 0 1 auto; max-width: 34%; min-width: 0; } .m-b3pin--slider > .m-calm__head .m-calm__title { font: 600 15px/18px var(--m-font-display); color: var(--md-sys-color-on-surface); white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+.m-b3pin--slider .m-b3pin__slider { flex: 1 1 0; min-width: 110px; padding-inline: 4px; }
+.m-b3pin--slider .m-b3pin__val { flex: none; min-width: 3ch; text-align: end; font: 600 22px/26px var(--m-font-display); color: var(--md-sys-color-primary-text); }
+
+/* 串流时长: the time is the tile. Tabular condensed digits sized to the width the tile gives them (4 characters fill it, 7 shrink to fit), the client under them; at 中 the digits are on the left and the client beside them */
+.m-tgauge--session-time .m-tgauge__clock { flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 4px; padding-bottom: 2px; container-type: size; min-width: 0; }
+.m-tgauge--session-time .m-tgauge__clock .m-tnum { --tn: clamp(30px, min(calc(100cqw / (var(--chars, 4) * 0.47)), 58cqh), 96px); max-width: 100%; --tn-wght: 700; flex: 0 1 auto; min-height: 0; }
+.m-tgauge--session-time .m-tgauge__clock .m-tgauge__cap { flex: none; }
+.m-tgauge--session-time.is-m .m-tgauge__clock { flex-direction: row; align-items: center; justify-content: flex-start; gap: 18px; }
+.m-tgauge--session-time.is-m .m-tgauge__clock .m-tnum { --tn: clamp(40px, min(calc(58cqw / (var(--chars, 4) * 0.4)), 80cqh), 112px); flex: none; }
+
+/* 帧时间占用 at 中: the ring on the left, the two numbers it is made of on the right, and the latency curve against the frame time (dashed) in the lower right, so the right half has something to say */
+.m-tgauge--budget.is-m .m-tgauge__side { flex: 1; min-width: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 6px; }
+.m-tgauge__facts { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+.m-tgauge__facts > div { min-width: 0; } .m-tgauge__facts dt { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; } .m-tgauge__facts dd { margin: 2px 0 0; font: 600 22px/26px var(--m-font-display); color: var(--md-sys-color-on-surface); white-space: nowrap; }
+.m-tgauge--budget.is-m .m-tgauge__history { left: 42%; --tile-bleed: 46%; }
+
+/* 串流历史 at 中: the number and its caption on the left, the 30 days as a calendar of bigger cells on the right (it was one thin row of dots under the number, the right half empty) */
+.m-tfacts--session-heat.is-m { display: grid; grid-template-columns: minmax(0, 44%) minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 20px; }
+.m-tfacts--session-heat.is-m > .m-tile__head, .m-tfacts--session-heat.is-m > header { grid-column: 1; grid-row: 1; }
+.m-tfacts--session-heat.is-m > .m-tfacts__heatrow { grid-column: 1; grid-row: 2; align-self: end; margin: 0; }
+.m-tfacts--session-heat.is-m > .m-tfacts__heat { grid-column: 2; grid-row: 1 / span 2; margin: 0; align-self: center; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+
+/* 帧率: the curve runs behind the number; a soft halo of the tile's own colour keeps the digits readable where the line passes them */
+.m-tstream--fps .m-tnum__v, .m-tstream--stream-fps .m-tnum__v { text-shadow: 0 0 10px color-mix(in srgb, var(--m-card-solid, var(--md-sys-color-surface-container)) 85%, transparent), 0 0 3px color-mix(in srgb, var(--m-card-solid, var(--md-sys-color-surface-container)) 70%, transparent); }
+
+/* 版本: the date of the build is the hero (the build number small after it, a suffix such as 「杂鱼」 on a line of its own), one status line under it. Whatever the version string is it stays inside the tile:
+   the hero's size follows its widest line, a text that is no version shrinks to the width */
+.m-b3u { --tile-pad: 12px 14px; gap: 3px; justify-content: flex-start; }
+.m-b3u__hero { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; max-width: 100%; min-width: 0; --vh: clamp(13px, min(calc(100cqw / (var(--chars, 5) * 0.6)), calc((100cqh - 24px - 30px - var(--rl, 0) * 15px - 12px) / 2.1)), 31px); font: 700 var(--vh)/1 var(--m-font-display); letter-spacing: -.02em; }
+.m-b3u__hero > b { display: block; max-width: 100%; white-space: nowrap; font: inherit; }
+.m-b3u__hero small { margin-inline-start: 2px; font: 600 max(11px, calc(var(--vh) * .4))/1 var(--m-font-display); letter-spacing: 0; opacity: .75; }
+.m-b3u__rest { max-width: 100%; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; } .m-b3u.m-tile--tonal .m-b3u__rest { color: var(--on-tk-c); opacity: .85; }
+.m-b3u__state { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; }
+.m-b3u__state.is-update { align-self: flex-start; padding: 5px 6px 5px 12px; border-radius: 16px; background: color-mix(in srgb, var(--on-tk-c) 16%, transparent); color: var(--on-tk-c); font: var(--m-tile-text-13-strong); }
+.m-b3u__state .m-icon { width: 16px; height: 16px; flex: none; }
+
+/* an empty small tile (最近操作 before anything was used): the title, the line and the button are compact so the stack stays under the glyph of the corner and never reaches it */
+.m-tempty--s .m-tempty__text { gap: 5px; max-width: 100%; }
+.m-tempty--s .m-tempty__line { font-size: 15px; line-height: 19px; }
+.m-tempty--s .m-tempty__act { height: 32px; padding: 0 14px; }
+
+/* 帧时间占用 at 中 with the host's stages: one bar for the frame budget (the stages in order, the free rest of the frame as the track) and the stages with their milliseconds under it, the frame time last */
+.m-tgauge--budget.is-m .m-tgauge__side--stages { justify-content: center; gap: 8px; padding-top: 2px; }
+.m-tgauge__stagebar { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; background: var(--md-sys-color-secondary-container); }
+.m-tgauge__stagebar > i { min-width: 3px; border-radius: 2px; } .m-tgauge__stagebar > i.is-rest { background: transparent; min-width: 0; }
+.m-tgauge__stagelist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 12px; }
+.m-tgauge__stagelist li { display: flex; align-items: baseline; gap: 5px; min-width: 0; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-tgauge__stagelist li > i { width: 8px; height: 8px; border-radius: 50%; flex: none; align-self: center; } .m-tgauge__stagelist li > span { min-width: 0; overflow-wrap: anywhere; } .m-tgauge__stagelist li > b { margin-inline-start: auto; font-weight: 600; color: var(--md-sys-color-on-surface); white-space: nowrap; }
+.m-tgauge__stagelist li.is-frame > i { background: transparent; box-shadow: inset 0 0 0 2px var(--md-sys-color-on-surface-variant); }
+.m-tgauge__stagebar > i.is-s0, .m-tgauge__stagelist li > i.is-s0 { background: color-mix(in srgb, var(--tk) 38%, var(--md-sys-color-secondary-container)); }
+.m-tgauge__stagebar > i.is-s1, .m-tgauge__stagelist li > i.is-s1 { background: color-mix(in srgb, var(--tk) 58%, var(--md-sys-color-secondary-container)); }
+.m-tgauge__stagebar > i.is-s2, .m-tgauge__stagelist li > i.is-s2 { background: var(--md-sys-color-tertiary); }
+.m-tgauge__stagebar > i.is-s3, .m-tgauge__stagelist li > i.is-s3 { background: var(--tk); }
+.m-tgauge__stagebar > i.is-s4, .m-tgauge__stagelist li > i.is-s4 { background: color-mix(in srgb, var(--md-sys-color-on-surface) 55%, var(--md-sys-color-secondary-container)); }
+.m-tgauge__stagelist li.is-frame { grid-column: 1 / -1; margin-top: 1px; }
+.m-tgauge--budget.is-m .m-tgauge__side--stages { gap: 6px; padding-top: 0; }
+.m-tgauge__stagebar { flex: none; } .m-tgauge__stagelist { flex: none; gap: 2px 12px; } .m-tgauge__stagelist li { line-height: 14px; }
+
+/* the shapes behind the tiles (the cookie of 编码器 and 网卡, the gem of 显卡, the squircle of 系统, the sunny of HDR, the clover of 码率): one rule, the one the 编码器 tile had. The shape is 104 px (70 % of a square tile), 10 px in from the right
+   edge and 8 px down from the top, inside the tile; 大 is 144 px, the glyph in it 46 % of the shape (48 px, 66 px at 大), the same for every tile. Its tone stays what it is: tonal (the accent at 15 %), solid where the shape is a state (HDR on). Nothing of it is bigger than that. */
+.m-tile .m-tile__corner { top: 0; right: 0; translate: 10% 8%; width: 104px; height: 104px; opacity: 1; }
+.m-tile .m-tile__corner > .m-icon { font-size: 48px; }
+.m-tile[data-size='l'] .m-tile__corner, .m-tile[data-size='xl'] .m-tile__corner { width: 144px; height: 144px; } .m-tile[data-size='l'] .m-tile__corner > .m-icon, .m-tile[data-size='xl'] .m-tile__corner > .m-icon { font-size: 66px; }

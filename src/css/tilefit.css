@@ -49,7 +49,6 @@
 /* (TileInfoB3 caps the numeral at 17 % of the tile's height) */
 
 /* 8. the centre of a ring stays above the layer of the running wave (a layer with will-change paints over a plain grid item) */
-.m-tring__centre { position: relative; z-index: 1; }
 
 /* 9. 大 host card: the row of chips wraps and the chips that do not fit whole are taken out (data-fit-rows, fitRows.js), never scrolled or clipped by a max-height; a button of a tile gives up a few pixels of its height before the tile cuts it */
 .m-b2__btn { flex: 0 1 36px; min-height: 26px; }

@@ -78,14 +78,17 @@ test('tilefit.css is part of all.css and lifts the ellipsis of the names of a ti
   assert.match(f, /--tn-k/); assert.match(f, /@container m-calq/); assert.match(f, /overflow-x: auto/)
   assert.match(src('vue/MTileNumeral.vue'), /--tn-k/)
 })
-test('the wave of the session ring runs on a transform of its own, as slowly as the wavy progress bar, and stops under reduced motion', () => {
-  const k = css('tilekit.css')
-  assert.match(k, /\.m-tring__spin > svg \{[^}]*animation: m-tring-run 1\.1s linear infinite/)
-  assert.match(k, /@keyframes m-tring-run \{ to \{ transform: rotate\(/)
-  assert.match(k, /prefers-reduced-motion: reduce\)[^\n]*\.m-tring__spin > svg \{ animation: none/)
-  assert.match(k, /html\[data-motion='reduced'\] \.m-tring__spin > svg \{ animation: none/)
-  assert.match(src('vue/tiles/TileGauge.vue'), /:waves="18" spin/)
-  assert.doesNotMatch(src('vue/MTileRing.vue'), /setInterval|requestAnimationFrame/, 'no script drives the wave')
+test('every ring is the one Material 3 circular progress indicator (MProgressRing): the old hand-made arcs are gone and the wrappers only delegate', () => {
+  for (const f of ['MTileRing', 'MRing', 'MArcGauge', 'MGauge']) {
+    const v = src(`vue/${f}.vue`)
+    assert.match(v, /<MProgressRing\b/, f); assert.doesNotMatch(v, /<circle\b|stroke-dasharray|<path\b/, `${f} draws no arc of its own`)
+  }
+  const k = css('tilekit.css'), c = css('charts.css'), e = css('expressive.css')
+  assert.doesNotMatch(k, /m-tring/); assert.doesNotMatch(c, /m-agauge__(zone|fill|tick)/); assert.doesNotMatch(e, /\.m-ring__arc/)
+  const p = css('progressring.css')
+  assert.match(p, /\.m-pring__track, \.m-pring__arc \{ fill: none; stroke-linecap: round;/, 'round caps')
+  assert.match(p, /--mpr-track: var\(--md-sys-color-secondary-container\)/, 'the track is secondaryContainer')
+  assert.match(p, /\.m-pring \{[^}]*container-type: size/, 'a numeral is set in the ring\'s own units')
 })
 
 import { fitScale, FIT_MIN, FIT_SELECTOR } from "../src/vue/fitText.js"
@@ -121,7 +124,7 @@ test("the empty state at 方形 follows the tile and the words stay clear of its
   assert.match(info, /<span v-else-if="gen" class="m-b3n__pic m-b3n__gen m-b3n__plate"/)
   assert.match(f, /\.m-b3n__plate \{ container-type: size;/) // the plate: the glyph of what the post is in a shape, not a random gradient
   assert.doesNotMatch(info, /announcementHeroStyle/)
-  assert.match(info, /max\(24px, min\(\$\{verSize\}, 17cqh\)\)/)
+  assert.match(fs.readFileSync(new URL("../src/css/tiles-prerelease.css", import.meta.url), "utf8"), /--vh: clamp\(13px, min\(calc\(100cqw \/ \(var\(--chars, 5\) \* 0\.6\)\), calc\(\(100cqh - /) // the numeral follows the width of its widest line and the height the other lines leave
 })
 test("realSession is exported for the panel and the Web UI", async () => {
   assert.match(fs.readFileSync(new URL("../src/vue/index.js", import.meta.url), "utf8"), /export \{ realSession, isSessionClient, onlineClients \} from "\.\/clientsLive\.js"/)
@@ -135,7 +138,7 @@ test("the 大 host card's chips wrap and give up what does not fit (data-fit-row
   assert.doesNotMatch(f, /\.m-calh__fchips \{[^}]*(overflow-x: auto|max-height: 28px)/)
   assert.match(fs.readFileSync(new URL("../src/vue/tiles/cal/CalHero.vue", import.meta.url), "utf8"), /class="m-calh__fchips" data-fit-rows/)
   assert.match(f, /\.m-b2__btn \{ flex: 0 1 36px; min-height: 26px; \}/)
-  assert.match(f, /\.m-tring__centre \{ position: relative; z-index: 1; \}/)
+  assert.match(css('progressring.css'), /\.m-pring__centre \{[^}]*z-index: 1;/)
   assert.match(fs.readFileSync(new URL("../src/vue/tiles/TileInfoB3.vue", import.meta.url), "utf8"), /<img data-bleed class="m-b3vi__img"/)
 })
 
@@ -203,4 +206,11 @@ test("integration round 2026-11-11: 上次串流 at 中 is compact with or witho
   assert.ok(FIT_SELECTOR.includes(".m-b2empty .m-b2__btn"))
   assert.equal(f.split(".m-dash__cell :is(.m-calm__title, .m-b2empty .m-b2__btn,").length - 1, 2, "nowrap and the wrap fallback both list it")
   assert.match(fs.readFileSync(new URL("../src/css/tiles-cal.css", import.meta.url), "utf8"), /\.m-calh--sq \.m-calh__name \{ font-size: min\(var\(--hn, 28px\), max\(20px, 17\.5cqw\)\); \}/)
+})
+test('every background shape of a tile is one rule: 104 px, 10 px in from the right and 8 px down from the top, the glyph at 46 % of it; 144 px at 大', () => {
+  const c = css('tiles-prerelease.css')
+  assert.match(c, /\.m-tile \.m-tile__corner \{ top: 0; right: 0; translate: 10% 8%; width: 104px; height: 104px; opacity: 1; \}/)
+  assert.match(c, /\.m-tile \.m-tile__corner > \.m-icon \{ font-size: 48px; \}/)
+  assert.match(c, /\.m-tile\[data-size='l'\] \.m-tile__corner[^}]*\{ width: 144px; height: 144px; \}/)
+  for (const f of ['tilefit-real.css', 'tiles-metrics.css']) assert.doesNotMatch(css(f), /\.m-(tenc--encoder|tnet)(__corner)?[^{]*\.m-tile__corner|\.m-tnet__corner \{/, `${f}: no rule of its own for a shape`)
 })

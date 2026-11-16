@@ -51,14 +51,14 @@ const rows = computed(() => d.value.rows || [])
       </div>
     </template>
     <template v-else>
-      <MTileShape class="m-tile__corner" :icon="d.icon" shape="cookie" :size="size === 's' ? '150px' : '190px'" tone="tonal" />
+      <MTileShape v-if="!(d.ring && size !== 's')" class="m-tile__corner" :icon="d.icon" shape="cookie" :size="size === 's' ? '150px' : '190px'" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tenc__main">
         <div class="m-tenc__word">
           <MTileNumeral :value="d.value" :size="size === 's' ? 's' : 'm'" :caption="d.sub" />
         </div>
         <template v-if="size !== 's'">
-          <MTileRing v-if="d.ring" class="m-tenc__budget" :value="d.ring.value" :stroke="10"><MTileNumeral :value="d.ring.label" size="s" :caption="d.ring.caption" /></MTileRing>
+          <MTileRing v-if="d.ring" class="m-tenc__budget" :value="d.ring.value"><MTileNumeral :value="d.ring.label" size="s" :caption="d.ring.caption" /></MTileRing>
           <div v-else-if="d.chips?.length" class="m-tenc__chips"><MTileChip v-for="c in d.chips" :key="c.label" :label="c.label" :tone="c.tone === 'ok' ? 'ok' : ''" /></div>
         </template>
       </div>

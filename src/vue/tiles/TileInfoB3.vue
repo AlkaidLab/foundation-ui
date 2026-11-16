@@ -19,6 +19,7 @@ import { coverOk } from '../coverOk.js'
 import { announcementHero } from '../../announcements/hero.js'
 import { b3Texts, fill } from './b3Texts.js'
 import { designProps } from './tileData.js'
+import { isVersionLike, versionParts } from './versionParts.js'
 
 const props = defineProps(designProps)
 const emit = defineEmits(['act'])
@@ -55,12 +56,15 @@ const gen = computed(() => {
 const kindLabel = (k) => d.value.tabs?.find((t) => t.id === k)?.label || ''
 const rest = computed(() => posts.value.filter((p) => p !== lead.value).slice(0, size.value === 'xl' ? 6 : 3))
 const openPost = (p) => { if (p) act(p.hasText || !p.url ? 'news-open' : 'open-url', p.hasText || !p.url ? { id: p.id } : p.url) }
-// 版本: the catalogue's row holds the state ({ tone: 'warn' } and the newer version when an update is ready)
-const ver = computed(() => String(d.value.big || '').replace(/^v/i, ''))
-// a host's version can be 2026.1102.1: on two lines from the first dot, as large as the width of the tile allows
-const verLines = computed(() => { const v = ver.value, i = v.indexOf('.') + 1; return v.length > 7 && i ? [v.slice(0, i), v.slice(i)] : [v] })
-const verSize = computed(() => { const n = Math.max(...verLines.value.map((l) => l.length)); return verLines.value.length > 1 ? `${Math.min(40, Math.floor(240 / n))}px` : n > 5 ? `${Math.floor(240 / n)}px` : null })
-const newer = computed(() => (d.value.rows?.[0]?.tone === 'warn' ? String(d.value.rows[0].value || '').replace(/^v/i, '') : ''))
+// 版本: the catalogue's row holds the state ({ tone: 'warn' } and the update when one is ready). The Panel's update is a label (「有可用更新」), another host's a version: only a version is written out, the
+// state is ONE line either way. The version is split by level (versionParts.js): the date is the hero, the build number goes small after it, a suffix (「杂鱼」) is a line of its own.
+const vp = computed(() => versionParts(d.value.big))
+const heroChars = computed(() => (vp.value.main.length > 1 ? Math.max(vp.value.main[0].length, vp.value.main[1].length + 0.45 * vp.value.build.length) : Math.max(4, vp.value.main[0].length)))
+const hasUpdate = computed(() => d.value.rows?.[0]?.tone === 'warn')
+const updateVersion = computed(() => { const v = String(d.value.rows?.[0]?.value || '').replace(/^v/i, ''); return hasUpdate.value && isVersionLike(v) ? v : '' })
+// the state is one short line: 「已最新」, or 「有新版本」 / the Panel's label for an update; the version of the update is on the page the tile opens (a version in the pill would take the room of the hero)
+const stateText = computed(() => (!hasUpdate.value ? L.value.current : updateVersion.value ? fill(L.value.updateTo, { v: '' }).trim() : String(d.value.rows?.[0]?.title || '').trim() || fill(L.value.updateTo, { v: '' }).trim()))
+const restLines = computed(() => Math.ceil(vp.value.rest.length / 18))
 // 赞助
 const targets = computed(() => d.value.targets || [])
 // vivi
@@ -110,11 +114,12 @@ const part = hour < 5 ? 'night' : hour < 11 ? 'morning' : hour < 18 ? 'day' : 'e
   </section>
 
   <!-- 版本 -->
-  <section v-else-if="id === 'update'" class="m-tile m-cal m-calm m-b3u" data-size="s" :data-accent="newer ? 'tertiary' : 'ok'" :class="{ 'm-tile--tonal': !!newer }">
-    <button type="button" class="m-b3-hit" :aria-label="`${card.title} ${ver} · ${newer ? fill(L.updateTo, { v: newer }) : L.current}`" @click="act('detail')" />
-    <span class="m-calm__head"><MIcon :name="newer ? 'system_update_alt' : 'check_circle'" /><span class="m-calm__title">{{ card.title }}</span></span>
-    <span class="m-calm__value" :class="{ 'is-two': verLines.length > 1 }" :style="{ '--cv': `max(24px, min(${verSize}, 17cqh))` }"><b class="m-dnum">{{ verLines.join('\n') }}</b></span>
-    <small class="m-b3u__state">{{ newer ? fill(L.updateTo, { v: newer }) : L.current }}</small>
+  <section v-else-if="id === 'update'" class="m-tile m-cal m-calm m-b3u" data-size="s" :data-accent="hasUpdate ? 'tertiary' : 'ok'" :class="{ 'm-tile--tonal': hasUpdate }" :style="{ '--chars': heroChars, '--rl': restLines }">
+    <button type="button" class="m-b3-hit" :aria-label="`${card.title} ${vp.main.join('')}${vp.build} ${vp.rest} · ${stateText}`" @click="act('detail')" />
+    <span class="m-calm__head"><MIcon :name="hasUpdate ? 'system_update_alt' : 'check_circle'" /><span class="m-calm__title">{{ card.title }}</span></span>
+    <span class="m-b3u__hero m-dnum"><b v-if="vp.main.length > 1">{{ vp.main[0] }}</b><b>{{ vp.main[vp.main.length - 1] }}<small v-if="vp.build">{{ vp.build }}</small></b></span>
+    <small v-if="vp.rest" class="m-b3u__rest">{{ vp.rest }}</small>
+    <small class="m-b3u__state" :class="{ 'is-update': hasUpdate }">{{ stateText }}<MIcon v-if="hasUpdate" name="chevron_right" /></small>
   </section>
 
   <!-- 小贴士 -->

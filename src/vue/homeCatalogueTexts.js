@@ -7,7 +7,7 @@ const BASE = Object.freeze({
   en: {
     gGroup_all: 'All', on: 'On', off: 'Off', 'c_ctl-vdd': 'Foundation Virtual Display', 
     c_latency: 'Host latency', c_loss: 'Packet loss', s_loss: 'Only with adaptive bitrate on', c_dropped: 'Dropped frames', 
-    'c_session-time': 'Streaming for', 'c_current-app': 'Now playing', c_budget: 'Frame budget', s_budget: 'Host latency against the frame time',
+    'c_session-time': 'Streaming for', 'c_current-app': 'Now playing', c_budget: 'Frame budget', frameTime: 'Frame time', stageCapture: 'Capture', stageConvert: 'Convert', stageQueue: 'Queue', stageEncode: 'Encode', stageSend: 'Send', s_budget: 'Host latency against the frame time',
     'c_last-session': 'Last session', 'c_session-heat': 'Streaming history', 's_session-heat': 'Minutes per day', 'c_recent-games': 'Recently played', 
     'c_clients-paired': 'Paired clients', 'c_clients-online': 'Online now', 's_clients-online': 'Paired clients that are streaming', c_covers: 'Library', 
     c_codecs: 'Codecs', c_hdr: 'HDR', 'c_audio-out': 'Audio', 'c_gamepad-status': 'Gamepad', 
@@ -23,7 +23,7 @@ const BASE = Object.freeze({
   zh: {
     gGroup_all: '全部', on: '开', off: '关', 'c_ctl-vdd': '基地虚拟显示器', 
     c_latency: '主机延迟', c_loss: '丢包率', s_loss: '仅在开启自适应码率时有', c_dropped: '丢帧', 
-    'c_session-time': '串流时长', 'c_current-app': '正在玩', c_budget: '帧时间占用', s_budget: '主机延迟与帧时间之比',
+    'c_session-time': '串流时长', 'c_current-app': '正在玩', c_budget: '帧时间占用', frameTime: '帧时间', stageCapture: '捕获', stageConvert: '转换', stageQueue: '排队', stageEncode: '编码', stageSend: '发送', s_budget: '主机延迟与帧时间之比',
     'c_last-session': '上次串流', 'c_session-heat': '串流历史', 's_session-heat': '每天的分钟数', 'c_recent-games': '最近玩过', 
     'c_clients-paired': '已配对客户端', 'c_clients-online': '当前在线', 's_clients-online': '正在串流的已配对客户端', c_covers: '游戏库', 
     c_codecs: '编解码', c_hdr: 'HDR', 'c_audio-out': '音频', 'c_gamepad-status': '手柄', 

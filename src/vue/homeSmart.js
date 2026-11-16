@@ -202,3 +202,14 @@ export function purposeOf(id, group = '') {
 }
 /** The sections of `count` places for the purposes: with fewer places than purposes, neighbours share one (two places: live and controls | clients and system). */
 export const sectionIndexOf = (purpose, count) => (count >= 4 ? Math.min(purpose, count - 1) : count === 3 ? Math.min(purpose, 2) : count === 2 ? (purpose < 2 ? 0 : 1) : 0)
+
+// The tiles that fill the empty slots of a window (dashDock: fillCards): the catalogue's tiles that have data and are not on the page yet, the ones that say most about the state first.
+// Streaming: the stream's own numbers, the host's load, the network and the encoder. Idle: the host and the system, the applications, the devices. Every one is drawn at a standard size.
+const FILL_LIVE = ['loss', 'dropped', 'latency', 'budget', 'cpu', 'gpu', 'memory', 'net', 'encoder', 'load', 'temperature', 'memory-trend', 'stream-resolution', 'stream-client', 'stream-fps', 'stream-bitrate', 'stream-vdd', 'stream-mic', 'vdd', 'sw:mic', 'devices', 'sys', 'clients-online', 'clients-paired', 'codecs', 'hdr', 'audio-out']
+const FILL_IDLE = ['cpu', 'gpu', 'memory', 'net', 'sys', 'encoder', 'vdd', 'sw:mic', 'apps', 'recent-games', 'devices', 'clients-paired', 'download', 'last-session', 'session-heat', 'load', 'temperature', 'memory-trend', 'host-ports', 'host-name', 'host-adapter', 'host-encryption', 'codecs', 'hdr', 'audio-out', 'gamepad-status', 'usb-devices', 'covers', 'public-address', 'reach']
+/** The ids in the order they fill slots in `scenario`; ids the lists do not name come after them, in the catalogue's order. */
+export function fillOrder(scenario, ids = []) {
+  const named = scenario === 'live' ? FILL_LIVE : FILL_IDLE
+  const rank = new Map(named.map((id, i) => [id, i]))
+  return [...ids].sort((a, c) => (rank.has(a) ? rank.get(a) : 1000 + ids.indexOf(a)) - (rank.has(c) ? rank.get(c) : 1000 + ids.indexOf(c)))
+}
