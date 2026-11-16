@@ -50,7 +50,7 @@ const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTon
     <template v-else-if="id === 'stream-bitrate' || id === 'stream-fps'">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tstream__gauge">
-        <MTileRing v-if="id === 'stream-fps' ? sfTarget : cap" class="m-tstream__ring" :value="(num(id === 'stream-fps' ? d.big : bigNum.v) ?? 0) / (id === 'stream-fps' ? sfTarget : cap)" :sweep="360" :wavy="id === 'stream-fps'" :stroke="11">
+        <MTileRing v-if="id === 'stream-fps' ? sfTarget : cap" class="m-tstream__ring" :value="(num(id === 'stream-fps' ? d.big : bigNum.v) ?? 0) / (id === 'stream-fps' ? sfTarget : cap)">
           <MTileNumeral :value="id === 'stream-fps' ? String(d.big || '') : bigNum.v" :unit="id === 'stream-fps' ? 'fps' : bigNum.u" size="s" />
         </MTileRing>
         <template v-else>
@@ -70,7 +70,7 @@ const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTon
     <template v-else-if="id === 'fps' && variant === 2">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tstream__body">
-        <MTileRing class="m-tstream__ring" :value="target ? (num(d.value) ?? 0) / target : 1" :stroke="11">
+        <MTileRing class="m-tstream__ring" :value="target ? (num(d.value) ?? 0) / target : 1">
           <MTileNumeral :value="d.value" :unit="d.unit" :size="size === 'l' ? 'l' : 's'" />
         </MTileRing>
         <div v-if="size !== 's'" class="m-tstream__side">

@@ -240,9 +240,6 @@ md-circular-progress, md-linear-progress { --md-circular-progress-size: 40px; }
 .m-stat__spark, .m-stat__gauge { flex: none; }
 .m-spark__line { fill: none; stroke: var(--md-sys-color-primary); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .m-spark__area { fill: color-mix(in srgb, var(--md-sys-color-primary) 14%, transparent); stroke: none; }
-.m-gauge__track { fill: none; stroke: var(--md-sys-color-surface-container-highest); stroke-width: 5; }
-.m-gauge__bar { fill: none; stroke: var(--md-sys-color-primary); stroke-width: 5; stroke-linecap: round; transition: stroke-dasharray var(--m-spring-default-effects-duration) var(--m-spring-default-effects); }
-.m-gauge__text { font: var(--m-label-medium); fill: var(--md-sys-color-on-surface); }
 
 /* ---- Info tooltip ---- */
 .m-info { position: relative; display: inline-flex; }

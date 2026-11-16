@@ -35,7 +35,7 @@ const others = computed(() => (d.value.rows || []).filter((r) => !r.main))
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tnet__body">
         <div class="m-tnet__hero">
-          <MTileRing v-if="p.wifi && p.signal !== null" class="m-tnet__signal" :value="p.signal / 100" :stroke="7" :wavy="false" />
+          <MTileRing v-if="p.wifi && p.signal !== null" class="m-tnet__signal" :value="p.signal / 100" />
           <MTileShape :icon="p.icon" shape="cookie" size="100%" tone="solid" />
         </div>
         <div class="m-tnet__text">

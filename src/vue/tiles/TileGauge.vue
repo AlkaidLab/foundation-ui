@@ -8,7 +8,7 @@ export const tileIds = ['temperature', 'load', 'budget', 'session-time']
 //     (a closed ring from the top: an open 270° gauge read as a ring broken on one side)
 //     方形: the gauge · 中: + the CPU and the GPU reading as two bars beside it
 //   延迟预算 (the same open gauge): the share of a frame's time the encoder takes, in the colour of its zone; 中 adds the latency curve beside it
-//   串流时长: the time the stream has run, as the display numeral and nothing else around it (a session has no length to fill a ring with); the client under it, when the session or a paired client names it
+//   串流时长: the time the stream has run, as the numeral in a ring that sweeps once a minute (a stopwatch face: the ring is the shared Material 3 circular progress indicator); the client under it, when the session or a paired client names it
 //   CPU 与 GPU (Stocks comparison, iStat's combined graph): both curves edge to edge over one scale, each number in its colour above them. 中 only.
 import { computed } from 'vue'
 import MTileHead from '../MTileHead.vue'
@@ -38,7 +38,7 @@ const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === und
     <template v-else-if="isTemp">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tgauge__body">
-        <MTileRing class="m-tgauge__ring" :value="num(d.value) ?? 0" :sweep="360" :wavy="false" :stroke="12">
+        <MTileRing class="m-tgauge__ring" :value="num(d.value) ?? 0">
           <MTileNumeral :value="d.centre" :unit="d.unit" size="s" />
         </MTileRing>
         <ul v-if="size !== 's' && readings.length" class="m-tgauge__bars">
@@ -49,7 +49,7 @@ const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === und
     <template v-else-if="isBudget">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tgauge__body">
-        <MTileRing class="m-tgauge__ring" :value="num(d.value) ?? 0" :sweep="360" :wavy="false" :stroke="12">
+        <MTileRing class="m-tgauge__ring" :value="num(d.value) ?? 0">
           <MTileNumeral :value="d.centre" :unit="d.unit" size="s" />
         </MTileRing>
         <div v-if="size !== 's'" class="m-tgauge__side"><span v-if="d.caption && d.caption !== card.title" class="m-tgauge__cap">{{ d.caption }}</span><MTileChart v-if="finite(d.spark).length > 1" class="m-tgauge__spark" :points="finite(d.spark)" kind="line" :dot="true" :window="40" /></div>
@@ -58,7 +58,9 @@ const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === und
     <template v-else-if="isTime">
       <MTileHead :icon="d.icon" :title="card.title" />
       <div class="m-tgauge__body m-tgauge__clock" :style="{ '--chars': String(d.centre || '').length || 4 }">
-        <MTileNumeral :value="d.centre" :size="size === 's' ? 'l' : 'xl'" />
+        <MTileRing class="m-tgauge__ring" :value="num(d.sweep) ?? 0">
+          <MTileNumeral :value="d.centre" size="s" />
+        </MTileRing>
         <span v-if="d.caption" class="m-tgauge__cap">{{ d.caption }}</span>
       </div>
     </template>

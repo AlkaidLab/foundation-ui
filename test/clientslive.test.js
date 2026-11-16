@@ -50,8 +50,10 @@ test("the host's 'unknown' is not a client name: the paired client of the certif
   assert.ok(!JSON.stringify(buildCatalogue({ session: { ...raw, client_uuid: '' }, clients, now: Date.now() }, T).data['stream-client'] ?? {}).includes('unknown'))
 })
 
-test('the 串流时长 tile is the time as the display numeral: no ring, no fake progress arc', () => {
+test('the 串流时长 tile is the time in a ring that sweeps once a minute (the shared Material 3 ring), not a fake share of an hour', () => {
   const v = fs.readFileSync(new URL('../src/vue/tiles/TileGauge.vue', import.meta.url), 'utf8')
   const time = /<template v-else-if="isTime">[\s\S]*?<\/template>/.exec(v)[0]
-  assert.match(time, /<MTileNumeral\b/); assert.doesNotMatch(time, /MTileRing/); assert.doesNotMatch(v, /HOUR_FLOOR|const hour\b/)
+  assert.match(time, /<MTileNumeral\b/); assert.match(time, /<MTileRing\b[^>]*:value="num\(d\.sweep\) \?\? 0"/); assert.doesNotMatch(v, /HOUR_FLOOR|const hour\b/)
+  const cat = fs.readFileSync(new URL('../src/vue/homeCatalogue.js', import.meta.url), 'utf8')
+  assert.match(cat, /sweep: \(s\.uptimeMs % 60000\) \/ 60000/)
 })

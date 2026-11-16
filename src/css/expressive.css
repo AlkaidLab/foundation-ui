@@ -270,7 +270,6 @@
 .m-tile__list span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-tile__spark { width: 100%; height: 56px; }
 .m-tile .m-spark__line { stroke: currentColor; } .m-tile .m-spark__area { fill: color-mix(in srgb, currentColor 14%, transparent); }
-.m-tile .m-gauge__track { stroke: color-mix(in srgb, currentColor 14%, transparent); } .m-tile .m-gauge__bar { stroke: currentColor; } .m-tile .m-gauge__text { fill: currentColor; }
 .m-tile-move { transition: transform var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
 .m-tile-enter-active { animation: m-pop-in var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; } .m-tile-leave-active { position: absolute; opacity: 0; transition: opacity 120ms linear; }
 .is-edit .m-tiles__cell { cursor: grab; animation: m-jiggle 2.4s ease-in-out infinite; } .is-edit .m-tiles__cell.is-drag { opacity: .5; cursor: grabbing; animation: none; }
@@ -302,10 +301,6 @@ html[data-motion='reduced'] .is-edit .m-tiles__cell { animation: none; }
 div.m-statuspill { cursor: default; } button.m-statuspill:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container-highest)); } button.m-statuspill:active { border-radius: 16px; }
 .m-statuspill__dot { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: var(--md-sys-color-on-surface); color: var(--md-sys-color-surface-container-highest); font-size: 18px; flex: none; } .m-statuspill__label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-statuspill--ok .m-statuspill__dot { background: var(--md-sys-color-success); color: var(--md-sys-color-on-success); } .m-statuspill--warn .m-statuspill__dot { background: var(--md-sys-color-warning); color: var(--md-sys-color-on-warning); } .m-statuspill--error .m-statuspill__dot { background: var(--md-sys-color-error); color: var(--md-sys-color-on-error); }
-.m-ring { position: relative; flex: none; } .m-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.m-ring__track { fill: none; stroke: color-mix(in srgb, currentColor 14%, transparent); } .m-ring__arc { fill: none; stroke-linecap: round; transition: stroke-dasharray var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
-.m-ring__arc--primary { stroke: var(--md-sys-color-primary); } .m-ring__arc--secondary { stroke: var(--md-sys-color-secondary); } .m-ring__arc--tertiary { stroke: var(--md-sys-color-tertiary); } .m-ring__arc--success { stroke: var(--md-sys-color-success); } .m-ring__arc--warn { stroke: var(--md-sys-color-warning); } .m-ring__arc--error { stroke: var(--md-sys-color-error); }
-.m-ring__center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
 .m-bar-thick { position: relative; overflow: hidden; height: 44px; border-radius: 22px; background: color-mix(in srgb, currentColor 14%, transparent); }
 .m-bar-thick__fill { position: absolute; inset: 0 auto 0 0; border-radius: 22px; background: var(--md-sys-color-primary); transition: width var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
 .m-bar-thick--secondary .m-bar-thick__fill { background: var(--md-sys-color-secondary); } .m-bar-thick--tertiary .m-bar-thick__fill { background: var(--md-sys-color-tertiary); } .m-bar-thick--success .m-bar-thick__fill { background: var(--md-sys-color-success); } .m-bar-thick--warn .m-bar-thick__fill { background: var(--md-sys-color-warning); } .m-bar-thick--error .m-bar-thick__fill { background: var(--md-sys-color-error); }

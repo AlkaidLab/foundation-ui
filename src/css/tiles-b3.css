@@ -150,7 +150,7 @@ html[data-motion='reduced'] :is(.m-b3a, .m-b3t, .m-b3s, .m-b3d) * { transition: 
 .m-tgauge__spark { flex: 1 1 0; min-height: 36px; max-height: 70px; }
 .m-tgauge--session-time .m-tgauge__body { flex-direction: column; justify-content: center; gap: 6px; } .m-tgauge--session-time .m-tgauge__ring { height: auto; flex: 1 1 0; min-height: 0; aspect-ratio: 1; }
 /* the numeral fits inside the wavy line: 0:18, 47:30 and 1:59:50 each get the size their width allows */
-.m-tgauge--session-time .m-tgauge__ring { container-type: size; } .m-tgauge--session-time .m-tring__centre { padding-top: 0; } .m-tgauge--session-time .m-tnum { --tn: min(30cqw, calc(118cqw / var(--chars, 4))); }
+.m-tgauge--session-time .m-tgauge__ring { container-type: size; } .m-tgauge--session-time .m-tnum { --tn: min(30cqw, calc(118cqw / var(--chars, 4))); }
 /* 远程访问 */
 .m-b3r.is-s .m-b3r__cap { margin-top: auto; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .m-b3r.is-m .m-b3e__lines { margin-top: 8px; } .m-b3r .m-b3e__lines li span { -webkit-line-clamp: 1; }
