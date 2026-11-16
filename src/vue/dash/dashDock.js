@@ -5,7 +5,7 @@ import { PURPOSES, fillOrder, purposeOf, sectionIndexOf, suggestions } from '../
 import { clientInUse, clientRecommendation, markClientRec, readClientRec } from '../clientPrompt.js'
 import { starClientInUse } from '../starCard.js'
 import { slotEnter, slotLeave } from '../promptSlot.js'
-import { UNIT_GAP, hasNoData, sizesOf } from '../homeSizes.js'
+import { UNIT_GAP, gridWidthOf, hasNoData, sizesOf } from '../homeSizes.js'
 import { effectiveClockSize } from '../../appearance/appearance.js'
 
 /** dashDock: one part of the home overview's setup (MHomeDash.vue); D is the shared scope of the parts, in the order they are made. */
@@ -243,7 +243,8 @@ export function useDashDock(D) {
   const placedOf = (id) => { for (const b of blocks.value) { const p = b.packed.placed.get(id); if (p) return p } return null }
   const cellStyle = (b, id) => { const p = b.packed.placed.get(id); return p ? { gridRow: `${p.row + 1} / span ${p.rows}`, gridColumn: `${p.col + 1} / span ${p.span}` } : {} }
   watch([blocks, width, tall], async () => { await nextTick(); measureTop() }, { flush: 'post' })
-  const blockStyle = (b) => (b.width ? { width: `${b.width}px`, maxWidth: '100%' } : undefined)
+  // the grid is as wide as its columns of the fixed unit and sits in the middle of the pane
+  const blockStyle = (b) => (b.unit ? { flex: '0 1 auto', width: `${gridWidthOf(b.units, b.unit)}px`, maxWidth: '100%' } : b.width ? { width: `${b.width}px`, maxWidth: '100%' } : undefined)
   const reasonOf = (id) => { const r = plan.value.reasons[id]; return r ? String(T.value[r.key] || '').replace('{n}', r.vars?.n ?? '') : '' }
   const whyRows = computed(() => plan.value.visible.map((id) => ({ id, title: cardById.value.get(id)?.title || id, icon: cardById.value.get(id)?.data?.icon || 'grid_view', reason: reasonOf(id) })))
   const whyOpen = ref(false)
