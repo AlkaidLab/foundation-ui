@@ -10,6 +10,7 @@ export default
   "c_session-time": "Streamt seit",
   "c_current-app": "Läuft gerade",
   "c_budget": "Frame-Budget",
+  "frameTime": "Frame-Zeit",
   "s_budget": "Host-Latenz gegen die Frame-Zeit",
   "c_last-session": "Letzte Sitzung",
   "c_session-heat": "Stream-Verlauf",

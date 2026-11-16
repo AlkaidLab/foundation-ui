@@ -10,6 +10,7 @@ export default
   "c_session-time": "Transmitiendo desde",
   "c_current-app": "Reproduciendo",
   "c_budget": "Presupuesto de fotograma",
+  "frameTime": "Tiempo de fotograma",
   "s_budget": "Latencia del host frente al tiempo de fotograma",
   "c_last-session": "Última sesión",
   "c_session-heat": "Historial de transmisión",

@@ -8,6 +8,7 @@ export default {
   "c_dropped": "丟幀",
   "c_session-time": "串流時長",
   "c_budget": "幀時間佔用",
+  "frameTime": "幀時間",
   "s_budget": "主機延遲與幀時間之比",
   "c_session-heat": "串流歷史",
   "s_session-heat": "每天的分鐘數",

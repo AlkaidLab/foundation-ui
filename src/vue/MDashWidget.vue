@@ -187,8 +187,8 @@ onBeforeUnmount(() => stripObserver?.disconnect())
   </section>
 
   <MDashCard v-else :title="data.title" :icon="data.icon" :chevron="chevron" :chevron-label="texts.more" class="m-dwidget" @open="emit('act', 'detail')" :class="`m-dwidget--${data.type} m-dwidget--${size}`">
-    <!-- ring timer -->
-    <div v-if="data.type === 'ring'" class="m-dwidget__centre"><MRing :value="data.value" :size="size === 's' ? 96 : 120" :label="data.title"><b class="m-dnum m-dwidget__clock">{{ data.centre }}</b></MRing><span v-if="data.caption && size !== 's'" class="m-dwidget__cap">{{ data.caption }}</span></div>
+    <!-- an elapsed time: the time is the hero, no ring (it has no full) -->
+    <div v-if="data.type === 'ring'" class="m-dwidget__centre m-dwidget__time"><b class="m-dnum m-dwidget__clock">{{ data.centre }}</b><span v-if="data.caption && size !== 's'" class="m-dwidget__cap">{{ data.caption }}</span></div>
 
     <!-- arc gauge with the latency behind it -->
     <div v-else-if="data.type === 'gauge'" class="m-dwidget__centre m-dwidget__gauge"><MArcGauge :value="data.value" :zones="data.zones" :size="size === 's' ? 120 : 140" :label="data.title"><b class="m-dnum m-dwidget__clock">{{ data.centre }}</b><small>{{ data.unit }}</small></MArcGauge><MSparkline v-if="data.spark && size !== 's'" :points="data.spark" :width="140" :height="44" /></div>

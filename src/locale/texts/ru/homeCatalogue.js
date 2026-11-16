@@ -10,6 +10,7 @@ export default
   "c_session-time": "Трансляция",
   "c_current-app": "Сейчас играет",
   "c_budget": "Бюджет кадра",
+  "frameTime": "Время кадра",
   "s_budget": "Задержка хоста к времени кадра",
   "c_last-session": "Последний сеанс",
   "c_session-heat": "История трансляций",

@@ -88,3 +88,5 @@ html[data-motion='reduced'] .m-cx__line { animation: none; stroke-dashoffset: 0;
 .m-dstripctl .m-fps { flex: 0 1 auto; min-width: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; } .m-dstripctl .m-fps::-webkit-scrollbar { display: none; }
 .m-dstripctl .m-fps .m-chipset { flex-wrap: nowrap; } .m-dstripctl .m-fps > .m-chipset__chip { flex: none; }
 .m-dstripctl--tip .m-dstripctl__title b { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-weight: 500; }
+
+.m-dwidget__time .m-dwidget__clock { font-size: 44px; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }

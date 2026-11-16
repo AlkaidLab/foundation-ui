@@ -10,6 +10,7 @@ export default
   "c_session-time": "Diffusion depuis",
   "c_current-app": "En cours",
   "c_budget": "Budget d'image",
+  "frameTime": "Durée d'image",
   "s_budget": "Latence de l'hôte face au temps d'image",
   "c_last-session": "Dernière session",
   "c_session-heat": "Historique de diffusion",

@@ -10,6 +10,7 @@ export default
   "c_session-time": "스트리밍 시간",
   "c_current-app": "재생 중",
   "c_budget": "프레임 예산",
+  "frameTime": "프레임 시간",
   "s_budget": "프레임 시간에 대한 호스트 지연",
   "c_last-session": "마지막 세션",
   "c_session-heat": "스트리밍 기록",

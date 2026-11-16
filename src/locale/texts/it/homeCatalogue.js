@@ -10,6 +10,7 @@ export default
   "c_session-time": "In streaming da",
   "c_current-app": "In riproduzione",
   "c_budget": "Budget del fotogramma",
+  "frameTime": "Tempo del frame",
   "s_budget": "Latenza dell'host rispetto al tempo del fotogramma",
   "c_last-session": "Ultima sessione",
   "c_session-heat": "Cronologia dello streaming",

@@ -95,7 +95,8 @@ export function smallOf(card, T = {}) {
     case 'lines': return d.rows?.length ? { ...base, value: String(d.rows.length), secondary: d.rows[0]?.title || '', avatars: avatarsOf(d.rows.filter((r) => r.icon), 3), more: Math.max(0, d.rows.length - 3) } : empty(d.empty)
     case 'heat': return d.total ? { ...base, value: String(d.total), secondary: d.caption || '', bars: (d.days || []).slice(-14).map((x) => Number(x?.value ?? x) || 0) } : empty(d.empty)
     case 'gauge': case 'arc': return { ...base, value: `${first(d.centre, '')}`, unit: d.unit, secondary: d.caption || '', progress: num(d.value) ?? undefined, tone: d.zones?.find((z) => d.value <= z.to)?.tone }
-    case 'ring': return { ...base, value: String(first(d.centre, '')), secondary: d.caption || '', progress: num(d.value) ?? undefined }
+    // an elapsed time has no full: the time is the value, no ring
+    case 'ring': return { ...base, value: String(first(d.centre, '')), secondary: d.caption || '' }
     case 'now': return { ...base, value: String(first(d.name, '')), secondary: dot(...(d.rows || []).map((r) => r.value)), covers: d.name ? coversOf([{ cover: d.cover, name: d.name }], 'name') : null }
     case 'apps': return d.items?.length ? { ...base, value: String(d.items.length), secondary: names(d.items, 'name'), covers: coversOf(d.items, 'name', 'apps') } : empty(d.empty)
     case 'bars': { const v = d.series?.[0]?.values || []; return { ...base, value: String(v.reduce((a, b) => a + (Number(b) || 0), 0)), secondary: d.series?.[0]?.label || '', bars: v.slice(-14).map(Number) } }

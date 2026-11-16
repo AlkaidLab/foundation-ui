@@ -1,6 +1,6 @@
 /* Overview tiles, round of the 2026.1114 test build: faults found on a real window and not by the fit gates. Loaded last. */
 
-.m-tgauge--session-time .m-tgauge__cap { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis; text-align: center; max-width: 100%; overflow-wrap: anywhere; } .m-tgauge--session-time .m-tgauge__cap { font-size: 12px; line-height: 15px; }
+.m-tgauge--session-time .m-tgauge__cap { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis; text-align: start; max-width: 100%; overflow-wrap: anywhere; } .m-tgauge--session-time .m-tgauge__cap { font-size: 13px; line-height: 16px; }
 
 /* 帧时间占用 and 温度: a closed ring from the top; no stub of the track is left on one side */
 .m-tgauge--budget .m-tgauge__ring, .m-tgauge--temperature .m-tgauge__ring { aspect-ratio: 1; }
@@ -68,14 +68,31 @@
 .m-caln.is-s .m-caln__text { bottom: 10px; gap: 1px; } .m-caln.is-s .m-caln__name { font-size: 16px; line-height: 20px; } .m-caln.is-s .m-caln__sub { font-size: 11.5px; line-height: 14px; }
 .m-tile.m-b2recent.is-s .m-b2__name, .m-tile.m-b2apps.is-s .m-b2__name { --b2n: 16px; line-height: 20px; } .m-tile.m-b2recent.is-s .m-b2__cap { margin: 0; font-size: 11.5px; line-height: 14px; }
 
-/* 滑块 pin (one unit tall): the name, the full M3 Expressive slider and the value on one row, so the 40 px track fits without a thin variant */
-.m-b3pin--slider { --tile-pad: 6px 16px; flex-direction: row; align-items: center; gap: 12px; }
-.m-b3pin--slider > .m-calm__head { flex: 0 1 auto; max-width: 42%; min-width: 0; } .m-b3pin--slider > .m-calm__head .m-calm__title { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 16px; }
-.m-b3pin--slider .m-b3pin__slider { flex: 1 1 0; min-width: 96px; }
-.m-b3pin--slider .m-b3pin__val { flex: none; min-width: 3.2ch; text-align: end; font: 600 16px/20px var(--m-font-display); color: var(--md-sys-color-primary-text); }
-/* 大 of the DualSense tuning in a small window: a row that does not fit with its full slider is left to the page of all the sliders (the head opens it) instead of being cut */
-.m-rc--live.is-l .m-rc__rows { container-type: size; }
-@container (max-height: 205px) { .m-rc__row:nth-child(n + 3) { display: none; } }
-@container (max-height: 132px) { .m-rc__row:nth-child(n + 2) { display: none; } }
-/* 串流时长 at 方形: the ring takes the room the two lines of the client leave */
-.m-tgauge--session-time .m-tgauge__body { margin-top: 0; gap: 2px; }
+/* 滑块 pin, the smallest slider tile (one slim row): the tile is the control. The name in bold at the start, the full M3 Expressive slider (40 px track, the tile's glyph inside its start, the word for the
+   lowest position written in the empty track) filling the rest of the row, the value in display type at the end; the handle has its own room inside the row, nothing is cut by the tile's corners */
+.m-b3pin--slider { --tile-pad: 8px 20px 8px 22px; flex-direction: row; align-items: center; gap: 14px; }
+.m-b3pin--slider > .m-calm__head { flex: 0 1 auto; max-width: 34%; min-width: 0; } .m-b3pin--slider > .m-calm__head .m-calm__title { font: 600 15px/18px var(--m-font-display); color: var(--md-sys-color-on-surface); white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+.m-b3pin--slider .m-b3pin__slider { flex: 1 1 0; min-width: 110px; padding-inline: 4px; }
+.m-b3pin--slider .m-b3pin__val { flex: none; min-width: 3ch; text-align: end; font: 600 22px/26px var(--m-font-display); color: var(--md-sys-color-primary-text); }
+
+/* 串流时长: the time is the tile. Tabular condensed digits sized to the width the tile gives them (4 characters fill it, 7 shrink to fit), the client under them; at 中 the digits are on the left and the client beside them */
+.m-tgauge--session-time .m-tgauge__clock { flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 4px; padding-bottom: 2px; container-type: size; min-width: 0; }
+.m-tgauge--session-time .m-tgauge__clock .m-tnum { --tn: clamp(30px, min(calc(100cqw / (var(--chars, 4) * 0.47)), 58cqh), 96px); max-width: 100%; --tn-wght: 700; flex: 0 1 auto; min-height: 0; }
+.m-tgauge--session-time .m-tgauge__clock .m-tgauge__cap { flex: none; }
+.m-tgauge--session-time.is-m .m-tgauge__clock { flex-direction: row; align-items: center; justify-content: flex-start; gap: 18px; }
+.m-tgauge--session-time.is-m .m-tgauge__clock .m-tnum { --tn: clamp(40px, min(calc(58cqw / (var(--chars, 4) * 0.4)), 80cqh), 112px); flex: none; }
+
+/* 帧时间占用 at 中: the ring on the left, the two numbers it is made of on the right, and the latency curve against the frame time (dashed) in the lower right, so the right half has something to say */
+.m-tgauge--budget.is-m .m-tgauge__side { flex: 1; min-width: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 6px; }
+.m-tgauge__facts { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+.m-tgauge__facts > div { min-width: 0; } .m-tgauge__facts dt { font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; } .m-tgauge__facts dd { margin: 2px 0 0; font: 600 22px/26px var(--m-font-display); color: var(--md-sys-color-on-surface); white-space: nowrap; }
+.m-tgauge--budget.is-m .m-tgauge__history { left: 42%; --tile-bleed: 46%; }
+
+/* 串流历史 at 中: the number and its caption on the left, the 30 days as a calendar of bigger cells on the right (it was one thin row of dots under the number, the right half empty) */
+.m-tfacts--session-heat.is-m { display: grid; grid-template-columns: minmax(0, 44%) minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 20px; }
+.m-tfacts--session-heat.is-m > .m-tile__head, .m-tfacts--session-heat.is-m > header { grid-column: 1; grid-row: 1; }
+.m-tfacts--session-heat.is-m > .m-tfacts__heatrow { grid-column: 1; grid-row: 2; align-self: end; margin: 0; }
+.m-tfacts--session-heat.is-m > .m-tfacts__heat { grid-column: 2; grid-row: 1 / span 2; margin: 0; align-self: center; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+
+/* 帧率: the curve runs behind the number; a soft halo of the tile's own colour keeps the digits readable where the line passes them */
+.m-tstream--fps .m-tnum__v, .m-tstream--stream-fps .m-tnum__v { text-shadow: 0 0 10px color-mix(in srgb, var(--m-card-solid, var(--md-sys-color-surface-container)) 85%, transparent), 0 0 3px color-mix(in srgb, var(--m-card-solid, var(--md-sys-color-surface-container)) 70%, transparent); }

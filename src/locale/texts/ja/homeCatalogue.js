@@ -10,6 +10,7 @@ export default
   "c_session-time": "配信時間",
   "c_current-app": "再生中",
   "c_budget": "フレーム予算",
+  "frameTime": "フレーム時間",
   "s_budget": "フレーム時間に対するホスト遅延",
   "c_last-session": "前回のセッション",
   "c_session-heat": "配信の履歴",

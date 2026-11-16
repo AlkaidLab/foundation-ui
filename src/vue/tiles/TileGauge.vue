@@ -7,8 +7,8 @@ export const tileIds = ['temperature', 'load', 'budget', 'session-time']
 //   温度 (Apple Watch gauge complication, Pixel Battery's temperature): an open 270° gauge in the colour of its zone (ok, warn, error), the hottest reading in it.
 //     (a closed ring from the top: an open 270° gauge read as a ring broken on one side)
 //     方形: the gauge · 中: + the CPU and the GPU reading as two bars beside it
-//   延迟预算 (the same open gauge): the share of a frame's time the encoder takes, in the colour of its zone; 中 adds the latency curve beside it
-//   串流时长: the time the stream has run, as the numeral in a ring that sweeps once a minute (a stopwatch face: the ring is the shared Material 3 circular progress indicator); the client under it, when the session or a paired client names it
+//   延迟预算: the share of a frame's time the host latency takes, in the colour of its zone; 中 adds the host latency and the frame time as numbers and the latency curve against the frame time behind them
+//   串流时长: the time the stream has run is the whole tile: tabular condensed digits as wide as the tile allows, the client under it when the session or a paired client names it (an elapsed time has no full, so no ring and no progress)
 //   CPU 与 GPU (Stocks comparison, iStat's combined graph): both curves edge to edge over one scale, each number in its colour above them. 中 only.
 import { computed } from 'vue'
 import MTileHead from '../MTileHead.vue'
@@ -52,15 +52,17 @@ const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === und
         <MTileRing class="m-tgauge__ring" :value="num(d.value) ?? 0">
           <MTileNumeral :value="d.centre" :unit="d.unit" size="s" />
         </MTileRing>
-        <div v-if="size !== 's'" class="m-tgauge__side"><span v-if="d.caption && d.caption !== card.title" class="m-tgauge__cap">{{ d.caption }}</span><MTileChart v-if="finite(d.spark).length > 1" class="m-tgauge__spark" :points="finite(d.spark)" kind="line" :dot="true" :window="40" /></div>
+        <!-- 中: what the ring is made of, in numbers (the host latency and the frame time it is a share of), and the latency curve against the frame time behind them -->
+        <div v-if="size !== 's' && d.facts?.length" class="m-tgauge__side">
+          <dl class="m-tgauge__facts"><div v-for="f in d.facts" :key="f.title"><dt>{{ f.title }}</dt><dd class="m-dnum">{{ f.value }}</dd></div></dl>
+        </div>
       </div>
+      <MTileChart v-if="size !== 's' && finite(d.spark).length > 1" class="m-tile__bleed m-tgauge__history" :points="finite(d.spark)" kind="area" :dot="true" :window="40" :max="d.frameMs ? d.frameMs * 1.15 : null" :target="d.frameMs || null" />
     </template>
     <template v-else-if="isTime">
       <MTileHead :icon="d.icon" :title="card.title" />
       <div class="m-tgauge__body m-tgauge__clock" :style="{ '--chars': String(d.centre || '').length || 4 }">
-        <MTileRing class="m-tgauge__ring" :value="num(d.sweep) ?? 0">
-          <MTileNumeral :value="d.centre" size="s" />
-        </MTileRing>
+        <MTileNumeral :value="d.centre" size="xl" width="condensed" />
         <span v-if="d.caption" class="m-tgauge__cap">{{ d.caption }}</span>
       </div>
     </template>

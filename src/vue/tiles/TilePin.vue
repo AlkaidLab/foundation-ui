@@ -50,8 +50,8 @@ const open = () => { if (!props.preview) emit('act', { type: d.value.act, value:
 
   <!-- 滑块: one row at the height of one unit: the name, the full M3 Expressive slider, the value at the end -->
   <section v-else-if="type === 'pin-slider'" class="m-tile m-cal m-b3pin m-b3pin--slider" :class="`is-${size}`" :data-size="size" data-accent="primary">
-    <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ d.title }}</span></header>
-    <div class="m-b3pin__slider" @click.stop><MSlider v-model="sliderValue" :min="d.min" :max="d.max" :step="d.step" :size="sliderSize" :label="d.title" :disabled="preview" @commit="wantPin(Math.round(sliderValue * d.scale))" /></div>
+    <header class="m-calm__head"><span class="m-calm__title">{{ d.title }}</span></header>
+    <div class="m-b3pin__slider" @click.stop><MSlider v-model="sliderValue" :min="d.min" :max="d.max" :step="d.step" :size="sliderSize" :icon-start="d.icon" :label="d.title" :disabled="preview" @commit="wantPin(Math.round(sliderValue * d.scale))" /></div>
     <b class="m-calm__peak m-dnum m-b3pin__val">{{ sliderText }}</b>
     <MDialog v-if="d.confirm" :model-value="!!ask" :title="d.confirm.title" icon="warning" @update:model-value="(v) => { if (!v) cancel() }">
       <p>{{ d.confirm.body }}</p>

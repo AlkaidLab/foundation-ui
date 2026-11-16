@@ -10,6 +10,7 @@ export default
   "c_session-time": "Transmitindo há",
   "c_current-app": "Reproduzindo agora",
   "c_budget": "Orçamento do quadro",
+  "frameTime": "Tempo do quadro",
   "s_budget": "Latência do host em relação ao tempo do quadro",
   "c_last-session": "Última sessão",
   "c_session-heat": "Histórico de transmissão",

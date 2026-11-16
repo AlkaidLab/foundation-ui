@@ -22,3 +22,7 @@ Every round data visual (帧时间占用, 温度, 串流时长, 帧率, 码率, 
 | `CircularWavyProgressIndicator`, `WavyProgressIndicatorDefaults` (`CircularContainerSize` 48, `CircularWavelength`, `indicatorAmplitude`) | `.../material3/WavyProgressIndicator.kt` | same |
 | Tokens: `ActiveThickness` 4, `Size` 40, `WaveSize` 48, `ActiveWaveAmplitude` 1.6, `ActiveWaveWavelength` 15, `TrackActiveSpace` 4, `TrackThickness` 4 | `.../material3/tokens/CircularProgressIndicatorTokens.kt` | same |
 | `md-circular-progress`: start at -90°, a track and an active circle, 4800 box, dash offset | material-web `progress/internal/circular-progress.ts`, `_circular-progress.scss` | 2.5.0 |
+
+## When a ring is the right form
+
+A ring shows a share of a whole or a value against a cap it can reach: 帧时间占用 (the share of the frame the encoder takes), 内存 (parts of a whole), 温度 (against its scale), the Wi-Fi signal, the steps of the first-run guide, the session bitrate against its cap. A value that has no natural full is not a ring: an elapsed time (串流时长) is the time itself in large digits, and a frame rate (帧率) is its recent history as a curve behind the number with the target as a dashed line.

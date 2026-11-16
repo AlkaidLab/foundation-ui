@@ -10,6 +10,7 @@ export default {
   "c_session-time": "Streaming for",
   "c_current-app": "Now playing",
   "c_budget": "Frame budget",
+  "frameTime": "Frame time",
   "s_budget": "Host latency against the frame time",
   "c_last-session": "Last session",
   "c_session-heat": "Streaming history",
