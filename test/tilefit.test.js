@@ -265,14 +265,14 @@ test('虚拟显示器 and 串流分辨率: the name of the resolution (4K, 2K, 1
   assert.match(c, /\.m-b2res__name \{ font: 600 28px\/32px var\(--m-font-display\);/)
   assert.match(c, /\.m-tfacts\.is-m \.m-b2res__name, \.m-b2vdd\.is-m \.m-b2res__name \{ font-size: 36px;/)
 })
-test('开关 and 使用虚拟显示器 at one cell: the word of the state and its picture have their own places; variant 1 an expressive shape, variant 2 a filled tile with the bare glyph', () => {
+test('开关 and 使用虚拟显示器 at one cell: the word of the state and its shape have their own places, nothing else is drawn behind them', () => {
   const f = fs.readFileSync(new URL('../src/vue/tiles/TileFacts.vue', import.meta.url), 'utf8')
   const i = f.indexOf("id === 'hdr' || id === 'stream-vdd'\">")
   const block = f.slice(i, f.indexOf("id === 'display'", i))
-  assert.match(block, /m-tfacts__word/); assert.match(block, /m-tfacts__shape/); assert.match(block, /m-tfacts__bigicon/)
-  assert.doesNotMatch(block, /m-tile__corner|m-tfacts__badge/)
-  assert.match(f, /'m-tile--tonal': \(id === 'hdr' \|\| id === 'stream-vdd'\) && stateVariant === 2 && hdrOn/)
-  assert.match(f, /const stateVariant = computed\(\(\) => \(variantOf\(id\.value\) === 2 \? 2 : 1\)\)/)
+  assert.match(block, /m-tfacts__word/); assert.match(block, /<MTileShape class="m-tfacts__shape"/)
+  assert.doesNotMatch(block, /m-tile__corner|m-tfacts__badge|m-tfacts__bigicon/)
+  assert.doesNotMatch(f, /variantOf|stateVariant|m-tile--tonal/, 'one design, no switch between two')
+  assert.doesNotMatch(css('tiles-prerelease.css'), /m-tfacts__bigicon/)
 })
 test('MTileHead breaks a Chinese title between its words, not inside one', () => {
   const v = fs.readFileSync(new URL('../src/vue/MTileHead.vue', import.meta.url), 'utf8')

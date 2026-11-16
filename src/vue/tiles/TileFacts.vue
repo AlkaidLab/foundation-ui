@@ -18,7 +18,6 @@ import MTileChip from '../MTileChip.vue'
 import { firstNumber, OPEN, sizeOf, designProps } from './tileData.js'
 import MIcon from '../MIcon.vue'
 import { resNameOf } from './b2.js'
-import { variantOf } from './registry.js'
 
 const props = defineProps(designProps)
 const emit = defineEmits(['act'])
@@ -33,9 +32,8 @@ const res = computed(() => { const m = /(\d{3,5})\s*[×x]\s*(\d{3,5})/.exec(d.va
 const resLabel = computed(() => (res.value ? `${res.value.h}p` : d.value.big))
 // 串流分辨率: the name of the size is the hero ('4K', '2K', '1080p'); the exact size and the frame rate are the caption
 const resName = computed(() => (res.value ? resNameOf(res.value.w, res.value.h) : d.value.big))
-// 开关 and 使用虚拟显示器: the word of the state alone ('HDR 开' -> '开'), the title says what it is; variant 2 (?tv=hdr:2, ?tv=stream-vdd:2) fills the whole tile when on
+// 开关 and 使用虚拟显示器: the word of the state alone ('HDR 开' -> '开'), the title says what it is; the state itself is the shape at the bottom right
 const stateWord = computed(() => String(d.value.big || '').trim().split(/\s+/).pop())
-const stateVariant = computed(() => (variantOf(id.value) === 2 ? 2 : 1))
 const stateGlyph = computed(() => (id.value === 'hdr' ? (hdrOn.value ? 'hdr_on' : 'hdr_off') : 'desktop_windows'))
 const fpsOf = computed(() => (d.value.rows?.[0] ? firstNumber(d.value.rows[0].value) : ''))
 // the heat cells: the last 14 days at 方形, 30 at 中; a day's tint is its share of the busiest day
@@ -46,7 +44,7 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
 </script>
 
 <template>
-  <section class="m-tile m-tfacts" :class="[`m-tfacts--${id}`, `is-${size}`, `is-v${stateVariant}`, { 'm-tile--tonal': (id === 'hdr' || id === 'stream-vdd') && stateVariant === 2 && hdrOn }]" :data-accent="accent" :data-size="size">
+  <section class="m-tile m-tfacts" :class="[`m-tfacts--${id}`, `is-${size}`]" :data-accent="accent" :data-size="size">
     <template v-if="empty || (id === 'session-heat' && !d.total)">
       <MTileHead :icon="empty?.icon || d.icon" :title="empty?.title || card.title" />
       <div class="m-empty-basic"><b>{{ empty?.value || d.empty || '' }}</b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
@@ -55,8 +53,7 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
       <MTileHead :title="card.title" />
       <div class="m-tfacts__state" :class="{ 'is-on': hdrOn }">
         <b class="m-tfacts__word">{{ stateWord }}</b>
-        <MTileShape v-if="stateVariant === 1" class="m-tfacts__shape" :icon="stateGlyph" :shape="id === 'hdr' ? 'sunny' : 'cookie'" :size="size === 's' ? '72px' : '96px'" :tone="hdrOn ? 'solid' : 'tonal'" />
-        <MIcon v-else class="m-tfacts__bigicon" :name="stateGlyph" />
+        <MTileShape class="m-tfacts__shape" :icon="stateGlyph" :shape="id === 'hdr' ? 'sunny' : 'cookie'" :size="size === 's' ? '72px' : '96px'" :tone="hdrOn ? 'solid' : 'tonal'" />
       </div>
       <div v-if="d.chips?.length && size !== 's'" class="m-tfacts__chips"><MTileChip v-for="c in d.chips" :key="c.label" :icon="c.icon" :label="c.label" /></div>
     </template>
