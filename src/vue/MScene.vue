@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
-import { calculateScene, canExpand, layoutOf, listDetailStrategy, navigationOf, railWidthOf, supportingPaneStrategy } from '../nav/scenes.js'
+import { calculateScene, canExpand, layoutOf, listDetailStrategy, navigationOf, railWidthOf, settledWidth, supportingPaneStrategy } from '../nav/scenes.js'
 import MRail from './MRail.vue'
 import MSheet from './MSheet.vue'
 import { watchPixelRatio } from '../nav/dpr.js'
@@ -44,6 +44,8 @@ const T = computed(() => ({ resize: 'Resize list', main: 'Main', shortcuts: 'Key
 const root = ref(null)
 const size = ref({ width: 1024, height: 768, bar: 0 })
 const animating = ref(false)
+// the width the pane that fills the space has once the columns have slid (px; null = no slide on): see `style`
+const settleWidth = ref(null)
 const dragging = ref(false)
 const resizing = ref(false)
 let stopPixelRatio = () => {}
@@ -64,7 +66,7 @@ onMounted(() => {
     const r = root.value.getBoundingClientRect()
     const next = { width: Math.round(r.width), height: Math.round(r.height), bar: root.value.querySelector('.m-scene__bar')?.offsetHeight || 0 }
     // a window that is being resized is not animated: the columns are what the size says in the same frame, and the spring only moves what the person asked for (the rail, the list)
-    if (next.width !== size.value.width || next.height !== size.value.height) { noteResize(); animating.value = false }
+    if (next.width !== size.value.width || next.height !== size.value.height) { noteResize(); animating.value = false; settleWidth.value = null }
     size.value = next
   }
   readSize = read
@@ -131,9 +133,14 @@ const supportingEntry = computed(() => scene.value.panes.supporting || null)
 let timer = 0
 watch(() => [scene.value.kind, scene.value.visible, mode.value, focus.value], () => {
   if (resizing.value) return
+  // Plan on the final width: the watcher runs before the DOM is patched, so the pane still shows what it shows now and its scrollbar can be read; the width it ends at is the column's target less that
+  // scrollbar. The page that fills the space lays out at that width for the whole slide (`style`): a page that is opened from another one (the overview from the apps page, where the list folds away) is
+  // planned once, at the width it keeps, and the sliding column only shows more or less of it. Nothing is measured on the way, so nothing is arranged twice.
+  const pane = root.value?.querySelectorAll(':scope > .m-scene__pane')[fillOf.value]
+  settleWidth.value = settledWidth(layout.value, fillOf.value, pane ? pane.offsetWidth - pane.clientWidth : 0)
   animating.value = true
   clearTimeout(timer)
-  timer = setTimeout(() => { animating.value = false }, 520)
+  timer = setTimeout(() => { animating.value = false; settleWidth.value = null }, 520)
 })
 onBeforeUnmount(() => clearTimeout(timer))
 
@@ -232,7 +239,9 @@ const style = computed(() => {
   const L = layout.value, fill = fillOf.value, rail = railWidth.value
   const fixed = L.cols.reduce((n, w, i) => n + (i === fill ? 0 : w), 0)
   const col = (i) => (i === fill ? 'minmax(0, 1fr)' : `max(0px, min(${L.cols[i]}px, calc(100% - ${rail}px - ${fixed - L.cols[i]}px)))`)
-  const inner = (i) => (i === fill ? '100%' : `${L.inner[i]}px`)
+  // while the columns slide the fill pane's page keeps the width it will have (settleWidth); at rest, and while the list is dragged or the window resized, it is the track itself (100%)
+  const fillInner = animating.value && !dragging.value && !resizing.value && settleWidth.value !== null ? `${settleWidth.value}px` : '100%'
+  const inner = (i) => (i === fill ? fillInner : `${L.inner[i]}px`)
   return {
     '--m-caption': `${props.captionHeight}px`,
     '--c-rail': `${rail}px`,
