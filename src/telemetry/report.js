@@ -146,9 +146,14 @@ export function reportMessage(doc) {
   return scrubText(parts.join('\n\n'), USER_REPORT_MESSAGE_MAX)
 }
 
+/** The most characters of the base64 text of a screenshot that travels in the event (700 KB of picture, a little room for the padding). */
+export const SHOT_BASE64_MAX = 960_000
+/** A screenshot as it is carried in a document: base64 of a picture, at most SHOT_BASE64_MAX characters. */
+export const isShotData = (v) => typeof v === 'string' && v.length >= 16 && v.length <= SHOT_BASE64_MAX && /^[A-Za-z0-9+/]+={0,2}$/.test(v)
+
 /**
  * The event a report written by the person becomes: kind `error`, name `user_report` (telemetry-v1-spec, "Worker additions"): the category (bug | performance | compat | suggestion | other), the component (the product),
- * the page, the error code, the reference of an uploaded attachment, and the message above. No contact field exists on purpose. This is what the form shows as "what is sent".
+ * the page, the error code, the reference of an uploaded attachment, the screenshot when the person attached one (`shot`, base64), the contact when the person left one, and the message above. This is what the form shows as "what is sent".
  */
 export function reportToEvent(doc) {
   const props = { category: REPORT_TYPES.includes(doc.report_type) ? doc.report_type : 'other', component: token(doc.product, 32) || 'web' }
@@ -157,6 +162,8 @@ export function reportToEvent(doc) {
   const code = String(doc.category && doc.code ? `${doc.category}.${doc.code}` : doc.code || '').replace(/[^A-Za-z0-9_.:+-]+/g, '-').slice(0, 64)
   if (code) props.error_code = code
   if (ATTACHMENT_REF.test(String(doc.attachment || ''))) props.attachment = doc.attachment
+  // the screenshot (shotImage.js, at most 700 KB, base64): the host uploads it to the developers' server like the run log and puts the reference it gets into the event; the page never names a reference itself
+  if (isShotData(doc.shot)) props.shot = doc.shot
   const contact = cleanContact(doc.contact)
   if (contact) props.contact = contact
   props.message = reportMessage(doc)

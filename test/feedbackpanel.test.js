@@ -20,10 +20,11 @@ test('the panel is a drawer in a window of 720 px and wider and a bottom panel i
 })
 
 test('the plan: the log row is always there, the screenshot row only when it can be sent, offline keeps the report', () => {
-  assert.deepEqual(feedbackPlan(), { sendMode: 'send', shotRow: false, logRow: true, banner: '' })
-  assert.equal(feedbackPlan({ hasShot: true }).shotRow, false, 'a screenshot the product cannot upload is not offered')
-  assert.equal(feedbackPlan({ hasShot: true, canSendShot: true }).shotRow, true)
-  assert.deepEqual(feedbackPlan({ offline: true }), { sendMode: 'queue', shotRow: false, logRow: true, banner: 'offline' })
+  assert.deepEqual(feedbackPlan(), { sendMode: 'send', shotRow: false, shot: '', logRow: true, banner: '' })
+  assert.equal(feedbackPlan({ hasShot: true }).shotRow, false, 'a screenshot the product cannot send is not offered')
+  assert.deepEqual([feedbackPlan({ canSendShot: true }).shotRow, feedbackPlan({ canSendShot: true }).shot], [true, 'empty'], 'the row is there with the ways to add a picture')
+  assert.equal(feedbackPlan({ hasShot: true, canSendShot: true }).shot, 'attached')
+  assert.deepEqual(feedbackPlan({ offline: true }), { sendMode: 'queue', shotRow: false, shot: '', logRow: true, banner: 'offline' })
 })
 
 test('the title is the first line of what the person wrote, cut at 80 characters; the context line names the page and the place, or the error', () => {
@@ -38,7 +39,7 @@ test('the title is the first line of what the person wrote, cut at 80 characters
 })
 
 test('an answer to a send is a phase: sent and queued are done, limited stays, a refusal while error reports are off is told apart', () => {
-  assert.deepEqual(phaseOf({ state: 'sent' }), { phase: 'done', kind: 'sent', again: false })
+  assert.deepEqual(phaseOf({ state: 'sent' }), { phase: 'done', kind: 'sent', again: false, shot: '' })
   assert.equal(phaseOf({ state: 'sent', again: true }).again, true)
   assert.deepEqual(phaseOf({ state: 'queued' }), { phase: 'done', kind: 'queued' })
   assert.deepEqual(phaseOf({ state: 'limited' }), { phase: 'edit', problem: 'limited' })
