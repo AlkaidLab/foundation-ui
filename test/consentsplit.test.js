@@ -1,3 +1,4 @@
+import { feedbackTexts } from '../src/feedback/texts.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -91,13 +92,10 @@ test('every locale has the new words, and none keeps the old consent question', 
   }
 })
 
-test('the report sheet has the box 以后自动发送, checked while error reports are on, and what it says when sending becomes the setting', () => {
-  const sheet = read('src/vue/devmode/DevReport.vue')
-  assert.match(sheet, /const autoSend = ref\(readErrors\(\) === 'on'\)/)
-  assert.match(sheet, /<label v-if="phase !== 'done' && isError" class="dm-auto dm-auto--foot" data-dev="report-auto"><input v-model="autoSend" type="checkbox"/)
-  assert.ok(sheet.indexOf('class="dm-auto dm-auto--foot"') > sheet.indexOf("#actions"), 'the box is in the foot of the sheet beside its buttons, where the body\'s scroll cannot hide it')
-  assert.match(sheet, /\(autoSend\.value \? 'on' : 'off'\) !== readErrors\(\)[\s\S]*ERRORS_REQUEST_EVENT/)
-  const texts = read('src/devmode/texts.js'); assert.match(texts, /autoSend: '以后自动发送'/); assert.match(texts, /autoSend: 'Send automatically from now on'/)
+test('the feedback panel names the log and the consent in one line, and does not offer to change the switch', () => {
+  const sheet = read('src/vue/feedback/MFeedbackPanel.vue')
+  assert.ok(!/ERRORS_REQUEST_EVENT/.test(sheet), 'a report does not wait for the switch, so the panel has nothing to ask of it')
+  assert.match(feedbackTexts('zh').logsText, /点「发送」就是同意发送这些内容，与「问题自动上报」开关无关/)
   assert.match(read('src/vue/useTelemetryConsent.js'), /addEventListener\(ERRORS_REQUEST_EVENT/)
 })
 
