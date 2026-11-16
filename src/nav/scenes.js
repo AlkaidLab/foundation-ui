@@ -90,3 +90,9 @@ export function layoutOf(scene, space, { listPreferred = null, focus = false } =
   const sup = Math.max(SUPPORTING_WIDTH.min, Math.min(SUPPORTING_WIDTH.max, Math.round(space * 0.3)))
   return { cols: [lead, space - lead - sup, sup], inner: [list, space - lead - sup, sup] }
 }
+
+/**
+ * The width the pane that fills the space ends at: its column in the layout the scene is going to, less the scrollbar the pane shows now. While the columns slide, the page in that pane lays out at
+ * this width (as the list pane keeps the width it lays out at, above), so a page that is opened from another one is arranged once, at the width it keeps, and not at every width on the way.
+ */
+export const settledWidth = (layout, fill, gutter = 0) => Math.max(0, layout.cols[fill] - Math.max(0, gutter))
