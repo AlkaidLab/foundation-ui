@@ -38,7 +38,7 @@ html[data-bs-theme='dark'] .m-tile, html[data-theme='dark'] .m-tile { --tk-fill-
 .m-tchart__line { fill: none; stroke: var(--tk); stroke-width: var(--tk-line); stroke-linecap: round; stroke-linejoin: round; }
 .m-tchart__past { fill: color-mix(in srgb, var(--tk) 30%, transparent); } .m-tchart__now { fill: var(--tk); }
 .m-tile--tonal .m-tchart__past { fill: color-mix(in srgb, var(--on-tk-c) 24%, transparent); }
-.m-tchart__dot { position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--tk); box-shadow: 0 0 0 3px var(--m-card-solid, var(--md-sys-color-surface)), 0 0 0 9px color-mix(in srgb, var(--tk) 22%, transparent); will-change: transform; }
+.m-tchart__dot { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--tk); box-shadow: 0 0 0 2px var(--m-card-solid, var(--md-sys-color-surface)); will-change: transform; } /* the chart's last sample: a small dot, not the ringed disc of a slider handle (it was 12 px with a 9 px halo) */
 
 
 /* expressive shape */

@@ -96,3 +96,36 @@
 
 /* 帧率: the curve runs behind the number; a soft halo of the tile's own colour keeps the digits readable where the line passes them */
 .m-tstream--fps .m-tnum__v, .m-tstream--stream-fps .m-tnum__v { text-shadow: 0 0 10px color-mix(in srgb, var(--m-card-solid, var(--md-sys-color-surface-container)) 85%, transparent), 0 0 3px color-mix(in srgb, var(--m-card-solid, var(--md-sys-color-surface-container)) 70%, transparent); }
+
+/* 版本: the date of the build is the hero (the build number small after it, a suffix such as 「杂鱼」 on a line of its own), one status line under it. Whatever the version string is it stays inside the tile:
+   the hero's size follows its widest line, a text that is no version shrinks to the width */
+.m-b3u { --tile-pad: 12px 14px; gap: 3px; justify-content: flex-start; }
+.m-b3u__hero { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; max-width: 100%; min-width: 0; --vh: clamp(13px, min(calc(100cqw / (var(--chars, 5) * 0.6)), calc((100cqh - 24px - 30px - var(--rl, 0) * 15px - 12px) / 2.1)), 31px); font: 700 var(--vh)/1 var(--m-font-display); letter-spacing: -.02em; }
+.m-b3u__hero > b { display: block; max-width: 100%; white-space: nowrap; font: inherit; }
+.m-b3u__hero small { margin-inline-start: 2px; font: 600 max(11px, calc(var(--vh) * .4))/1 var(--m-font-display); letter-spacing: 0; opacity: .75; }
+.m-b3u__rest { max-width: 100%; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; } .m-b3u.m-tile--tonal .m-b3u__rest { color: var(--on-tk-c); opacity: .85; }
+.m-b3u__state { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; font: var(--m-tile-text-13-strong); color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; }
+.m-b3u__state.is-update { align-self: flex-start; padding: 5px 6px 5px 12px; border-radius: 16px; background: color-mix(in srgb, var(--on-tk-c) 16%, transparent); color: var(--on-tk-c); font: var(--m-tile-text-13-strong); }
+.m-b3u__state .m-icon { width: 16px; height: 16px; flex: none; }
+
+/* an empty small tile (最近操作 before anything was used): the title, the line and the button are compact so the stack stays under the glyph of the corner and never reaches it */
+.m-tempty--s .m-tempty__text { gap: 5px; max-width: 100%; }
+.m-tempty--s .m-tempty__line { font-size: 15px; line-height: 19px; }
+.m-tempty--s .m-tempty__act { height: 32px; padding: 0 14px; }
+
+/* 帧时间占用 at 中 with the host's stages: one bar for the frame budget (the stages in order, the free rest of the frame as the track) and the stages with their milliseconds under it, the frame time last */
+.m-tgauge--budget.is-m .m-tgauge__side--stages { justify-content: center; gap: 8px; padding-top: 2px; }
+.m-tgauge__stagebar { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; background: var(--md-sys-color-secondary-container); }
+.m-tgauge__stagebar > i { min-width: 3px; border-radius: 2px; } .m-tgauge__stagebar > i.is-rest { background: transparent; min-width: 0; }
+.m-tgauge__stagelist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 12px; }
+.m-tgauge__stagelist li { display: flex; align-items: baseline; gap: 5px; min-width: 0; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); }
+.m-tgauge__stagelist li > i { width: 8px; height: 8px; border-radius: 50%; flex: none; align-self: center; } .m-tgauge__stagelist li > span { min-width: 0; overflow-wrap: anywhere; } .m-tgauge__stagelist li > b { margin-inline-start: auto; font-weight: 600; color: var(--md-sys-color-on-surface); white-space: nowrap; }
+.m-tgauge__stagelist li.is-frame > i { background: transparent; box-shadow: inset 0 0 0 2px var(--md-sys-color-on-surface-variant); }
+.m-tgauge__stagebar > i.is-s0, .m-tgauge__stagelist li > i.is-s0 { background: color-mix(in srgb, var(--tk) 38%, var(--md-sys-color-secondary-container)); }
+.m-tgauge__stagebar > i.is-s1, .m-tgauge__stagelist li > i.is-s1 { background: color-mix(in srgb, var(--tk) 58%, var(--md-sys-color-secondary-container)); }
+.m-tgauge__stagebar > i.is-s2, .m-tgauge__stagelist li > i.is-s2 { background: var(--md-sys-color-tertiary); }
+.m-tgauge__stagebar > i.is-s3, .m-tgauge__stagelist li > i.is-s3 { background: var(--tk); }
+.m-tgauge__stagebar > i.is-s4, .m-tgauge__stagelist li > i.is-s4 { background: color-mix(in srgb, var(--md-sys-color-on-surface) 55%, var(--md-sys-color-secondary-container)); }
+.m-tgauge__stagelist li.is-frame { grid-column: 1 / -1; margin-top: 1px; }
+.m-tgauge--budget.is-m .m-tgauge__side--stages { gap: 6px; padding-top: 0; }
+.m-tgauge__stagebar { flex: none; } .m-tgauge__stagelist { flex: none; gap: 2px 12px; } .m-tgauge__stagelist li { line-height: 14px; }

@@ -124,7 +124,7 @@ test("the empty state at 方形 follows the tile and the words stay clear of its
   assert.match(info, /<span v-else-if="gen" class="m-b3n__pic m-b3n__gen m-b3n__plate"/)
   assert.match(f, /\.m-b3n__plate \{ container-type: size;/) // the plate: the glyph of what the post is in a shape, not a random gradient
   assert.doesNotMatch(info, /announcementHeroStyle/)
-  assert.match(info, /max\(24px, min\(\$\{verSize\}, 17cqh\)\)/)
+  assert.match(fs.readFileSync(new URL("../src/css/tiles-prerelease.css", import.meta.url), "utf8"), /--vh: clamp\(13px, min\(calc\(100cqw \/ \(var\(--chars, 5\) \* 0\.6\)\), calc\(\(100cqh - /) // the numeral follows the width of its widest line and the height the other lines leave
 })
 test("realSession is exported for the panel and the Web UI", async () => {
   assert.match(fs.readFileSync(new URL("../src/vue/index.js", import.meta.url), "utf8"), /export \{ realSession, isSessionClient, onlineClients \} from "\.\/clientsLive\.js"/)
