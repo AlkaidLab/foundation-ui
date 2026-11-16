@@ -23,7 +23,7 @@ test('cross-device: the steps done on any device are the progress; a stored posi
   const steps = buildGuideSteps()
   const host = hostProgressOf({ guide_done: 'intro,consent,account,appearance,motion' })
   assert.deepEqual(host.done, ['intro', 'account', 'appearance', 'motion'], 'the retired consent step of an older run is left out')
-  assert.equal(steps[resumeIndex(steps, host.done)].id, 'setup', 'a second device opens at the first step not done')
+  assert.equal(steps[resumeIndex(steps, host.done)].id, 'channel', 'a second device opens at the first step not done; what an older run did in the host part (look, animations) is not a step of the new flow')
   assert.equal(steps[resumeIndex(steps, [])].id, 'intro')
   assert.equal(resumeIndex(steps, steps.map((s) => s.id)), steps.length - 1, 'everything done: the last step')
   // the steps the phone did make this device continue the run even though this one stored nothing

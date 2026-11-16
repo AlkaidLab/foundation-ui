@@ -34,6 +34,8 @@ const props = defineProps({
   noDownloadsLink: { type: Boolean, default: false },
   assetsOf: { type: Function, default: null },
   versionOf: { type: Function, default: null },
+  /** the first-run guide: one recommended download (the fast source for the language), everything else under 更多下载方式 */
+  lean: { type: Boolean, default: false },
 })
 const emit = defineEmits(['pair-pin', 'pair-qr-begin', 'pair-qr-stop', 'open-url', 'open-downloads'])
 const T = computed(() => connectTexts(props.locale))
@@ -70,7 +72,11 @@ const clock = (n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`
           <h3>{{ name(rec.client) }}<small v-if="version">{{ version }}</small></h3>
           <p v-if="whyOf(rec.client, locale)" class="m-conn__why">{{ whyOf(rec.client, locale) }}</p>
           <p v-if="by" class="m-conn__by">{{ by }}</p>
-          <div class="m-conn__actions">
+          <div v-if="lean && rows.length" class="m-conn__actions">
+            <button type="button" class="m-dpill m-dpill--fill m-conn__go" @click="emit('open-url', installTarget)"><MIcon name="download" />{{ T.download }}<small v-if="rows[0].sizeLabel" class="m-dnum">{{ rows[0].sizeLabel }}</small></button>
+            <span class="m-conn__by">{{ rows[0].cnbUrl ? mirrorName(locale) : 'GitHub' }}</span>
+          </div>
+          <div v-else class="m-conn__actions">
             <template v-if="!rows.length"><button type="button" class="m-dpill m-dpill--fill m-conn__go" @click="emit('open-url', pageUrl)"><MIcon :name="hasProduct ? 'download' : 'open_in_new'" />{{ hasProduct ? T.download : T.openPage }}</button><MLinkActions :url="pageUrl" :title="name(rec.client)" :qr="qr" :texts="T" /></template>
             <button type="button" class="m-conn__link" @click="emit('open-url', rec.client.links.project)"><MIcon name="code" />{{ T.github }}</button>
             <button type="button" class="m-conn__link" @click="emit('open-url', rec.client.links.releases)"><MIcon name="history" />{{ T.releasesPage }}</button>
@@ -82,8 +88,15 @@ const clock = (n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`
           <figcaption>{{ T.scanInstall }}</figcaption>
         </figure>
       </article>
-      <MClientAssets v-if="rows.length" :rows="rows" :texts="T" :qr="qr" :mirror="mirrorName(locale)" @open-url="(u) => emit('open-url', u)" />
-      <details v-if="rec.others.length" class="m-conn__others">
+      <details v-if="lean" class="m-conn__others m-conn__more">
+        <summary>{{ T.moreDownloads }}<MIcon class="m-conn__chev" name="keyboard_arrow_down" /></summary>
+        <MClientAssets v-if="rows.length" :rows="rows" :texts="T" :qr="qr" :mirror="mirrorName(locale)" @open-url="(u) => emit('open-url', u)" />
+        <ul v-if="rec.others.length">
+          <li v-for="x in rec.others" :key="x.client.id + x.target.platform"><MIcon :name="x.client.icon" /><span class="m-conn__oname">{{ name(x.client) }}</span><MClientTag :official="x.client.group === 'first'" :locale="locale" /><button type="button" class="m-conn__link" @click="emit('open-url', clientUrl(x.client, locale))"><MIcon name="open_in_new" />{{ T.download }}</button><MLinkActions :url="clientUrl(x.client, locale)" :title="name(x.client)" :qr="qr" :texts="T" /></li>
+        </ul>
+      </details>
+      <MClientAssets v-if="!lean && rows.length" :rows="rows" :texts="T" :qr="qr" :mirror="mirrorName(locale)" @open-url="(u) => emit('open-url', u)" />
+      <details v-if="!lean && rec.others.length" class="m-conn__others">
         <summary>{{ othersTitle(rec.others, T) }}<small>{{ rec.others.length }}</small><MIcon class="m-conn__chev" name="keyboard_arrow_down" /></summary>
         <ul>
           <li v-for="x in rec.others" :key="x.client.id + x.target.platform"><MIcon :name="x.client.icon" /><span class="m-conn__oname">{{ name(x.client) }}</span><MClientTag :official="x.client.group === 'first'" :locale="locale" /><button type="button" class="m-conn__link" @click="emit('open-url', clientUrl(x.client, locale))"><MIcon name="open_in_new" />{{ T.download }}</button><MLinkActions :url="clientUrl(x.client, locale)" :title="name(x.client)" :qr="qr" :texts="T" /></li>

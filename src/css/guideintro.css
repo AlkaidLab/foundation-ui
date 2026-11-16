@@ -13,10 +13,6 @@ html.m-has-wallpaper .m-guide__herocard.m-about__top--a { padding-block: 10px; }
 /* the first screen fits the window without a scroll from 1280 x 800 up: the main area is tight, the notice is one line, the step text moves to the foot where the left of the footer would be empty */
 .m-guide[data-step='intro'] .m-guide__main { padding-top: 4px; padding-bottom: 12px; }
 .m-guide[data-step='intro'] .m-guide__body { gap: 8px; }
-.m-guide[data-step='intro'] .m-guide__open { margin-bottom: 8px; padding-block: 2px; }
-.m-guide[data-step='intro'] .m-guide__open p { font: var(--m-body-small, var(--m-body-medium)); }
-.m-guide__open a { flex: none; }
-.m-guide__body > .m-guide__open { margin: 0; }
 .m-guide__footstep { display: none; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); }
 @container guide (min-width: 600px) {
   .m-guide[data-step='intro'] .m-guide__footstep, .m-guide[data-step='consent'] .m-guide__footstep { display: block; margin-inline-end: auto; }

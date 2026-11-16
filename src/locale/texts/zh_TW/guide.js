@@ -18,9 +18,9 @@ export default {
   "working": "處理中…",
   "unavailable": "這裡不可用",
   "openSource": {
-    "text": "Foundation Sunshine 是開源、免費的軟體（GPL-3.0）。本專案未授權任何個人、商家或自媒體賬號售賣；如果你是付費購買的，請立即申請退款。",
-    "link": "在 GitHub 檢視",
-    "more": "展開"
+    "title": "免費與開源",
+    "text": "Foundation Sunshine 以 GPL-3.0 開源。本專案未授權任何個人、商家或自媒體賬號售賣。",
+    "link": "在 GitHub 檢視"
   },
   "open": "開啟",
   "copy": "複製",
@@ -35,11 +35,13 @@ export default {
     "setup": "顯示卡與顯示器",
     "install": "安裝客戶端",
     "address": "在已安裝的客戶端與此裝置配對",
-    "pair": "首次配對",
+    "pair": "連線並配對",
     "webaccess": "手機和其他裝置訪問",
-    "remote": "遠端訪問",
-    "connect": "首次串流檢查",
-    "apps": "新增遊戲"
+    "remote": "遠端串流與組網",
+    "connect": "試一下",
+    "apps": "新增遊戲",
+    "channel": "更新通道",
+    "done": "已就緒"
   },
   "leads": {
     "whatsnew": "已經做過的步驟會跳過。",
@@ -49,7 +51,9 @@ export default {
     "webaccess": "可選。選誰能開啟 WebUI 面板，不選就保持現狀。",
     "remote": "可選，只有要從外網連線時才需要",
     "connect": "在客戶端裡開啟這臺電腦，選擇 Desktop",
-    "apps": "可選，以後也可以在應用頁新增"
+    "apps": "可選，以後也可以在應用頁新增",
+    "channel": "",
+    "done": ""
   },
   "whatsnew": {
     "items": [
@@ -235,5 +239,96 @@ export default {
   },
   "follow": "關注我們：",
   "followBilibili": "B 站",
-  "followSite": "官網"
+  "followSite": "官網",
+  "welcome": {
+    "modes": {
+      "system": "跟隨系統",
+      "light": "淺色",
+      "dark": "深色"
+    }
+  },
+  "channel": {
+    "channel": "更新通道",
+    "stable": "穩定版（推薦）",
+    "stableText": "經過測試，適合大多數人。",
+    "beta": "測試版",
+    "betaText": "更早拿到新功能和修復，可能有小問題。",
+    "source": "更新來源",
+    "failed": "沒能儲存，請再試一次。"
+  },
+  "trynow": {
+    "more": "更多下載方式"
+  },
+  "pairing": {
+    "found": "客戶端找到這臺電腦後，輸入它顯示的 PIN。",
+    "pinCard": "輸入 PIN 配對"
+  },
+  "done": {
+    "library": "遊戲庫",
+    "scanning": "正在後臺掃描遊戲庫…",
+    "found": "找到 {n} 個遊戲，勾選要新增的。",
+    "addPicked": "新增所選的 {n} 個",
+    "added": "已新增 {n} 個。",
+    "none": "沒有找到遊戲，之後可在「應用」頁新增。",
+    "failed": "沒能掃描遊戲庫。",
+    "rescan": "重新掃描",
+    "unsupported": "這臺主機還不能掃描遊戲庫。",
+    "unavailable": "暫不可用",
+    "reasons": {
+      "setup": "沒有讀到這臺主機的顯示器。",
+      "webaccess": "現在開啟的就是主機的網頁介面。",
+      "remote": "這臺主機還不能檢測網路，更新主機後可用。"
+    },
+    "start": "開始使用",
+    "save": "儲存",
+    "optional": "可選：需要時再設定",
+    "optionalNote": "都不是必須的，不設定也能直接使用。",
+    "advanced": "高階",
+    "back": "完成",
+    "open": "設定",
+    "items": {
+      "appearance": {
+        "title": "主題色與背景",
+        "text": "桌布、主題色和背景模糊"
+      },
+      "motion": {
+        "title": "動效",
+        "text": "介面動畫的強弱"
+      },
+      "setup": {
+        "title": "顯示與 HDR",
+        "text": "顯示卡、串流用的顯示器、HDR"
+      },
+      "webaccess": {
+        "title": "網頁遠端管理",
+        "text": "在其他裝置的瀏覽器裡管理這臺電腦"
+      },
+      "remote": {
+        "title": "遠端串流與組網",
+        "text": "出門在外串流回這臺電腦時才需要；多數人不用設定。"
+      }
+    }
+  },
+  "remoteGuide": {
+    "checkTitle": "網路檢測",
+    "checking": "正在檢測這臺電腦的網路…",
+    "again": "重新檢測",
+    "recommend": "推薦",
+    "other": "其他辦法",
+    "facts": {
+      "publicYes": "公網地址：可以從外面訪問",
+      "publicNo": "公網地址：沒有（運營商共用地址）",
+      "publicPossible": "公網地址：路由器有公網 IP，需要放行埠",
+      "publicUnknown": "公網地址：還沒有檢測到",
+      "upnpOn": "路由器自動開放埠（UPnP）：已開啟",
+      "upnpOff": "路由器自動開放埠（UPnP）：未開啟",
+      "meshYes": "組網工具：已裝 {name}",
+      "meshNo": "組網工具：還沒有安裝"
+    },
+    "recMesh": "用組網連回來",
+    "recMeshText": "這臺電腦沒有可直連的公網地址，組網不需要。",
+    "recDirect": "公網直連可用",
+    "recDirectText": "檢測到外面能連到這臺電腦；也可以用組網。",
+    "homeOnly": "只在家裡玩的話，不用設定。"
+  }
 }

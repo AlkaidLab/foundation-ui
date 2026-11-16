@@ -603,14 +603,6 @@ html[data-motion='reduced'] .m-update__badge-icon.is-spinning, html[data-motion=
 }
 
 /* the first screen of the first-run: open source, free, not for sale. Calm: an info icon on a surface container, no warning colour */
-.m-guide__open { display: flex; gap: 12px; align-items: center; margin: 0 0 16px; padding: 8px 8px 8px 16px; border-radius: 16px; background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface-variant); font: var(--m-body-medium); }
-.m-guide__open .m-icon { flex: none; font-size: 22px; color: var(--md-sys-color-primary-text); }
-.m-guide__open p { flex: 1; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; }
-.m-guide__open.is-open p { display: block; -webkit-line-clamp: unset; }
-.m-guide__openmore { flex: none; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--md-sys-color-on-surface-variant); cursor: pointer; }
-.m-guide__openmore:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
-.m-guide__openmore .m-icon { color: inherit; }
-.m-guide__open p { margin: 0; } .m-guide__open a { color: var(--md-sys-color-primary-text); font-weight: 600; text-decoration: none; white-space: nowrap; } .m-guide__open a:hover { text-decoration: underline; }
 
 /* the first-run guide: the install step is the 连接设备 view in one column; the address pick, the try-it area of the first stream check and the scan sheet */
 .m-guide .m-assets { grid-template-columns: minmax(0, 1fr); }

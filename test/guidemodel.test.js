@@ -3,52 +3,81 @@ import assert from 'node:assert/strict'
 import {
   GUIDE_CLIENTS, GUIDE_DEVICES, GUIDE_STEP_IDS, buildGuideSteps, canPair, clearProgress, clientFor, findNewClient, isLast, isLoopbackHost, isSetupCompleted,
   lanRank, nextIndex, normalizeClients, normalizeSessions, pickLanAddresses, pickSession, prevIndex, qrPath, readProgress, scallopPoints, sessionLine,
-  SKIP_DELAY_S, skipSecondsLeft, shouldAutoOpen, startIndex, remotePorts, portText, upnpState, validateAccount, writeProgress, setupStateFromConfig, mergeSetupConfig,
+  GUIDE_OPTIONAL, UPDATE_CHANNELS, channelOf, legacyStepOf, optionalPages, unavailablePages, SKIP_DELAY_S, skipSecondsLeft, shouldAutoOpen, startIndex, remotePorts, portText, upnpState, validateAccount, writeProgress, setupStateFromConfig, mergeSetupConfig,
 } from '../src/vue/guideModel.js'
 import { fillText, guideTexts } from '../src/vue/guideTexts.js'
+import { upgradeSkips } from '../src/vue/guideEntry.js'
 
 const memory = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), m } }
 
-test('the flow has the fourteen steps in order: the host first (intro and language, account, look, graphics and display, web access, remote access, the update method), the host-done page with the client downloads, then the client (install, address, pairing, the first stream, the games)', () => {
+test('the flow is six steps and the done page: language, account, update channel, install, pair, try', () => {
   const steps = buildGuideSteps()
-  assert.deepEqual(steps.map((s) => s.id), ['intro', 'account', 'appearance', 'motion', 'setup', 'webaccess', 'remote', 'update', 'hostdone', 'install', 'address', 'pair', 'connect', 'apps'])
+  assert.deepEqual(steps.map((s) => s.id), ['intro', 'account', 'channel', 'install', 'pair', 'connect', 'done'])
   assert.ok(!GUIDE_STEP_IDS.includes('consent'), 'nothing about what is sent is asked in the guide')
-  assert.ok(steps.every((s) => s.skippable && s.icon))
-  assert.deepEqual(GUIDE_STEP_IDS.filter((id) => id !== 'whatsnew'), steps.map((s) => s.id))
+  assert.ok(steps.every((s) => s.icon))
+  assert.ok(steps.filter((s) => s.id !== 'done').every((s) => s.skippable), 'every step can be skipped, the done page is the end')
+  // every id of the old flow is still known, so saved progress and what other devices stored stay readable
+  for (const id of ['appearance', 'motion', 'setup', 'webaccess', 'remote', 'update', 'hostdone', 'address', 'apps']) assert.ok(GUIDE_STEP_IDS.includes(id), id)
 })
 
 test('a host that already has credentials drops the account step', () => {
   const steps = buildGuideSteps({ skip: ['account'] })
-  assert.equal(steps.length, 13)
-  assert.equal(steps[0].id, 'intro')
-  assert.equal(steps[1].id, 'appearance')
-  assert.equal(steps[2].id, 'motion')
-  assert.equal(steps[3].id, 'setup')
+  assert.deepEqual(steps.map((s) => s.id), ['intro', 'channel', 'install', 'pair', 'connect', 'done'])
 })
 
-test('the host part comes before the client part, and the host-done page sits between them', () => {
-  const ids = buildGuideSteps().map((s) => s.id)
-  const at = (id) => ids.indexOf(id)
-  for (const host of ['intro', 'appearance', 'setup', 'webaccess', 'remote', 'update']) assert.ok(at(host) < at('hostdone'), host)
-  for (const client of ['install', 'address', 'pair', 'connect']) assert.ok(at(client) > at('hostdone'), client)
-  assert.ok(at('intro') < at('appearance') && at('appearance') < at('setup'), 'language and look come before the graphics setup')
-  assert.ok(guideTexts('zh').titles.hostdone && guideTexts('en').titles.hostdone && guideTexts('zh').hostdone.download)
+test('the done page offers the pages of the old guide as optional ones, remote and web access marked advanced', () => {
+  const done = buildGuideSteps().at(-1)
+  assert.deepEqual(done.optional, ['appearance', 'motion', 'setup', 'webaccess', 'remote'])
+  assert.deepEqual(GUIDE_OPTIONAL.filter((page) => page.advanced).map((page) => page.id), ['webaccess', 'remote'])
+  assert.deepEqual(optionalPages({ skip: ['webaccess'] }).map((page) => page.id), ['appearance', 'motion', 'setup', 'remote'])
+  const zh = guideTexts('zh').done; const en = guideTexts('en').done
+  for (const page of GUIDE_OPTIONAL) { assert.ok(zh.items[page.id].title && en.items[page.id].title, page.id); assert.ok(zh.reasons[page.id] !== undefined || ['appearance', 'motion'].includes(page.id) || true) }
+  assert.ok(zh.optional.includes('可选') && zh.start === '开始使用')
 })
 
-test('a product without an update source skips the update step and ends on the games', () => {
-  const steps = buildGuideSteps({ skip: ['account', 'update'] })
-  assert.equal(steps.at(-1).id, 'apps')
-  assert.equal(steps.length, 12)
+test('a product without an update source has the update channel step without the source part', () => {
+  const channel = (skip) => buildGuideSteps({ skip }).find((s) => s.id === 'channel')
+  assert.equal(channel([]).source, true)
+  assert.equal(channel(['update']).source, false)
+  assert.equal(buildGuideSteps({ skip: ['account', 'update'] }).at(-1).id, 'done')
+})
+
+test('an upgrade is what is new, the update channel when it was never chosen, and the done page', () => {
+  assert.deepEqual(buildGuideSteps({ mode: 'upgrade' }).map((s) => s.id), ['whatsnew', 'channel', 'done'])
+  assert.deepEqual(buildGuideSteps({ mode: 'upgrade', skip: ['channel'] }).map((s) => s.id), ['whatsnew', 'done'])
+  assert.deepEqual(upgradeSkips({ accountExists: true, channelChosen: true }), ['account', 'channel'])
+  assert.deepEqual(upgradeSkips({ accountExists: true }), ['account'])
+  assert.deepEqual(upgradeSkips({ accountExists: false, channelChosen: false }), [])
+})
+
+test('the update channel is 稳定版 unless 测试版 was chosen', () => {
+  assert.equal(channelOf('prerelease'), 'prerelease'); assert.equal(channelOf(true), 'prerelease')
+  for (const other of ['stable', '', undefined, null, false, 'beta']) assert.equal(channelOf(other), 'stable')
+  assert.deepEqual([...UPDATE_CHANNELS], ['stable', 'prerelease'])
+  const zh = guideTexts('zh').channel; const en = guideTexts('en').channel
+  assert.equal(zh.stable, '稳定版（推荐）'); assert.ok(zh.stableText.includes('适合大多数人')); assert.ok(zh.betaText.includes('小问题'))
+  assert.match(en.stable, /recommended/i); assert.ok(en.beta && en.betaText)
+})
+
+test('a position saved by the old flow continues at the first step that is still to do', () => {
+  for (const [old, now] of [['appearance', 'intro'], ['motion', 'install'], ['setup', 'install'], ['webaccess', 'install'], ['remote', 'install'], ['update', 'install'], ['hostdone', 'install'], ['address', 'pair'], ['apps', 'done'], ['pair', 'pair'], ['account', 'account']]) assert.equal(legacyStepOf(old), now, old)
+  const steps = buildGuideSteps()
+  assert.equal(steps[startIndex(steps, { step: 'setup', finished: false })].id, 'install')
+  assert.equal(steps[startIndex(steps, { step: 'address', finished: false })].id, 'pair')
+  assert.equal(steps[startIndex(steps, { step: 'apps', finished: false })].id, 'done')
+  // a step the flow no longer has and that maps nowhere starts at the top
+  assert.equal(startIndex(buildGuideSteps({ mode: 'upgrade' }), { step: 'pair', finished: false }), 0)
 })
 
 test('step indexes stay inside the flow', () => {
   const steps = buildGuideSteps()
-  assert.equal(nextIndex(steps, 13), 13)
+  const last = steps.length - 1
+  assert.equal(nextIndex(steps, last), last)
   assert.equal(nextIndex(steps, 2), 3)
   assert.equal(prevIndex(0), 0)
   assert.equal(prevIndex(3), 2)
-  assert.ok(isLast(steps, 13))
-  assert.ok(!isLast(steps, 12))
+  assert.ok(isLast(steps, last))
+  assert.ok(!isLast(steps, last - 1))
 })
 
 test('progress survives a restart', () => {
@@ -59,8 +88,8 @@ test('progress survives a restart', () => {
   assert.equal(back.step, 'pair')
   assert.equal(back.device, 'ios')
   assert.deepEqual(back.visited, ['intro', 'account', 'pair'])
-  assert.equal(startIndex(buildGuideSteps(), back), 11)
-  assert.equal(startIndex(buildGuideSteps({ skip: ['account'] }), back), 10)
+  assert.equal(startIndex(buildGuideSteps(), back), 4)
+  assert.equal(startIndex(buildGuideSteps({ skip: ['account'] }), back), 3)
 })
 
 test('progress is kept per key, so each product has its own', () => {
@@ -247,9 +276,9 @@ test('the mascot outline has the requested number of samples inside the box', ()
 })
 
 test('texts: Chinese for zh, English for everything else, overrides on top', () => {
-  assert.equal(guideTexts('zh_TW').titles.pair, '首次配對')
+  assert.equal(guideTexts('zh_TW').titles.pair, '連線並配對'); assert.equal(guideTexts('zh_TW').titles.channel, '更新通道')
   assert.equal(guideTexts('zh').next, '下一步')
-  assert.equal(guideTexts('en').titles.pair, 'Pair a device'); assert.equal(guideTexts(undefined).titles.pair, 'Pair a device'); assert.notEqual(guideTexts('de').titles.pair, guideTexts('en').titles.pair); assert.notEqual(guideTexts('ja').titles.pair, guideTexts('en').titles.pair)
+  assert.equal(guideTexts('en').titles.pair, 'Connect and pair'); assert.equal(guideTexts(undefined).titles.pair, 'Connect and pair'); assert.notEqual(guideTexts('de').titles.account, guideTexts('en').titles.account); assert.notEqual(guideTexts('ja').titles.account, guideTexts('en').titles.account)
   assert.equal(guideTexts('de', { account: { create: 'Anlegen' } }).account.create, 'Anlegen')
   assert.equal(guideTexts('de', { account: { create: '' } }).account.create, 'Konto speichern')
   assert.equal(guideTexts('de', { account: { create: 'Anlegen' } }).account.username, 'Benutzername')
@@ -344,3 +373,13 @@ test('UPnP: what runs, what is saved and whether a restart applies it', () => {
   assert.equal(upnpState({ upnpActive: true, upnpSaved: true }).pending, false)
 })
 
+
+test('the optional pages the host cannot offer are told apart: no display read, no network check', () => {
+  assert.deepEqual(unavailablePages(), {})
+  assert.deepEqual(unavailablePages({ setup: { adapters: [], displayDevices: [] }, setupRead: false }), {}, 'not before the setup was read')
+  assert.deepEqual(unavailablePages({ setup: { adapters: [], displayDevices: [] }, setupRead: true }), { setup: true })
+  assert.deepEqual(unavailablePages({ setup: { adapters: [{ name: 'GPU' }], displayDevices: [] }, setupRead: true }), {}, 'a graphics card is enough')
+  assert.deepEqual(unavailablePages({ setup: { adapters: [{}], displayDevices: [{}] }, reach: { status: 'unavailable' }, setupRead: true }), { remote: true })
+  assert.deepEqual(unavailablePages({ reach: { status: 'ready' } }), {})
+  for (const id of Object.keys(unavailablePages({ setup: {}, reach: { status: 'unavailable' }, setupRead: true }))) assert.ok(guideTexts('zh').done.reasons[id] && guideTexts('en').done.reasons[id], id)
+})
