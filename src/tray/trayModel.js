@@ -16,7 +16,7 @@ export const TRAY_ITEM_IDS = Object.freeze([
   'show_toolbar', 'host_performance', 'rtss_control', 'web_stream', 'log_console', 'debug_page',
   'lang_zh', 'lang_en', 'lang_ja',
   'prevent_sleep', 'restart_user_mode', 'import_config', 'export_config', 'reset_config', 'clear_cache',
-  'check_update', 'about', 'star_project', 'visit_project_sunshine', 'visit_project_moonlight',
+  'check_update', 'about', 'feedback', 'star_project', 'visit_project_sunshine', 'visit_project_moonlight',
   'visit_site', 'visit_bilibili', 'star_github', 'sponsor_qiin', 'sponsor_yundi339', 'sponsor_skyhua',
   'restart', 'shutdown',
 ])
@@ -56,6 +56,7 @@ export const ITEMS = Object.freeze({
   clear_cache: { icon: 'cleaning_services', label: '清理缓存', short: '清缓存' },
   check_update: { icon: 'update', label: '检查更新', short: '更新' },
   about: { icon: 'info', label: '关于 Sunshine', short: '关于' },
+  feedback: { icon: 'feedback', label: '反馈问题…', short: '反馈' },
   star_project: { icon: 'star', label: '项目主页', short: '项目主页' },
   visit_project_sunshine: { icon: 'code', label: 'Sunshine 源代码', short: 'Sunshine 源码' },
   visit_project_moonlight: { icon: 'code', label: 'Moonlight 源代码', short: 'Moonlight 源码' },
@@ -136,6 +137,7 @@ export const CELLS = Object.freeze({
   web_stream: { kind: 'action', when: 'dev' },
   debug_page: { kind: 'action', when: 'dev' },
   about: { kind: 'action' },
+  feedback: { kind: 'action' },
   import_config: { kind: 'action' },
   export_config: { kind: 'action' },
   reset_config: { kind: 'action' },
@@ -173,7 +175,7 @@ const languageRows = [item('lang_zh', { check: 'radio' }), item('lang_en', { che
 const advancedRows = [item('reset_config'), item('clear_cache')]
 const helpRows = (withUpdate) => [
   ...(withUpdate ? [item('check_update'), divider] : []),
-  item('about'), divider, item('star_project'), item('visit_project_sunshine'), item('visit_project_moonlight'),
+  item('about'), item('feedback'), divider, item('star_project'), item('visit_project_sunshine'), item('visit_project_moonlight'),
   // the quiet support line is the last thing on the page (never on the first page of V3, never above the operational rows)
   divider, { t: 'support' },
 ]
