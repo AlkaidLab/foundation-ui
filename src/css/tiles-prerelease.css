@@ -173,3 +173,20 @@ html[data-bs-theme='dark'] .m-b2pair__qr, html[data-theme='dark'] .m-b2pair__qr,
 .m-b2__name, .m-cala__name { text-wrap: balance; }
 /* the line of facts of 本主机 at one cell ('运行中 · 已运行 3h 12m') breaks in balance, so the time is not cut in two */
 .m-calh--sq .m-calh__fact { text-wrap: balance; word-break: keep-all; }
+
+/* 虚拟显示器: the resolution is the hero of the tile. Variant 1 (default): display type on a tonal tile when the display is on, the state under it with a dot; at two cells the refresh rate, the mode and the chips stand
+   beside it. Variant 2 (?tv=vdd:2): the resolution inside an expressive squircle. No flat block of colour inside the tile. */
+.m-b2vdd__body { flex: 1 1 auto; min-height: 0; display: flex; align-items: flex-end; gap: 16px; margin-top: 6px; padding-bottom: 2px; }
+.m-b2vdd__hero { flex: 0 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 4px; }
+.m-b2vdd.is-m .m-b2vdd__hero { flex: 0 0 auto; }
+.m-b2vdd__state { display: inline-flex; align-items: center; gap: 6px; font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; }
+.m-b2vdd__state > i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: color-mix(in srgb, currentColor 45%, transparent); } .m-b2vdd__state > i.is-on { background: var(--tk); }
+.m-b2vdd.is-v1.m-tile--tonal .m-b2vdd__state > i.is-on { background: var(--on-tk-c); }
+.m-b2vdd.is-m .m-b2vdd__body { align-items: stretch; } .m-b2vdd.is-m .m-b2vdd__side { align-self: center; }
+.m-b2vdd.is-s .m-b2vdd__hero { width: 100%; }
+.m-b2vdd__shape { flex: none; } .m-b2vdd__shapenum { display: grid; justify-items: center; line-height: 1; }
+.m-b2vdd__shapenum b { font: 700 24px/1 var(--m-font-display); letter-spacing: -.02em; } .m-b2vdd__shapenum small { font: 600 12px/1 var(--m-font-display); margin-top: 1px; }
+.m-b2vdd.is-m .m-b2vdd__shapenum b { font-size: 26px; } .m-b2vdd.is-m .m-b2vdd__shapenum small { font-size: 13px; }
+.m-b2vdd.is-v2 .m-b2vdd__body { align-items: center; } .m-b2vdd.is-v2.is-s .m-b2vdd__hero { flex-direction: row; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 6px; }
+/* the chips beside the resolution take the tile's own tone (a state worth a colour of its own is a problem; HDR on is not one) */
+.m-b2vdd .m-b2__chips span, .m-b2vdd .m-b2__chips span.is-ok { background: color-mix(in srgb, currentColor 12%, transparent); color: inherit; }

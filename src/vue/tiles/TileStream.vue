@@ -39,13 +39,13 @@ const chartWindow = computed(() => {
 const isFps = computed(() => id.value === 'fps' || id.value === 'stream-fps')
 const target = computed(() => (id.value === 'fps' ? firstNumber(d.value.caption) : id.value === 'stream-fps' ? num(d.value.target) : null))
 // 丢包, 丢帧: none is fine, some is a warning, a lot an error
-const issueTone = computed(() => { const v = num(d.value.value) ?? 0; return v <= 0 ? 'ok' : (id.value === 'loss' ? v >= 2 : v >= 10) ? 'error' : 'warn' })
+const issueTone = computed(() => { const v = num(d.value.value) ?? 0; return v <= 0 ? 'primary' : (id.value === 'loss' ? v >= 2 : v >= 10) ? 'error' : 'warn' })
 // the rows tiles of the session (stream-bitrate, stream-fps)
 const rowsBig = computed(() => String(d.value.big || ''))
 const bigNum = computed(() => { const m = /^([\d.]+)\s*(.*)$/.exec(rowsBig.value); return m ? { v: m[1], u: m[2] } : { v: rowsBig.value, u: '' } })
 const cap = computed(() => (id.value === 'stream-bitrate' ? firstNumber(d.value.rows?.[0]?.value) : null))
 const capText = computed(() => (d.value.rows?.[0] ? `${d.value.rows[0].title} ${d.value.rows[0].value}` : ''))
-const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTone.value : id.value === 'fps' || id.value === 'stream-fps' ? 'primary' : 'tertiary'))
+const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTone.value : id.value === 'fps' || id.value === 'stream-fps' ? 'primary' : 'secondary'))
 </script>
 
 <template>

@@ -231,3 +231,20 @@ test('配对 at two cells: one input and one tonal button in the tile\'s own typ
   assert.match(c, /\.m-b2pair__qr \{ background: var\(--md-sys-color-surface-container-lowest\); \}/)
   assert.doesNotMatch(c, /\.m-b2pair__qr \{[^}]*#fff/)
 })
+
+test('the accents of the tiles come from one family: tertiary only where a tile asks for attention, green only where something is a state worth a colour', () => {
+  const t = (f) => fs.readFileSync(new URL(`../src/vue/tiles/${f}`, import.meta.url), 'utf8')
+  assert.match(t('TileFacts.vue'), /hdr: hdrOn\.value \? 'primary' : 'secondary', 'stream-vdd': hdrOn\.value \? 'primary' : 'secondary', display: 'secondary', 'stream-resolution': 'secondary'/)
+  assert.match(t('TileGauge.vue'), /zone === 'ok' \? 'primary' : zone/, 'a gauge in its normal zone is calm, only a warning or an error has a colour of its own')
+  assert.match(t('TileStream.vue'), /\? 'primary' : 'secondary'\)\)/)
+  assert.doesNotMatch(t('TileEncoder.vue'), /'codecs' \? 'tertiary'/)
+  assert.match(t('TileActionB3.vue'), /accent: 'tertiary', glyph: 'stop'/, 'the stop action keeps the one attention colour')
+})
+test('虚拟显示器: the resolution is display type on a tonal tile (variant 1) or inside an expressive shape (variant 2), never a flat block inside the tile', () => {
+  const v = fs.readFileSync(new URL('../src/vue/tiles/TileDevices.vue', import.meta.url), 'utf8')
+  assert.match(v, /const vddVariant = computed\(\(\) => \(variantOf\('vdd'\) === 2 \? 2 : 1\)\)/)
+  assert.match(v, /MTileNumeral v-else :value="vddNum\.v" :unit="vddNum\.u"/)
+  assert.match(v, /MTileShape v-if="vddVariant === 2" class="m-b2vdd__shape" shape="squircle"/)
+  assert.doesNotMatch(v, /m-b2plate" :class="vddOn/)
+  assert.match(v, /'m-tile--tonal': id === 'vdd' && vddVariant === 1 && vddOn/)
+})

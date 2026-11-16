@@ -32,7 +32,7 @@ const resLabel = computed(() => (res.value ? `${res.value.h}p` : d.value.big))
 const days = computed(() => (d.value.days || []).slice(size.value === 's' ? -14 : -30))
 const dayMax = computed(() => Math.max(1, ...days.value.map((x) => Number(x?.value) || 0)))
 const totalNum = computed(() => { const m = /^([\d.]+)\s*(.*)$/.exec(d.value.total || ''); return m ? { v: m[1], u: m[2] } : { v: d.value.total || '', u: '' } })
-const accent = computed(() => ({ hdr: hdrOn.value ? 'ok' : 'secondary', 'stream-vdd': hdrOn.value ? 'ok' : 'secondary', display: 'tertiary', 'stream-resolution': 'tertiary', sys: 'secondary', 'session-heat': 'primary' }[id.value]))
+const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'stream-vdd': hdrOn.value ? 'primary' : 'secondary', display: 'secondary', 'stream-resolution': 'secondary', sys: 'secondary', 'session-heat': 'primary' }[id.value]))
 </script>
 
 <template>

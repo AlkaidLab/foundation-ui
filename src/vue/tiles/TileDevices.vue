@@ -17,6 +17,9 @@ import { OPEN, designProps } from './tileData.js'
 import MPickSheet from '../MPickSheet.vue'
 import { modeOf, padChoices, padNoteOf } from './b2.js'
 import { b3Texts } from './b3Texts.js'
+import MTileNumeral from '../MTileNumeral.vue'
+import MTileShape from '../MTileShape.vue'
+import { variantOf } from './registry.js'
 
 const props = defineProps(designProps)
 const emit = defineEmits(['act'])
@@ -45,6 +48,9 @@ const setMic = (v) => emit('act', { type: 'switch', value: { id: d.value.id || '
 const vddOn = computed(() => d.value.state === 'ready')
 const vddMode = computed(() => modeOf(d.value.sub))
 const hz = computed(() => /(\d+)/.exec(d.value.unit || '')?.[1] || '')
+// 虚拟显示器: the resolution is the hero. '2160p' is the numeral 2160 and the unit p; variant 1 draws it as display type on a tonal tile, variant 2 inside an expressive shape (?tv=vdd:2)
+const vddVariant = computed(() => (variantOf('vdd') === 2 ? 2 : 1))
+const vddNum = computed(() => { const m = /^\s*(\d+)\s*([a-zA-Z]*)\s*$/.exec(d.value.value || ''); return m ? { v: m[1], u: m[2] } : { v: d.value.value || '–', u: '' } })
 const kind = computed(() => ({ devices: 'm-calo m-b2dev', 'usb-devices': 'm-b2usb', 'gamepad-status': 'm-b2pad', 'gamepad-type': 'm-b2padtype', vdd: 'm-b2vdd', 'stream-mic': 'm-b2mic', 'sw:mic': 'm-b2mic' }[id.value]))
 </script>
 
@@ -55,7 +61,7 @@ const kind = computed(() => ({ devices: 'm-calo m-b2dev', 'usb-devices': 'm-b2us
     <div class="m-b2strip__bar" role="toolbar" :aria-label="d.title"><ul class="m-b2strip__seg" role="radiogroup" :aria-label="d.title"><li v-for="o in d.options || []" :key="o.value"><button type="button" role="radio" :aria-checked="o.value === d.value" :class="{ 'is-on': o.value === d.value }" :disabled="d.busy" @click.stop="emit('act', { type: 'group', value: o.value })">{{ o.label }}</button></li></ul></div>
   </section>
 
-  <section v-else class="m-tile m-cal m-b2" :class="[`m-b2--${id.replace(':', '-')}`, `is-${size}`, kind]" :data-size="size" data-accent="primary">
+  <section v-else class="m-tile m-cal m-b2" :class="[`m-b2--${id.replace(':', '-')}`, `is-${size}`, kind, id === 'vdd' ? `is-v${vddVariant}` : '', { 'm-tile--tonal': id === 'vdd' && vddVariant === 1 && vddOn }]" :data-size="size" data-accent="primary">
     <template v-if="id === 'devices'">
       <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span></header>
       <ul class="m-calo__tiles"><li v-for="t in d.tiles || []" :key="t.icon" :class="{ 'is-live': t.ready }" style="clip-path: inset(0 round 20px); border-radius: 0"><b v-if="t.icon === 'usb' && /^\d+$/.test(t.word)" class="m-b2dev__n">{{ t.word }}</b><MIcon v-else :name="t.icon" /><span><b>{{ t.label }}</b><small>{{ t.icon === 'usb' && /^\d+$/.test(t.word) ? '' : t.word }}</small></span></li></ul>
@@ -87,8 +93,12 @@ const kind = computed(() => ({ devices: 'm-calo m-b2dev', 'usb-devices': 'm-b2us
 
     <template v-else-if="id === 'vdd'">
       <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span><button v-if="size === 'm'" type="button" class="m-calm__more" :aria-label="texts.more || card.title" @click.stop="emit('act', { type: 'open', value: 'vdd' })"><MIcon name="chevron_right" /></button></header>
-      <div :class="size === 'm' ? 'm-b2vdd__body' : ''" :style="size === 's' ? 'display: contents' : ''">
-        <div class="m-b2plate" :class="vddOn ? 'is-on' : 'is-quiet'"><b class="m-dnum">{{ d.value || '–' }}</b><small>{{ d.stateLabel }}<template v-if="hz && size === 's'"> · {{ hz }} Hz</template></small></div>
+      <div class="m-b2vdd__body">
+        <div class="m-b2vdd__hero">
+          <MTileShape v-if="vddVariant === 2" class="m-b2vdd__shape" shape="squircle" :size="size === 's' ? '68px' : '72px'" :tone="vddOn ? 'solid' : 'tonal'"><span class="m-b2vdd__shapenum"><b class="m-dnum">{{ vddNum.v }}</b><small>{{ vddNum.u }}</small></span></MTileShape>
+          <MTileNumeral v-else :value="vddNum.v" :unit="vddNum.u" :size="size === 's' ? 's' : 'm'" />
+          <span class="m-b2vdd__state"><i :class="{ 'is-on': vddOn }" aria-hidden="true" />{{ d.stateLabel }}<template v-if="hz && size === 's'"> · {{ hz }} Hz</template></span>
+        </div>
         <div v-if="size === 'm'" class="m-b2vdd__side"><span class="m-b2__line">{{ hz ? `${hz} Hz` : '' }}{{ vddMode ? ` · ${vddMode.w}×${vddMode.h}` : '' }}</span><div class="m-b2__chips" data-fit-rows="drop"><span v-for="c in d.chips || []" :key="c.label" :class="{ 'is-ok': c.tone === 'ok' }"><MIcon v-if="c.icon" :name="c.icon" />{{ c.label }}</span></div></div>
       </div>
     </template>
