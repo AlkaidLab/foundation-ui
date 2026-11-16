@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { UNIT_GAP, UNIT_PX, columnsOf, gridWidthOf } from '../src/vue/homeSizes.js'
+import { MAX_COLUMNS, UNIT_GAP, UNIT_PX, columnsOf, gridWidthOf } from '../src/vue/homeSizes.js'
 
 // The unit of the overview grid is one fixed square (148 px at the standard density): the same on every window and every screen at the same OS scale. A bigger window holds more columns of it, never a bigger tile.
 test('the unit is the same in every pane that holds two units, at the standard density', () => {
@@ -26,8 +26,9 @@ test('the density the person chose scales the fixed unit, and the unit stays fix
   assert.equal(columnsOf(2600, 'larger').unit, large)
 })
 
-test('148 px packs the content widths of the common windows flush: 7, 8, 11 and 15 columns', () => {
-  for (const [win, cols] of [[1280, 7], [1440, 8], [1920, 11], [2560, 15]]) { const w = win - 160; assert.equal(columnsOf(w).columns, cols, `${win}`); assert.ok(w - gridWidthOf(cols, UNIT_PX) <= UNIT_GAP, `${win}: leaves ${w - gridWidthOf(cols, UNIT_PX)} px`) }
+test('148 px packs the content widths of the common windows flush: 7, 8 and 11 columns; 2560 is capped at 12', () => {
+  for (const [win, cols] of [[1280, 7], [1440, 8], [1920, 11]]) { const w = win - 160; assert.equal(columnsOf(w).columns, cols, `${win}`); assert.ok(w - gridWidthOf(cols, UNIT_PX) <= UNIT_GAP, `${win}: leaves ${w - gridWidthOf(cols, UNIT_PX)} px`) }
+  assert.equal(columnsOf(2560 - 160).columns, 12)
 })
 
 test('the blocks of the overview are as wide as their columns of the fixed unit and do not grow', () => {
@@ -35,4 +36,11 @@ test('the blocks of the overview are as wide as their columns of the fixed unit 
   assert.match(dock, /flex: '0 1 auto', width: `\$\{gridWidthOf\(b\.units, b\.unit\)\}px`/)
   const skel = fs.readFileSync(new URL('../src/vue/MDashSkeleton.vue', import.meta.url), 'utf8')
   assert.match(skel, /gridWidthOf\(b\.units, b\.unit\)/)
+})
+
+test('the grid has at most 12 columns of the fixed unit: a wider pane gets wider margins, not a wider grid', () => {
+  assert.equal(MAX_COLUMNS, 12)
+  for (const w of [1908, 2400, 3200, 3680, 5000]) { const c = columnsOf(w); assert.equal(c.columns, 12, `${w}`); assert.equal(c.unit, UNIT_PX) }
+  assert.equal(columnsOf(1760).columns, 11)
+  assert.equal(gridWidthOf(12, UNIT_PX), 1908)
 })

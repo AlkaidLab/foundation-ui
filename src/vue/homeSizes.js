@@ -17,6 +17,9 @@ export const SIZE_UNITS = Object.freeze({ s: Object.freeze([1, 1]), m: Object.fr
  *  columns and rows of standard tiles, a smaller one fewer, never a bigger or smaller tile. 148 px (a column pitch of 160 px with the 12 px gap) is the square the tiles were drawn, fitted and shown to the owner at (149.7 px at 1280 x 800), and it packs the common windows flush: the
  *  content widths of a 1280, 1440, 1920 and 2560 px window are 7, 8, 11 and 15 columns of it with 12 px to spare. The small views are drawn for 140 px and up; a 2 x 1 tile is 308 px. The strip's height, the gap between tiles. */
 export const UNIT_PX = 148
+/** The most columns the overview grid has. A wider pane keeps the tiles at their size and gets wider margins on both sides: the grid sits in the middle (the catalogue has a limited number of tiles with data, and a grid wider than that
+ *  would show holes instead of tiles). 12 columns are 12 x 148 + 11 x 12 = 1908 px. */
+export const MAX_COLUMNS = 12
 export const STRIP_PX = 56
 export const UNIT_GAP = 12
 const DENSITY = { smaller: 0.875, standard: 1, larger: 1.125 }
@@ -24,7 +27,7 @@ const DENSITY = { smaller: 0.875, standard: 1, larger: 1.125 }
  *  (a phone) gets a smaller one, so two columns still fit. The grid is as wide as its columns and sits in the middle of the pane. */
 export function columnsOf(width, density = 'standard') {
   const u = Math.round(UNIT_PX * (DENSITY[density] || 1))
-  const n = Math.max(2, Math.floor((width + UNIT_GAP) / (u + UNIT_GAP)))
+  const n = Math.max(2, Math.min(MAX_COLUMNS, Math.floor((width + UNIT_GAP) / (u + UNIT_GAP))))
   const fit = Math.floor(((width - (n - 1) * UNIT_GAP) / n) * 100) / 100
   return { columns: n, unit: Math.min(u, fit) }
 }

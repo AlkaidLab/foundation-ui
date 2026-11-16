@@ -95,16 +95,42 @@ export function useDashDock(D) {
     fillMemory = { scenario, ids: taken }
     return { boxed, packed }
   }
+  // the empty standard cells inside the rows a plan occupies (the rows below the last tile are not part of the grid)
+  const holesOf = (packed, units) => {
+    const used = new Set()
+    for (const p of packed.placed.values()) for (let r = p.row; r < p.row + p.rows; r++) for (let x = p.col; x < p.col + p.span; x++) used.add(r * units + x)
+    let free = 0
+    for (let r = 0; r < packed.rows.length; r++) if ((packed.rows[r].cls || 'unit') === 'unit') for (let x = 0; x < units; x++) if (!used.has(r * units + x)) free++
+    return free
+  }
   const blockOf = (key, list, w, more = {}) => {
     const { light, ghostSection, taken, only, fill, ...rest } = more
-    const grid = gridOf(w)
+    const grid0 = gridOf(w)
     // the suggestions of the section's own purpose come first
     const candidates = light || fill ? [] : (only || ghostCards.value).filter((g) => !list.some((x) => x.id === g.id) && !(taken && taken.has(g.id))).sort((a, b) => Number(ghostSection !== undefined && sectionIndexOf(purposeOf(b.id, b.group), sectionCount.value) === ghostSection) - Number(ghostSection !== undefined && sectionIndexOf(purposeOf(a.id, a.group), sectionCount.value) === ghostSection))
-    const f = fitDash(list, w, boxFor, { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
-    const ghosts = new Set(f.ghosts)
-    let boxed = f.boxed.map((c) => (ghosts.has(c.id) ? { ...c, ghost: true } : c))
-    let packed = f.packed
-    if (fill) ({ boxed, packed } = fillGrid(boxed, packed, f.units, grid.unit, fill))
+    const build = (columns) => {
+      const grid = { ...grid0, columns }
+      const f = fitDash(list, w, boxFor, { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
+      const ghosts = new Set(f.ghosts)
+      let boxed = f.boxed.map((c) => (ghosts.has(c.id) ? { ...c, ghost: true } : c))
+      let packed = f.packed
+      if (fill) ({ boxed, packed } = fillGrid(boxed, packed, f.units, grid.unit, fill))
+      return { f, boxed, packed, grid }
+    }
+    let best = build(grid0.columns)
+    // When the tiles with data do not fill the grid (a wide window: the catalogue is limited), the grid takes the column count (up to six less) with the fewest empty cells, the larger on a tie; it stays in the middle of the pane.
+    if (fill && holesOf(best.packed, best.f.units) > 0) {
+      let holes = holesOf(best.packed, best.f.units)
+      const memory = fillMemory
+      let bestMemory = fillMemory
+      for (let n = grid0.columns - 1; n >= Math.max(6, grid0.columns - 6) && holes > 0; n--) {
+        fillMemory = memory
+        const t = build(n), h = holesOf(t.packed, t.f.units)
+        if (h < holes) { best = t; holes = h; bestMemory = fillMemory }
+      }
+      fillMemory = bestMemory
+    }
+    const { f, boxed, packed, grid } = best
     if (typeof window !== 'undefined') (window.__m3eFit ||= {})[key] = { w, units: f.units, trace: f.trace }
     return { key, units: f.units, unit: grid.unit, boxed, packed, natural: heightOf(packed, rowPxIn(grid.unit), UNIT_GAP), template: trackTemplate(packed.rows, grid.unit), ratio: f.ratio }
   }
