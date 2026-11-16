@@ -51,10 +51,12 @@ const props = defineProps({
 const emit = defineEmits(['action'])
 // ctx.pending: the product does not know yet what decides the page (the session, the clients): the skeleton stands and the card at the top is not drawn, so nothing is drawn idle and redrawn
 const pending = computed(() => !!props.ctx.pending)
-// a card that is there in the first drawn frame (the skeleton kept its place) does not open from nothing; one that comes later does (promptSlot.js)
-let drawnAt = -1e9
-watch(pending, (p) => { if (!p) drawnAt = performance.now() }, { flush: 'pre' })
-const onSlotEnter = (el, done) => (performance.now() - drawnAt < 80 ? done() : slotEnter(el, done))
+// a card that is there in the first drawn frame (the skeleton kept its place) does not open from nothing; one that comes later does (promptSlot.js). "The first drawn frame" is the frame the release is
+// drawn in: the card's enter hook runs in the same task as the release, before the next paint. A time limit would not do: a machine that takes longer to build the tiles than the limit would open the card
+// under tiles that were fitted for it closed.
+let firstDraw = false
+watch(pending, (p) => { if (p) return; firstDraw = true; const end = () => { firstDraw = false }; typeof requestAnimationFrame === 'function' ? requestAnimationFrame(end) : setTimeout(end, 0) }, { flush: 'pre' })
+const onSlotEnter = (el, done) => (firstDraw ? done() : slotIn(el, done))
 const T = computed(() => ({ ...EDIT_TEXTS.en, addCard: 'Add card', catalogueAll: 'All cards', all: 'All', ...props.texts }))
 const root = ref(null)
 useFitRows(root) // a list or a row of chips shows the entries that fit whole and takes the rest out (fitRows.js)
@@ -81,13 +83,13 @@ useDashEditSheet(D)
 useDashDrag(D)
 useDashContext(D)
 useDashSkeleton(D)
-const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, clockLocale, clockSizeDrawn, dateText, statusText, dockCards, dockStyle, setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockRow, dockEdge, measureDock, dockScroll, onDockWheel, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotEnter, slotLeave, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
+const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, clockLocale, clockSizeDrawn, dateText, statusText, dockCards, dockStyle, setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockRow, dockEdge, measureDock, dockScroll, onDockWheel, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
 </script>
 
 <template>
   <div ref="root" class="m-dash" :class="[`m-dash--${mode}`, { 'm-dash--compact': compact, 'm-dash--xl': xl, 'is-edit': edit, 'is-sectioned': sectioned, 'is-resizing': resizing }]" :style="{ '--u': units, '--m-badge-c': `${badge.c}px`, '--m-badge-r': `${BADGE_R}px` }" @pointerenter="onHover(true)" @pointerleave="onHover(false)">
     <!-- the card at the top: the recommendation of a client when it is due for the device in use, else the star card; it opens and closes in height so what is under it does not jump -->
-    <Transition :css="false" mode="out-in" @enter="onSlotEnter" @leave="slotLeave">
+    <Transition :css="false" mode="out-in" @enter="onSlotEnter" @leave="slotOut">
       <MClientPrompt v-if="clientRec && !edit && !pending" key="client" :texts="{ title: T.crTitle, line: T.crLine, lineAny: T.crLineAny, download: T.crDownload, later: T.crLater }" :rec="clientRec" @open="recOpen" @later="recLater" />
       <MStarPrompt v-else-if="ctx.star && !edit && !pending" key="star" :texts="{ title: T.starTitle, sub: T.starSub, action: T.starPromptAction, later: T.starLater, sponsor: T.sponsorAction, bilibili: T.starBilibili }" :host="STAR_HOST" :client="starClient" :streaming="starStreaming" @open="starOpen" @later="starLater" @sponsor="starSponsor" />
     </Transition>

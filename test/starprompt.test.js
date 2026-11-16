@@ -75,7 +75,7 @@ test('the star card per stream: the star of the client in use while streaming, t
   assert.match(p, /<template v-if="streaming">/); assert.match(p, /<button v-if="client" type="button" class="m-sprompt__btn" data-star="client"/); assert.match(p, /m-sprompt__btn--fill" data-star="host"/); assert.match(p, /data-star="sponsor" @click="emit\('sponsor'\)"/)
   assert.match(dock, /starStreaming = computed\(\(\) => !!props\.ctx\.live\)/); assert.match(dock, /starClientInUse\(\{ clients: props\.ctx\.clientList/)
   assert.match(dock, /emit\('action', \{ card: 'star', type: 'sponsor', value: '' \}\)/, 'the sponsor entry is the one of 关于: the product opens its sponsor sheet')
-  assert.match(d, /<Transition :css="false" mode="out-in" @enter="onSlotEnter" @leave="slotLeave">/); assert.match(d, /slotEnter\(el, done\)/, 'a card that comes later opens in height; one drawn in the first frame does not')
+  assert.match(d, /<Transition :css="false" mode="out-in" @enter="onSlotEnter" @leave="slotOut">/); assert.match(dock, /slotEnter\(el, done\)/, 'a card that comes later opens in height; one drawn in the first frame does not')
   assert.match(slot, /export function slotEnter/); assert.match(slot, /export function slotLeave/); assert.match(slot, /reducedMotion\(\)/)
   assert.match(card, /watch\(\(\) => !!streaming\(\)/); assert.doesNotMatch(card, /dismissed: true/)
   assert.doesNotMatch(p + card, /one-time|never again|for good/i, 'no comment says one-time any more')

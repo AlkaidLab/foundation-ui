@@ -4,7 +4,7 @@ import { packDash } from '../homePack.js'
 import { PURPOSES, fillOrder, purposeOf, sectionIndexOf, suggestions } from '../homeSmart.js'
 import { clientInUse, clientRecommendation, markClientRec, readClientRec } from '../clientPrompt.js'
 import { starClientInUse } from '../starCard.js'
-import { slotEnter, slotLeave } from '../promptSlot.js'
+import { slotAhead, slotEnter, slotLeave } from '../promptSlot.js'
 import { UNIT_GAP, gridWidthOf, hasNoData, sizesOf } from '../homeSizes.js'
 import { effectiveClockSize } from '../../appearance/appearance.js'
 
@@ -18,10 +18,15 @@ export function useDashDock(D) {
   const measureTop = () => {
     const el = D.root?.value?.querySelector?.('.m-dash__blocks'); if (!el) return
     const sc = el.closest('.m-scene__pane, .m-scene')
-    const t = Math.round(el.getBoundingClientRect().top + (sc?.scrollTop || 0))
+    // a card above the grid that is opening or closing: the grid is measured where it will stand when the card has its final height, not where the animation has it in this frame (the fill is laid out once, for the final room)
+    const above = D.root?.value?.querySelector(':scope > .m-sprompt')
+    const t = Math.round(el.getBoundingClientRect().top + (sc?.scrollTop || 0) + slotAhead(above))
     if (Math.abs(t - blocksTop.value) > 2) blocksTop.value = t
   }
   onMounted(() => nextTick(measureTop))
+  // the card at the top opens or closes: the room under it changes by its final height at once, whatever frame the animation is in
+  const slotIn = (el, done) => { slotEnter(el, done); measureTop() }
+  const slotOut = (el, done) => { slotLeave(el, done); measureTop() }
   // the fill is part of the first drawn plan: the tiles of the plan and the ones that fill around them are laid out in the same frame, as soon as the product knows what decides the page (ctx.pending, the
   // skeleton stands until then). A timer here drew half a screen of tiles for 1.2 s on every visit and then added the rest. The tiles it takes are the ones that
   // have data when the page is drawn; a tile whose data arrives later is added after them and never moves the plan's tiles (fillMemory).
@@ -304,5 +309,5 @@ export function useDashDock(D) {
     }
     emit('action', a)
   }
-  Object.assign(D, { availH, slotEnter, slotLeave, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockEdge, dockOn, dockRow, dockScroll, dockStyle, hideGhost, measureDock, onAct, onDockWheel, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
+  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockEdge, dockOn, dockRow, dockScroll, dockStyle, hideGhost, measureDock, onAct, onDockWheel, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
 }
