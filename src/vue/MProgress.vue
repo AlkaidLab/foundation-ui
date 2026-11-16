@@ -1,26 +1,76 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { createShown, isDone, isFlat } from './waveProgress.js'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { T, bezier, buildWave, drawPaths, flatWave, stopIndicator, toSvg } from './linearWavy.js'
+import { createWavyState } from './linearWavyState.js'
 
 // Wavy progress for work of known length (indeterminate when `value` is null). Use MLoading for short waits.
+// The linear bar is Material 3 Expressive's LinearWavyProgressIndicator ported from Compose Material3 (linearWavy.js: the paths, the gap, the stop dot, the amplitude function;
+// linearWavyState.js: the clock: the value eased by ProgressAnimationSpec, the amplitude eased by its two specs, the wave moving one wavelength per second, the indeterminate lines and their handoff).
 const props = defineProps({
   value: { type: Number, default: null }, // 0..1
   circular: { type: Boolean, default: false },
   flat: { type: Boolean, default: false },
   label: { type: String, default: '' },
+  /** how long a new value takes to be reached (ms); Compose's ProgressAnimationSpec is 500 ms, linear */
+  glide: { type: Number, default: 500 },
+  /** the easing of that: 'linear' (Compose), 'standard' or 'creep' (a slow start of a long glide) */
+  glideEase: { type: String, default: 'linear' },
 })
 const p = computed(() => (props.value == null ? null : Math.min(1, Math.max(0, props.value))))
-// The value that is drawn. While the length is unknown the bar shows the waiting state and the determinate parts fade out; when the value is known again the bar starts from
-// no progress and moves to it (Compose LinearWavyProgressIndicator: "the indeterminate lines leave the track and the indicator then animates from no progress to the returned
-// value"), instead of cutting from one drawing to the other. A value that only changes (up, or back down) is drawn at once and eased by the width transition.
-const shown = ref(p.value ?? 0)
-const later = (fn, ms) => (ms ? setTimeout(fn, ms) : typeof requestAnimationFrame === 'function' ? requestAnimationFrame(() => requestAnimationFrame(fn)) : setTimeout(fn, 32))
-const drawn = createShown(p.value, (v) => { shown.value = v }, later)
-watch(p, (v) => drawn.feed(v))
-// WavyProgressIndicatorDefaults.indicatorAmplitude: no wave at 10 % and below or at 95 % and above, the full wave in between (the change takes 500 ms, as in Compose)
-const flatNow = computed(() => props.flat || isFlat(shown.value))
-// a track shorter than the gap and the stop dot is not drawn: the finished bar has no track and no stop indicator
-const done = computed(() => isDone(shown.value))
+const EASES = { linear: (t) => t, standard: bezier(0.2, 0, 0, 1), creep: bezier(0.1, 0.5, 0.3, 1) }
+
+const root = ref(null)
+const activeEl = ref(null), trackEl = ref(null), stopEl = ref(null)
+const width = ref(240)
+let state = null, raf = 0, observer = null, mounted = false
+let full = null, indWave = null, flatPath = null, builtFor = '', drawn = ''
+const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches && document.documentElement.dataset.motion !== 'full'
+const make = () => createWavyState({
+  amplitude: props.flat ? () => 0 : undefined,
+  glide: { ms: props.glide, ease: EASES[props.glideEase] || EASES.linear },
+  ...(reduced() ? { waveSpeed: 0, indeterminateWaveSpeed: 0 } : {}),
+})
+function paint(now) {
+  raf = 0
+  if (!mounted || !state) return
+  const model = state.frame(now)
+  const w = width.value
+  if (builtFor !== `${w}`) { // the paths of the full wave depend on the width only (LinearProgressDrawingCache.updateFullPaths)
+    full = buildWave(w, T.height, T.thickness, T.wavelength); indWave = buildWave(w, T.height, T.thickness, T.indeterminateWavelength); flatPath = flatWave(w, T.height); builtFor = `${w}`
+  }
+  const wave = model.amplitude === 0 ? flatPath : model.indeterminate ? indWave : full
+  const paths = drawPaths({ width: w, height: T.height, wavelength: model.indeterminate ? T.indeterminateWavelength : T.wavelength }, model.fractions, model.amplitude, model.waveOffset, wave)
+  const stop = model.indeterminate ? null : stopIndicator(model.fractions[1], w, T.height, T.stop * model.handoff, paths.capWidth)
+  const sig = `${toSvg(paths.track)}|${toSvg(paths.progress)}|${stop ? `${stop.r.toFixed(2)},${stop.cx.toFixed(2)}` : ''}`
+  if (sig !== drawn) {
+    drawn = sig
+    trackEl.value?.setAttribute('d', toSvg(paths.track))
+    activeEl.value?.setAttribute('d', toSvg(paths.progress))
+    if (stopEl.value) {
+      stopEl.value.setAttribute('r', stop ? stop.r.toFixed(2) : '0')
+      if (stop) { stopEl.value.setAttribute('cx', stop.cx.toFixed(2)); stopEl.value.setAttribute('cy', stop.cy.toFixed(2)) }
+    }
+  }
+  if (!model.settled) raf = requestAnimationFrame(paint)
+}
+const kick = () => { if (!raf && mounted && typeof requestAnimationFrame === 'function') raf = requestAnimationFrame(paint) }
+if (!props.circular) {
+  watch(() => props.value, (v) => { state?.set(v == null ? null : v, performance.now()); kick() })
+  watch(width, () => { drawn = ''; kick() })
+}
+onMounted(() => {
+  if (props.circular) return
+  mounted = true
+  state = make()
+  state.set(props.value, 0)
+  // the layout width (not getBoundingClientRect: a sheet that is scaling in would be measured smaller)
+  const measure = (w = root.value?.clientWidth || 0) => { w = Math.round(w); if (w > 0 && w !== width.value) width.value = w }
+  measure()
+  if (typeof ResizeObserver === 'function' && root.value) { observer = new ResizeObserver((entries) => measure(entries[entries.length - 1]?.contentRect?.width)); observer.observe(root.value) }
+  kick()
+})
+onBeforeUnmount(() => { mounted = false; if (raf) cancelAnimationFrame(raf); observer?.disconnect() })
+
 // circular (CircularProgressIndicatorTokens, Compose Material3): 48 px with the wave (WaveSize), stroke 4, amplitude 1.6, wavelength 15:
 // a centre line of radius 24 - 2 - 1.6 = 20.4 carries 8 waves (2 pi 20.4 / 8 = 16.0, the nearest whole number of waves to a wavelength of 15)
 const wave = computed(() => {
@@ -35,12 +85,12 @@ const wave = computed(() => {
 </script>
 
 <template>
-  <div v-if="!circular" class="m-wave" :class="{ 'm-wave--flat': flat, 'm-wave--indeterminate': p == null, 'is-flat': flatNow, 'is-done': done }" role="progressbar" :aria-label="label || undefined" :aria-valuemin="0" :aria-valuemax="100" :aria-valuenow="p == null ? undefined : Math.round(p * 100)">
-    <span class="m-wave__active" :style="{ width: `calc(${shown * 100}% - 4px)` }"><i /><em class="m-wave__flat" /></span>
-    <span class="m-wave__track" :style="{ left: `calc(${shown * 100}% + 4px)` }" />
-    <b class="m-wave__stop" />
-    <!-- waiting (the length is not known): one wave segment travels along and the track fills what is left on both sides of it, with a gap; the group moves as one body, so the track is never drawn behind the wave -->
-    <span class="m-wave__run" aria-hidden="true"><span class="m-wave__group"><span class="m-wave__seg"><i /></span><span class="m-wave__tl" /><span class="m-wave__tr" /></span></span>
+  <div v-if="!circular" ref="root" class="m-wave" :class="{ 'm-wave--flat': flat, 'm-wave--indeterminate': p == null }" role="progressbar" :aria-label="label || undefined" :aria-valuemin="0" :aria-valuemax="100" :aria-valuenow="p == null ? undefined : Math.round(p * 100)">
+    <svg class="m-wave__svg" :width="width" :height="T.height" :viewBox="`0 0 ${width} ${T.height}`" aria-hidden="true">
+      <path ref="trackEl" class="m-wave__track" />
+      <path ref="activeEl" class="m-wave__active" />
+      <circle ref="stopEl" class="m-wave__stop" r="0" />
+    </svg>
   </div>
   <!-- indeterminate (ProgressIndicator.kt circularIndeterminate*): the arc grows from 10 % to 87 % and back in 6 s while the whole turns 1080 degrees
        linearly and jumps a further 90 degrees every 1.5 s; no track (circularIndeterminateTrackColor is transparent) -->

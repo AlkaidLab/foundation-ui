@@ -267,24 +267,15 @@
 @keyframes m-inst-rise { from { opacity: 0; transform: translateY(10px); } }
 @keyframes m-inst-attention { 0%, 100% { transform: none; } 20% { transform: translateX(-5px) rotate(-4deg); } 45% { transform: translateX(4px) rotate(3deg); } 70% { transform: translateX(-2px); } }
 @keyframes m-inst-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--md-sys-color-primary) 34%, transparent); } 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--md-sys-color-primary) 0%, transparent); } }
-.m-inst__total .m-wave__active { transition: width 480ms var(--m-ease-standard); } .m-inst__total .m-wave__track { transition: left 480ms var(--m-ease-standard); }
-.m-inst__total .m-wave.is-creeping .m-wave__active { transition: width 14s cubic-bezier(0.1, 0.5, 0.3, 1); } .m-inst__total .m-wave.is-creeping .m-wave__track { transition: left 14s cubic-bezier(0.1, 0.5, 0.3, 1); }
+/* the overall bar eases its value in MProgress (glide 480 ms; 14 s while it creeps towards the next step), not in CSS */
 
 /* ---- reduced motion: a slide becomes a cut, a finite animation ends in its final state, a busy indicator keeps a calm fade (the same rule as the Panel, motion.css) ---- */
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion='full']) .m-inst *, html:not([data-motion='full']) .m-inst *::before, html:not([data-motion='full']) .m-inst *::after { animation-iteration-count: 1 !important; animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
   html:not([data-motion='full']) .m-inst :is(.m-wave-circle--spin) { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
-  html:not([data-motion='full']) .m-inst .m-wave--indeterminate .m-wave__group { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
 }
 html[data-motion='reduced'] .m-inst *, html[data-motion='reduced'] .m-inst *::before, html[data-motion='reduced'] .m-inst *::after { animation-iteration-count: 1 !important; animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
 html[data-motion='reduced'] .m-inst :is(.m-wave-circle--spin) { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
-/* the overall progress bar keeps telling that work goes on under reduced motion too (a progress indicator, not decoration): its wave runs slower and
-   its value still eases, briefly; nothing else moves */
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-motion='full']) .m-inst .m-inst__total .m-wave__active i { animation: m-wave-run 2.4s linear infinite !important; }
-  html:not([data-motion='full']) .m-inst .m-inst__total .m-wave__active { transition: width 300ms var(--m-ease-standard) !important; }
-  html:not([data-motion='full']) .m-inst .m-inst__total .m-wave__track { transition: left 300ms var(--m-ease-standard) !important; }
-}
 /* the free-software notice and the support line of the first page: secondary body text under the lead */
 .m-inst__legal { display: grid; gap: 4px; margin-top: 12px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); text-wrap: pretty; }
 .m-inst__legal p { margin: 0; }
