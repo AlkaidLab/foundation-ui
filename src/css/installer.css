@@ -274,7 +274,7 @@
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion='full']) .m-inst *, html:not([data-motion='full']) .m-inst *::before, html:not([data-motion='full']) .m-inst *::after { animation-iteration-count: 1 !important; animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
   html:not([data-motion='full']) .m-inst :is(.m-wave-circle--spin) { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
-  html:not([data-motion='full']) .m-inst .m-wave--indeterminate .m-wave__active--run { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
+  html:not([data-motion='full']) .m-inst .m-wave--indeterminate .m-wave__group { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
 }
 html[data-motion='reduced'] .m-inst *, html[data-motion='reduced'] .m-inst *::before, html[data-motion='reduced'] .m-inst *::after { animation-iteration-count: 1 !important; animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
 html[data-motion='reduced'] .m-inst :is(.m-wave-circle--spin) { animation: m-rm-busy 2s ease-in-out infinite !important; transform: none; }
