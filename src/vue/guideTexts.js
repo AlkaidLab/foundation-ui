@@ -3,7 +3,7 @@ import { textTable } from '../locale/texts/index.js'
 // English. A product may override single entries (the Web welcome page passes its translated credential-form texts).
 
 const EN = {
-  guide: 'Getting started', close: 'Close', back: 'Back', next: 'Next', skip: 'Skip the guide', skipStep: 'Skip to the next page', skipIn: 'Skip the guide ({n})', skipThis: 'Skip this step', finishTools: 'Finish and open the test tools', finish: 'Finish', follow: 'Follow us: ', followBilibili: 'Bilibili', followSite: 'Website', stepOf: 'Step {n} of {total}', steps: 'Steps',
+  guide: 'Getting started', close: 'Close', back: 'Back', next: 'Next', skipThis: 'Skip this step', finishTools: 'Finish and open the test tools', finish: 'Finish', follow: 'Follow us: ', followBilibili: 'Bilibili', followSite: 'Website', stepOf: 'Step {n} of {total}', steps: 'Steps',
   openSource: { title: 'Free and open source', text: 'Foundation Sunshine is open source (GPL-3.0). This project has not authorised any individual, business or media account to sell it.', link: 'View on GitHub' },
   intro: { followSystem: 'Follow system', moreLanguages: 'More languages', fewerLanguages: 'Fewer languages', start: 'Start' },
   later: 'Not now', language: 'Language', saved: 'Saved', retry: 'Try again', working: 'Working…', unavailable: 'Not available here',
@@ -29,7 +29,7 @@ const EN = {
     hostdone: 'Now the device you will play on: install a client, pair it, connect.',
   },
   hostdone: { done: 'This computer is ready to stream.', download: 'Get the client for the device you will play on', note: 'The next steps install it, pair it and make the first connection.' },
-  whatsnew: { items: [{ icon: 'sports_esports', title: 'A first stream you can check', text: 'Sound, mouse, keyboard and picture tests, and the latency clock, are in the guide and in Test tools.' }, { icon: 'download', title: 'One install view', text: 'The same client list, files and QR code in the guide, in Connect a device and on the download page.' }, { icon: 'public', title: 'Remote access, checked', text: 'The guide tests whether this computer can be reached from outside and what to change.' }, { icon: 'system_update_alt', title: 'Update method', text: 'Choose where updates come from; a Mirror酱 CDK is optional.' }], note: 'This window opens once for each new version. You can skip it.' },
+  whatsnew: { items: [{ icon: 'sports_esports', title: 'A first stream you can check', text: 'Sound, mouse, keyboard and picture tests, and the latency clock, are in the guide and in Test tools.' }, { icon: 'download', title: 'One install view', text: 'The same client list, files and QR code in the guide, in Connect a device and on the download page.' }, { icon: 'public', title: 'Remote access, checked', text: 'The guide tests whether this computer can be reached from outside and what to change.' }, { icon: 'system_update_alt', title: 'Update method', text: 'Choose where updates come from; a MirrorChyan CDK is optional.' }], note: 'This window opens once for each new version. You can skip it.' },
   welcome: { modes: { system: 'Follow system', light: 'Light', dark: 'Dark' } },
   channel: { channel: 'Update channel', stable: 'Stable (recommended)', stableText: 'Tested, right for most people.', beta: 'Beta', betaText: 'Get new features and fixes earlier; there may be small problems.', source: 'Where updates come from', failed: 'This was not saved. Try again.' },
   trynow: { more: 'More download options' },
@@ -58,7 +58,7 @@ const EN = {
 }
 
 const ZH = {
-  guide: '新手引导', close: '关闭', back: '上一步', next: '下一步', skip: '跳过引导', skipStep: '跳到下一页', skipIn: '跳过引导 ({n})', skipThis: '跳过这一步', finishTools: '完成并打开测试工具', finish: '完成', follow: '关注我们：', followBilibili: 'B 站', followSite: '官网', stepOf: '第 {n} 步，共 {total} 步', steps: '步骤',
+  guide: '新手引导', close: '关闭', back: '上一步', next: '下一步', skipThis: '跳过这一步', finishTools: '完成并打开测试工具', finish: '完成', follow: '关注我们：', followBilibili: 'B 站', followSite: '官网', stepOf: '第 {n} 步，共 {total} 步', steps: '步骤',
   intro: { followSystem: '跟随系统', moreLanguages: '更多语言', fewerLanguages: '收起', start: '开始' },
   later: '以后再说', language: '语言', saved: '已保存', retry: '重试', working: '处理中…', unavailable: '这里不可用',
   openSource: { title: '免费与开源', text: 'Foundation Sunshine 以 GPL-3.0 开源。本项目未授权任何个人、商家或自媒体账号售卖。', link: '在 GitHub 查看' },
