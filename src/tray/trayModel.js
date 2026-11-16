@@ -156,7 +156,7 @@ export const CELLS = Object.freeze({
 export const GROUPS = Object.freeze({
   language: { icon: 'language', ids: Object.freeze(['lang_zh', 'lang_en', 'lang_ja']), choice: true },
   config: { icon: 'folder_managed', ids: Object.freeze(['import_config', 'export_config', 'reset_config', 'clear_cache']) },
-  project: { icon: 'star', ids: Object.freeze(['star_project', 'visit_project_sunshine', 'visit_project_moonlight']) },
+  project: { icon: 'star', ids: Object.freeze(['star_project', 'visit_project_sunshine', 'visit_project_moonlight', 'feedback']) },
 })
 
 const item = (id, extra = {}) => ({ t: 'item', id, ...extra })
