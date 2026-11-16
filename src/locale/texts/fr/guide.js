@@ -3,9 +3,7 @@ export default {
   "close": "Fermer",
   "back": "Retour",
   "next": "Suivant",
-  "skip": "Passer le guide",
-  "skipStep": "Page suivante",
-  "skipIn": "Passer le guide ({n})",
+  "skipThis": "Passer cette étape",
   "finishTools": "Terminer et ouvrir les outils de test",
   "finish": "Terminer",
   "follow": "Suivez-nous : ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "Bibliothèques à analyser",
+    "skip": "Pas maintenant",
     "start": "Analyser",
     "again": "Analyser encore",
     "found": "{n} jeux trouvés",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "Cet hôte ne peut pas encore analyser les bibliothèques. Mettez l’hôte à jour.",
     "manual": "Ajouter à la main",
     "manualText": "Un nom et le programme principal.",
-    "skip": "Pas maintenant",
     "done": "Tout est prêt",
     "open": "Ouvrir",
     "warnings": {

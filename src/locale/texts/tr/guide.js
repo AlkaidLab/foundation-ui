@@ -3,9 +3,7 @@ export default {
   "close": "Kapat",
   "back": "Geri",
   "next": "İleri",
-  "skip": "Kılavuzu atla",
-  "skipStep": "Sonraki sayfaya geç",
-  "skipIn": "Kılavuzu atla ({n})",
+  "skipThis": "Bu adımı atla",
   "finishTools": "Bitir ve test araçlarını aç",
   "finish": "Bitir",
   "follow": "Bizi izleyin: ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "Taranacak kitaplıklar",
+    "skip": "Şimdi değil",
     "start": "Tara",
     "again": "Yeniden tara",
     "found": "{n} oyun bulundu",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "Bu ana bilgisayar henüz oyun kitaplıklarını tarayamıyor: ana bilgisayarı güncelleyin.",
     "manual": "El ile ekle",
     "manualText": "Bir ad ve ana program.",
-    "skip": "Şimdi değil",
     "done": "Her şey hazır",
     "open": "Aç",
     "warnings": {

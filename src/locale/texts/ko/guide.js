@@ -3,9 +3,7 @@ export default {
   "close": "닫기",
   "back": "뒤로",
   "next": "다음",
-  "skip": "안내 건너뛰기",
-  "skipStep": "다음 페이지",
-  "skipIn": "안내 건너뛰기 ({n})",
+  "skipThis": "이 단계 건너뛰기",
   "finishTools": "마치고 테스트 도구 열기",
   "finish": "완료",
   "follow": "팔로우: ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "찾을 라이브러리",
+    "skip": "나중에",
     "start": "찾기",
     "again": "다시 찾기",
     "found": "게임 {n}개",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "이 호스트는 아직 게임 라이브러리를 찾지 못합니다. 호스트를 업데이트하세요.",
     "manual": "직접 추가",
     "manualText": "이름과 주 프로그램.",
-    "skip": "지금은 안 함",
     "done": "준비되었습니다",
     "open": "열기",
     "warnings": {

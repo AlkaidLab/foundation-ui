@@ -3,9 +3,7 @@ export default {
   "close": "閉じる",
   "back": "戻る",
   "next": "次へ",
-  "skip": "ガイドをスキップ",
-  "skipStep": "次のページへ",
-  "skipIn": "ガイドをスキップ ({n})",
+  "skipThis": "このステップをスキップ",
   "finishTools": "完了してテストツールを開く",
   "finish": "完了",
   "follow": "フォロー：",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "探すライブラリ",
+    "skip": "あとで",
     "start": "探す",
     "again": "もう一度探す",
     "found": "{n} 件のゲーム",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "このホストはまだゲームライブラリを探せません。ホストを更新してください。",
     "manual": "手で追加",
     "manualText": "名前とメインプログラム。",
-    "skip": "今はしない",
     "done": "準備できました",
     "open": "開く",
     "warnings": {

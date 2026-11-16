@@ -3,9 +3,7 @@ export default {
   "close": "Cerrar",
   "back": "Atrás",
   "next": "Siguiente",
-  "skip": "Omitir la guía",
-  "skipStep": "A la página siguiente",
-  "skipIn": "Omitir la guía ({n})",
+  "skipThis": "Omitir este paso",
   "finishTools": "Terminar y abrir las herramientas de prueba",
   "finish": "Terminar",
   "follow": "Síganos: ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "Bibliotecas que buscar",
+    "skip": "Ahora no",
     "start": "Buscar",
     "again": "Buscar de nuevo",
     "found": "{n} juegos encontrados",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "Este host aún no puede buscar en bibliotecas. Actualice el host.",
     "manual": "Añadir a mano",
     "manualText": "Un nombre y el programa principal.",
-    "skip": "Ahora no",
     "done": "Todo listo",
     "open": "Abrir",
     "warnings": {

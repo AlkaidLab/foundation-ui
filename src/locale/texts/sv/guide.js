@@ -3,9 +3,7 @@ export default {
   "close": "Stäng",
   "back": "Tillbaka",
   "next": "Nästa",
-  "skip": "Hoppa över guiden",
-  "skipStep": "Hoppa till nästa sida",
-  "skipIn": "Hoppa över guiden ({n})",
+  "skipThis": "Hoppa över det här steget",
   "finishTools": "Slutför och öppna testverktygen",
   "finish": "Slutför",
   "follow": "Följ oss: ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "Bibliotek att skanna",
+    "skip": "Inte nu",
     "start": "Skanna",
     "again": "Skanna igen",
     "found": "{n} spel hittades",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "Den här värden kan ännu inte skanna spelbibliotek: uppdatera värden.",
     "manual": "Lägg till manuellt",
     "manualText": "Ett namn och huvudprogrammet.",
-    "skip": "Inte nu",
     "done": "Nu är du klar",
     "open": "Öppna",
     "warnings": {

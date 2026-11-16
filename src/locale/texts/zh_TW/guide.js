@@ -3,9 +3,7 @@ export default {
   "close": "關閉",
   "back": "上一步",
   "next": "下一步",
-  "skip": "跳過引導",
-  "skipStep": "跳到下一頁",
-  "skipIn": "跳過引導 ({n})",
+  "skipThis": "跳過這一步",
   "finishTools": "完成並開啟測試工具",
   "finish": "完成",
   "follow": "關注我們：",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "要掃描的遊戲庫",
+    "skip": "先不加",
     "start": "開始掃描",
     "again": "重新掃描",
     "found": "找到 {n} 個遊戲",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "這臺主機還不支援掃描遊戲庫，請更新主機。",
     "manual": "手動新增",
     "manualText": "填一個名稱和主程式。",
-    "skip": "先不加",
     "done": "都設定好了",
     "open": "開啟",
     "warnings": {

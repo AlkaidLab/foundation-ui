@@ -3,9 +3,7 @@ export default {
   "close": "Zamknij",
   "back": "Wstecz",
   "next": "Dalej",
-  "skip": "Pomiń przewodnik",
-  "skipStep": "Przejdź do następnej strony",
-  "skipIn": "Pomiń przewodnik ({n})",
+  "skipThis": "Pomiń ten krok",
   "finishTools": "Zakończ i otwórz narzędzia testowe",
   "finish": "Zakończ",
   "follow": "Obserwuj nas: ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "Biblioteki do skanowania",
+    "skip": "Nie teraz",
     "start": "Skanuj",
     "again": "Skanuj ponownie",
     "found": "Znaleziono gier: {n}",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "Ten host nie może jeszcze skanować bibliotek gier: zaktualizuj hosta.",
     "manual": "Dodaj ręcznie",
     "manualText": "Nazwa i program główny.",
-    "skip": "Nie teraz",
     "done": "Wszystko gotowe",
     "open": "Otwórz",
     "warnings": {

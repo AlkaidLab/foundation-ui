@@ -3,9 +3,7 @@ export default {
   "close": "Zavřít",
   "back": "Zpět",
   "next": "Další",
-  "skip": "Přeskočit průvodce",
-  "skipStep": "Přeskočit na další stránku",
-  "skipIn": "Přeskočit průvodce ({n})",
+  "skipThis": "Přeskočit tento krok",
   "finishTools": "Dokončit a otevřít testovací nástroje",
   "finish": "Dokončit",
   "follow": "Sledujte nás: ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "Knihovny ke skenování",
+    "skip": "Teď ne",
     "start": "Skenovat",
     "again": "Skenovat znovu",
     "found": "Nalezeno her: {n}",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "Tento hostitel zatím neumí skenovat herní knihovny: aktualizujte hostitele.",
     "manual": "Přidat ručně",
     "manualText": "Název a hlavní program.",
-    "skip": "Teď ne",
     "done": "Vše je připraveno",
     "open": "Otevřít",
     "warnings": {

@@ -3,9 +3,7 @@ export default {
   "close": "Close",
   "back": "Back",
   "next": "Next",
-  "skip": "Skip the guide",
-  "skipStep": "Skip to the next page",
-  "skipIn": "Skip the guide ({n})",
+  "skipThis": "Skip this step",
   "finishTools": "Finish and open the test tools",
   "finish": "Finish",
   "follow": "Follow us: ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "Libraries to scan",
+    "skip": "Not now",
     "start": "Scan",
     "again": "Scan again",
     "found": "{n} games found",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "This host cannot scan game libraries yet: update the host.",
     "manual": "Add by hand",
     "manualText": "A name and the main program.",
-    "skip": "Not now",
     "done": "You are set",
     "open": "Open",
     "warnings": {

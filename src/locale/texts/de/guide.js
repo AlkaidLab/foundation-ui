@@ -3,9 +3,7 @@ export default {
   "close": "Schließen",
   "back": "Zurück",
   "next": "Weiter",
-  "skip": "Anleitung überspringen",
-  "skipStep": "Zur nächsten Seite",
-  "skipIn": "Anleitung überspringen ({n})",
+  "skipThis": "Diesen Schritt überspringen",
   "finishTools": "Fertig und Testwerkzeuge öffnen",
   "finish": "Fertig",
   "follow": "Folgen Sie uns: ",
@@ -371,6 +369,7 @@ export default {
   },
   "apps": {
     "sources": "Bibliotheken zum Durchsuchen",
+    "skip": "Nicht jetzt",
     "start": "Suchen",
     "again": "Erneut suchen",
     "found": "{n} Spiele gefunden",
@@ -392,7 +391,6 @@ export default {
     "scanOnly": "Dieser Host kann Spielbibliotheken noch nicht durchsuchen. Aktualisieren Sie den Host.",
     "manual": "Von Hand hinzufügen",
     "manualText": "Ein Name und das Hauptprogramm.",
-    "skip": "Nicht jetzt",
     "done": "Alles bereit",
     "open": "Öffnen",
     "warnings": {
