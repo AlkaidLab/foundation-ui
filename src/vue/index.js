@@ -141,7 +141,7 @@ export { useCommunityLinks } from "./useCommunityLinks.js"
 export { default as MHomeGuide } from "./MHomeGuide.vue"
 export { useGuideCard } from "./useGuideCard.js"
 export { default as MGuideFlow } from './MGuideFlow.vue'
-export { GUIDE_STEP_IDS, GUIDE_CLIENTS, GUIDE_DEVICES, CONNECT_CHECKS, PIN_LENGTH as GUIDE_PIN_LENGTH, SKIP_DELAY_S as GUIDE_SKIP_DELAY_S, skipSecondsLeft, buildGuideSteps, readProgress, writeProgress, clearProgress, startIndex, shouldAutoOpen, isSetupCompleted, validateAccount, clientFor, deviceOf, pickLanAddresses, lanRank, isLoopbackHost, canPair, normalizeClients, findNewClient, normalizeSessions, pickSession, sessionLine, qrPath, scallopPoints } from './guideModel.js'
+export { GUIDE_STEP_IDS, GUIDE_CLIENTS, GUIDE_DEVICES, CONNECT_CHECKS, PIN_LENGTH as GUIDE_PIN_LENGTH, buildGuideSteps, readProgress, writeProgress, clearProgress, startIndex, shouldAutoOpen, isSetupCompleted, validateAccount, clientFor, deviceOf, pickLanAddresses, lanRank, isLoopbackHost, canPair, normalizeClients, findNewClient, normalizeSessions, pickSession, sessionLine, qrPath, scallopPoints } from './guideModel.js'
 export { guideEntry, upgradeSkips, addressKind } from './guideEntry.js'
 export { hostProgressOf, hostPatchOf, saveGuideHost, createHostSaver, deviceId as guideDeviceId, resumeIndex, unionDone as unionGuideDone, isPhoneLike } from './guideHost.js'
 export { checkPortsViaDoctor, PORT_CHECK_IDS } from './guidePortCheck.js'

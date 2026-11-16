@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {
   GUIDE_CLIENTS, GUIDE_DEVICES, GUIDE_STEP_IDS, buildGuideSteps, canPair, clearProgress, clientFor, findNewClient, isLast, isLoopbackHost, isSetupCompleted,
   lanRank, nextIndex, normalizeClients, normalizeSessions, pickLanAddresses, pickSession, prevIndex, qrPath, readProgress, scallopPoints, sessionLine,
-  GUIDE_OPTIONAL, UPDATE_CHANNELS, channelOf, legacyStepOf, optionalPages, unavailablePages, SKIP_DELAY_S, skipSecondsLeft, shouldAutoOpen, startIndex, remotePorts, portText, upnpState, validateAccount, writeProgress, setupStateFromConfig, mergeSetupConfig,
+  GUIDE_OPTIONAL, UPDATE_CHANNELS, channelOf, legacyStepOf, optionalPages, unavailablePages, shouldAutoOpen, startIndex, remotePorts, portText, upnpState, validateAccount, writeProgress, setupStateFromConfig, mergeSetupConfig,
 } from '../src/vue/guideModel.js'
 import { fillText, guideTexts } from '../src/vue/guideTexts.js'
 import { upgradeSkips } from '../src/vue/guideEntry.js'
@@ -305,17 +305,6 @@ test('the second lines of the first run carry information: none restates its tit
   const banned = ['选择界面语言', '到哪里查找和下载新版本', '在要看画面的那台设备上安装客户端', '用哪块显卡编码画面']
   const all = JSON.stringify(guideTexts('zh'))
   for (const phrase of banned) assert.ok(!all.includes(phrase), phrase)
-})
-
-test('跳过 is held back for the first seconds of the flow, 下一步 is not', () => {
-  assert.equal(SKIP_DELAY_S, 10)
-  assert.equal(skipSecondsLeft(0, 0), 10)
-  assert.equal(skipSecondsLeft(0, 1), 10)
-  assert.equal(skipSecondsLeft(0, 1000), 9)
-  assert.equal(skipSecondsLeft(0, 9001), 1)
-  assert.equal(skipSecondsLeft(0, 10000), 0)
-  assert.equal(skipSecondsLeft(0, 60000), 0)
-  assert.equal(skipSecondsLeft(0, 0, 0), 0) // a product can turn it off
 })
 
 test('the Windows build of the host tells whether the base virtual display can do HDR: not on Windows 10', () => {

@@ -44,7 +44,7 @@ test('the flow shows the intro first: the mark, the plain notice that the progra
   assert.doesNotMatch(intro, /MAppearance/, 'the colours and the background are an optional page of the done page, not the first screen')
   assert.match(vue, /<header v-if="pageId !== 'intro'" class="m-guide__head">/)
   assert.match(css, /\.m-guide\[data-step='intro'\] \.m-guide__actions > :last-child \{ min-width: min\(100%, 240px\); height: 56px;/)
-  assert.match(vue, /id\.value !== 'intro' && !props\.required/) // the first screen cannot be skipped
+  assert.match(vue, /const ACTION_STEPS = \['pair', 'connect'\]/) // the first screen has 开始 only: no step but pairing and the first stream has a skip
 })
 
 test('there is no consent step and no question: error reports and usage statistics are both on and the first screen says so once, in one notice; the notes sit at the foot of the first screen', () => {

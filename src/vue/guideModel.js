@@ -362,14 +362,3 @@ export function mergeSetupConfig(current, { locale, adapter, display, prep, hdr,
 }
 
 export * from './guideRemote.js'
-
-/* ---- the delay of 跳过 ---- */
-
-/** Seconds at the start of the flow in which 跳过 cannot be used. */
-export const SKIP_DELAY_S = 10
-
-/** Whole seconds left of the delay (0 once it has passed or when there is none). */
-export function skipSecondsLeft(startMs, nowMs, delay = SKIP_DELAY_S) {
-  const left = Math.ceil(delay - (nowMs - startMs) / 1000)
-  return left > 0 ? left : 0
-}

@@ -48,7 +48,9 @@ const version = computed(() => (props.versionOf ? props.versionOf(rec.value.clie
 const hasProduct = computed(() => !!rec.value.client.product)
 const pageUrl = computed(() => clientUrl(rec.value.client, props.locale))
 // a phone or a tablet installs from the code: the CNB link of the file where there is one (the fast one in China), else the store or project page
-const installTarget = computed(() => rows.value[0]?.cnbUrl || rows.value[0]?.githubUrl || pageUrl.value)
+// the source follows the language, as the download page does (CNB for Chinese, GitHub for the others; the other one when the file has only one), and the line under the button names the host that is really used
+const installTarget = computed(() => rows.value[0]?.url || pageUrl.value)
+const installHost = computed(() => (rows.value[0] && rows.value[0].url === rows.value[0].cnbUrl ? 'CNB' : 'GitHub'))
 const installQr = computed(() => { if (!QR_INSTALL_OS.includes(os.value) || !props.qr) return null; try { const q = qrPath(props.qr(installTarget.value)); return q && q.d ? q : null } catch { return null } })
 const fill = (text, vars) => String(text).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
 const name = (c) => c.label || c.name
@@ -74,7 +76,7 @@ const clock = (n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`
           <p v-if="by" class="m-conn__by">{{ by }}</p>
           <div v-if="lean && rows.length" class="m-conn__actions">
             <button type="button" class="m-dpill m-dpill--fill m-conn__go" @click="emit('open-url', installTarget)"><MIcon name="download" />{{ T.download }}<small v-if="rows[0].sizeLabel" class="m-dnum">{{ rows[0].sizeLabel }}</small></button>
-            <span class="m-conn__by">{{ rows[0].cnbUrl ? mirrorName(locale) : 'GitHub' }}</span>
+            <span class="m-conn__by">{{ fill(T.fromMirror, { host: installHost }) }}</span>
           </div>
           <div v-else class="m-conn__actions">
             <template v-if="!rows.length"><button type="button" class="m-dpill m-dpill--fill m-conn__go" @click="emit('open-url', pageUrl)"><MIcon :name="hasProduct ? 'download' : 'open_in_new'" />{{ hasProduct ? T.download : T.openPage }}</button><MLinkActions :url="pageUrl" :title="name(rec.client)" :qr="qr" :texts="T" /></template>
