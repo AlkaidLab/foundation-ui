@@ -4,6 +4,9 @@
 // The two choices are the shared ones (consent.js): usage statistics (usage and experience events) and error reports (error events), both on until the person turns them off. Nothing is queued for a kind that is
 // off here, and the host refuses it again when its own copy of the choice says off. Names the person typed or the host holds (apps, devices, games) are never sent: an event carries a fixed word (a catalogue id) or a
 // number, and an error event has no text at all.
+import { installActionTracking } from './actions.js'
+import { createPagePerf } from './pagePerf.js'
+import { updateResultProps } from './updateEvents.js'
 import { mayCollect, mayReportErrors, readConsent, readErrors } from './consent.js'
 
 export const EVENTS_PATH = '/api/telemetry/events'
@@ -81,12 +84,19 @@ export function createEventSender({ product, post, usageOn = () => mayCollect(re
         const at = now()
         let current = sender._page
         current = sender._page = { id, at }
+        sender.perf?.visit(id)
         frames(() => { if (sender._page === current) queue('experience', 'panel_page', { page: id, time_to_content_ms: Math.max(0, Math.round(now() - at)) }) })
       },
       feature,
       error: (code, _message, extra = {}) => errorEvent({ code, ...extra }),
+      /** A step of an update finished (updateEvents.js): where it came from, the step, ok or failed and the class of the failure. Follows the error-report choice like the other results. */
+      updateResult: (details) => queue('error', 'update_result', updateResultProps({ ...details, source: updateSourceOf(details?.source) })),
     },
     _page: null,
+    /** The page-experience collector of this window (pagePerf.js), set by installEventListeners; null where the runtime has none. */
+    perf: null,
+    /** `fetch` with the clock around the calls to the host's own API; without a collector it is `fetch` itself. */
+    timedFetch: (fetchImpl = globalThis.fetch) => (sender.perf ? sender.perf.timedFetch(fetchImpl) : fetchImpl),
   }
   return sender
 }
@@ -99,7 +109,16 @@ export function installEventListeners(sender, win = globalThis.window, doc = glo
   if (!win || typeof win.addEventListener !== 'function') return () => {}
   const on = (name, fn) => { win.addEventListener(name, fn); return () => win.removeEventListener?.(name, fn) }
   const offs = []
-  offs.push(on('foundation-telemetry-consent', (event) => { if (!mayCollect(event.detail)) sender.drop({ usage: false }) }))
+  // the last actions of the person (page changes, marked presses, settings, stream state) for the error reports
+  offs.push(installActionTracking(win, doc))
+  // page experience sketches (LCP, CLS, INP, long animation frames, frame times, API latency, heap): one event per route when the page is hidden, nothing in between. Started before the listeners that flush, so its events are queued first.
+  if (!sender.perf && typeof win.PerformanceObserver !== 'undefined') {
+    const perf = createPagePerf({ emit: (props, name) => sender.queue('experience', name, props), onReady: (page, ms) => sender.queue('experience', 'page_ready', { page, ms: Math.min(3_600_000, Math.max(0, ms)) }), env: { win, doc } })
+    perf.start(sender._page?.id || 'home')
+    sender.perf = perf
+    offs.push(() => { perf.stop(); if (sender.perf === perf) sender.perf = null })
+  }
+  offs.push(on('foundation-telemetry-consent', (event) => { if (!mayCollect(event.detail)) { sender.drop({ usage: false }); sender.perf?.collect({ force: true }) } }))
   offs.push(on('foundation-telemetry-errors', (event) => { if (!mayReportErrors(event.detail)) sender.drop({ errors: false }) }))
   // a known limit of this machine or version (an unsupported GPU, a missing component): an error event of severity warning with the category and the code only, at most 20 a minute
   const known = []
@@ -119,7 +138,7 @@ export function installEventListeners(sender, win = globalThis.window, doc = glo
     stamps.push(t)
     sender.errorEvent({ code: 'shell_error', severity: event.detail?.fatal ? 'fatal' : 'error' })
   }))
-  offs.push(on('pagehide', () => { void sender.flush({ keepalive: true }) }))
+  offs.push(on('pagehide', () => { sender.perf?.collect({ continueVisit: false, force: true }); void sender.flush({ keepalive: true }) }))
   if (doc && typeof doc.addEventListener === 'function') {
     const hidden = () => { if (doc.visibilityState === 'hidden') void sender.flush({ keepalive: true }) }
     doc.addEventListener('visibilitychange', hidden)
