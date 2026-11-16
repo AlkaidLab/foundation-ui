@@ -6,6 +6,7 @@
 // number, and an error event has no text at all.
 import { installActionTracking } from './actions.js'
 import { createPagePerf } from './pagePerf.js'
+import { guideFunnelProps } from './guideEvents.js'
 import { updateResultProps } from './updateEvents.js'
 import { mayCollect, mayReportErrors, readConsent, readErrors } from './consent.js'
 
@@ -92,6 +93,8 @@ export function createEventSender({ product, post, usageOn = () => mayCollect(re
         frames(() => { if (sender._page === current) queue('experience', 'panel_page', { page: id, time_to_content_ms: Math.max(0, Math.round(now() - at)) }) })
       },
       feature,
+      /** A step of the first-run guide (guideEvents.js): the props the guide's funnel hands over, cleaned to the fixed words once more. Usage kind: it follows the choice about anonymous usage statistics. */
+      guideFunnel: (props) => { const clean = guideFunnelProps({ phase: props?.phase, step: props?.step, optional: props?.optional, timeMs: props?.time_ms, mode: props?.mode }); if (clean) queue('usage', 'guide_funnel', clean) },
       error: (code, _message, extra = {}) => errorEvent({ code, ...extra }),
       /** A step of an update finished (updateEvents.js): where it came from, the step, ok or failed and the class of the failure. Follows the error-report choice like the other results. */
       updateResult: (details) => queue('error', 'update_result', updateResultProps({ ...details, source: updateSourceOf(details?.source) })),
