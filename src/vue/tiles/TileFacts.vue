@@ -17,7 +17,7 @@ import MTileShape from '../MTileShape.vue'
 import MTileChip from '../MTileChip.vue'
 import { firstNumber, OPEN, sizeOf, designProps } from './tileData.js'
 import MIcon from '../MIcon.vue'
-import { resClassOf } from './b2.js'
+import { resNameOf } from './b2.js'
 import { variantOf } from './registry.js'
 
 const props = defineProps(designProps)
@@ -31,11 +31,12 @@ const screen = computed(() => (d.value.screen?.w && d.value.screen?.h ? { w: d.v
 // 2560×1440 -> its aspect ratio
 const res = computed(() => { const m = /(\d{3,5})\s*[×x]\s*(\d{3,5})/.exec(d.value.big || ''); return m ? { w: +m[1], h: +m[2] } : null })
 const resLabel = computed(() => (res.value ? `${res.value.h}p` : d.value.big))
-// 串流分辨率: the height is the numeral (2160) and p its unit; variant 2 (?tv=stream-resolution:2) makes the name of the class (4K) the numeral and keeps the exact size in the caption
-const resVariant = computed(() => (variantOf('stream-resolution') === 2 ? 2 : 1))
-const resNum = computed(() => (res.value ? { v: String(res.value.h), u: 'p' } : { v: d.value.big || '', u: '' }))
-const resClass = computed(() => (res.value ? resClassOf(res.value.h) : ''))
-const heroNum = computed(() => (resVariant.value === 2 && resClass.value ? { v: resClass.value, u: '' } : resNum.value))
+// 串流分辨率: the name of the size is the hero ('4K', '2K', '1080p'); the exact size and the frame rate are the caption
+const resName = computed(() => (res.value ? resNameOf(res.value.w, res.value.h) : d.value.big))
+// 开关 and 使用虚拟显示器: the word of the state alone ('HDR 开' -> '开'), the title says what it is; variant 2 (?tv=hdr:2, ?tv=stream-vdd:2) fills the whole tile when on
+const stateWord = computed(() => String(d.value.big || '').trim().split(/\s+/).pop())
+const stateVariant = computed(() => (variantOf(id.value) === 2 ? 2 : 1))
+const stateGlyph = computed(() => (id.value === 'hdr' ? (hdrOn.value ? 'hdr_on' : 'hdr_off') : 'desktop_windows'))
 const fpsOf = computed(() => (d.value.rows?.[0] ? firstNumber(d.value.rows[0].value) : ''))
 // the heat cells: the last 14 days at 方形, 30 at 中; a day's tint is its share of the busiest day
 const days = computed(() => (d.value.days || []).slice(size.value === 's' ? -14 : -30))
@@ -45,7 +46,7 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
 </script>
 
 <template>
-  <section class="m-tile m-tfacts" :class="[`m-tfacts--${id}`, `is-${size}`, `is-v${resVariant}`]" :data-accent="accent" :data-size="size">
+  <section class="m-tile m-tfacts" :class="[`m-tfacts--${id}`, `is-${size}`, `is-v${stateVariant}`, { 'm-tile--tonal': (id === 'hdr' || id === 'stream-vdd') && stateVariant === 2 && hdrOn }]" :data-accent="accent" :data-size="size">
     <template v-if="empty || (id === 'session-heat' && !d.total)">
       <MTileHead :icon="empty?.icon || d.icon" :title="empty?.title || card.title" />
       <div class="m-empty-basic"><b>{{ empty?.value || d.empty || '' }}</b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
@@ -53,8 +54,9 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
     <template v-else-if="id === 'hdr' || id === 'stream-vdd'">
       <MTileHead :title="card.title" />
       <div class="m-tfacts__state" :class="{ 'is-on': hdrOn }">
-        <span class="m-tfacts__badge"><MIcon :name="id === 'hdr' ? (hdrOn ? 'hdr_on' : 'hdr_off') : 'desktop_windows'" /></span>
-        <b class="m-tfacts__word">{{ d.big }}</b>
+        <b class="m-tfacts__word">{{ stateWord }}</b>
+        <MTileShape v-if="stateVariant === 1" class="m-tfacts__shape" :icon="stateGlyph" :shape="id === 'hdr' ? 'sunny' : 'cookie'" :size="size === 's' ? '72px' : '96px'" :tone="hdrOn ? 'solid' : 'tonal'" />
+        <MIcon v-else class="m-tfacts__bigicon" :name="stateGlyph" />
       </div>
       <div v-if="d.chips?.length && size !== 's'" class="m-tfacts__chips"><MTileChip v-for="c in d.chips" :key="c.label" :icon="c.icon" :label="c.label" /></div>
     </template>
@@ -70,7 +72,7 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
       <MTileShape class="m-tile__corner" icon="aspect_ratio" shape="squircle" size="60px" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tfacts__foot m-tfacts__res">
-        <MTileNumeral :value="heroNum.v" :unit="heroNum.u" :size="size === 's' ? 's' : 'm'" />
+        <b class="m-b2res__name">{{ resName }}</b>
         <span class="m-tfacts__cap m-dnum">{{ d.big }}<template v-if="fpsOf"> · {{ fpsOf }} fps</template></span>
       </div>
       <div v-if="size !== 's'" class="m-tfacts__side m-tfacts__side--res"><MTileChip v-for="r in d.rows || []" :key="r.title" :icon="r.icon" :label="`${r.title} ${r.value}`" /></div>

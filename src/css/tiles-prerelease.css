@@ -175,8 +175,10 @@ html[data-bs-theme='dark'] .m-b2pair__qr, html[data-theme='dark'] .m-b2pair__qr,
 .m-calh--sq .m-calh__fact { text-wrap: balance; word-break: keep-all; }
 
 
-/* 虚拟显示器 and 串流分辨率: the resolution is the hero, as the name of 编码器 is: display type on the tile's own surface, no block of colour and no shape behind it, the state or the mode under it as a caption. The refresh rate,
-   the mode and the chips stand beside the numeral at two cells. Variant 2 (?tv=vdd:2, ?tv=stream-resolution:2): the name of the class ('4K') is the numeral and the exact size goes to the caption. */
+/* 虚拟显示器 and 串流分辨率: the name of the resolution is the hero ('4K', '2K', '1080p'), in the display type and weight of the name of 编码器 and at its size (28 px at one cell, 36 px at two), on the tile's own surface:
+   no block of colour, no shape and no drawn frame behind it. The state, the mode or the exact size is the caption under it. */
+.m-b2res__name { font: 600 28px/32px var(--m-font-display); letter-spacing: -.015em; white-space: nowrap; color: var(--md-sys-color-on-surface); }
+.m-tfacts.is-m .m-b2res__name, .m-b2vdd.is-m .m-b2res__name { font-size: 36px; line-height: 40px; }
 .m-b2vdd__body { flex: 1 1 auto; min-height: 0; display: flex; align-items: flex-end; gap: 16px; margin-top: 6px; padding-bottom: 2px; }
 .m-b2vdd__hero { flex: 0 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 4px; }
 .m-b2vdd.is-s .m-b2vdd__hero { width: 100%; } .m-b2vdd.is-m .m-b2vdd__hero { flex: 0 0 auto; }
@@ -188,17 +190,20 @@ html[data-bs-theme='dark'] .m-b2pair__qr, html[data-theme='dark'] .m-b2pair__qr,
 .m-tfacts.is-m .m-tfacts__res { max-width: 56%; }
 .m-tfacts__side--res { position: absolute; right: 20px; bottom: 18px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 
-/* 开关 and 使用虚拟显示器 at one cell: no shape in the corner and no tonal fill. The state is a round badge with its glyph (the container colour when on, the quiet fill when off) over the word of the state, as the
-   microphone tile does it. */
-.m-tfacts__state { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 8px; }
-.m-tfacts__badge { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--cal-inner, var(--md-sys-color-surface-container-high)); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
-.m-tfacts__badge > .m-icon { width: 24px; height: 24px; font-size: 24px; }
-.m-tfacts__state.is-on .m-tfacts__badge { background: var(--tk-c); color: var(--on-tk-c); }
-.m-tfacts__word { font: 600 26px/30px var(--m-font-display); letter-spacing: -.015em; color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; }
-.m-tfacts__state.is-on .m-tfacts__word { color: var(--md-sys-color-on-surface); }
-.m-tfacts--hdr.is-m .m-tfacts__state, .m-tfacts--stream-vdd.is-m .m-tfacts__state { flex-direction: row; align-items: center; justify-content: flex-start; gap: 14px; }
-.m-tfacts--hdr.is-m .m-tfacts__badge, .m-tfacts--stream-vdd.is-m .m-tfacts__badge { width: 56px; height: 56px; }
-.m-tfacts--hdr.is-m .m-tfacts__word, .m-tfacts--stream-vdd.is-m .m-tfacts__word { font-size: 34px; line-height: 38px; }
+/* 开关 and 使用虚拟显示器 at one cell: the title on top, the word of the state at the bottom left, and the state itself as the picture at the bottom right where nothing else is: variant 1 an expressive shape (sunny for
+   HDR, cookie for the display) with its glyph, in the accent when on and in the quiet fill when off; variant 2 (?tv=hdr:2, ?tv=stream-vdd:2) fills the whole tile with the container colour when on and puts the bare glyph large
+   in the corner. The words and the picture have their own places and never meet. */
+.m-tfacts__state { flex: 1 1 auto; min-height: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.m-tfacts__word { font: 600 30px/34px var(--m-font-display); letter-spacing: -.015em; color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; align-self: flex-end; }
+.m-tfacts__state.is-on .m-tfacts__word { color: var(--tk); }
+.m-tfacts.m-tile--tonal .m-tfacts__state.is-on .m-tfacts__word { color: var(--on-tk-c); }
+.m-tfacts__shape { flex: none; }
+.m-tfacts__shape .m-icon { width: 36px; height: 36px; font-size: 36px; }
+.m-tfacts.is-m .m-tfacts__shape .m-icon { width: 46px; height: 46px; font-size: 46px; }
+.m-tfacts__bigicon { flex: none; width: 64px; height: 64px; font-size: 64px; margin: 0 -4px -6px 0; color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
+.m-tfacts.is-m .m-tfacts__bigicon { width: 88px; height: 88px; font-size: 88px; }
+.m-tfacts.m-tile--tonal .m-tfacts__bigicon { color: var(--on-tk-c); }
+.m-tfacts.is-m .m-tfacts__word { font-size: 40px; line-height: 44px; }
 
 /* 停止串流: an end action is an error action: the card is the calm card of the other actions with a slight tint of the error role, the glyph is the error colour, the words keep the surface text. */
 .m-b3a.is-alert.is-quiet { background: color-mix(in srgb, var(--md-sys-color-error) 9%, var(--m-card)); }
