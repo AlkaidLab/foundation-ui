@@ -62,7 +62,7 @@
 .m-b3n.is-m .m-b3n__gen { position: relative; }
 /* the generated hero is meant to be seen: a lighter scrim than a photo's (the words stay on its dark foot), and a large tile with one post is that post, not half a tile */
 /* only a soft scrim under the title: the hero keeps its colour over most of the tile */
-.m-b3n.has-banner:has(.m-b3n__gen) .m-b3n__lead::after { background: linear-gradient(to top, color-mix(in srgb, var(--md-sys-color-scrim) 56%, transparent), color-mix(in srgb, var(--md-sys-color-scrim) 26%, transparent) 26%, transparent 50%); }
+.m-b3n.has-banner:has(.m-b3n__gen) .m-b3n__lead::after { background: linear-gradient(to top, color-mix(in srgb, var(--md-sys-color-scrim) 90%, transparent), color-mix(in srgb, var(--md-sys-color-scrim) 84%, transparent) 38%, color-mix(in srgb, var(--md-sys-color-scrim) 58%, transparent) 58%, transparent 80%); }
 .m-b3n.is-l:not(:has(.m-b3n__rest)) .m-b3n__lead { flex: 1 1 100%; }
 /* the hero's lightness and chroma (announcements/hero.js): vivid in light, a little deeper in dark */
 .m-b3n__gen, .m-ahero { --hl: .64; --hc: .2; }
@@ -110,7 +110,7 @@ html[data-bs-theme='dark'] .m-b3n__gen, html[data-theme='dark'] .m-b3n__gen, htm
 
 /* 17. 客户端 中: the count is a size smaller beside the first row, so the row (the device, its state) stays whole; tabs that do not all fit show the chosen one with its place and a press moves on */
 .m-b2table.is-m .m-tnum--l { --tn: 44px; }
-.m-b2table__pos { margin-left: 6px; font: var(--m-tile-text-12); font-style: normal; opacity: .75; display: none; }
+.m-b2table__pos { margin-left: 6px; font: var(--m-tile-text-12); font-style: normal; display: none; }
 .m-b2table__tabs.is-cycle { overflow: visible; padding-right: 0; -webkit-mask-image: none; mask-image: none; }
 .m-b2table__tabs.is-cycle button:not(.is-on) { display: none; }
 .m-b2table__tabs.is-cycle .m-b2table__pos { display: inline; }

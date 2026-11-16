@@ -175,7 +175,7 @@ md-circular-progress, md-linear-progress { --md-circular-progress-size: 40px; }
 .m-hero__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
 .m-hero__title, .m-hero__text { margin: 0; }
 .m-hero__title { font: var(--m-headline-small-emphasized); letter-spacing: -0.005em; }
-.m-hero__text { font: var(--m-body-large); opacity: .86; }
+.m-hero__text { font: var(--m-body-large); }
 .m-hero__chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .m-hero__action { flex: none; }
 @keyframes m-turn { to { transform: rotate(360deg); } }
