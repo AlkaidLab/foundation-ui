@@ -37,7 +37,7 @@ test('the flow shows the intro first: the mark, the plain notice that the progra
   assert.doesNotMatch(vue, /openFull|openClamped|m-guide__openmore/, 'nothing about the notice is folded')
   assert.match(vue, /<section class="m-guide__free" data-guide-free role="note"[^>]*>[\s\S]*S\.freeNotice[\s\S]*T\.openSource\.text[\s\S]*T\.openSource\.link[\s\S]*<\/section>/)
   const intro = vue.slice(vue.indexOf(`<template v-if="pageId === 'intro'">`), vue.indexOf('<!-- 2 account -->'))
-  assert.ok(intro.indexOf('m-guide__free') < intro.indexOf('T.language') && intro.indexOf('T.language') < intro.indexOf('T.welcome.mode'), 'notice, language, light or dark, top to bottom')
+  assert.ok(intro.indexOf('m-guide__free') < intro.indexOf('T.language') && intro.indexOf('T.language') < intro.indexOf('T.titles.appearance'), 'notice, language, light or dark, top to bottom')
   assert.match(intro, /<MSeg class="m-guide__look" :block="!narrow" :icon-only="narrow" :model-value="appearance\.state\.mode"/)
   // on a phone the choice is one icon row right under the name card (CSS order), so the first screen always shows it
   assert.match(read('src/css/guideflow.css'), /@media \(max-width: 599\.98px\) \{\s*\.m-guide__welcome \.m-guide__herocard \{ order: -2; \}\s*\.m-guide__mode \{ order: -1; flex-direction: row;/)
@@ -128,7 +128,7 @@ test('the first screen reads from top to bottom: the About hero card, the free-s
   const vue = read('src/vue/MGuideFlow.vue'), css = read('src/css/guideflow.css')
   const intro = vue.slice(vue.indexOf(`<template v-if="pageId === 'intro'">`), vue.indexOf('<!-- 2 account -->'))
   const at = (needle) => intro.indexOf(needle)
-  assert.ok(at('<MProductHero') < at('m-guide__free') && at('m-guide__free') < at('T.language') && at('T.language') < at('T.welcome.mode') && at('T.welcome.mode') < at('data-guide-notes'))
+  assert.ok(at('<MProductHero') < at('m-guide__free') && at('m-guide__free') < at('T.language') && at('T.language') < at('T.titles.appearance') && at('T.titles.appearance') < at('data-guide-notes'))
   // one column at every width: a readable column in the middle of a wide window, never two columns and never stretched
   assert.match(css, /\.m-guide__welcome \{ display: flex; flex-direction: column;[^}]*max-width: 640px; margin-inline: auto;/)
   assert.doesNotMatch(css, /\.m-guide__welcome \{[^}]*grid-template-columns/)
@@ -141,4 +141,17 @@ test('the edges of the scroll area of every step say nothing while the content f
   assert.match(css, /\.m-guide \.m-guide__actions, \.m-onboard \.m-guide \.m-guide__actions \{ border-top: 0; box-shadow: none; \}/)
   assert.match(css, /\.m-guide\[data-below\] \.m-guide__actions::before, \.m-guide\[data-scrolled\] \.m-guide__steps::after \{ opacity: 1; \}/)
   assert.doesNotMatch(css, /box-shadow: 0 -10px/)
+})
+
+test('the first screen calls light or dark 外观 / Appearance, and the colours and the background are 主题色与背景 / Theme colour & background', () => {
+  assert.equal(guideTexts('zh').titles.appearance, '外观'); assert.equal(guideTexts('en').titles.appearance, 'Appearance')
+  assert.equal(guideTexts('zh').welcome.mode, undefined, 'one word, the title of the appearance step of the old flow')
+  assert.equal(guideTexts('zh').done.items.appearance.title, '主题色与背景'); assert.equal(guideTexts('en').done.items.appearance.title, 'Theme colour & background')
+  assert.equal(guideTexts('zh_TW').titles.appearance, '外觀'); assert.equal(guideTexts('zh_TW').done.items.appearance.title, '主題色與背景')
+  assert.notEqual(guideTexts('de').titles.appearance, guideTexts('en').titles.appearance, 'a language with its own word keeps it')
+  const vue = read('src/vue/MGuideFlow.vue')
+  assert.match(vue, /<h2 class="m-guide__sub">\{\{ T\.titles\.appearance \}\}<\/h2>/)
+  assert.match(vue, /:label="T\.titles\.appearance" :options="lookOptions"/, 'the accessible label says it too')
+  assert.match(vue, /pageId\.value === 'appearance' \? T\.value\.done\.items\.appearance\.title/)
+  assert.ok(!/深浅色|Light or dark/.test(JSON.stringify(guideTexts('zh')) + JSON.stringify(guideTexts('en'))), 'the old name is gone from the texts')
 })

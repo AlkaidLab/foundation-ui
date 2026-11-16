@@ -46,6 +46,14 @@ export function buildGuideSteps({ skip = [], mode = 'fresh' } = {}) {
   return (mode === 'upgrade' ? GUIDE_FLOW_UPGRADE : GUIDE_FLOW).filter((id) => !drop.has(id)).map((id) => ({ id, icon: STEP_ICONS[id], skippable: id !== 'done', ...(id === 'done' ? { optional: optionalPages({ skip }).map((page) => page.id) } : {}), ...(id === 'channel' ? { source: !skip.includes('update') } : {}) }))
 }
 
+/**
+ * The optional pages the host cannot offer now, { id: true }: no display was read (显示与 HDR; only once the setup was read), and the host has no network check (远程串流与组网). The done page lists them apart.
+ */
+export const unavailablePages = ({ setup, reach, setupRead = false } = {}) => ({
+  ...(setupRead && !(setup?.adapters || []).length && !(setup?.displayDevices || []).length ? { setup: true } : {}),
+  ...(reach?.status === 'unavailable' ? { remote: true } : {}),
+})
+
 /** The optional pages of the done page, minus the ones this product does not have (a product without an update source passes `skip: ['update']`: its channel step has no source part). */
 export const optionalPages = ({ skip = [] } = {}) => GUIDE_OPTIONAL.filter((page) => !skip.includes(page.id))
 

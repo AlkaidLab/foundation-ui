@@ -241,7 +241,6 @@ export default {
   "followBilibili": "B 站",
   "followSite": "官網",
   "welcome": {
-    "mode": "深淺色",
     "modes": {
       "system": "跟隨系統",
       "light": "淺色",
@@ -289,8 +288,8 @@ export default {
     "open": "設定",
     "items": {
       "appearance": {
-        "title": "外觀",
-        "text": "淺色或深色、桌布和顏色"
+        "title": "主題色與背景",
+        "text": "桌布、主題色和背景模糊"
       },
       "motion": {
         "title": "動效",

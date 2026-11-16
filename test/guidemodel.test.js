@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {
   GUIDE_CLIENTS, GUIDE_DEVICES, GUIDE_STEP_IDS, buildGuideSteps, canPair, clearProgress, clientFor, findNewClient, isLast, isLoopbackHost, isSetupCompleted,
   lanRank, nextIndex, normalizeClients, normalizeSessions, pickLanAddresses, pickSession, prevIndex, qrPath, readProgress, scallopPoints, sessionLine,
-  GUIDE_OPTIONAL, UPDATE_CHANNELS, channelOf, legacyStepOf, optionalPages, SKIP_DELAY_S, skipSecondsLeft, shouldAutoOpen, startIndex, remotePorts, portText, upnpState, validateAccount, writeProgress, setupStateFromConfig, mergeSetupConfig,
+  GUIDE_OPTIONAL, UPDATE_CHANNELS, channelOf, legacyStepOf, optionalPages, unavailablePages, SKIP_DELAY_S, skipSecondsLeft, shouldAutoOpen, startIndex, remotePorts, portText, upnpState, validateAccount, writeProgress, setupStateFromConfig, mergeSetupConfig,
 } from '../src/vue/guideModel.js'
 import { fillText, guideTexts } from '../src/vue/guideTexts.js'
 import { upgradeSkips } from '../src/vue/guideEntry.js'
@@ -373,3 +373,13 @@ test('UPnP: what runs, what is saved and whether a restart applies it', () => {
   assert.equal(upnpState({ upnpActive: true, upnpSaved: true }).pending, false)
 })
 
+
+test('the optional pages the host cannot offer are told apart: no display read, no network check', () => {
+  assert.deepEqual(unavailablePages(), {})
+  assert.deepEqual(unavailablePages({ setup: { adapters: [], displayDevices: [] }, setupRead: false }), {}, 'not before the setup was read')
+  assert.deepEqual(unavailablePages({ setup: { adapters: [], displayDevices: [] }, setupRead: true }), { setup: true })
+  assert.deepEqual(unavailablePages({ setup: { adapters: [{ name: 'GPU' }], displayDevices: [] }, setupRead: true }), {}, 'a graphics card is enough')
+  assert.deepEqual(unavailablePages({ setup: { adapters: [{}], displayDevices: [{}] }, reach: { status: 'unavailable' }, setupRead: true }), { remote: true })
+  assert.deepEqual(unavailablePages({ reach: { status: 'ready' } }), {})
+  for (const id of Object.keys(unavailablePages({ setup: {}, reach: { status: 'unavailable' }, setupRead: true }))) assert.ok(guideTexts('zh').done.reasons[id] && guideTexts('en').done.reasons[id], id)
+})

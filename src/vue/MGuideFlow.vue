@@ -31,7 +31,7 @@ import { useGuideLook } from './guideLook.js'
 import MGuideAddress from './MGuideAddress.vue'
 import { useReleaseAssets } from './useReleaseAssets.js'
 import { readOs, writeOs } from '../clients/osChoice.js'
-import { CONNECT_CHECKS, PIN_LENGTH, SKIP_DELAY_S, canPair, skipSecondsLeft, deviceOf, findNewClient, isLast, pickSession, qrPath, readProgress, sessionLine, startIndex, validateAccount, writeProgress } from './guideModel.js'
+import { CONNECT_CHECKS, PIN_LENGTH, SKIP_DELAY_S, unavailablePages, canPair, skipSecondsLeft, deviceOf, findNewClient, isLast, pickSession, qrPath, readProgress, sessionLine, startIndex, validateAccount, writeProgress } from './guideModel.js'
 import { fillText, guideTexts } from './guideTexts.js'
 import { createGuideFunnel } from '../telemetry/guideEvents.js'
 import { useGuideLibrary } from './guideLibrary.js'
@@ -103,14 +103,12 @@ const id = computed(() => current.value?.id)
 // the optional pages of the done page open here as a sub-flow: the page of the old guide (显示与 HDR, 动效, 更新, 网页远程管理, 远程串流) in the same window; its foot returns to the done page
 const sub = ref('')
 const pageId = computed(() => sub.value || id.value)
+// the page of the colours and the background is 主题色与背景 (the name 外观 is the light or dark choice of the first screen)
+const pageTitle = computed(() => (pageId.value === 'appearance' ? T.value.done.items.appearance.title : T.value.titles[pageId.value]))
 const advancedSub = computed(() => ['webaccess', 'remote'].includes(sub.value))
 const optionalIds = computed(() => flow.value.find((s) => s.id === 'done')?.optional)
-// pages of the done page the host cannot offer now: no display was read (显示与 HDR), the host has no network check (远程串流与组网)
-const setupRead = ref(false)
-const unavailable = computed(() => ({
-  ...(setupRead.value && !(props.state.setup?.adapters || []).length && !(props.state.setup?.displayDevices || []).length ? { setup: true } : {}),
-  ...(props.state.reach?.status === 'unavailable' ? { remote: true } : {}),
-}))
+const setupRead = ref(false) // the done page lists pages the host cannot offer apart (unavailablePages)
+const unavailable = computed(() => unavailablePages({ setup: props.state.setup, reach: props.state.reach, setupRead: setupRead.value }))
 const maxIdx = ref(Math.max(idx.value, ...progress.visited.map((v) => flow.value.findIndex((s) => s.id === v))))
 const guideDevice = deviceId()
 // the anonymous funnel of this run (guide_funnel): a step reached, skipped, finished or closed, the time on a step, the optional pages opened; the product sends it (callbacks.funnel), fixed words and numbers only
@@ -466,7 +464,7 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
         <header v-if="pageId !== 'intro'" class="m-guide__head">
           <span class="m-guide__avatar" aria-hidden="true"><img :src="vivi.src" alt="" width="48" height="48"></span>
           <div class="m-guide__headtext">
-            <h1 class="m-guide__title">{{ T.titles[pageId] }}<span v-if="sub && advancedSub" class="m-guide__advtag">{{ T.done.advanced }}</span></h1>
+            <h1 class="m-guide__title">{{ pageTitle }}<span v-if="sub && advancedSub" class="m-guide__advtag">{{ T.done.advanced }}</span></h1>
             <p v-if="T.leads[pageId]" class="m-guide__lead">{{ T.leads[pageId] }}</p>
           </div>
         </header>
@@ -495,8 +493,8 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
               </div>
               <!-- light or dark: under the language on a wide window; on a phone a compact icon row right under the name card, where the first screen always shows it -->
               <section class="m-guide__mode">
-                <h2 class="m-guide__sub">{{ T.welcome.mode }}</h2>
-                <MSeg class="m-guide__look" :block="!narrow" :icon-only="narrow" :model-value="appearance.state.mode" :label="T.welcome.mode" :options="lookOptions" @update:model-value="(v) => appearance.set({ mode: v })" />
+                <h2 class="m-guide__sub">{{ T.titles.appearance }}</h2>
+                <MSeg class="m-guide__look" :block="!narrow" :icon-only="narrow" :model-value="appearance.state.mode" :label="T.titles.appearance" :options="lookOptions" @update:model-value="(v) => appearance.set({ mode: v })" />
               </section>
               <!-- the plain small print of the first screen: how to support the project and, once, that error reports are on; it scrolls with the screen -->
               <div v-if="pageId === 'intro'" class="m-guide__notes" data-guide-notes>
