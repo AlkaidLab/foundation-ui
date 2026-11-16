@@ -71,7 +71,6 @@
 .m-tstream__foot { margin-top: 2px; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-on-surface-variant); text-align: center; }
 
 /* 网卡 */
-.m-tnet__corner { translate: 22% -14%; }
 .m-tnet__main { margin-top: auto; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .m-tnet.is-l .m-tnet__main { margin-top: 18px; }
 .m-tnet__name { font: var(--m-tile-text-15-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

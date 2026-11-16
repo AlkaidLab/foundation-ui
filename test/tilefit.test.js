@@ -207,3 +207,10 @@ test("integration round 2026-11-11: 上次串流 at 中 is compact with or witho
   assert.equal(f.split(".m-dash__cell :is(.m-calm__title, .m-b2empty .m-b2__btn,").length - 1, 2, "nowrap and the wrap fallback both list it")
   assert.match(fs.readFileSync(new URL("../src/css/tiles-cal.css", import.meta.url), "utf8"), /\.m-calh--sq \.m-calh__name \{ font-size: min\(var\(--hn, 28px\), max\(20px, 17\.5cqw\)\); \}/)
 })
+test('every background shape of a tile is one rule: 104 px, 10 px in from the right and 8 px down from the top, the glyph at 46 % of it; 144 px at 大', () => {
+  const c = css('tiles-prerelease.css')
+  assert.match(c, /\.m-tile \.m-tile__corner \{ top: 0; right: 0; translate: 10% 8%; width: 104px; height: 104px; opacity: 1; \}/)
+  assert.match(c, /\.m-tile \.m-tile__corner > \.m-icon \{ font-size: 48px; \}/)
+  assert.match(c, /\.m-tile\[data-size='l'\] \.m-tile__corner[^}]*\{ width: 144px; height: 144px; \}/)
+  for (const f of ['tilefit-real.css', 'tiles-metrics.css']) assert.doesNotMatch(css(f), /\.m-(tenc--encoder|tnet)(__corner)?[^{]*\.m-tile__corner|\.m-tnet__corner \{/, `${f}: no rule of its own for a shape`)
+})

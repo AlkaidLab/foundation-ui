@@ -13,8 +13,7 @@
 /* 当前在线: the ring of the streaming device keeps its 5 px outside the tile's clip */
 .m-calo.is-s .m-calo__rings { margin: auto 0 8px; padding-left: 5px; } .m-calo.is-s .m-calo__rings li { width: 34px; height: 34px; } .m-calo.is-s .m-calo__count { margin-top: 0; } .m-calo.is-s .m-calo__count.m-tnum--s { --tn: 42px; }
 
-/* 码率 (session) at 方形: the clover behind the figure is smaller and fainter so it never lies over the digits */
-.m-tstream--stream-bitrate.is-s .m-tile__corner { width: 96px; height: 96px; right: -14px; top: -22px; opacity: 1; }
+/* (the clover of 码率 (session) follows the one rule of the background shapes below) 码率 (session) at 方形: the clover behind the figure is smaller and fainter so it never lies over the digits */
 
 /* 主机延迟, 丢包, 丢帧: the curve takes the lower part, the figure and its caption keep the upper part */
 .m-tstream:is(.m-tstream--latency, .m-tstream--loss, .m-tstream--dropped):is(.is-s, .is-m) { --tile-bleed: 38%; }
@@ -129,3 +128,9 @@
 .m-tgauge__stagelist li.is-frame { grid-column: 1 / -1; margin-top: 1px; }
 .m-tgauge--budget.is-m .m-tgauge__side--stages { gap: 6px; padding-top: 0; }
 .m-tgauge__stagebar { flex: none; } .m-tgauge__stagelist { flex: none; gap: 2px 12px; } .m-tgauge__stagelist li { line-height: 14px; }
+
+/* the shapes behind the tiles (the cookie of 编码器 and 网卡, the gem of 显卡, the squircle of 系统, the sunny of HDR, the clover of 码率): one rule, the one the 编码器 tile had. The shape is 104 px (70 % of a square tile), 10 px in from the right
+   edge and 8 px down from the top, inside the tile; 大 is 144 px, the glyph in it 46 % of the shape (48 px, 66 px at 大), the same for every tile. Its tone stays what it is: tonal (the accent at 15 %), solid where the shape is a state (HDR on). Nothing of it is bigger than that. */
+.m-tile .m-tile__corner { top: 0; right: 0; translate: 10% 8%; width: 104px; height: 104px; opacity: 1; }
+.m-tile .m-tile__corner > .m-icon { font-size: 48px; }
+.m-tile[data-size='l'] .m-tile__corner, .m-tile[data-size='xl'] .m-tile__corner { width: 144px; height: 144px; } .m-tile[data-size='l'] .m-tile__corner > .m-icon, .m-tile[data-size='xl'] .m-tile__corner > .m-icon { font-size: 66px; }

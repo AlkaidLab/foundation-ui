@@ -5,7 +5,6 @@
 .m-b2addr.is-s .m-b2plate .m-b2glyph { --g: 28px; }
 .m-b2addr .m-b2plate .m-b2addr__text { min-width: 0; max-width: 100%; }
 /* 编码器: the big shape sits at the corner, below the title's words */
-.m-tenc--encoder .m-tile__corner { translate: 10% 8%; width: 104px; height: 104px; }
 /* 日志 (and every empty state at 方形): the corner shape keeps its glyph inside the tile */
 .m-tempty--s .m-tempty__shape { translate: -4% 4%; }
 /* 内存 and the other charts: the end dot's ring (12 px dot, 9 px halo) is not cut by the chart's box */
