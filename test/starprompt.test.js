@@ -97,3 +97,11 @@ test('the asks are real buttons: one height and shape, the filled heart and the 
   const idx = readFileSync(new URL('../docs/authority/source-index.tsv', import.meta.url), 'utf8')
   assert.match(idx, /m3e-mingcute-bilibili-20261110\t[^\n]*Apache-2\.0/); assert.match(read('../src/assets/brand/README.md'), /Apache-2\.0/)
 })
+
+test('the words of the banner have a readable width of their own and the buttons go to a second row when they do not fit beside them (any width, with the star of a client)', () => {
+  const connect = readFileSync(new URL('../src/css/connect.css', import.meta.url), 'utf8')
+  assert.match(connect, /\.m-sprompt \{ display: flex; flex-wrap: wrap;/)
+  assert.match(connect, /\.m-sprompt__text \{ flex: 1 1 13em; min-width: min\(13em, 100%\); \}/)
+  assert.match(connect, /\.m-sprompt__btns \{ flex: 0 1 auto; max-width: 100%; margin-inline-start: auto; display: flex; flex-wrap: wrap;/)
+  assert.doesNotMatch(connect, /\.m-sprompt \{[^}]*grid-template-columns/)
+})
