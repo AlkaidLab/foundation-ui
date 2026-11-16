@@ -314,8 +314,7 @@ test('the overall bar counts the running step fraction, never jumps back, and cr
   const b = installProgress({ ...base, progress: { ...base.progress, fraction: { [base.progress.lastStep]: 0.5 } } }).value
   assert.ok(b >= a)
   const css = read('css/installer.css')
-  assert.match(css, /\.m-inst__total \.m-wave__active \{ transition: width 480ms/)
-  assert.match(css, /m-wave-run 2\.4s linear infinite !important/, 'the wave keeps running under reduced motion')
+  assert.match(read('vue/installer/InstallerSteps.vue'), /:glide="creeping \? 14000 : 480" :glide-ease="creeping \? 'creep' : 'standard'"/, 'the overall bar eases its value itself: 480 ms, 14 s while it creeps')
   const steps = read('vue/installer/InstallerSteps.vue')
   assert.match(steps, /\(t\.done \+ 1\) \/ t\.total\) - 0\.004/, 'the creep stops just before the next step')
 })
