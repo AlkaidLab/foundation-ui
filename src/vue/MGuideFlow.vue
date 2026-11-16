@@ -10,7 +10,6 @@ import MFieldItem from './MFieldItem.vue'
 import MField from './MField.vue'
 import MPinPad from './MPinPad.vue'
 import MChoiceItem from './MChoiceItem.vue'
-import MSwitchItem from './MSwitchItem.vue'
 import MRemoteAccess from './MRemoteAccess.vue'
 import MGuideWebAccess from './MGuideWebAccess.vue'
 import { createPairQr } from './usePairQr.js'
@@ -137,18 +136,20 @@ let leaveNow = null // what the product gives to go at once (the old 8 s countdo
 const accountError = computed(() => (form.confirm && form.password !== form.confirm ? T.value.account.mismatch : ''))
 const accountOk = computed(() => !validateAccount(form))
 
-const choice = reactive({ locale: null, adapter: '', display: 'ZakoHDR', prep: 'ensure_only_display', hdr: false })
+const choice = reactive({ locale: null, adapter: '', display: 'ZakoHDR', prep: 'ensure_only_display' })
 const uniqueAdapters = computed(() => {
   const seen = new Set()
   return (props.state.setup?.adapters || []).filter((a) => { const n = a?.name ?? ''; if (seen.has(n)) return false; seen.add(n); return true })
 })
 const adapterOptions = computed(() => [{ value: '', label: T.value.setup.auto }, ...uniqueAdapters.value.map((a) => ({ value: a.name, label: a.name }))])
+// the state of HDR on a display, as the host reports it (UNKNOWN, ENABLED, DISABLED), in words
+const hdrStateText = (state) => { const names = T.value.setup.hdrState || {}; return names[String(state).toUpperCase()] || `HDR: ${state}` }
 const displays = computed(() => (props.state.setup?.displayDevices || []).filter((d) => !/^FRIENDLY NAME:\s*Zako HDR\s*$/im.test(d?.data || '')).map((d) => {
   const data = d.data || ''
   const friendly = data.match(/FRIENDLY NAME:\s*(.*)/)?.[1]?.trim()
   const slot = data.match(/DISPLAY NAME:\s*.*?(DISPLAY\d+)/)?.[1]
   const hdr = data.match(/HDR STATE:\s*(\w+)/)?.[1]
-  return { id: d.device_id, label: friendly ? (slot ? `${friendly} (${slot})` : friendly) : d.device_id, text: hdr ? `HDR: ${hdr}` : '' }
+  return { id: d.device_id, label: friendly ? (slot ? `${friendly} (${slot})` : friendly) : d.device_id, text: hdr ? hdrStateText(hdr) : '' }
 }))
 // the language of the intro: 跟随系统 (with the language it resolves to) first, then the languages the product offers; a pick applies at once (the product changes its locale, so the texts of the flow change as you look)
 const languages = computed(() => (props.state.locale?.languages?.length ? props.state.locale.languages : [{ code: 'zh', name: '简体中文' }, { code: 'en', name: 'English' }]))
@@ -178,7 +179,7 @@ watch(id, (now, before) => { if (before === 'intro' && now !== 'intro') markErro
 onBeforeUnmount(() => { if (errorsNotice.value && id.value !== 'intro') markErrorsNoticeSeen() })
 const setupDirty = computed(() => {
   const s = props.state.setup || {}
-  return !s.completed || (choice.locale && choice.locale !== s.locale) || choice.adapter !== (s.adapter || '') || !!choice.hdr !== !!s.hdr || choice.display !== (s.display || (s.virtual === false ? displays.value[0]?.id || '' : 'ZakoHDR'))
+  return !s.completed || (choice.locale && choice.locale !== s.locale) || choice.adapter !== (s.adapter || '') || choice.display !== (s.display || (s.virtual === false ? displays.value[0]?.id || '' : 'ZakoHDR'))
 })
 const vddWarn = ref(false)
 
@@ -295,7 +296,6 @@ async function enter(stepId) {
     await props.callbacks.loadSetup?.()
     const s = props.state.setup || {}
     if (choice.locale === null) choice.locale = s.locale === 'zh' || s.locale === 'en' ? s.locale : null
-    choice.hdr = !!s.hdr
     choice.adapter = s.adapter || (uniqueAdapters.value.length === 1 ? uniqueAdapters.value[0].name : '')
     choice.display = s.display || (s.virtual === false ? displays.value[0]?.id || '' : 'ZakoHDR')
   } else if (stepId === 'address') {
@@ -347,7 +347,7 @@ async function saveSetup() {
   if (!setupDirty.value) { next(); return }
   busy.value = true; failure.value = ''; vddWarn.value = false
   try {
-    const payload = { adapter: choice.adapter, display: choice.display, ...(state.setup?.virtual !== false ? { hdr: choice.hdr } : {}) }
+    const payload = { adapter: choice.adapter, display: choice.display }
     if (choice.locale && choice.locale !== props.state.setup?.locale) payload.locale = choice.locale
     const result = (await props.callbacks.saveSetup?.(payload)) || { ok: false }
     if (result.ok) next()
@@ -464,7 +464,7 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
             <MIcon name="info" />
             <p :ref="openRef">{{ T.openSource.text }}</p>
             <a :href="PRODUCT.repo" target="_blank" rel="noopener noreferrer" @click.prevent="openLink(PRODUCT.repo)">{{ T.openSource.link }}</a>
-            <button v-if="openClamped || openFull" type="button" class="m-guide__openmore" :aria-expanded="openFull" :aria-label="openFull ? T.openSource.less : T.openSource.more" :data-tip="openFull ? T.openSource.less : T.openSource.more" @click="openFull = !openFull"><MIcon :name="openFull ? 'expand_less' : 'expand_more'" /></button>
+            <button v-if="openClamped || openFull" type="button" class="m-guide__openmore" :aria-expanded="openFull" :aria-label="openFull ? T.openSource.less : T.openSource.more" :data-tip="openFull ? T.openSource.less : T.openSource.more" @click="openFull = !openFull"><MIcon :name="openFull ? 'keyboard_arrow_up' : 'keyboard_arrow_down'" /></button>
           </aside>
           <!-- 0 intro: the project, the plain notice (above) and the language -->
           <template v-if="id === 'intro'">
@@ -505,9 +505,7 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
               <MItem v-if="state.setup?.virtual !== false" action role="radio" icon="tv" :selected="choice.display === 'ZakoHDR'" :aria-checked="choice.display === 'ZakoHDR'" :title="T.setup.virtual" :text="T.setup.virtualNote" @click="choice.display = 'ZakoHDR'" />
               <MItem v-for="d in displays" :key="d.id" action role="radio" icon="desktop_windows" :selected="choice.display === d.id" :aria-checked="choice.display === d.id" :title="d.label" :text="d.text || T.setup.physical" @click="choice.display = d.id" />
             </MGroup>
-            <MGroup v-if="state.setup?.virtual !== false">
-              <MSwitchItem v-model="choice.hdr" icon="hdr_on" :title="T.setup.hdr" :text="T.setup.hdrText" />
-            </MGroup>
+            <p v-if="choice.display === 'ZakoHDR' && state.setup?.win10" class="m-guide__note" data-note="win10-hdr"><MIcon name="info" />{{ T.setup.hdrWin10 }}</p>
             <MBanner v-if="vddWarn" tone="warn" icon="warning">{{ T.setup.vddNeeded }}</MBanner>
             <MBanner v-if="failure" tone="error" icon="error">{{ failure }}</MBanner>
           </template>
