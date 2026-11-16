@@ -186,7 +186,10 @@ export { default as MErrorCentre } from "./MErrorCentre.vue"
 export { default as MDiagExport } from "./MDiagExport.vue"
 export { default as MDiagnostics } from "./MDiagnostics.vue"
 export { default as MFeedbackRow } from "./MFeedbackRow.vue"
-export { default as MFeedbackAccount } from "./MFeedbackAccount.vue"
+export { default as MFeedbackCard } from "./feedback/MFeedbackCard.vue"
+export { default as MFeedbackButton } from "./feedback/MFeedbackButton.vue"
+export { default as MFeedbackDecision } from "./feedback/MFeedbackDecision.vue"
+export { default as MFeedbackPanel } from "./feedback/MFeedbackPanel.vue"
 export { default as MDoctor } from "./MDoctor.vue"
 export { DOCTOR_GROUPS, LOCAL_GROUPS as DOCTOR_LOCAL_GROUPS, FIX_LEVEL as DOCTOR_FIX_LEVEL, hostSource as doctorHostSource, STATUS_LOOK as DOCTOR_STATUS_LOOK, createDoctor, doctorSnapshot, doctorText, doctorTexts, normalizeReport as normalizeDoctorReport, sortItems as sortDoctorItems, MOCK_DOCTOR, MOCK_DOCTOR_LOCAL, MOCK_DOCTOR_LOCAL_DOWN, mockDoctorRequest, mockLocalSource } from "../doctor/index.js"
 export { diagnosticsTexts, startupProblems, parseLog, findSessions, buildErrorCentre, problemSummary, issueUrl, redactAll, redactSecrets, redactConfig, maskNetwork, prepareBundle, finalizeBundle, zipStore, zipList, decodeLogBytes, decodeLogLine, createLogByteDecoder, parseRecords, parseHostText, parsePanelLogs, recordsToRows, recordsToText, formatRecord, createRecord, severityOf, levelOf, recordOf, isRecord, isErrorRecord, attributeOf, setAttribute, SEVERITY_NUMBER, SEVERITY_TEXT, DOMAINS, FIELD_CLASS, classifyKey, redactRecord, redactRecords, registerAdapter, adapterById, listAdapters, HOST_TEXT_ADAPTER_ID, PANEL_ADAPTER_ID } from "../diagnostics/index.js"
@@ -373,7 +376,7 @@ export { default as DevSimChip } from './devmode/DevSimChip.vue'
 export { default as DevSimConfirm } from './devmode/DevSimConfirm.vue'
 export { useHostSimulation, createHostSimulation, SIMULATION_MS, SIMULATIONS } from './useHostSimulation.js'
 export { default as DevHub } from './devmode/DevHub.vue'
-export { devReport, registerDevReport, openDevReport, closeDevReport, openDevSignIn, closeDevSignIn, addManualMask, undoManualMask, clearManualMasks } from './devmode/devReport.js'
+export { devReport, registerDevReport, openDevReport, openFeedbackHere, currentPageName, askDevReport, clearDevReportAsk, closeDevReport, openDevSignIn, closeDevSignIn, addManualMask, undoManualMask, clearManualMasks } from './devmode/devReport.js'
 export { useDevAccount } from './devmode/useDevAccount.js'
 export { answerRedactRequests } from '../devmode/frameRects.js'
 export { devmodeTexts, fillText as devmodeFill } from '../devmode/texts.js'
