@@ -71,6 +71,10 @@ export function reportProblems({ title = '', description = '' } = {}) {
   return out
 }
 
+/** The contact line of a report: one line, trimmed, at most CONTACT_MAX characters, no control characters. */
+export const CONTACT_MAX = 200
+export const cleanContact = (value) => String(value || '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, CONTACT_MAX)
+
 /** The categories a user report can have (the contract's): what the form's type maps to. */
 export const REPORT_TYPES = Object.freeze(['bug', 'performance', 'compat', 'suggestion', 'other'])
 /** The category of a report: the type the person chose when the form has one, else a bug for an error the product met and `other` for feedback written without an error. */
@@ -79,7 +83,7 @@ export const reportTypeOf = (report, type = '') => (REPORT_TYPES.includes(type) 
 export const ATTACHMENT_REF = /^att-\d{4}-\d{2}\/[0-9a-f]{64}\.[a-z0-9]{1,8}$/
 
 /** The document of a report (plain values), or null while the title or the description is empty. Exactly these fields, nothing else; no contact line: the contract has none on purpose. */
-export function reportToDocument(report, { title = '', description = '', issue = '', type = '', attachment = '' } = {}) {
+export function reportToDocument(report, { title = '', description = '', issue = '', type = '', attachment = '', contact = '' } = {}) {
   if (reportProblems({ title, description }).length) return null
   const L = REPORT_LIMITS
   const doc = {
@@ -109,11 +113,14 @@ export function reportToDocument(report, { title = '', description = '', issue =
   if (/^[0-9a-f]{32}$/.test(String(issue || ''))) doc.issue = issue
   doc.report_type = reportTypeOf(report, type)
   if (ATTACHMENT_REF.test(String(attachment || ''))) doc.attachment = attachment
+  // the contact the person chose to leave: only the developers read it, in the one issue of this report; it is not scrubbed (an address the person gave is what it is for) and never leaves the one event
+  const reach = cleanContact(contact)
+  if (reach) doc.contact = reach
   return doc
 }
 
 /** The names of the fields of a document (what the form builds; the event that is sent carries the part the contract has room for, reportToEvent). */
-export const DOCUMENT_FIELDS = Object.freeze(['schema', 'title', 'description', 'kind', 'fatal', 'message', 'product', 'app_version', 'client_time', 'name', 'stack', 'os', 'page', 'locale', 'logs', 'category', 'code', 'issue', 'breadcrumbs', 'components', 'encoder', 'gpu_vendor', 'capture_backend', 'report_type', 'attachment'])
+export const DOCUMENT_FIELDS = Object.freeze(['schema', 'title', 'description', 'kind', 'fatal', 'message', 'product', 'app_version', 'client_time', 'name', 'stack', 'os', 'page', 'locale', 'logs', 'category', 'code', 'contact', 'issue', 'breadcrumbs', 'components', 'encoder', 'gpu_vendor', 'capture_backend', 'report_type', 'attachment'])
 export const DOCUMENT_REQUIRED = Object.freeze(['schema', 'title', 'description', 'kind', 'fatal', 'message', 'product', 'app_version', 'client_time'])
 
 const token = (value, max) => String(value || '').toLowerCase().replace(/[^a-z0-9._:+-]+/g, '-').replace(/^[^a-z0-9]+/, '').slice(0, max).replace(/-+$/, '')
@@ -125,8 +132,14 @@ export const USER_REPORT_MESSAGE_MAX = 2000
  * the full stack and the log lines stay in the copy, the download and the GitHub issue.
  */
 export function reportMessage(doc) {
-  const written = [doc.title, String(doc.description || '').slice(0, 1200)].filter(Boolean).join('\n\n')
-  const error = [doc.name, doc.message].filter(Boolean).join(': ').slice(0, 300)
+  const description = String(doc.description || '').slice(0, 1200)
+  // the title of a report written without an error is the first line of what the person wrote: it is not said twice
+  const first = description.split('\n').map((l) => l.trim()).find(Boolean) || ''
+  const stem = String(doc.title || '').replace(/…$/, '')
+  const same = !!stem && (first === doc.title || first.startsWith(stem))
+  const written = (same ? [description] : [doc.title, description]).filter(Boolean).join('\n\n')
+  // feedback with no error has nothing to say about one ("Error: Feedback" was a placeholder)
+  const error = doc.kind === 'manual' && !doc.message ? '' : [doc.name, doc.message].filter(Boolean).join(': ').slice(0, 300)
   const stack = lines(doc.stack, 6, 120)
   const events = lines(doc.breadcrumbs, 5, 100, true)
   const parts = [written, error && `Error: ${error}`, stack && `Stack:\n${stack}`, events && `Recent events:\n${events}`].filter(Boolean)
@@ -144,6 +157,8 @@ export function reportToEvent(doc) {
   const code = String(doc.category && doc.code ? `${doc.category}.${doc.code}` : doc.code || '').replace(/[^A-Za-z0-9_.:+-]+/g, '-').slice(0, 64)
   if (code) props.error_code = code
   if (ATTACHMENT_REF.test(String(doc.attachment || ''))) props.attachment = doc.attachment
+  const contact = cleanContact(doc.contact)
+  if (contact) props.contact = contact
   props.message = reportMessage(doc)
   return { kind: 'error', name: 'user_report', props }
 }

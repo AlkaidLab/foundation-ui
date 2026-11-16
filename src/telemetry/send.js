@@ -75,18 +75,21 @@ const writeJson = (storage, key, value) => { try { store(storage)?.setItem(key, 
 export const loadQueue = (storage) => { const v = readJson(storage, QUEUE_KEY); return Array.isArray(v) ? v.filter((x) => x && typeof x === 'object' && x.doc && typeof x.doc === 'object').slice(-QUEUE_MAX) : [] }
 export const saveQueue = (queue, storage) => writeJson(storage, QUEUE_KEY, queue.slice(-QUEUE_MAX))
 /** Keep a report for later. With an `id` the same report is kept once: a second press replaces the entry instead of adding a copy. */
-export function enqueue(doc, storage, now = Date.now(), { id = '', maybeArrived = false } = {}) {
+export function enqueue(doc, storage, now = Date.now(), { id = '', maybeArrived = false, explicit = false } = {}) {
   const queue = loadQueue(storage)
   const at = id ? queue.findIndex((e) => e.id === id) : -1
-  const entry = { doc, attempts: 0, at: now, ...(id ? { id } : {}), ...(maybeArrived ? { maybeArrived: true } : {}) }
-  if (at >= 0) queue[at] = { ...queue[at], doc, ...(maybeArrived ? { maybeArrived: true } : {}) }
+  const entry = { doc, attempts: 0, at: now, ...(id ? { id } : {}), ...(maybeArrived ? { maybeArrived: true } : {}), ...(explicit ? { explicit: true } : {}) }
+  if (at >= 0) queue[at] = { ...queue[at], doc, ...(maybeArrived ? { maybeArrived: true } : {}), ...(explicit ? { explicit: true } : {}) }
   else queue.push(entry)
   saveQueue(queue, storage)
   return queue.length
 }
 export const isQueued = (id, storage) => !!id && loadQueue(storage).some((e) => e.id === id)
 export const removeQueued = (id, storage) => { const queue = loadQueue(storage); const left = queue.filter((e) => e.id !== id); if (left.length !== queue.length) saveQueue(left, storage); return queue.length - left.length }
-const rememberSent = (id, storage) => { if (!id) return; const ids = (readJson(storage, SENT_IDS_KEY) || []).filter((x) => typeof x === 'string' && x !== id); ids.push(id); writeJson(storage, SENT_IDS_KEY, ids.slice(-SENT_IDS_MAX)) }
+const sentListeners = new Set()
+/** Called (with the id) when a report was sent from this computer, also by the automatic flush: the history of the person's own reports follows it. Returns the function that stops listening. */
+export const onReportSent = (fn) => { sentListeners.add(fn); return () => sentListeners.delete(fn) }
+const rememberSent = (id, storage) => { if (!id) return; for (const fn of sentListeners) { try { fn(id) } catch { /* a listener never breaks a send */ } } const ids = (readJson(storage, SENT_IDS_KEY) || []).filter((x) => typeof x === 'string' && x !== id); ids.push(id); writeJson(storage, SENT_IDS_KEY, ids.slice(-SENT_IDS_MAX)) }
 /** Was this report (by id) sent from this computer already? A second press then says so without sending a second one. */
 export const wasSent = (id, storage) => !!id && (readJson(storage, SENT_IDS_KEY) || []).includes(id)
 // one request per report at a time, whoever asks (the person's press or the automatic flush): the second asker gets the answer of the first
@@ -111,7 +114,7 @@ const keyOf = (e) => e.id || `at:${e.at}`
  */
 export async function flushQueue(options = {}) {
   const { storage } = options
-  const snapshot = loadQueue(storage)
+  const snapshot = loadQueue(storage).filter((e) => !options.only || options.only(e))
   const result = new Map()
   let sent = 0, rejected = 0
   for (const entry of snapshot) {
@@ -131,11 +134,12 @@ let lastAutoFlush = 0
  * every AUTO_FLUSH_GAP_MS, and each report is tried at most QUEUE_MAX_ATTEMPTS times. -> the result of flushQueue, or null when it did not run.
  */
 export async function flushQueueAuto({ consent = 'on', now = Date.now(), ...options } = {}) {
-  if (consent === 'off') return null
+  // with error reports off only what the person pressed 发送 for goes out by itself (that press was the consent to send it); anything else waits for them
+  const only = consent === 'off' ? (e) => !!e.explicit : null
   if (now - lastAutoFlush < AUTO_FLUSH_GAP_MS) return null
-  if (!loadQueue(options.storage).length) return null
+  if (!loadQueue(options.storage).some((e) => !only || only(e))) return null
   lastAutoFlush = now
-  return flushQueue(options)
+  return flushQueue({ ...options, ...(only ? { only } : {}) })
 }
 export const resetAutoFlush = () => { lastAutoFlush = 0 }
 
@@ -164,12 +168,12 @@ async function submitOnce(doc, id, options) {
   if (wasSent(id, storage)) return { state: 'sent', id, again: true }
   const queued = loadQueue(storage).find((e) => e.id === id)
   if (!queued && !allowReport(storage, options.now)) return { state: 'limited' }
-  if (isOffline(options)) { enqueue(doc, storage, options.now, { id }); return { state: 'queued', id, reason: 'offline' } }
+  if (isOffline(options)) { enqueue(doc, storage, options.now, { id, explicit: !!options.explicit }); return { state: 'queued', id, reason: 'offline' } }
   const answer = await sendDocument(doc, { ...options, id })
   if (answer.state === 'sent') { removeQueued(id, storage); rememberSent(id, storage); return { ...answer, id } }
   if (answer.state === 'offline') {
-    if (queued) { const queue = loadQueue(storage).map((e) => (e.id === id ? { ...e, attempts: Math.min(e.attempts + 1, QUEUE_MAX_ATTEMPTS - 1), ...(answer.maybeArrived ? { maybeArrived: true } : {}) } : e)); saveQueue(queue, storage) }
-    else enqueue(doc, storage, options.now, { id, maybeArrived: !!answer.maybeArrived })
+    if (queued) { const queue = loadQueue(storage).map((e) => (e.id === id ? { ...e, attempts: Math.min(e.attempts + 1, QUEUE_MAX_ATTEMPTS - 1), ...(answer.maybeArrived ? { maybeArrived: true } : {}), ...(options.explicit ? { explicit: true } : {}) } : e)); saveQueue(queue, storage) }
+    else enqueue(doc, storage, options.now, { id, maybeArrived: !!answer.maybeArrived, explicit: !!options.explicit })
     return { state: 'queued', id, reason: answer.reason }
   }
   if (queued) removeQueued(id, storage)
