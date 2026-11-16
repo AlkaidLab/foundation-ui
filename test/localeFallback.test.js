@@ -69,7 +69,7 @@ test('every language resolves every guide key, and an empty stub keeps the Engli
     }
   }
   assert.notEqual(guideTexts('de').titles.account, 'Set up the WebUI panel account')
-  assert.equal(guideTexts('de').skipIn, 'Anleitung überspringen ({n})')
+  assert.equal(guideTexts('de').skipThis, 'Diesen Schritt überspringen')
   assert.equal(guideTexts('ja').titles.intro, 'ようこそ')
   assert.equal(guideTexts('fr').intro.followSystem, 'Suivre le système')
   assert.equal(guideTexts('zh_TW').titles.pair, '連線並配對')
