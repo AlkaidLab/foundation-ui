@@ -10,12 +10,12 @@ const MENU_RS_IDS = [
   'tray_status', 'recover_service', 'tray_notification_action', 'open_main_panel', 'connect_device', 'download_client', 'open_desktop', 'auto_start', 'open_sunshine',
   'vdd_settings', 'vdd_create', 'vdd_close', 'vdd_toggle_keep_enabled', 'vdd_toggle_headless_create', 'reset_display', 'show_toolbar', 'host_performance', 'rtss_control', 'web_stream',
   'log_console', 'debug_page', 'lang_zh', 'lang_en', 'lang_ja', 'prevent_sleep', 'restart_user_mode', 'import_config', 'export_config', 'reset_config', 'clear_cache', 'check_update', 'about',
-  'star_project', 'visit_project_sunshine', 'visit_project_moonlight', 'visit_site', 'visit_bilibili', 'star_github', 'sponsor_qiin', 'sponsor_yundi339', 'sponsor_skyhua', 'restart', 'shutdown',
+  'feedback', 'star_project', 'visit_project_sunshine', 'visit_project_moonlight', 'visit_site', 'visit_bilibili', 'star_github', 'sponsor_qiin', 'sponsor_yundi339', 'sponsor_skyhua', 'restart', 'shutdown',
 ]
 
 test('the id list is the menu.rs list', () => {
   assert.deepEqual([...TRAY_ITEM_IDS].sort(), [...MENU_RS_IDS].sort())
-  assert.equal(TRAY_ITEM_IDS.length, 43)
+  assert.equal(TRAY_ITEM_IDS.length, 44)
   assert.deepEqual([...TRAY_CONTAINER_IDS].sort(), ['advanced', 'display', 'help', 'interfaces', 'language', 'settings', 'tools'])
 })
 
