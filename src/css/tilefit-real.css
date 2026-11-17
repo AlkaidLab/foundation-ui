@@ -22,7 +22,6 @@
 .m-calh__now small { text-wrap: balance; }
 /* 组件 tiles at 中 (usbip-win2): the status sits inside its plate */
 .m-b2comp.is-m .m-b2plate { padding: 8px 12px; gap: 2px; justify-content: center; }
-.m-b2comp.is-m .m-b2plate .m-b2glyph { --g: 34px; }
 .m-caln.is-s .m-caln__art.has-art { background-position: 50% 100%; }
 /* 本主机: a chip that does not fit is not shown (no half chip under a fade): the row wraps and fitRows.js takes out the entries that fall below the tile's content edge */
 .m-calh__fchips span { flex: none; }
