@@ -230,7 +230,7 @@
   .m-inst__glyph { width: 40px; height: 40px; } .m-inst__glyph .m-icon { width: 22px; height: 22px; } .m-inst__glyph-spin { width: 28px; height: 28px; }
   .m-inst__fact { gap: 12px; } .m-inst__fact-icon { width: 32px; height: 32px; } .m-inst__fact-icon .m-icon { width: 20px; height: 20px; }
   .m-inst__foot { gap: 8px; } .m-inst__foot-end { gap: 6px; }
-  .m-inst__foot .m-btn { height: 36px; min-height: 36px; padding-inline: 14px; }
+  .m-inst__foot .m-btn { --m-btn-h: 36px; height: 36px; min-height: 36px; padding-inline: 14px; }
   .m-inst__btn--start { margin-inline-start: -8px; }
 }
 /* ---- a low window ---- */
@@ -246,7 +246,7 @@
   .m-inst__comps { margin-top: 8px; } .m-inst__row { min-height: 48px; padding-block: 4px; } .m-inst__row-icon { width: 32px; height: 32px; }
   .m-inst__run { margin-top: 8px; }
   .m-inst__foot { padding-top: 8px; }
-  .m-inst__foot .m-btn { height: 36px; min-height: 36px; }
+  .m-inst__foot .m-btn { --m-btn-h: 36px; height: 36px; min-height: 36px; }
   .m-inst__seal, .m-inst__seal-art, .m-inst__seal-spin { width: 80px; height: 80px; } .m-inst__seal { margin-bottom: 6px; }
   .m-inst__title--hero { font: var(--m-headline-small-emphasized); }
   .m-inst__page--done .m-inst__foot { margin-top: 16px; }
