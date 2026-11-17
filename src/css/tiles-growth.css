@@ -11,6 +11,7 @@
 .m-gr__facts li > b { font: var(--m-tile-text-14-strong, var(--m-title-small)); color: var(--md-sys-color-on-surface); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .m-gr__facts li > small { font: var(--m-tile-text-12); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-gr__facts li.is-bad > b, .m-gr__facts li.is-bad > small { color: var(--md-sys-color-error); }
+.m-gr__facts li.is-warn > b, .m-gr__facts li.is-warn > small { color: var(--tile-warn-text, var(--md-sys-color-warning)); }
 .m-gr__side { flex: 1 1 auto; min-width: 0; }
 
 /* 端口: the ports one by one at 大 */
@@ -18,6 +19,7 @@
 .m-gr__ports li { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 22px; font: var(--m-tile-text-13); color: var(--md-sys-color-on-surface); min-width: 0; }
 .m-gr__ports li > i { width: 8px; height: 8px; border-radius: 50%; background: var(--tk); }
 .m-gr__ports li.is-bad > i { background: var(--md-sys-color-error); }
+.m-gr__ports li.is-warn > i { background: transparent; box-shadow: inset 0 0 0 2px var(--md-sys-color-warning); }
 .m-gr__ports li > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .m-gr__ports li > em { font-style: normal; font: var(--m-tile-text-12); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; }
 
@@ -42,11 +44,11 @@
 .m-gr__list li.is-more { padding-left: 18px; }
 .m-gr__list li > .m-gr__txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 .m-gr__txt > b { font: var(--m-title-small); color: var(--md-sys-color-on-surface); overflow-wrap: anywhere; line-height: 1.25; }
-.m-gr__txt > small { font: var(--m-tile-text-12); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-gr__txt > small { font: var(--m-tile-text-12); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); overflow-wrap: anywhere; }
 .m-gr__list li.is-more > .m-gr__txt > b { font: var(--m-tile-text-13-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
 .m-gr__list li > .m-tchip { flex: none; }
-/* three lines: the name may wrap to two, so the line under it goes */
-.m-gr--maps.is-l[data-rows="3"] .m-gr__txt > small { display: none; }
+/* three lines: the name keeps to one line (an ellipsis), so the line with the clients under it stays */
+.m-gr--maps.is-l[data-rows="3"] .m-gr__txt > b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* 编码预算 */
 .m-gr__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }

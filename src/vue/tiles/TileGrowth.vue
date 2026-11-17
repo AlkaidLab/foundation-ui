@@ -25,8 +25,14 @@ const id = computed(() => props.card.id)
 const size = computed(() => (['s', 'm', 'l'].includes(props.card.size) ? props.card.size : 's'))
 const T = computed(() => props.texts || {})
 
-// 端口
+// 端口: the ring shows the ports that are reachable; a port whose firewall state is unknown is a second, warning arc of its own, never part of the reachable share (the tile keeps its own colour so the two arcs differ), and in the list a hollow warning dot
 const portsBad = computed(() => id.value === 'ports-check' && (d.value.blocked > 0 || d.value.closed > 0))
+const portsAccent = computed(() => (portsBad.value ? 'error' : 'primary'))
+const portsSegs = computed(() => {
+  const t = d.value.total || 0
+  return t ? [{ value: d.value.ok / t, tone: 'a' }, ...(d.value.unknown ? [{ value: d.value.unknown / t, tone: 'warning' }] : [])] : null
+})
+const portTone = (r) => (r.unknownFw ? 'is-warn' : r.ok ? '' : 'is-bad')
 const portName = (r) => r.name || r.role
 // 文件映射
 // 大 lists up to three folders (a fourth would take the hero's room): with more, the third line says how many are not shown
@@ -34,7 +40,14 @@ const fmAll = computed(() => d.value.rows || [])
 const fmMore = computed(() => size.value === 'l' && fmAll.value.length > 3)
 const fmRows = computed(() => fmAll.value.slice(0, size.value === 'l' ? (fmMore.value ? 2 : 3) : 2))
 const fmMoreText = computed(() => String(T.value.fmMore || '').replace('{n}', fmAll.value.length - 2))
-const fmWho = (r) => (r.clients ? `${r.clients} ${T.value.fmClients}` : T.value.fmAll)
+// who a folder is open to: the names of the paired clients (two, one with three folders in the list, then how many more), or the count when none of the ids is a paired client, or every client
+const fmWho = (r) => {
+  const w = r.who
+  if (!w || !w.total) return T.value.fmAll
+  if (!w.names.length) return `${w.total} ${T.value.fmClients}`
+  const shown = w.names.slice(0, fmAll.value.length >= 3 ? 1 : 2), rest = w.names.length - shown.length + w.unnamed
+  return shown.join(T.value.fmSep) + (rest ? T.value.fmSep + String(T.value.fmMore || '').replace('{n}', rest) : '')
+}
 const modeText = (m) => (m === 'read' ? T.value.fmRead : m === 'write' || m === 'readwrite' ? T.value.fmWrite : m)
 const modeTone = (m) => (m === 'read' ? '' : 'warn')
 // 编码预算
@@ -50,26 +63,30 @@ const choose = (v) => { if (v === current.value) return; if (d.value.confirm?.[v
 
 <template>
   <!-- 端口 -->
-  <section v-if="id === 'ports-check'" class="m-tile m-cal m-gr m-gr--ports" :class="`is-${size}`" :data-size="size" :data-accent="portsBad ? 'error' : 'primary'">
+  <section v-if="id === 'ports-check'" class="m-tile m-cal m-gr m-gr--ports" :class="`is-${size}`" :data-size="size" :data-accent="portsAccent">
     <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
     <div class="m-gr__body">
-      <MTileRing class="m-gr__ring" :value="d.total ? d.ok / d.total : 0" :label="card.title">
+      <MTileRing class="m-gr__ring" :value="d.total ? d.ok / d.total : 0" :segments="portsSegs" :label="card.title">
         <MTileNumeral :value="String(d.ok)" :unit="`/${d.total}`" size="s" />
       </MTileRing>
       <ul v-if="size === 'm'" class="m-gr__facts">
         <li><span>{{ T.pcTcp }}</span><b class="m-dnum">{{ d.tcpUp }}/{{ d.tcp }}</b><small>{{ T.pcUp }}</small></li>
         <li><span>{{ T.pcUdp }}</span><b class="m-dnum">{{ d.udpReady }}/{{ d.udp }}</b><small>{{ T.pcSession }}</small></li>
-        <li :class="{ 'is-bad': d.blocked }"><span>{{ T.pcFirewall }}</span><b class="m-dnum">{{ d.blocked ? d.blocked : '✓' }}</b><small>{{ d.blocked ? T.pcBlocked : '' }}</small></li>
+        <li v-if="d.blocked" class="is-bad"><span>{{ T.pcFirewall }}</span><b class="m-dnum">{{ d.blocked }}</b><small>{{ T.pcBlocked }}</small></li>
+        <li v-if="d.unknown" class="is-warn"><span>{{ T.pcFirewall }}</span><b class="m-dnum">{{ d.unknown }}</b><small>{{ T.pcUnknownShort }}</small></li>
+        <li v-if="!d.blocked && !d.unknown"><span>{{ T.pcFirewall }}</span><b class="m-dnum">✓</b></li>
       </ul>
       <div v-else-if="size === 'l'" class="m-gr__side">
         <ul class="m-gr__facts">
           <li><span>{{ T.pcTcp }}</span><b class="m-dnum">{{ d.tcpUp }}/{{ d.tcp }}</b><small>{{ T.pcUp }}</small></li>
           <li><span>{{ T.pcUdp }}</span><b class="m-dnum">{{ d.udpReady }}/{{ d.udp }}</b><small>{{ T.pcSession }}</small></li>
+          <li v-if="d.blocked" class="is-bad"><span>{{ T.pcFirewall }}</span><b class="m-dnum">{{ d.blocked }}</b><small>{{ T.pcBlocked }}</small></li>
+          <li v-if="d.unknown" class="is-warn"><span>{{ T.pcFirewall }}</span><b class="m-dnum">{{ d.unknown }}</b><small>{{ T.pcUnknownShort }}</small></li>
         </ul>
       </div>
     </div>
     <ul v-if="size === 'l'" class="m-gr__ports">
-      <li v-for="r in d.rows" :key="`${r.proto}${r.port}`" :class="{ 'is-bad': !r.ok }"><i /><span>{{ portName(r) }}</span><em class="m-dnum">{{ r.proto }} {{ r.port }}</em></li>
+      <li v-for="r in d.rows" :key="`${r.proto}${r.port}`" :class="portTone(r)" :title="r.unknownFw ? T.pcUnknown : undefined"><i /><span>{{ portName(r) }}</span><em class="m-dnum">{{ r.proto }} {{ r.port }}</em></li>
     </ul>
   </section>
 

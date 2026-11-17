@@ -71,6 +71,8 @@ export const TILE_RANGES = Object.freeze({
   // one switch or one action: a square
   // the catalogue growth round (homeGrowth.js): a closed ring or a shape at every size; the access choice has no 大
   ...each(['ports-check', 'file-maps', 'encode-budget'], R('s', 'l')), 'web-access': R('s', 'm'),
+  // the second round (homeGrowth2.js): a hero at every size; the two with a choice on the tile (麦克风, 捕获方式) keep it at 中 and 大
+  ...each(['link-margin', 'frame-supply', 'mic-health', 'capture-method'], R('s', 'l')),
   ...each(['ctl-controller', 'ctl-keyboard', 'ctl-mouse', 'ctl-cursor', 'ctl-audio', 'act-stop'], R('s', 's')),
 })
 const COMPONENT = R('s', 'm')

@@ -9,7 +9,7 @@ size at draw time (compact one smaller, extra-wide one larger; the setting 磁�
 
 **The size of a tile is the same on every window.** One unit (the square of a 方形) is 148 CSS px at the standard density, plus a 12 px gap (a pitch of 160 px), at any window size and on any screen at the same OS scale; the density setting scales it, nothing else does. A bigger window holds more columns and rows of standard tiles (the smart overview fills the free places with more tiles), a smaller one fewer; only a pane narrower than two units and a gap (a phone) gets a smaller unit. The grid is as wide as its columns and sits in the middle of the pane. 148 px packs the content widths of the common windows (1280, 1440, 1920) into 7, 8 and 11 columns with 12 px to spare. The grid has at most 12 columns (1908 px): a wider window keeps the tiles at their size and gets wider margins on both sides, and there is no sectioned layout any more (it was the answer to a grid wider than the catalogue can fill). The smart overview fills the free places with more tiles with data; when they run out it takes the column count (up to six less than the window holds) that leaves the fewest empty cells, so the grid has no holes.
 
-Totals: 17 default cards, 7 component-status cards (`comp:*`), 62 catalogue cards. The default home ships 配对 and 下载客户端 (both ordinary cards: they can be resized, moved, removed and added back).
+Totals: 17 default cards, 7 component-status cards (`comp:*`), 66 catalogue cards. The default home ships 配对 and 下载客户端 (both ordinary cards: they can be resized, moved, removed and added back).
 
 ## Default cards
 
@@ -34,7 +34,7 @@ Totals: 17 default cards, 7 component-status cards (`comp:*`), 62 catalogue card
 
 `comp:vdd`, `comp:usbip`, `comp:dualsense`, `comp:drivers`, `comp:mic`, `comp:encoder`, `comp:host`: the state of each component (see `docs/m3e-status.md`, "Component status").
 
-## Catalogue cards (62)
+## Catalogue cards (66)
 
 | Card | Name (en / zh) | Group | Sizes | Source |
 | `latency` | Host latency / 主机延迟 | Stream | S/M/L | Session latency series of the performance recorder |
@@ -72,6 +72,10 @@ Totals: 17 default cards, 7 component-status cards (`comp:*`), 62 catalogue card
 | `file-maps` | File mappings / 文件映射 | Host | S/M/L | Host configuration `file_mappings` and `file_mapping_port` |
 | `encode-budget` | Encode budget / 编码预算 | Stream | S/M/L | Host configuration `active_nvenc_frame_budget`: the encode time estimate against the frame time |
 | `web-access` | Web page access / 网页访问范围 | Control | S/M | Host setting `origin_web_ui_allowed`, saved like the settings page; a change that locks the person out or opens the page to the internet asks first |
+| `link-margin` | Link headroom / 链路余量 | Stream | S/M/L | Default network adapter of the host (`/api/system/info` `nics`: `link_speed_mbps`) against the session's bitrate (`measured_bitrate_kbps`, else the budget) and the FEC share (host setting `fec_percentage`); the link speed is the negotiated rate, not a measured throughput, and only the host's end |
+| `frame-supply` | Frame supply / 帧率来源 | Stream | S/M/L | `frame_rates` of `/api/perf/current` (source, capture, submitted, encoded, repeated frames per second, `source_kind`), passed by the product as `session.frameRates`; a stage that delivers clearly fewer frames than the one before it is marked |
+| `mic-health` | Microphone / 麦克风 | Devices | S/M/L | The microphone status (`/api/microphone/status`, passed as `mic`): the state, the gap, dropped and error counters; the path (`microphone_redirect_backend`: 自动, VB-CABLE, USB/IP, 关闭) is chosen on the tile at 中 and 大, saved like the settings page |
+| `capture-method` | Capture method / 捕获方式 | Control | S/M/L | Host setting `capture` ('' auto, ddx, wgc, amd, vdd; Windows), chosen on the tile at 中 and 大, saved like the settings page, in effect from the next stream; the method of the running session (`perfCapture`) is shown at 大 |
 | `ctl-fps` | Frame rates / 帧率预设 | Control | M/L | Host setting, saved like the settings page |
 | `memory-trend` | Memory over time / 内存变化 | Performance | S/M/L | Memory counters, kept locally |
 | `load` | CPU and GPU / CPU 与 GPU | Performance | M/L | Load counters, kept locally |
