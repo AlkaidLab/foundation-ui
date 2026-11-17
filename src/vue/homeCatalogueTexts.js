@@ -3,6 +3,7 @@ import { textTable } from '../locale/texts/index.js'
 import { MORE_TEXTS } from './homeCatalogueTextsMore.js'
 import { RECENT_TEXTS } from './homeRecent.js'
 import { GROWTH_TEXTS } from './homeGrowth.js'
+import { GROWTH2_TEXTS } from './homeGrowth2.js'
 
 const BASE = Object.freeze({
   en: {
@@ -39,6 +40,6 @@ const BASE = Object.freeze({
   },
 })
 
-export const CATALOGUE_TEXTS = Object.freeze({ en: { ...BASE.en, ...MORE_TEXTS.en, ...RECENT_TEXTS.en, ...GROWTH_TEXTS.en }, zh: { ...BASE.zh, ...MORE_TEXTS.zh, ...RECENT_TEXTS.zh, ...GROWTH_TEXTS.zh } })
+export const CATALOGUE_TEXTS = Object.freeze({ en: { ...BASE.en, ...MORE_TEXTS.en, ...RECENT_TEXTS.en, ...GROWTH_TEXTS.en, ...GROWTH2_TEXTS.en }, zh: { ...BASE.zh, ...MORE_TEXTS.zh, ...RECENT_TEXTS.zh, ...GROWTH_TEXTS.zh, ...GROWTH2_TEXTS.zh } })
 
 export const catalogueTexts = (locale = 'en') => textTable('homeCatalogue', locale, CATALOGUE_TEXTS.en, CATALOGUE_TEXTS.zh)
