@@ -69,6 +69,8 @@ export const TILE_RANGES = Object.freeze({
   'ctl-encoder': R('s', 's', { strip: 4, size: 'strip' }), 'ctl-bitrate': R('s', 's', { strip: 4, size: 'strip' }), 'pers-theme': R('s', 's', { strip: 4, size: 'strip' }),
   'pers-colour': R(null, null, { strip: 4 }),
   // one switch or one action: a square
+  // the catalogue growth round (homeGrowth.js): a closed ring or a shape at every size; the access choice has no 大
+  ...each(['ports-check', 'file-maps', 'encode-budget'], R('s', 'l')), 'web-access': R('s', 'm'),
   ...each(['ctl-controller', 'ctl-keyboard', 'ctl-mouse', 'ctl-cursor', 'ctl-audio', 'act-stop'], R('s', 's')),
 })
 const COMPONENT = R('s', 'm')
