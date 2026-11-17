@@ -100,7 +100,6 @@ html[data-bs-theme='dark'] .m-b3n__gen, html[data-theme='dark'] .m-b3n__gen, htm
 
 /* 15. component tiles at 方形 (驱动, USB, 麦克风 …): the title may take two lines, so the glyph and the state sit in one row of the plate and the version line stays under it, inside the tile */
 .m-b2comp.is-s .m-b2plate { flex: none; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; margin-top: 6px; padding: 8px 10px; }
-.m-b2comp.is-s .m-b2plate .m-b2glyph { --g: 28px; }
 .m-b2comp.is-s .m-b2__state { margin-top: 0; }
 .m-b2comp.is-s .m-b2__cap { margin-top: 4px !important; }
 

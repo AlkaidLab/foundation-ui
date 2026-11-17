@@ -66,7 +66,7 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
       <span v-if="size === 's'" class="m-tfacts__cap m-dnum">{{ d.sub }}<template v-if="d.unit"> · {{ d.unit }}</template></span>
     </template>
     <template v-else-if="id === 'stream-resolution'">
-      <MTileShape class="m-tile__corner" icon="aspect_ratio" shape="squircle" size="60px" tone="tonal" />
+      <MTileShape class="m-tile__corner" shape="squircle" size="60px" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tfacts__foot m-tfacts__res">
         <b class="m-b2res__name">{{ resName }}</b>
@@ -75,7 +75,7 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
       <div v-if="size !== 's'" class="m-tfacts__side m-tfacts__side--res"><MTileChip v-for="r in d.rows || []" :key="r.title" :icon="r.icon" :label="`${r.title} ${r.value}`" /></div>
     </template>
     <template v-else-if="id === 'sys'">
-      <MTileShape class="m-tile__corner" icon="computer" shape="squircle" :size="size === 's' ? '164px' : '180px'" tone="tonal" />
+      <MTileShape class="m-tile__corner" shape="squircle" :size="size === 's' ? '164px' : '180px'" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tfacts__foot">
         <b class="m-tfacts__os">{{ d.big }}</b>

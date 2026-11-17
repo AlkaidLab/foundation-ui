@@ -34,7 +34,7 @@ const others = computed(() => (d.value.rows || []).filter((r) => !r.main))
       <div class="m-empty-basic"><b>{{ empty?.value || d.empty || '' }}</b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
     </template>
     <template v-else-if="variant === 2">
-      <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
+      <MTileHead :icon="p.icon ? '' : d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tnet__body">
         <div class="m-tnet__hero">
           <MTileRing v-if="p.wifi && p.signal !== null" class="m-tnet__signal" :value="p.signal / 100" />
@@ -55,7 +55,7 @@ const others = computed(() => (d.value.rows || []).filter((r) => !r.main))
     </template>
     <template v-else>
       <MTileShape class="m-tile__corner m-tnet__corner" :icon="p.icon" shape="cookie" :size="size === 'l' ? '230px' : '168px'" tone="tonal" />
-      <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
+      <MTileHead :icon="p.icon ? '' : d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tnet__main">
         <MTileNumeral :value="speed.v || p.kind" :unit="speed.u" :size="size === 'l' ? 'l' : size === 'm' ? 'm' : 's'" />
         <template v-if="size !== 's'">

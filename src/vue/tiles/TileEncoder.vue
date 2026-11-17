@@ -43,7 +43,7 @@ const rows = computed(() => d.value.rows || [])
       </ul>
     </template>
     <template v-else-if="id === 'host-adapter'">
-      <MTileShape class="m-tile__corner" icon="memory" shape="gem" :size="size === 's' ? '150px' : '176px'" tone="tonal" />
+      <MTileShape class="m-tile__corner" shape="gem" :size="size === 's' ? '150px' : '176px'" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tenc__adapter">
         <b class="m-tenc__name">{{ rows[0]?.value }}</b>
@@ -51,7 +51,6 @@ const rows = computed(() => d.value.rows || [])
       </div>
     </template>
     <template v-else>
-      <MTileShape v-if="!(d.ring && size !== 's')" class="m-tile__corner" :icon="d.icon" shape="cookie" :size="size === 's' ? '150px' : '190px'" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tenc__main">
         <div class="m-tenc__word">

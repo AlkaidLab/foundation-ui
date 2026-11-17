@@ -85,7 +85,8 @@ test('every size of the tile has a hero: nothing used yet is the tile\'s shape, 
   assert.deepEqual([v.empty, v.action.label, v.action.type, v.action.value], [true, '打开设置', 'open', 'settings'])
   const tile = src('../src/vue/tiles/TileRecent.vue')
   assert.ok(tile.includes('<header class="m-calm__head"><MIcon name="history" />') && tile.includes('<div class="m-empty-basic">'), 'the empty tile uses the same compact header and body as the other tiles')
-  assert.ok(tile.includes('<MTileShape :icon="rows[0].icon" shape="clover" size="64px" />'))
+  assert.ok(tile.includes('<MTileShape :icon="rows[0].icon" shape="clover" size="36px" />'))
+  assert.ok(tile.includes('<small :title="rows[0].appliesText">{{ rows[0].appliesText }}</small>'), 'the full applicability text remains available when truncated')
   assert.ok(src('../src/css/tiles-recent.css').includes('.m-rc.is-l .m-rc__rows, .m-rc.is-xl .m-rc__rows { grid-auto-rows: minmax(48px, 1fr); }'))
 })
 

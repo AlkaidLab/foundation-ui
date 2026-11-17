@@ -50,8 +50,10 @@ const valueText = (r) => (r.control === 'switch' ? (on(r) ? props.texts.on : pro
   <section v-else-if="size === 's' && rows.length" class="m-tile m-cal m-rc is-s is-hero" data-size="s" data-accent="primary">
     <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span></header>
     <div class="m-rc__heroview">
-      <MTileShape :icon="rows[0].icon" shape="clover" size="64px" />
-      <span class="m-rc__text"><b :title="rows[0].path">{{ rows[0].title }}</b><small>{{ rows[0].appliesText }}</small></span>
+      <div class="m-rc__identity">
+        <MTileShape :icon="rows[0].icon" shape="clover" size="36px" />
+        <span class="m-rc__text"><b :title="rows[0].path">{{ rows[0].title }}</b><small :title="rows[0].appliesText">{{ rows[0].appliesText }}</small></span>
+      </div>
       <MSwitch v-if="rows[0].control === 'switch'" :model-value="on(rows[0])" :label="rows[0].title" @update:model-value="(v) => flip(rows[0], v)" />
       <button v-else type="button" class="m-rc__jump" :aria-label="`${rows[0].title}: ${texts.rcOpen}`" @click.stop="open(rows[0])"><span v-if="valueText(rows[0])">{{ valueText(rows[0]) }}</span><MIcon name="chevron_right" /></button>
     </div>

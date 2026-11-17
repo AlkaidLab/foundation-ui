@@ -28,9 +28,12 @@
 
 /* 提示 (the tip strip) in a narrow window: the strip keeps its icon and gives the room of its label to the text, so the two lines of the tip stay inside their plate */
 @container (max-width: 399.98px) { .m-b3s--tip .m-calq__title { font-size: 0; gap: 0; } .m-b3s--tip .m-b3s__tip { padding-inline: 14px; } }
-/* 组件 at 方形: the state (「未安装」) has the whole plate; the glyph repeats the one of the header, so it is not drawn here */
-.m-b2comp.is-s .m-b2plate .m-b2glyph { display: none; }
-.m-b2comp .m-b2__state b { white-space: nowrap; }
+/* 组件: the title keeps the component icon and the plate keeps its state. */
+.m-b2comp .m-b2__state { min-width: 0; max-width: 100%; }
+.m-b2comp .m-b2__state b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-b2comp.is-s .m-b2__state { gap: 6px; }
+.m-b2comp.is-s .m-b2__state .m-icon { flex: none; width: 16px; height: 16px; }
+.m-b2comp.is-s .m-b2__state b { font: var(--m-tile-text-13-strong); }
 
 /* 主机延迟, 帧率, 码率 at 中: the curve is drawn right of the figure, so its line never runs through the caption under the figure */
 .m-calm.is-m .m-calm__chart { left: 46%; }
@@ -137,7 +140,7 @@
 .m-tile[data-size='l'] .m-tile__corner, .m-tile[data-size='xl'] .m-tile__corner { width: 88px; height: 88px; } .m-tile[data-size='l'] .m-tile__corner > .m-icon, .m-tile[data-size='xl'] .m-tile__corner > .m-icon { font-size: 40px; }
 .m-tile:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head) { padding-inline-end: 44px; }
 .m-tile[data-size='l']:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head), .m-tile[data-size='xl']:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head) { padding-inline-end: 72px; }
-.m-tile[data-size='s']:has(.m-tile__corner) > .m-tile__head > .m-icon { display: none; }
+.m-tile[data-size='s']:has(.m-tile__corner > .m-icon) > .m-tile__head > .m-icon { display: none; }
 .m-tile[data-size='s']:has(.m-tile__corner) > .m-tile__head > span { white-space: normal; overflow: visible; text-overflow: clip; text-wrap: balance; line-height: 16px; overflow-wrap: anywhere; }
 
 /* 配对 at two cells: the QR code on a light plate tinted by the theme (a code needs dark modules on a light ground, so the plate stays light, but it is not a white block), and beside it the name with the count under it,
@@ -155,8 +158,8 @@ html[data-bs-theme='dark'] .m-b2pair__qr, html[data-theme='dark'] .m-b2pair__qr,
 .m-b2pair__row .m-b2pair__go { flex: none; width: auto; height: 40px; margin: 0; }
 .m-b2pair__go.is-tonal:disabled { background: color-mix(in srgb, var(--md-sys-color-secondary-container) 55%, var(--cal-inner)); color: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 70%, transparent); }
 
-/* 组件状态 at one cell: the glyph is in the plate, so the head carries the name alone (no glyph, no chevron) and it fits on one line. */
-.m-b2comp.is-s > .m-calm__head > :is(.m-icon, .m-calm__more) { display: none; }
+/* 组件状态 at one cell: the header keeps its icon and name, without the chevron. */
+.m-b2comp.is-s > .m-calm__head > .m-calm__more { display: none; }
 .m-b2comp.is-s > .m-calm__head > .m-calm__title { white-space: normal; text-wrap: balance; line-height: 16px; overflow: visible; }
 
 /* 公告 at two cells: the plate takes 40 %, so the title (20 px) is one line when it can be, and a break falls between words (balance). */
