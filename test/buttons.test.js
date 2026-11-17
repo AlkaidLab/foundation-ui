@@ -76,7 +76,7 @@ test('a rule that resizes a .m-btn sets --m-btn-h too, and none overrides its bo
     const text = readFileSync(new URL(`../src/css/${file}.css`, import.meta.url), 'utf8')
     for (const rule of text.matchAll(/(?:^|\n|\{)\s*([^{}\n]*\.m-btn[^{}]*)\{([^}]*)\}/g)) {
       const body = rule[2]
-      if (/(?:^|[;\s])(?:min-)?height:/.test(body) && !/--m-btn-icon|--m-btn-h/.test(body.split('height')[0] + body)) assert.fail(`${file}.css: ${rule[1].trim()} sets a height without --m-btn-h`)
+      if (/(?:^|[;\s])(?:min-)?height:/.test(body) && !/--m-btn-h:/.test(body)) assert.fail(`${file}.css: ${rule[1].trim()} sets a height without --m-btn-h`)
       assert.doesNotMatch(body, /(?:^|[;\s])border-radius:/, `${file}.css: ${rule[1].trim()} overrides the button radius`)
     }
   }
