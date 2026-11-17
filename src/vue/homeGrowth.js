@@ -45,13 +45,13 @@ export function portsSummary(rows) {
   return { total: rows.length, ok: rows.filter(ok).length, unknown: rows.filter(unknown).length, blocked: rows.filter((r) => r.firewall === 'blocked').length, closed: rows.filter((r) => r.state === 'closed').length, tcpUp: tcp.filter((r) => r.state === 'listening').length, tcp: tcp.length, udpReady: udp.filter(ok).length, udp: udp.length, rows: rows.map((r) => ({ ...r, ok: ok(r), unknownFw: unknown(r) })) }
 }
 
-/** The names of the paired clients a mapping is open to: `ids` are client uuids (the host's `clients` list of a mapping), `paired` the paired client list. A uuid that is not paired any more counts as one unnamed client. */
+/** The names of the paired clients a mapping is open to: `ids` are client uuids (the host's `clients` list of a mapping), `paired` the paired client list. Each client counts once (by uuid, two clients with the same name are two entries); a uuid that is not paired any more counts as one unnamed client. */
 export function mappingClients(ids, paired) {
-  const list = Array.isArray(ids) ? ids.filter((v) => typeof v === 'string' && v) : []
+  const list = [...new Set((Array.isArray(ids) ? ids : []).filter((v) => typeof v === 'string' && v).map((v) => v.toLowerCase()))]
   const byId = new Map((Array.isArray(paired) ? paired : []).filter((c) => c && c.uuid).map((c) => [String(c.uuid).toLowerCase(), c.name ? String(c.name) : '']))
   const names = []
   let unnamed = 0
-  for (const id of list) { const n = byId.get(id.toLowerCase()); if (n) { if (!names.includes(n)) names.push(n) } else unnamed += 1 }
+  for (const id of list) { const n = byId.get(id); if (n) names.push(n); else unnamed += 1 }
   return { total: list.length, names, unnamed }
 }
 

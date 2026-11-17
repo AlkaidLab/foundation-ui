@@ -42,6 +42,8 @@ test("the frame stages keep the order of the pipeline, drop a stage the host doe
   const d = growth2Catalogue({ session: session({ frameRates: frames(120, 119, 96, 95.8, 0.4) }) }, T)["frame-supply"]
   assert.equal(d.encoded, 95.8); assert.equal(d.target, 120); assert.equal(d.repeated, 0.4); assert.equal(d.kind, "vdd_published")
   assert.equal(growth2Catalogue({ session: session() }, T)["frame-supply"], null, "a product that does not pass frameRates has no tile")
+  const partial = growth2Catalogue({ session: session({ frameRates: { enabled: true, ready: true, source: { fps: 120 }, capture: { fps: 100 } } }) }, T)["frame-supply"]
+  assert.equal(partial.encoded, null, "the sent rate is the encoded stage: the last stage that is reported is not borrowed for it")
 })
 
 test("the microphone tile reads the status, and the path chosen is the configuration key (it answers a save at once)", () => {
@@ -49,6 +51,8 @@ test("the microphone tile reads the status, and the path chosen is the configura
   const d = growth2Catalogue({ mic: status, config: {} }, T)["mic-health"]
   assert.deepEqual([d.backend, d.state, d.counters, d.canSave], ["usbip_experimental", "waiting", { underruns: 2, dropped: 1, errors: 0 }, true])
   assert.equal(growth2Catalogue({ mic: status, config: { microphone_redirect_backend: "vb_cable" } }, T)["mic-health"].backend, "vb_cable")
+  const live = growth2Catalogue({ mic: { ...status, configured_backend: "vb_cable", active_backend: "vb_cable" }, config: { microphone_redirect_backend: "disabled" } }, T)["mic-health"]
+  assert.deepEqual([live.backend, live.state], ["disabled", "active"], "the control shows the saved choice, the state is what the running host does")
   assert.equal(growth2Catalogue({ mic: status, config: { microphone_redirect_backend: "nonsense" } }, T)["mic-health"].backend, "usbip_experimental")
   assert.equal(growth2Catalogue({ mic: status, config: {}, saveSetting: false }, T)["mic-health"].canSave, false)
   assert.equal(growth2Catalogue({ mic: status }, T)["mic-health"].canSave, false, "without the configuration there is nothing to save to")
@@ -66,6 +70,12 @@ test("the capture method is a Windows setting with the choices of the host, AMD 
   assert.equal(growth2Catalogue({ config: { platform: "linux", capture: "" } }, T)["capture-method"], null)
   assert.equal(growth2Catalogue({ ...x, saveSetting: false }, T)["capture-method"], null); assert.equal(growth2Catalogue({ config: { platform: "windows" } }, T)["capture-method"], null)
   assert.equal(growth2Catalogue({ config: { platform: "windows", capture: "" } }, T)["capture-method"].value, "", "auto is the empty value")
+})
+
+test("the microphone tile is in the device group and the capture method says when it applies", async () => {
+  const { GROWTH2_META } = await import("../src/vue/homeGrowth2.js"), { GROUPS } = await import("../src/vue/homeCards.js")
+  for (const id of Object.keys(GROWTH2_META)) assert.ok(GROUPS.includes(GROWTH2_META[id][0]), `${id} is in a group the picker lists`)
+  assert.equal(GROWTH2_TEXTS.zh.cmNext, "重启后生效"); assert.equal(GROWTH2_TEXTS.en.cmNext, "After a restart")
 })
 
 test("the four tiles are registered with their sizes, texts in both languages and a style sheet", () => {

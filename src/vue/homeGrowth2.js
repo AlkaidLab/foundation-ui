@@ -9,7 +9,7 @@ import { microphoneState } from '../status/model.js'
 export const GROWTH2_META = {
   'link-margin': ['stream', 'off', 2, 'card', 'widget'],
   'frame-supply': ['stream', 'off', 2, 'card', 'widget'],
-  'mic-health': ['devices', 'off', 2, 'card', 'widget'],
+  'mic-health': ['device', 'off', 2, 'card', 'widget'],
   'capture-method': ['control', 'off', 2, 'card', 'widget'],
 }
 export const GROWTH2_SIZES = {
@@ -68,14 +68,14 @@ export function growth2Catalogue(x, T) {
 
   // 帧率来源
   const stages = s ? frameStages(s.frameRates) : null
-  if (stages) d['frame-supply'] = { type: 'frame-supply', icon: 'slow_motion_video', title: T['c_frame-supply'], stages, target: num(s.fps), repeated: num(s.frameRates.repeated?.fps), kind: typeof s.frameRates.source_kind === 'string' ? s.frameRates.source_kind : '', encoded: stages[stages.length - 1].fps }
+  if (stages) d['frame-supply'] = { type: 'frame-supply', icon: 'slow_motion_video', title: T['c_frame-supply'], stages, target: num(s.fps), repeated: num(s.frameRates.repeated?.fps), kind: typeof s.frameRates.source_kind === 'string' ? s.frameRates.source_kind : '', encoded: stages.find((st) => st.key === 'encoded')?.fps ?? null }
 
   // 麦克风
   const m = x.mic && typeof x.mic === 'object' ? x.mic : null
   if (m && m.configured_backend) {
     // the path the person chose: the configuration key (it answers a save at once; the status route follows on its next read)
     const chosen = c && typeof c.microphone_redirect_backend === 'string' && MIC_BACKENDS.includes(c.microphone_redirect_backend) ? c.microphone_redirect_backend : m.configured_backend
-    const state = microphoneState({ ...m, configured_backend: chosen })
+    const state = microphoneState(m) // what the process does now; a saved choice changes the control, the state follows when the host has applied it
     const saveOk = x.saveSetting !== false && c !== null
     d['mic-health'] = { type: 'mic-health', icon: 'mic', title: T['c_mic-health'], state, backend: chosen, active: m.active_backend || '', key: 'microphone_redirect_backend', canSave: saveOk, options: MIC_BACKENDS.map((v) => ({ value: v, label: T[`mb_${v}`], disabled: v === 'usbip_experimental' && m.component_available === false })), counters: { underruns: num(m.underruns) ?? 0, dropped: num(m.dropped_frames) ?? 0, errors: num(m.submit_errors) ?? 0 }, fallback: m.fallback_reason || '', error: m.error_code || '' }
   }
@@ -96,13 +96,13 @@ export const GROWTH2_TEXTS = Object.freeze({
     'c_frame-supply': 'Frame supply', fsSource: 'Source', fsCapture: 'Capture', fsSubmitted: 'Encoder in', fsEncoded: 'Sent', fsSourceS: 'Source', fsCaptureS: 'Capture', fsSubmittedS: 'Encode', fsEncodedS: 'Sent', fsRepeated: 'Repeated', fsTarget: 'Target', fsLost: 'Frames lost here', fsKind_vdd_published: 'Virtual display feed', fsFps: 'fps',
     'c_mic-health': 'Microphone', mhState_waiting: 'Waiting', mhState_idle: 'Waiting', mhState_active: 'In use', mhState_streaming: 'In use', mhState_capturing: 'In use', mhState_starting: 'Starting', mhState_stopping: 'Stopping', mhState_faulted: 'Fault', mhState_missing: 'Component missing', mhState_disabled: 'Off', mhState_unknown: 'Unknown', mhState_unsupported: 'Not supported',
     mhUnderruns: 'Gaps', mhDropped: 'Dropped', mhErrors: 'Errors', mhBackend: 'Path', mhFallback: 'Fell back', mb_auto: 'Auto', mb_vb_cable: 'VB-CABLE', mb_usbip_experimental: 'USB/IP', mb_disabled: 'Off',
-    'c_capture-method': 'Capture method', cm_auto: 'Auto', cm_ddx: 'DDA', cm_wgc: 'WGC', cm_amd: 'AMD', cm_vdd: 'VDD', cmf_auto: 'Tries DDA, then WGC', cmf_ddx: 'Desktop Duplication API', cmf_wgc: 'Windows Graphics Capture', cmf_amd: 'AMD Display Capture', cmf_vdd: 'Direct from the virtual display', cmSession: 'This session', cmNext: 'From the next stream',
+    'c_capture-method': 'Capture method', cm_auto: 'Auto', cm_ddx: 'DDA', cm_wgc: 'WGC', cm_amd: 'AMD', cm_vdd: 'VDD', cmf_auto: 'Tries DDA, then WGC', cmf_ddx: 'Desktop Duplication API', cmf_wgc: 'Windows Graphics Capture', cmf_amd: 'AMD Display Capture', cmf_vdd: 'Direct from the virtual display', cmSession: 'This session', cmNext: 'After a restart',
   },
   zh: {
     'c_link-margin': '链路余量', lmFree: '余量', lmStream: '串流', lmFec: '纠错', lmAdapter: '网卡', lmSpeed: '速率', lmSignal: '信号', lmTarget: '目标', lmGbps: 'Gbps', lmMbps: 'Mbps',
     'c_frame-supply': '帧率来源', fsSource: '画面更新', fsCapture: '捕获', fsSubmitted: '送编码', fsEncoded: '发出', fsSourceS: '画面', fsCaptureS: '捕获', fsSubmittedS: '送编', fsEncodedS: '发出', fsRepeated: '重复帧', fsTarget: '目标', fsLost: '帧在这里丢失', fsKind_vdd_published: '虚拟显示器直送', fsFps: 'fps',
     'c_mic-health': '麦克风', mhState_waiting: '待命', mhState_idle: '待命', mhState_active: '使用中', mhState_streaming: '使用中', mhState_capturing: '使用中', mhState_starting: '启动中', mhState_stopping: '停止中', mhState_faulted: '故障', mhState_missing: '缺组件', mhState_disabled: '已关闭', mhState_unknown: '未知', mhState_unsupported: '不支持',
     mhUnderruns: '断流', mhDropped: '丢帧', mhErrors: '错误', mhBackend: '通道', mhFallback: '已回退', mb_auto: '自动', mb_vb_cable: 'VB-CABLE', mb_usbip_experimental: 'USB/IP', mb_disabled: '关闭',
-    'c_capture-method': '捕获方式', cm_auto: '自动', cm_ddx: 'DDA', cm_wgc: 'WGC', cm_amd: 'AMD', cm_vdd: 'VDD', cmf_auto: '先试 DDA，再试 WGC', cmf_ddx: '桌面复制 API', cmf_wgc: 'Windows 图形捕获', cmf_amd: 'AMD 显示捕获', cmf_vdd: '直接取虚拟显示器画面', cmSession: '本次串流', cmNext: '下次串流起生效',
+    'c_capture-method': '捕获方式', cm_auto: '自动', cm_ddx: 'DDA', cm_wgc: 'WGC', cm_amd: 'AMD', cm_vdd: 'VDD', cmf_auto: '先试 DDA，再试 WGC', cmf_ddx: '桌面复制 API', cmf_wgc: 'Windows 图形捕获', cmf_amd: 'AMD 显示捕获', cmf_vdd: '直接取虚拟显示器画面', cmSession: '本次串流', cmNext: '重启后生效',
   },
 })

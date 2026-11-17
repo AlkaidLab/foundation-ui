@@ -40,7 +40,8 @@ test("a folder open to chosen clients names them: the paired names, two of them,
   const paired = [{ uuid: "AA-1", name: "Tablet" }, { uuid: "BB-2", name: "Phone" }, { uuid: "CC-3", name: "Deck" }]
   assert.deepEqual(mappingClients(["aa-1", "CC-3", "gone"], paired), { total: 3, names: ["Tablet", "Deck"], unnamed: 1 }, "a uuid matches whatever its case, a removed client has no name")
   assert.deepEqual(mappingClients([], paired), { total: 0, names: [], unnamed: 0 }); assert.deepEqual(mappingClients(undefined, undefined), { total: 0, names: [], unnamed: 0 })
-  assert.deepEqual(mappingClients(["BB-2", "BB-2"], [{ uuid: "BB-2", name: "Phone" }]).names, ["Phone"], "one name once")
+  assert.deepEqual(mappingClients(["BB-2", "bb-2"], [{ uuid: "BB-2", name: "Phone" }]), { total: 1, names: ["Phone"], unnamed: 0 }, "one client once, whatever the case of its uuid")
+  assert.deepEqual(mappingClients(["B1", "B2", "C3"], [{ uuid: "B1", name: "Phone" }, { uuid: "B2", name: "Phone" }, { uuid: "C3", name: "Deck" }]).names, ["Phone", "Phone", "Deck"], "two clients with one name are two entries")
   const d = growthCatalogue({ clients: paired, config: { file_mappings: b64([{ name: "Saves", mode: "read", clients: ["AA-1", "BB-2", "CC-3"] }, { name: "Clips", mode: "read", clients: [] }]) } }, T)["file-maps"]
   assert.deepEqual(d.rows.map((r) => r.who.names), [["Tablet", "Phone", "Deck"], []])
   const vue = read("src/vue/tiles/TileGrowth.vue"), css = read("src/css/tiles-growth.css")

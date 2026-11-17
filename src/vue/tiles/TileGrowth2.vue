@@ -7,7 +7,7 @@ export const tileIds = ['link-margin', 'frame-supply', 'mic-health', 'capture-me
 //   链路余量  a ring of the room left on the host's network adapter (the ring is the link speed, its full); 中 the three numbers it is made of, 大 the free speed in display type over one bar that splits the link into stream, FEC and free
 //   帧率来源  the sent rate in display type and the four stages of a frame (画面更新, 捕获, 送编码, 发出) as bars with the target as a tick; a stage that delivers clearly fewer frames than the one before it is red, with the frames it loses; the bars grow by a clip, never by their width (no layout per frame)
 //   麦克风    the state of the microphone as a shape in the colour of the state with its three counters; the path (自动, VB-CABLE, USB/IP, 关闭) is chosen on the tile at 中 and 大
-//   捕获方式  the method as a mark at 方形, the choice of four segments at 中, four rows with their long names at 大; the choice is saved like the settings page and takes effect from the next stream
+//   捕获方式  the method as a mark at 方形, the choice of four segments at 中, four rows with their long names at 大; the choice is saved like the settings page and takes effect after a restart of the host
 import { computed } from 'vue'
 import MIcon from '../MIcon.vue'
 import MTileHead from '../MTileHead.vue'
@@ -87,7 +87,7 @@ const cmLive = computed(() => (d.value.live ? (d.value.options.find((o) => o.val
     <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
     <div class="m-fs__body">
       <div class="m-fs__hero">
-        <MTileNumeral :value="fpsText(d.encoded)" :unit="T.fsFps" :size="size === 'l' ? 'l' : size === 'm' ? 'm' : 's'" :weight="500" />
+        <MTileNumeral :value="d.encoded === null ? '–' : fpsText(d.encoded)" :unit="T.fsFps" :size="size === 'l' ? 'l' : size === 'm' ? 'm' : 's'" :weight="500" />
         <div v-if="size === 'l'" class="m-fs__chips"><MTileChip v-if="d.target" :label="`${T.fsTarget} ${d.target}`" icon="flag" /><MTileChip v-if="d.repeated" :label="`${T.fsRepeated} ${fpsText(d.repeated)}`" icon="sync" /></div>
       </div>
       <!-- the stages as rows of bars, in the order a frame goes through them; a stage that loses frames is red -->
