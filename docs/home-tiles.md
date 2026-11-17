@@ -68,6 +68,10 @@ Totals: 17 default cards, 7 component-status cards (`comp:*`), 62 catalogue card
 | `ctl-vdd` | Virtual display / 虚拟显示器 | Control | M/L | The shared virtual display control |
 | `ctl-encoder` | Encoder / 编码器 | Control | M/L | Host setting, saved like the settings page |
 | `ctl-bitrate` | Bitrate cap / 码率上限 | Control | M/L | Host setting, saved like the settings page |
+| `ports-check` | Ports / 端口 | Host | S/M/L | Port check of the host (`/api/network/reachability`): reachable ports out of all |
+| `file-maps` | File mappings / 文件映射 | Host | S/M/L | Host configuration `file_mappings` and `file_mapping_port` |
+| `encode-budget` | Encode budget / 编码预算 | Stream | S/M/L | Host configuration `active_nvenc_frame_budget`: the encode time estimate against the frame time |
+| `web-access` | Web page access / 网页访问范围 | Control | S/M | Host setting `origin_web_ui_allowed`, saved like the settings page; a change that locks the person out or opens the page to the internet asks first |
 | `ctl-fps` | Frame rates / 帧率预设 | Control | M/L | Host setting, saved like the settings page |
 | `memory-trend` | Memory over time / 内存变化 | Performance | S/M/L | Memory counters, kept locally |
 | `load` | CPU and GPU / CPU 与 GPU | Performance | M/L | Load counters, kept locally |

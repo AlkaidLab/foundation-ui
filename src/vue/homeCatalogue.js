@@ -11,6 +11,7 @@ import { DEFAULT_SIZES, MORE_META, MORE_SIZES, moreCatalogue } from './homeCatal
 import { SYSTEM_META, SYSTEM_SIZES, systemCatalogue } from './homeSystemTiles.js'
 import { DEFAULT_RECENT_SIZES, RECENT_META, RECENT_SIZES, recentCatalogue } from './homeRecent.js'
 import { onlineClients, realSession } from './clientsLive.js'
+import { GROWTH_META, GROWTH_SIZES, growthCatalogue } from './homeGrowth.js'
 
 export const LINKS = Object.freeze({
   star: 'https://github.com/AlkaidLab/foundation-sunshine',
@@ -30,7 +31,7 @@ const META = {
   'act-pair': ['resources', 'off', 2, 'strip', 'widget'], 'act-add-app': ['resources', 'off', 2, 'strip', 'widget'], 'act-scan-games': ['resources', 'off', 2, 'strip', 'widget'], 'act-restart': ['resources', 'off', 2, 'strip', 'widget'], 'act-docs': ['resources', 'off', 2, 'strip', 'widget'], 'act-community': ['resources', 'off', 2, 'strip', 'widget'], 'act-open-desktop': ['resources', 'off', 2, 'strip', 'widget'], 'act-star': ['resources', 'off', 2, 'strip', 'widget'],
   temperature: ['perf', 'off', 2, 'card', 'widget'], 'ctl-vdd': ['control', 'off', 4, 'card', 'widget'], 'ctl-encoder': ['control', 'off', 4, 'card', 'widget'], 'ctl-bitrate': ['control', 'off', 4, 'card', 'widget'], 'ctl-fps': ['control', 'off', 4, 'card', 'widget'], 'memory-trend': ['perf', 'off', 2, E, 'curve'], load: ['perf', 'off', 4, 'card', 'widget'],
 }
-Object.assign(META, MORE_META, SYSTEM_META, RECENT_META)
+Object.assign(META, MORE_META, SYSTEM_META, RECENT_META, GROWTH_META)
 Object.assign(DEFAULT_SIZES, DEFAULT_RECENT_SIZES)
 export const CATALOGUE_IDS = Object.freeze(Object.keys(META))
 // the sizes a card offers (see homeSizes.js); a card of the strip class has one
@@ -49,6 +50,7 @@ export const CATALOGUE_SIZES = Object.freeze({
   ...MORE_SIZES,
   ...SYSTEM_SIZES,
   ...RECENT_SIZES,
+  ...GROWTH_SIZES,
   latency: { s: [2, 1], m: [4, 1] }, loss: { s: [2, 1], m: [4, 1] }, dropped: { s: [2, 1], m: [4, 1] }, 'memory-trend': { s: [2, 1], m: [4, 1] },
   'session-time': { s: [2, 1], m: [4, 1] }, budget: { s: [2, 1], m: [4, 1] }, 'current-app': { s: [2, 1], m: [4, 1], l: [4, 2] }, 'last-session': { s: [2, 1], m: [4, 1] }, 'recent-games': { s: [2, 1], m: [4, 1] },
   'session-heat': { s: [2, 1], m: [4, 1], l: [8, 1] }, 'clients-paired': { s: [2, 1], m: [4, 1], l: [4, 2] }, 'clients-online': { s: [2, 1], m: [4, 1] }, covers: { m: [4, 1], l: [8, 1] },
@@ -164,7 +166,7 @@ export function buildCatalogue(x, T) {
   const tc = num(x.temps?.cpu), tg = num(x.temps?.gpu), top = tg !== null ? tg : tc
   d.temperature = top !== null ? { type: 'gauge', icon: 'memory', title: T.c_temperature, value: Math.min(1, top / 100), centre: String(Math.round(top)), unit: '°C', zones: [{ to: 0.7, tone: 'ok' }, { to: 0.85, tone: 'warn' }, { to: 1, tone: 'err' }], caption: [tc !== null && `${T.loadCpu} ${Math.round(tc)} °C`, tg !== null && `${T.loadGpu} ${Math.round(tg)} °C`].filter(Boolean).join(' · ') } : null
   d.load = (h.cpu || []).length > 1 || (h.gpu || []).length > 1 ? { type: 'chart', icon: 'memory', title: T.c_load, series: [{ id: 'cpu', label: T.loadCpu, values: (h.cpu || []).slice(-60) }, ...((h.gpu || []).length > 1 ? [{ id: 'gpu', label: T.loadGpu, values: h.gpu.slice(-60) }] : [])], chart: 'line', unit: ' %', max: 100 } : null
-  Object.assign(d, moreCatalogue(x, T, now), systemCatalogue(x, T), recentCatalogue(x, T))
+  Object.assign(d, moreCatalogue(x, T, now), systemCatalogue(x, T), recentCatalogue(x, T), growthCatalogue(x, T))
   // 设置 at 中: the encoder and the bitrate cap the host streams with
   if (d['act-settings'] && x.config) d['act-settings'].facts = [encoderName(x.config.encoder) || T.auto, d['ctl-bitrate']?.options?.find((o) => o.value === String(bitrateKbps(x.config.max_bitrate)))?.label].filter(Boolean).join(' · ')
   return { data: d }
