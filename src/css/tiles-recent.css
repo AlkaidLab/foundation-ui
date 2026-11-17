@@ -25,10 +25,12 @@
 .m-rc--live .m-rc__note { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .m-rc--live .m-calm__head { gap: 8px; } .m-rc--live .m-rc__client { margin-inline-start: auto; max-width: 40%; }
 /* 方形 with a setting: its shape, its name, when it applies, its control */
-.m-rc__heroview { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; flex: 1 1 auto; min-height: 0; }
+.m-rc__heroview { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex: 1 1 auto; min-height: 0; }
+.m-rc__identity { display: flex; align-items: center; gap: 6px; width: 100%; min-width: 0; }
+.m-rc__identity > .m-tshape { flex: none; }
 .m-rc__heroview .m-rc__text { flex: 0 1 auto; width: 100%; }
-.m-rc__heroview .m-rc__text b { font: var(--m-title-medium); white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.m-rc__heroview .m-rc__text small { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.m-rc__heroview .m-rc__text b { font: var(--m-tile-text-13-strong); white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.m-rc__heroview .m-rc__text small { white-space: nowrap; }
 .m-rc__heroview > .m-switch, .m-rc__heroview > .m-rc__jump { margin-top: auto; }
 /* the rows share the height of 大 and 特大, so the tile is full and the controls are not squeezed to its top */
 .m-rc.is-l .m-rc__rows, .m-rc.is-xl .m-rc__rows { grid-auto-rows: minmax(48px, 1fr); }

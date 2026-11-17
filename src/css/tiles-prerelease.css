@@ -28,8 +28,7 @@
 
 /* 提示 (the tip strip) in a narrow window: the strip keeps its icon and gives the room of its label to the text, so the two lines of the tip stay inside their plate */
 @container (max-width: 399.98px) { .m-b3s--tip .m-calq__title { font-size: 0; gap: 0; } .m-b3s--tip .m-b3s__tip { padding-inline: 14px; } }
-/* 组件 at 方形: the state (「未安装」) has the whole plate; the glyph repeats the one of the header, so it is not drawn here */
-.m-b2comp.is-s .m-b2plate .m-b2glyph { display: none; }
+/* 组件 at 方形: keep the status text inside its plate. */
 .m-b2comp .m-b2__state b { white-space: nowrap; }
 
 /* 主机延迟, 帧率, 码率 at 中: the curve is drawn right of the figure, so its line never runs through the caption under the figure */
@@ -137,7 +136,7 @@
 .m-tile[data-size='l'] .m-tile__corner, .m-tile[data-size='xl'] .m-tile__corner { width: 88px; height: 88px; } .m-tile[data-size='l'] .m-tile__corner > .m-icon, .m-tile[data-size='xl'] .m-tile__corner > .m-icon { font-size: 40px; }
 .m-tile:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head) { padding-inline-end: 44px; }
 .m-tile[data-size='l']:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head), .m-tile[data-size='xl']:has(.m-tile__corner) > :is(.m-tile__head, .m-calm__head) { padding-inline-end: 72px; }
-.m-tile[data-size='s']:has(.m-tile__corner) > .m-tile__head > .m-icon { display: none; }
+.m-tile[data-size='s']:has(.m-tile__corner > .m-icon) > .m-tile__head > .m-icon { display: none; }
 .m-tile[data-size='s']:has(.m-tile__corner) > .m-tile__head > span { white-space: normal; overflow: visible; text-overflow: clip; text-wrap: balance; line-height: 16px; overflow-wrap: anywhere; }
 
 /* 配对 at two cells: the QR code on a light plate tinted by the theme (a code needs dark modules on a light ground, so the plate stays light, but it is not a white block), and beside it the name with the count under it,

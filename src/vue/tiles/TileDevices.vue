@@ -100,12 +100,12 @@ const kind = computed(() => ({ devices: 'm-calo m-b2dev', 'usb-devices': 'm-b2us
     </template>
 
     <template v-else-if="id === 'stream-mic'">
-      <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span></header>
+      <header class="m-calm__head"><span class="m-calm__title">{{ card.title }}</span></header>
       <div class="m-b2plate" :class="micOn ? 'is-on' : 'is-quiet'"><span class="m-b2glyph"><MIcon name="mic" /></span><b>{{ d.big }}</b></div>
     </template>
 
     <button v-else type="button" class="m-b2mic__btn" role="switch" :aria-checked="micOn" :aria-label="d.title" :disabled="d.busy" @click.stop="setMic(!micOn)">
-      <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ d.title }}</span></header>
+      <header class="m-calm__head"><span class="m-calm__title">{{ d.title }}</span></header>
       <div class="m-b2plate" :class="micOn ? 'is-on' : 'is-quiet'"><span class="m-b2glyph"><MIcon name="mic" /></span><b>{{ (d.options || []).find((o) => o.value === d.value)?.label }}</b></div>
       <span class="m-b2__cap m-b2mic__note">{{ L.restartNote }}</span>
     </button>

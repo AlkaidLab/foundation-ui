@@ -53,7 +53,7 @@ const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTon
     <MTileEmpty v-if="empty" :icon="empty.icon" :title="empty.title" :text="empty.value" :action="empty.action" :size="size" @act="(a) => emit('act', a)" />
 
     <template v-else-if="id === 'stream-bitrate'">
-      <MTileShape v-if="!cap" class="m-tile__corner" :icon="d.icon" shape="clover" size="150px" tone="tonal" />
+      <MTileShape v-if="!cap" class="m-tile__corner" shape="clover" size="150px" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tstream__gauge">
         <MTileRing v-if="cap" class="m-tstream__ring" :value="(num(bigNum.v) ?? 0) / cap">
