@@ -26,13 +26,17 @@ export const reachProblemOf = (report) => {
  */
 export function addressView(x, T, { saved, rejected, path }) {
   const checking = !!x.reachChecking || x.reachStatus === 'loading'
+  // the check did not come back: the reason, whatever report is still there from before
+  const failed = (value, address) => ({ state: 'failed', value, word: x.reachCause === 'timeout' ? T.addrFailTimeout : x.reachCause === 'offline' ? T.addrFailOffline : x.reachHttp ? T.addrFailHttp.replace('{code}', String(x.reachHttp)) : T.addrFailOffline, tone: 'bad', address })
   const tone = path ? ({ ok: 'ok', info: 'ok', error: 'bad' }[path.tone] || 'quiet') : 'quiet'
   if (saved) {
     if (checking) return { state: 'checking', value: saved, word: T.addrStChecking, tone: 'quiet', address: true }
+    if (x.reachStatus === 'error') return failed(saved, true)
     return path ? { state: 'saved', value: saved, word: path.word, tone, address: true } : { state: 'unchecked', value: saved, word: T.addrNotChecked, tone: 'quiet', address: true }
   }
   if (rejected.length) return { state: 'invalid', value: T.addrInvalid, word: rejected[0].error === 'unspecified' ? T.addrWildcard : T.addrBad, tone: 'bad', address: false }
   if (checking) return { state: 'checking', value: T.addrStChecking, word: '', tone: 'quiet', address: false }
+  if (x.reachStatus === 'error') return failed(T.addrFailed, false)
   const router = x.reach?.public?.router
   if (x.reach && router) {
     const noV4 = (word) => ({ state: 'no-ipv4', value: T.addrNoV4, word, tone: 'bad', address: false })
@@ -43,7 +47,6 @@ export function addressView(x, T, { saved, rejected, path }) {
       return found.ok && router.wanClass === 'public' ? { state: 'found', value: found.text, word: path?.word || T.addrFound, tone, address: true } : noV4(T.addrNoWan)
     }
   }
-  if (!x.reach && x.reachStatus === 'error') return { state: 'failed', value: T.addrFailed, word: x.reachCause === 'offline' ? T.addrFailOffline : x.reachHttp ? T.addrFailHttp.replace('{code}', String(x.reachHttp)) : T.addrFailOffline, tone: 'bad', address: false }
   return { state: 'unset', value: '', word: '', tone: 'quiet', address: false }
 }
 
@@ -71,7 +74,7 @@ export function systemCatalogue(x, T) {
     const path = view?.paths.find((p) => p.id === 'public') || null
     const saved = endpointsOfConfig(x.config).join(', ')
     const view2 = addressView(x, T, { saved, rejected: saved ? [] : rejectedEndpointsOfConfig(x.config), path })
-    d['public-address'] = { type: 'address', icon: 'public', title: T['c_public-address'], saved, view: view2, path, locale: T.__locale || 'en', texts: { edit: T.addrEdit, detect: T.addrCheck, checking: T.addrChecking, cancel: T.addrCancel, unset: T.addrUnset }, checking: view2.state === 'checking', canAct: x.canAct !== false }
+    d['public-address'] = { type: 'address', icon: 'public', title: T['c_public-address'], saved, view: view2, path, locale: T.__locale || 'en', texts: { edit: T.addrEdit, detect: T.addrCheck, checking: T.addrChecking, cancel: T.addrCancel, unset: T.addrUnset }, checking: view2.state === 'checking', progress: x.reachProgress?.text || '', canAct: x.canAct !== false }
   }
   return d
 }

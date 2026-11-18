@@ -83,3 +83,14 @@ test('the tile of the address: no state is drawn twice, every text wraps instead
   assert.match(css, /\.m-b2addr \.m-b2plate b \{[^}]*white-space: normal !important/)
   assert.match(css, /\.m-b2addr \.m-b2plate small \{[^}]*white-space: normal !important/)
 })
+
+test('a check that failed is shown on the tile with its reason, whatever report is still there; a run shows how far it is', () => {
+  const d = view({ config: { external_endpoints: 'home.example.net:57989' }, reach: normalizeReport(verified()), reachStatus: 'error', reachCause: 'timeout', reachHttp: 0 })
+  assert.deepEqual([d.view.state, d.view.word, d.view.tone, d.view.address], ['failed', T.addrFailTimeout, 'bad', true])
+  assert.equal(d.view.value, 'home.example.net:57989')
+  const http = view({ config: {}, reach: normalizeReport(verified()), reachStatus: 'error', reachCause: '', reachHttp: 500 })
+  assert.deepEqual([http.view.state, http.view.word], ['failed', T.addrFailHttp.replace('{code}', '500')])
+  const going = view({ config: { external_endpoints: 'home.example.net:57989' }, reach: normalizeReport(verified()), reachChecking: true, reachStatus: 'loading', reachProgress: { text: '2/6' } })
+  assert.equal(going.view.state, 'checking')
+  assert.equal(going.progress, '2/6')
+})
