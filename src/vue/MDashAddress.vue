@@ -12,7 +12,9 @@ const props = defineProps({ data: { type: Object, required: true }, size: { type
 const emit = defineEmits(['act'])
 const T = computed(() => ({ ...reachTexts(props.data.locale).address, ...props.data.texts }))
 const editing = ref(false)
-const shown = computed(() => props.data.saved || T.value.unset || '–')
+const av = computed(() => props.data.view || null)
+const shown = computed(() => (av.value && av.value.state !== 'unset' ? av.value.value : props.data.saved || T.value.unset || '–'))
+const word = computed(() => (av.value ? av.value.word : props.data.path?.word || ''))
 const save = (value) => { emit('act', 'address-save', { value }); editing.value = false }
 const check = () => emit('act', 'reach-check')
 </script>
@@ -20,8 +22,8 @@ const check = () => emit('act', 'reach-check')
 <template>
   <section class="m-dcard m-daddr" :class="`m-daddr--${size}`">
     <header class="m-dcard__head"><MIcon class="m-dcard__icon" :name="data.icon" /><h3 class="m-dcard__title">{{ data.title }}</h3></header>
-    <div class="m-daddr__value"><b :class="{ 'is-unset': !data.saved }" data-redact="address"><MBreakText :text="shown" /></b>
-      <span v-if="data.path" class="m-daddr__word" :class="`is-${data.path.tone}`">{{ data.path.word }}</span></div>
+    <div class="m-daddr__value"><b :class="{ 'is-unset': !data.saved && !(av && av.state !== 'unset') }" :data-redact="!av || av.address ? 'address' : null"><MBreakText :text="shown" /></b>
+      <span v-if="word" class="m-daddr__word" :class="av ? `is-${{ ok: 'ok', bad: 'error' }[av.tone] || 'neutral'}` : `is-${data.path.tone}`">{{ word }}</span></div>
     <ul v-if="data.path?.endpoints?.length && size === 'l' && !editing" class="m-daddr__eps">
       <li v-for="e in data.path.endpoints" :key="e.input" :class="`is-${e.tone}`"><MIcon :name="e.icon" :fill="e.reached" /><b data-redact="address">{{ e.input }}</b><span>{{ e.word }}</span><small v-if="e.portText">{{ e.portText }}<template v-if="e.latencyText"> · {{ e.latencyText }}</template></small></li>
     </ul>

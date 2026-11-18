@@ -217,7 +217,7 @@ export function hasNoData(d) {
     case 'recent': return !(d.rows && d.rows.length)
     case 'news': return !d.quiet && !(d.items && d.items.length)
     // the public address not set: the card's point (the address clients reach) is missing; its smallest size says 未设置 and leads to setting it
-    case 'address': return !d.saved
+    case 'address': return !d.saved && (!d.view || d.view.state === 'unset')
     default: return false
   }
 }

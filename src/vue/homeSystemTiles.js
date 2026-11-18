@@ -1,6 +1,6 @@
 // The tiles that read the host's system information (GET /api/system/info) and its public address: 网卡, 系统, 公网地址. Nothing is invented: a tile is `null` while its source is not there.
 // Sources are listed in docs/home-tiles.md.
-import { endpointsOfConfig, reachView } from '../settings/reachability.js'
+import { endpointsOfConfig, rejectedEndpointsOfConfig, reachView, validateEndpoint } from '../settings/reachability.js'
 
 export const SYSTEM_META = { net: ['host', 'off', 4, 'card', 'widget'], sys: ['host', 'off', 2, 'card', 'widget'], 'public-address': ['host', 'off', 4, 'card', 'widget'] }
 export const SYSTEM_SIZES = { net: { s: [2, 1], m: [4, 1], l: [4, 2] }, sys: { s: [2, 1], m: [4, 1] }, 'public-address': { s: [2, 1], m: [4, 1], l: [4, 2] } }
@@ -16,6 +16,35 @@ export const reachProblemOf = (report) => {
   if (eps.length) return eps.some((e) => e.error === 'dns_failed' || e.error === 'identity_mismatch' || e.reasons.includes('address_mismatch')) || eps.every((e) => e.scope === 'lan' || e.scope === 'loopback')
   const c = report?.public?.configured
   return !!c && (c.reasons || []).some((r) => r !== 'unset')
+}
+
+/**
+ * What the 公网地址 card says, in one state: { state, value, word, tone, address }. `value` is an address only where `address` is true (it is then redacted in a screenshot); every other state names itself.
+ * The states: unset (nothing is known: the card's empty text), checking, unchecked (an address is set, the check has not run), saved (the set address with the verdict of the host), found (nothing is set; the router's
+ * public address), invalid (the configuration holds an entry no client can use, 0.0.0.0 for one), no-ipv4 (behind a carrier NAT or a router without a public address), failed (the check did not come back).
+ * The tone is ok, quiet or bad. A wildcard address is never drawn as an address, wherever it came from (the configuration, the router).
+ */
+export function addressView(x, T, { saved, rejected, path }) {
+  const checking = !!x.reachChecking || x.reachStatus === 'loading'
+  const tone = path ? ({ ok: 'ok', info: 'ok', error: 'bad' }[path.tone] || 'quiet') : 'quiet'
+  if (saved) {
+    if (checking) return { state: 'checking', value: saved, word: T.addrStChecking, tone: 'quiet', address: true }
+    return path ? { state: 'saved', value: saved, word: path.word, tone, address: true } : { state: 'unchecked', value: saved, word: T.addrNotChecked, tone: 'quiet', address: true }
+  }
+  if (rejected.length) return { state: 'invalid', value: T.addrInvalid, word: rejected[0].error === 'unspecified' ? T.addrWildcard : T.addrBad, tone: 'bad', address: false }
+  if (checking) return { state: 'checking', value: T.addrStChecking, word: '', tone: 'quiet', address: false }
+  const router = x.reach?.public?.router
+  if (x.reach && router) {
+    const noV4 = (word) => ({ state: 'no-ipv4', value: T.addrNoV4, word, tone: 'bad', address: false })
+    if (router.wanClass === 'cgnat') return noV4(T.addrCgnat)
+    if (router.wanClass === 'private') return noV4(T.addrPrivateWan)
+    if (router.wanIp) {
+      const found = validateEndpoint(router.wanIp)
+      return found.ok && router.wanClass === 'public' ? { state: 'found', value: found.text, word: path?.word || T.addrFound, tone, address: true } : noV4(T.addrNoWan)
+    }
+  }
+  if (!x.reach && x.reachStatus === 'error') return { state: 'failed', value: T.addrFailed, word: x.reachCause === 'offline' ? T.addrFailOffline : x.reachHttp ? T.addrFailHttp.replace('{code}', String(x.reachHttp)) : T.addrFailOffline, tone: 'bad', address: false }
+  return { state: 'unset', value: '', word: '', tone: 'quiet', address: false }
 }
 
 export function systemCatalogue(x, T) {
@@ -41,7 +70,8 @@ export function systemCatalogue(x, T) {
   if (view || x.config) {
     const path = view?.paths.find((p) => p.id === 'public') || null
     const saved = endpointsOfConfig(x.config).join(', ')
-    d['public-address'] = { type: 'address', icon: 'public', title: T['c_public-address'], saved, path, locale: T.__locale || 'en', texts: { edit: T.addrEdit, detect: T.addrCheck, checking: T.addrChecking, cancel: T.addrCancel, unset: T.addrUnset }, checking: !!x.reachChecking, canAct: x.canAct !== false }
+    const view2 = addressView(x, T, { saved, rejected: saved ? [] : rejectedEndpointsOfConfig(x.config), path })
+    d['public-address'] = { type: 'address', icon: 'public', title: T['c_public-address'], saved, view: view2, path, locale: T.__locale || 'en', texts: { edit: T.addrEdit, detect: T.addrCheck, checking: T.addrChecking, cancel: T.addrCancel, unset: T.addrUnset }, checking: view2.state === 'checking', canAct: x.canAct !== false }
   }
   return d
 }
