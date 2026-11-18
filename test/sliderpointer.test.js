@@ -122,6 +122,7 @@ test('a touch tap on the track writes that value on lift; a swipe along the page
   assert.equal(s.value.value, 20, 'a finger does not move the value on the press')
   await s.lift(0.5, { pointerType: 'touch' })
   assert.equal(s.value.value, 60)
+  assert.equal(s.active(), s.handle(), 'a tap takes the focus to the handle, as a mouse press does')
   assert.deepEqual(s.commits, [60])
   await s.press(0.8, { pointerType: 'touch', clientY: 10 })
   await s.move(0.8, { pointerType: 'touch', clientX: 100 + 400 * 0.8 + 2, clientY: 60 })

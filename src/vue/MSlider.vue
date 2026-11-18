@@ -158,6 +158,8 @@ function endPend(event, tap) {
   if (tap && p) {
     let index = 0
     if (isRange.value) index = Math.abs(p.v - values.value[0]) <= Math.abs(p.v - values.value[1]) ? 0 : 1
+    // the handle takes the focus as a mouse press gives it (the field that had it is left, as a press on the track left it before); then the value is written
+    root.value.querySelectorAll('[role=slider]')[index]?.focus({ preventScroll: true })
     emit('commit', setAt(index, p.v))
   }
 }
