@@ -53,6 +53,14 @@ test("a switch at 方形 has the state beside the glyph and the note under the n
   assert.match(css, /\.m-b3t\[data-size='s'\] \.m-b3a__text \{ display: contents; \}/)
 })
 
+test("the three sub-tiles of the 设备 tile at 中 keep their names on one line", () => {
+  const css = read("css/tilefit-real.css")
+  const rule = /\.m-b2dev \.m-calo__tiles span b \{([^}]*)\}/.exec(css)
+  assert.ok(rule)
+  assert.match(rule[1], /white-space: nowrap/)
+  assert.match(rule[1], /overflow-wrap: normal/)
+})
+
 test("fitElement shrinks the text of a padded value only: the padding stays outside what is measured", () => {
   const props = { display: "block", visibility: "visible", fontSize: "14px", paddingLeft: "16px", paddingRight: "16px", paddingTop: "0px", paddingBottom: "0px", borderLeftWidth: "0px", borderRightWidth: "0px" }
   const old = globalThis.getComputedStyle
