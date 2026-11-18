@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { checkProgress, normalizeRun, stepTitle } from '../src/settings/networkCheck.js'
+import { checkProgress, normalizeRun, stepIcon, stepPhaseWord, stepTitle } from '../src/settings/networkCheck.js'
 import { endpointRow, normalizeReport, reachOverview, reachView } from '../src/settings/reachability.js'
 import { reachTexts } from '../src/settings/reachTexts.js'
 import { failureOf } from '../src/settings/remoteFlow.js'
@@ -247,4 +247,89 @@ test('the outside sentences exist in English', () => {
   assert.match(T.reasons.outside_unavailable, /not available now/)
   assert.match(T.reasons.udp_unverified_forwarded, /UDP is not/)
   assert.equal(T.endpoint.outsideReached, 'Reached from outside')
+})
+
+// ---- review round 1
+
+test('an answer that is not a check result is "bad-answer" even though its HTTP status was 200; refusals and host failures keep their kind', async () => {
+  const kept = createReachability({ request: async () => ok(report()) })
+  await kept.refresh()
+  const h = host({ rep: () => ok({}, 200) })
+  const r = make(h)
+  r.view.report = kept.view.report
+  await r.refresh()
+  assert.equal(r.view.status, 'error')
+  assert.equal(r.view.report, kept.view.report, 'an answer that is no report does not remove the report this host gave before')
+  assert.deepEqual([failureOf(r.view).reason, failureOf(r.view).http], ['bad-answer', 200])
+  assert.equal(failureOf({ status: 'error', http: 403, cause: '' }).reason, 'auth')
+  assert.equal(failureOf({ status: 'error', http: 502, cause: '' }).reason, 'server')
+  // a first read that is no report is still an older host
+  const first = make(host({ rep: () => ok({}, 200) }))
+  await first.refresh()
+  assert.equal(first.view.status, 'unavailable')
+})
+
+test('a step that failed does not look like one that passed, and a screen reader gets words for every phase', () => {
+  const steps = [['listening', 'ok'], ['firewall', 'fail'], ['addresses', 'warn'], ['cgnat', 'skipped'], ['router', 'running'], ['endpoint', 'pending', false, 'a.example.net:60000']]
+  const p = checkProgress(normalizeRun(run('running', steps)))
+  assert.deepEqual(p.steps.map(stepIcon), ['check_circle', 'error', 'info', 'do_not_disturb_on', 'sync', 'radio_button_unchecked'])
+  assert.deepEqual(p.steps.map((s) => stepPhaseWord(s, 'zh')), ['通过', '未通过', '通过但有提示', '已跳过', '检测中', '等待'])
+  assert.equal(stepPhaseWord(p.steps[1], 'en'), 'failed')
+  assert.equal(p.done, 4, 'the count of finished steps is unchanged')
+})
+
+test('the run keeps to one deadline: a poll is not allowed to run past it, and an answer after it is not taken', async () => {
+  const began = Date.now()
+  const stuck = createNetworkCheck({ request: async (path, init) => (init?.method === 'POST' ? ok(run('running', STEPS_GOING)) : new Promise(() => {})), maxMs: 150, intervalMs: 5, pollTimeoutMs: 6000, startTimeoutMs: 6000 })
+  await stuck.start()
+  assert.deepEqual([stuck.view.status, stuck.view.error.kind], ['error', 'timeout'])
+  assert.ok(Date.now() - began < 1500, 'it ended at the deadline, not at the poll timeout')
+  let t = 0
+  const late = createNetworkCheck({ request: async (path, init) => { if (init?.method === 'POST') return ok(run('running', STEPS_GOING)); t = 50000; return ok(run('done', STEPS_DONE)) }, now: () => t, sleep: instant })
+  await late.start()
+  assert.deepEqual([late.view.status, late.view.error.kind], ['error', 'timeout'], 'a "done" that came after the deadline is not a result')
+  t = 0
+  const inTime = createNetworkCheck({ request: async (path, init) => (init?.method === 'POST' ? ok(run('running', STEPS_GOING)) : ok(run('done', STEPS_DONE))), now: () => t, sleep: instant })
+  await inTime.start()
+  assert.equal(inTime.view.status, 'done')
+})
+
+test('a run that has started never falls back to the older host\'s check: polls that fail are a failure of the run', async () => {
+  const h = host({ polls: [bad(501), bad(501), bad(501)] })
+  const r = make(h)
+  await r.refresh(true)
+  assert.equal(r.view.status, 'error')
+  assert.equal(failureOf(r.view).reason, 'server')
+  assert.ok(!h.calls.some((c) => c.includes('refresh=1')), 'the check was not started a second time')
+  const older = make(host({ start: bad(501) }))
+  await older.refresh(true)
+  assert.equal(older.view.status, 'ready', 'a start answered with "no such route" is still the older host, which the blocking request serves')
+})
+
+test('a request to test an address that arrives while a run is going waits for it and is made after it, never dropped', async () => {
+  const h = host({ polls: [ok(run('running', STEPS_GOING)), ok(run('done', STEPS_DONE))] })
+  const r = make(h)
+  const first = r.refresh(true)
+  const same = r.refresh(true)
+  assert.equal(same, first, 'the same forced refresh shares the run')
+  const a = r.refresh(true, { test: 'a.example.net:60000' })
+  const b = r.refresh(true, { test: 'b.example.net:60000' })
+  assert.notEqual(a, first)
+  await Promise.all([first, a, b])
+  const tests = h.calls.filter((c) => c.includes('test='))
+  assert.deepEqual(tests, ['GET /api/network/reachability?refresh=1&test=a.example.net%3A60000', 'GET /api/network/reachability?refresh=1&test=b.example.net%3A60000'])
+  const lastRun = h.calls.lastIndexOf('POST /api/network/check')
+  assert.ok(h.calls.indexOf(tests[0]) > lastRun, 'after the run, in the order asked')
+  assert.equal(r.view.status, 'ready')
+})
+
+test('a connection from the internet that did not reach outranks what this computer saw of its own address', () => {
+  const T = reachTexts('zh')
+  const ep = normalizeReport(fixture('reachability-endpoints')).public.endpoints[0]
+  const closed = endpointRow({ ...ep, reached: true, outside: { state: 'closed' } }, T)
+  assert.deepEqual([closed.tone, closed.reached, closed.word], ['error', false, T.endpoint.outsideErrors.closed])
+  const ok1 = endpointRow({ ...ep, reached: false, outside: { state: 'reachable' } }, T)
+  assert.deepEqual([ok1.tone, ok1.reached, ok1.word], ['ok', true, T.endpoint.outsideReached])
+  const own = endpointRow({ ...ep, reached: true, outside: null }, T)
+  assert.deepEqual([own.tone, own.reached], ['ok', true])
 })

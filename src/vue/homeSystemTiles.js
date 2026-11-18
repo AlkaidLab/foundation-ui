@@ -28,6 +28,17 @@ export function addressView(x, T, { saved, rejected, path }) {
   const checking = !!x.reachChecking || x.reachStatus === 'loading'
   // the check did not come back: the reason, whatever report is still there from before
   const failed = (value, address) => ({ state: 'failed', value, word: x.reachCause === 'timeout' ? T.addrFailTimeout : x.reachCause === 'offline' ? T.addrFailOffline : x.reachHttp ? T.addrFailHttp.replace('{code}', String(x.reachHttp)) : T.addrFailOffline, tone: 'bad', address })
+  // what the router said the last time (the report that is still there): an address to show beside the reason, or the reason it has none
+  const routerResult = () => {
+    const router = x.reach?.public?.router
+    if (!x.reach || !router) return null
+    if (router.wanClass === 'cgnat' || router.wanClass === 'private') return { value: T.addrNoV4, address: false }
+    if (router.wanIp) {
+      const found = validateEndpoint(router.wanIp)
+      return found.ok && router.wanClass === 'public' ? { value: found.text, address: true } : { value: T.addrNoV4, address: false }
+    }
+    return null
+  }
   const tone = path ? ({ ok: 'ok', info: 'ok', error: 'bad' }[path.tone] || 'quiet') : 'quiet'
   if (saved) {
     if (checking) return { state: 'checking', value: saved, word: T.addrStChecking, tone: 'quiet', address: true }
@@ -36,7 +47,7 @@ export function addressView(x, T, { saved, rejected, path }) {
   }
   if (rejected.length) return { state: 'invalid', value: T.addrInvalid, word: rejected[0].error === 'unspecified' ? T.addrWildcard : T.addrBad, tone: 'bad', address: false }
   if (checking) return { state: 'checking', value: T.addrStChecking, word: '', tone: 'quiet', address: false }
-  if (x.reachStatus === 'error') return failed(T.addrFailed, false)
+  if (x.reachStatus === 'error') { const last = routerResult(); return last ? failed(last.value, last.address) : failed(T.addrFailed, false) }
   const router = x.reach?.public?.router
   if (x.reach && router) {
     const noV4 = (word) => ({ state: 'no-ipv4', value: T.addrNoV4, word, tone: 'bad', address: false })

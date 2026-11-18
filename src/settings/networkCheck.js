@@ -21,9 +21,24 @@ export function normalizeRun(raw) {
  */
 export function checkProgress(run) {
   if (!run) return null
-  const steps = run.steps.map((s, i) => ({ key: `${s.id}:${s.subject || i}`, id: s.id, subject: s.subject, phase: s.state === 'running' ? (s.checked ? 'done' : 'running') : s.state === 'pending' ? 'pending' : 'done' }))
+  const steps = run.steps.map((s, i) => ({ key: `${s.id}:${s.subject || i}`, id: s.id, subject: s.subject, state: s.state, phase: s.state === 'running' ? (s.checked ? 'done' : 'running') : s.state === 'pending' ? 'pending' : 'done' }))
   const done = steps.filter((s) => s.phase === 'done').length
   return { done, total: steps.length, text: `${done}/${steps.length}`, steps }
+}
+
+/** The icon of a step: only a step that passed gets the check; a failure, a note and a skip have their own. */
+export function stepIcon(step) {
+  if (step.phase === 'pending') return 'radio_button_unchecked'
+  if (step.phase === 'running') return 'sync'
+  return ({ ok: 'check_circle', warn: 'info', fail: 'error', skipped: 'do_not_disturb_on' })[step.state] || 'check_circle'
+}
+
+/** What a step is at, in words (for a screen reader and the tooltip): waiting, going, or its result (ok, warn, fail, skipped). */
+export function stepPhaseWord(step, locale = 'en') {
+  const T = reachTexts(locale).check.phase
+  if (step.phase === 'pending') return T.pending
+  if (step.phase === 'running') return T.running
+  return T[step.state] || T.done
 }
 
 /** The name of a step in the person's language: `本机端口`, `公网地址 203.0.113.9:60000`. */

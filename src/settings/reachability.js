@@ -186,9 +186,9 @@ export function endpointRow(e, T) {
   const out = e.outside?.state || ''
   const outsideOk = out === 'reachable'
   const outsideBad = out === 'closed' || out === 'timeout' || out === 'another_host'
-  const tone = e.reached || outsideOk ? 'ok' : outsideBad ? 'error' : e.inconclusive || e.error === 'dns_failed' || e.error === 'not_tried' ? 'neutral' : 'error'
+  const tone = outsideOk ? 'ok' : outsideBad ? 'error' : e.reached ? 'ok' : e.inconclusive || e.error === 'dns_failed' || e.error === 'not_tried' ? 'neutral' : 'error'
   return {
-    input: e.input, tone, icon: tone === 'ok' ? 'check_circle' : tone === 'neutral' ? 'help' : 'error', reached: e.reached || outsideOk, inconclusive: e.inconclusive,
+    input: e.input, tone, icon: tone === 'ok' ? 'check_circle' : tone === 'neutral' ? 'help' : 'error', reached: outsideOk || (e.reached && !outsideBad), inconclusive: e.inconclusive,
     word: outsideOk ? T.endpoint.outsideReached : outsideBad ? T.endpoint.outsideErrors[out] : e.reached ? T.endpoint.reached : e.inconclusive ? T.endpoint.loopback : T.endpoint.errors[e.error] || T.endpoint.errors.failed,
     port: reachedAt ? reachedAt.port : e.httpsPort, portText: e.httpsPort && e.attempts.length ? T.endpoint.https.replace('{port}', String(reachedAt ? reachedAt.port : e.httpsPort)) : '',
     latencyText: reachedAt && reachedAt.latencyMs >= 0 && e.attempts.length ? `${reachedAt.latencyMs} ms` : '',

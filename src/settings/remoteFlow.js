@@ -142,6 +142,7 @@ export function failureOf(view) {
   if (view.status === 'unavailable') return { kind: 'old-host', http: view.http || 0, reason: '' }
   if (view.status !== 'error') return { kind: 'ok', http: 0, reason: '' }
   const http = Number(view.http) || 0
-  const reason = http === 401 || http === 403 ? 'auth' : http >= 500 ? 'server' : http ? 'other' : view.cause === 'bad-answer' ? 'bad-answer' : view.cause === 'timeout' ? 'timeout' : 'offline'
+  // an answer that is not a check result is 'bad-answer' even when its HTTP status was 200; the refusals (401, 403) and the host's own failures (5xx) keep their kind
+  const reason = http === 401 || http === 403 ? 'auth' : http >= 500 ? 'server' : view.cause === 'bad-answer' ? 'bad-answer' : http ? 'other' : view.cause === 'timeout' ? 'timeout' : 'offline'
   return { kind: 'failed-run', http, reason }
 }

@@ -29,7 +29,11 @@ export function createReachability({ request, timeoutMs = 12000, ...runOptions }
     if (r.status === 404 || r.status === 444 || r.status === 501) { view.report = null; view.status = 'unavailable'; view.cause = ''; return undefined }
     if (!r.ok) return fail('', view.http)
     const report = normalizeReport(r.json)
-    if (!report) { view.report = null; view.status = 'unavailable'; view.cause = ''; return undefined }
+    // An answer that is not a report does not show that the host cannot check: when this host gave a report before, that report stays and the answer is a failure ('bad-answer'); only a first read says "older host".
+    if (!report) {
+      if (view.report) return fail('bad-answer', view.http)
+      view.status = 'unavailable'; view.cause = ''; return undefined
+    }
     view.report = report; view.status = 'ready'; view.http = 0; view.cause = ''
     return undefined
   }
@@ -49,11 +53,26 @@ export function createReachability({ request, timeoutMs = 12000, ...runOptions }
     return read('') // the run has filled the host's cache: this is not another probe
   }
 
-  function refresh(force = false, options = {}) {
-    if (running) return running
+  function begin(force, options) {
     view.status = 'loading'; view.progress = null
-    running = run(force, options).catch(() => fail('offline')).finally(() => { view.progress = null; running = null })
-    return running
+    const p = run(force, options).catch(() => fail('offline')).finally(() => { view.progress = null; if (running === p) running = null })
+    running = p
+    return p
+  }
+
+  let queued = null
+  /**
+   * `refresh()` reads, `refresh(true)` runs the check and joins one that is going. A request to test an address (`{ test }`) is never joined to a run that is going, because that run does not test it: it waits for the
+   * run (and for the tests asked before it) and then makes its own request, so the address is always tested and its result is what the caller gets.
+   */
+  function refresh(force = false, options = {}) {
+    const test = String(options?.test ?? '').trim()
+    if (!running) return begin(force, options)
+    if (!test) return running
+    const next = (queued || running).then(() => begin(force, options))
+    queued = next
+    next.finally(() => { if (queued === next) queued = null })
+    return next
   }
   return { view, refresh }
 }
