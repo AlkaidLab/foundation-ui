@@ -15,6 +15,7 @@ export function settingDocs(entries, { prefix = '', locale = 'en' } = {}) {
     type: e.keyName ? 'setting' : 'page',
     title: e.title, path: e.keyName && placeOf(e) ? `${placeOf(e)} › ${e.path}` : (e.path || ''), icon: e.icon, keywords: e.keywords || '', key: e.keyName || '',
     route: e.route, params: e.params, entry: e,
+    ...(e.availability ? { availability: e.availability } : {}),
     // what the result can be pinned to the overview as: a tile with the live control, or (tier 3) a link to its page
     ...(e.keyName ? { pin: pinSpecForSetting(e.keyName, { title: e.title, icon: e.icon, locale }) } : {}),
   }))
