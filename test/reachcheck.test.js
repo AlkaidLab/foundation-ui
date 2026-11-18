@@ -201,3 +201,50 @@ test('the sentences exist in English too', () => {
   assert.match(T.reasons.udp_unverified, /not been verified from outside/)
   assert.match(failureWords({ kind: 'failed-run', reason: 'timeout', http: 0 }, 'en').why, /did not answer in time/)
 })
+
+// ---- the outside check ----
+
+const endpointWith = (outside) => ({ input: '203.0.113.9:60000', host: '203.0.113.9', kind: 'ip', port: 60000, port_explicit: true, https_port: 59995, ports: [{ role: 'https', port: 59995 }], resolved: ['203.0.113.9'], scope: 'public', matches_wan: true, state: 'failed', error: 'timeout', inconclusive: !outside || outside.state === 'unavailable', outside, tested: { address: '203.0.113.9', port: 59995, latency_ms: 2500 }, attempts: [{ address: '203.0.113.9', port: 59995, connected: false, identity_match: false, error: 'timeout', latency_ms: 2500 }], reasons: [] })
+const withOutside = (outside, reasons = ['outside_verified', 'mappings_complete'], verdict = 'verified') => normalizeReport(report((x) => { x.public.verdict = verdict; x.public.reasons = reasons; x.public.evidence = []; x.public.endpoints = [endpointWith(outside)] }))
+
+test('a connection from the internet that reached this host is shown as reached, in green, whatever this computer could see of its own address', () => {
+  const v = reachView(withOutside({ state: 'reachable', reason: null }), 'zh')
+  const e = v.paths[0].endpoints[0]
+  assert.deepEqual([e.tone, e.icon, e.word, e.reached], ['ok', 'check_circle', '已从外部连通', true])
+  assert.ok(v.paths[0].reasons.some((r) => r.code === 'outside_verified' && r.kind === 'good'))
+  assert.ok(!v.paths[0].reasons.some((r) => r.code === 'loopback_unverifiable'), 'nothing to explain: the address works')
+  const udp = v.paths[0].reasons.find((r) => r.code === 'udp_unverified_forwarded')
+  assert.equal(udp.text, 'TCP 已从外部验证；UDP 未验证。路由器也转发了 UDP 端口，所以很可能可连。')
+  assert.equal(udp.kind, 'note')
+})
+
+test('a connection from the internet that found nothing is red with its reason and the fix, and another device answering is named', () => {
+  for (const [state, word] of [['closed', '外部连不上：端口关闭'], ['timeout', '外部连不上：没有应答'], ['another_host', '外部连到的是另一台设备']]) {
+    const v = reachView(withOutside({ state, reason: null }, ['not_reached_from_outside'], 'unreachable'), 'zh')
+    const e = v.paths[0].endpoints[0]
+    assert.deepEqual([e.tone, e.word], ['error', word], state)
+    const r = v.paths[0].reasons.find((x) => x.code === 'not_reached_from_outside')
+    assert.equal(r.action, 'forward')
+  }
+})
+
+test('an outside check that could not run says what the result rests on and is never red', () => {
+  const v = reachView(withOutside({ state: 'unavailable', reason: 'no_answer' }, ['mappings_complete'], 'unknown'), 'zh')
+  const e = v.paths[0].endpoints[0]
+  assert.equal(e.tone, 'neutral')
+  assert.equal(e.word, '本机无法验证')
+  const note = v.paths[0].reasons.find((x) => x.code === 'outside_unavailable')
+  assert.equal(note.text, '外部验证现在不可用，这个结果只来自这台电脑自己。')
+  assert.equal(note.kind, 'note')
+  assert.notEqual(v.paths[0].verdict, 'unreachable')
+  // when it was not asked there is no note at all
+  const off = reachView(withOutside(null, ['mappings_complete'], 'unknown'), 'zh')
+  assert.ok(!off.paths[0].reasons.some((x) => x.code === 'outside_unavailable'))
+})
+
+test('the outside sentences exist in English', () => {
+  const T = reachTexts('en')
+  assert.match(T.reasons.outside_unavailable, /not available now/)
+  assert.match(T.reasons.udp_unverified_forwarded, /UDP is not/)
+  assert.equal(T.endpoint.outsideReached, 'Reached from outside')
+})
