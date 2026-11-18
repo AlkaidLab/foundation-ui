@@ -31,7 +31,7 @@ const check = () => emit('act', 'reach-check')
     <MPublicEndpoints v-if="editing && size !== 's'" :saved="data.saved" :results="data.path?.endpoints || []" :locale="data.locale" :checking="data.checking" @save="save" @check="check" />
     <div v-if="size !== 's' && data.canAct" class="m-daddr__acts">
       <button type="button" class="m-dpill" @click="editing = !editing"><MIcon name="edit" />{{ editing ? T.cancel : T.edit }}</button>
-      <button type="button" class="m-dpill m-dpill--fill" :disabled="data.checking" @click="check"><MIcon name="network_check" />{{ data.checking ? T.checking : T.detect }}</button>
+      <button type="button" class="m-dpill m-dpill--fill" :disabled="data.checking" @click="check"><MIcon name="network_check" />{{ data.checking ? (data.progress ? `${T.checking} ${data.progress}` : T.checking) : T.detect }}</button>
     </div>
   </section>
 </template>

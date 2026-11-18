@@ -83,3 +83,26 @@ test('the tile of the address: no state is drawn twice, every text wraps instead
   assert.match(css, /\.m-b2addr \.m-b2plate b \{[^}]*white-space: normal !important/)
   assert.match(css, /\.m-b2addr \.m-b2plate small \{[^}]*white-space: normal !important/)
 })
+
+test('a check that failed is shown on the tile with its reason, whatever report is still there; a run shows how far it is', () => {
+  const d = view({ config: { external_endpoints: 'home.example.net:57989' }, reach: normalizeReport(verified()), reachStatus: 'error', reachCause: 'timeout', reachHttp: 0 })
+  assert.deepEqual([d.view.state, d.view.word, d.view.tone, d.view.address], ['failed', T.addrFailTimeout, 'bad', true])
+  assert.equal(d.view.value, 'home.example.net:57989')
+  const http = view({ config: {}, reach: normalizeReport(verified()), reachStatus: 'error', reachCause: '', reachHttp: 500 })
+  assert.deepEqual([http.view.state, http.view.word], ['failed', T.addrFailHttp.replace('{code}', '500')])
+  const going = view({ config: { external_endpoints: 'home.example.net:57989' }, reach: normalizeReport(verified()), reachChecking: true, reachStatus: 'loading', reachProgress: { text: '2/6' } })
+  assert.equal(going.view.state, 'checking')
+  assert.equal(going.progress, '2/6')
+})
+
+test('a failed check on an address that is not saved still shows what the router said last time, beside the reason', () => {
+  const found = view({ config: {}, reach: normalizeReport(verified()), reachStatus: 'error', reachCause: 'timeout', reachHttp: 0 })
+  assert.equal(found.view.state, 'failed')
+  assert.equal(found.view.word, T.addrFailTimeout)
+  assert.equal(found.view.address, true)
+  assert.match(found.view.value, /\d+\.\d+\.\d+\.\d+/, 'the router address of the last report')
+  const cgnat = view({ config: {}, reach: reportWith((r) => { r.public.router = { protocol: 'upnp', wan_ip: '100.64.1.2', wan_ip_class: 'cgnat', mappings: [] } }), reachStatus: 'error', reachCause: 'offline' })
+  assert.deepEqual([cgnat.view.state, cgnat.view.value, cgnat.view.word, cgnat.view.address], ['failed', T.addrNoV4, T.addrFailOffline, false])
+  const nothing = view({ config: {}, reach: null, reachStatus: 'error', reachCause: 'offline' })
+  assert.equal(nothing.view.value, T.addrFailed)
+})
