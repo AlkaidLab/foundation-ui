@@ -3,7 +3,7 @@ import { pinSpecForAction } from '../pins/registry.js'
 const ZH = {
   placeholder: '搜索设置、页面、操作…', open: '搜索', close: '关闭搜索', clear: '清除', back: '返回', shortcut: 'Ctrl K',
   types: { setting: '设置', page: '页面', action: '操作', client: '客户端', app: '应用', tile: '磁贴' },
-  quickActions: '快捷操作', recentSearches: '最近搜索', recentSettings: '最近更改的设置', clearAll: '全部清除', remove: '移除',
+  openSetting: '去设置', quickActions: '快捷操作', recentSearches: '最近搜索', recentSettings: '最近更改的设置', clearAll: '全部清除', remove: '移除',
   noResults: '没有找到“{q}”', noResultsHint: '试试英文名、配置项的键名，或拼音首字母', more: '还有 {n} 项',
   addToHome: '加入概览', pin: '固定到概览', pinned: '已固定', unpinHint: '点击取消固定', run: '执行', confirm: '确定', cancel: '取消', confirmTitle: '要执行“{title}”吗？', results: '{n} 个结果', noneYet: '输入设置、页面或操作的名称',
   actions: {
@@ -30,7 +30,7 @@ const ZH = {
 const EN = {
   placeholder: 'Search settings, pages, actions…', open: 'Search', close: 'Close search', clear: 'Clear', back: 'Back', shortcut: 'Ctrl K',
   types: { setting: 'Settings', page: 'Pages', action: 'Actions', client: 'Clients', app: 'Applications', tile: 'Tiles' },
-  quickActions: 'Quick actions', recentSearches: 'Recent searches', recentSettings: 'Recently changed settings', clearAll: 'Clear all', remove: 'Remove',
+  openSetting: 'Open setting', quickActions: 'Quick actions', recentSearches: 'Recent searches', recentSettings: 'Recently changed settings', clearAll: 'Clear all', remove: 'Remove',
   noResults: 'Nothing found for “{q}”', noResultsHint: 'Try the English name, the configuration key or the pinyin initials', more: '{n} more',
   addToHome: 'Add to Overview', pin: 'Pin to Overview', pinned: 'Pinned', unpinHint: 'Click to unpin', run: 'Run', confirm: 'OK', cancel: 'Cancel', confirmTitle: 'Run “{title}”?', results: '{n} results', noneYet: 'Type the name of a setting, page or action',
   actions: {

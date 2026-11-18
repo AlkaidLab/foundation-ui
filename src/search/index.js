@@ -9,6 +9,7 @@
 // nothing else matched, one typo in a Latin word.
 
 import { hasHan, initialsOf } from './pinyin.js'
+import { isUnavailable } from '../settings/availability.js'
 
 export const TYPES = Object.freeze(['setting', 'page', 'action', 'client', 'app', 'tile'])
 export const PER_GROUP = 5
@@ -128,7 +129,8 @@ export function search(index, query, { perGroup = PER_GROUP, types = TYPES } = {
     const list = byType.get(type)
     if (!list) continue
     // within a tier: actions in the order the product lists them (restart before the rarer ones), the rest the shorter title first
-    list.sort((a, b) => (b.row.doc.lead ? 1 : 0) - (a.row.doc.lead ? 1 : 0) || a.tier - b.tier || (type === 'action' ? 0 : a.row.t.length - b.row.t.length) || a.row.order - b.row.order)
+    // a setting that cannot be used now is kept (a person has to know it exists) but comes after every usable one
+    list.sort((a, b) => (isUnavailable(a.row.doc) ? 1 : 0) - (isUnavailable(b.row.doc) ? 1 : 0) || (b.row.doc.lead ? 1 : 0) - (a.row.doc.lead ? 1 : 0) || a.tier - b.tier || (type === 'action' ? 0 : a.row.t.length - b.row.t.length) || a.row.order - b.row.order)
     groups.push({ type, lead: !!list[0].row.doc.lead, best: list[0].tier, total: list.length, items: list.slice(0, perGroup).map((h) => ({ doc: h.row.doc, tier: h.tier, ranges: h.ranges })), more: Math.max(0, list.length - perGroup) })
   }
   // a strong match (the title itself or its start) comes before a weak one; within each, the order of the types
