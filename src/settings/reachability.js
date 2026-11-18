@@ -24,14 +24,14 @@ export const VERDICT_LOOK = Object.freeze({
  */
 export const REASON_FIX = Object.freeze({
   cgnat: 'mesh', private_wan: 'mesh', no_wan_ip: 'forward', no_igd: 'forward', mapping_missing: 'upnp', firewall_blocked: 'firewall', not_listening: 'restart', not_listening_on_mesh: 'restart',
-  hairpin_unsupported: 'outside', origin_blocks_mesh: 'origin', mesh_adapter_down: 'mesh', no_mesh_adapter: 'mesh',
+  hairpin_unsupported: 'outside', loopback_unverifiable: 'outside', origin_blocks_mesh: 'origin', mesh_adapter_down: 'mesh', no_mesh_adapter: 'mesh',
   address_mismatch: 'use-wan', address_private: 'address', dns_failed: 'address', unset: 'address',
 })
 
 /** What a reason is: a problem (a warning with its fix), good news the host reports (a tick), or a note (neutral: what was not possible to know). */
 export const REASON_KIND = Object.freeze({
   session_evidence: 'good', hairpin_verified: 'good', host_public_ip: 'good', mappings_complete: 'good', mesh_adapter_up: 'good',
-  hairpin_not_tried: 'note', firewall_unknown: 'note', unset: 'note',
+  hairpin_not_tried: 'note', firewall_unknown: 'note', unset: 'note', loopback_unverifiable: 'note', udp_unverified: 'note',
 })
 
 /** `mapping_missing:udp/47998` -> { code: 'mapping_missing', arg: 'udp/47998', proto: 'udp', port: 47998 }. */
@@ -66,10 +66,21 @@ function endpointOf(raw) {
   return {
     input: str(raw.input), host: str(raw.host), kind: pick(str(raw.kind), ['ip', 'hostname'], 'hostname'), port: num(raw.port), portExplicit: raw.port_explicit === true, httpsPort: num(raw.https_port),
     resolved: list(raw.resolved).map(str).filter(Boolean), scope: pick(str(raw.scope), ENDPOINT_SCOPES, 'unknown'), matchesWan: raw.matches_wan === true,
-    reached: str(raw.state) === 'reached', error: ENDPOINT_ERRORS.includes(error) ? error : error ? 'failed' : '', tested,
+    reached: str(raw.state) === 'reached', inconclusive: raw.inconclusive === true, error: ENDPOINT_ERRORS.includes(error) ? error : error ? 'failed' : '', tested,
     attempts: list(raw.attempts).filter((a) => a && typeof a === 'object').map((a) => ({ address: str(a.address), port: num(a.port), connected: a.connected === true, identityMatch: a.identity_match === true, error: str(a.error), latencyMs: num(a.latency_ms) })),
     reasons: list(raw.reasons).map(str).filter(Boolean),
   }
+}
+
+/**
+ * What the report cannot say, as notes: a public address this computer cannot reach itself (the host marks it `inconclusive`), and UDP, which nothing proves from this computer: only a session from the
+ * internet or an outside test does. Neither is a failure, so neither is red.
+ */
+function publicNotes(pub) {
+  const notes = []
+  if (pub.endpoints.some((e) => e.inconclusive && !e.reached)) notes.push('loopback_unverifiable')
+  if (pub.verdict !== 'unreachable' && !pub.evidence.length && !pub.reasons.includes('session_evidence')) notes.push('udp_unverified')
+  return notes
 }
 
 /** The report from the host's answer, or null when it is not a v1 report (an older host answers 404, a bad answer has no verdicts). */
@@ -166,10 +177,11 @@ function reasonRow(value, T, ports) {
 /** One endpoint as a row: the state word (the failure when it failed), the port that was tested and the time it took, the scope and the addresses it resolved to. Numbers and states only. */
 export function endpointRow(e, T) {
   const reachedAt = e.tested
-  const tone = e.reached ? 'ok' : e.error === 'dns_failed' || e.error === 'not_tried' ? 'neutral' : 'error'
+  // A public address this computer cannot reach itself says nothing about the internet (a router without NAT loopback): neutral, never red.
+  const tone = e.reached ? 'ok' : e.inconclusive || e.error === 'dns_failed' || e.error === 'not_tried' ? 'neutral' : 'error'
   return {
-    input: e.input, tone, icon: e.reached ? 'check_circle' : tone === 'neutral' ? 'help' : 'error', reached: e.reached,
-    word: e.reached ? T.endpoint.reached : T.endpoint.errors[e.error] || T.endpoint.errors.failed,
+    input: e.input, tone, icon: e.reached ? 'check_circle' : tone === 'neutral' ? 'help' : 'error', reached: e.reached, inconclusive: e.inconclusive,
+    word: e.reached ? T.endpoint.reached : e.inconclusive ? T.endpoint.loopback : T.endpoint.errors[e.error] || T.endpoint.errors.failed,
     port: reachedAt ? reachedAt.port : e.httpsPort, portText: e.httpsPort && e.attempts.length ? T.endpoint.https.replace('{port}', String(reachedAt ? reachedAt.port : e.httpsPort)) : '',
     latencyText: reachedAt && reachedAt.latencyMs >= 0 && e.attempts.length ? `${reachedAt.latencyMs} ms` : '',
     scope: e.scope, scopeWord: T.endpoint.scopes[e.scope] || '', resolved: e.resolved, address: reachedAt ? reachedAt.address : '',
@@ -203,7 +215,7 @@ export function reachView(report, locale = 'en') {
   const paths = [
     {
       id: 'public', title: T.paths.public, verdict: pub.verdict, word: T.verdicts[pub.verdict], ...VERDICT_LOOK[pub.verdict], headline: T.headline.public[pub.verdict],
-      evidence: pubEvidence, reasons: [...new Set([...pub.reasons, ...(pub.endpoints.length ? [] : pub.configured?.reasons || [])])].map((r) => reasonRow(r, T, report.ports)), address: publicAddress(report), addressLabel: T.addressPublic,
+      evidence: pubEvidence, reasons: [...new Set([...pub.reasons, ...(pub.endpoints.length ? [] : pub.configured?.reasons || []), ...publicNotes(pub)])].map((r) => reasonRow(r, T, report.ports)), address: publicAddress(report), addressLabel: T.addressPublic,
       endpoints: pub.endpoints.map((e) => endpointRow(e, T)),
       configured: pub.configured ? { value: pub.configured.value, kind: pub.configured.kind, resolved: pub.configured.resolved, matchesWan: pub.configured.matchesWan, kindWord: T.addressKinds[pub.configured.kind] || '' } : null,
     },

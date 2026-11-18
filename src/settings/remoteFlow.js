@@ -135,13 +135,13 @@ export function portResults(report, outcome) {
 
 /**
  * Why a check could not run, from the status of useReachability: an older host (no such route: 404, or 444 where the host closes the connection) is not a failed run.
- *   { kind: 'old-host' | 'failed-run' | 'ok', http, reason }; `reason` is 'auth' | 'server' | 'offline' | 'bad-answer' | 'other' for a failed run.
+ *   { kind: 'old-host' | 'failed-run' | 'ok', http, reason }; `reason` is 'auth' | 'server' | 'offline' | 'timeout' | 'bad-answer' | 'other' for a failed run.
  */
 export function failureOf(view) {
   if (!view) return { kind: 'ok', http: 0, reason: '' }
   if (view.status === 'unavailable') return { kind: 'old-host', http: view.http || 0, reason: '' }
   if (view.status !== 'error') return { kind: 'ok', http: 0, reason: '' }
   const http = Number(view.http) || 0
-  const reason = http === 401 || http === 403 ? 'auth' : http >= 500 ? 'server' : http ? 'other' : view.cause === 'bad-answer' ? 'bad-answer' : 'offline'
+  const reason = http === 401 || http === 403 ? 'auth' : http >= 500 ? 'server' : http ? 'other' : view.cause === 'bad-answer' ? 'bad-answer' : view.cause === 'timeout' ? 'timeout' : 'offline'
   return { kind: 'failed-run', http, reason }
 }

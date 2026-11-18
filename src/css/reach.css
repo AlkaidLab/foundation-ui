@@ -132,3 +132,8 @@
 .m-rf__donebody { flex: 1; min-width: 0; } .m-rf__doneico { --ico-size: 48px; }
 .m-rf__addr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px; padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--md-sys-color-on-primary-container) 10%, transparent); } .m-rf__addr code { font: var(--m-title-medium-emphasized); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .m-rf__sub .m-wave { width: 100%; max-width: 100%; overflow: hidden; }
+
+/* the steps of a check that is going (MReachOverview): one line each, done / going / waiting */
+.m-reacho__run { margin: 0; padding: 12px 16px; list-style: none; display: flex; flex-direction: column; gap: 6px; border-radius: var(--md-sys-shape-corner-extra-large); background: var(--m-card); font: var(--m-body-medium); }
+.m-reacho__run li { display: flex; align-items: center; gap: 10px; color: var(--md-sys-color-on-surface-variant); min-width: 0; } .m-reacho__run li > span { min-width: 0; overflow-wrap: anywhere; }
+.m-reacho__run li .m-icon { flex: none; font-size: 20px; } .m-reacho__run li.is-done { color: var(--md-sys-color-on-surface); } .m-reacho__run li.is-done .m-icon { color: var(--md-sys-color-success); } .m-reacho__run li.is-running { color: var(--md-sys-color-on-surface); } .m-reacho__run li.is-running .m-icon { color: var(--md-sys-color-primary-text); }
