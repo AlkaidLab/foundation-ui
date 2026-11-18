@@ -67,8 +67,8 @@ export function createReachability({ request, timeoutMs = 12000, ...runOptions }
    */
   function refresh(force = false, options = {}) {
     const test = String(options?.test ?? '').trim()
-    if (!running) return begin(force, options)
-    if (!test) return running
+    if (!running && !queued) return begin(force, options)
+    if (!test) return queued || running // a read asked for meanwhile is the one that is going or waiting: it never starts a second one beside it
     const next = (queued || running).then(() => begin(force, options))
     queued = next
     next.finally(() => { if (queued === next) queued = null })

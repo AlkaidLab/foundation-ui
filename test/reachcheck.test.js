@@ -333,3 +333,24 @@ test('a connection from the internet that did not reach outranks what this compu
   const own = endpointRow({ ...ep, reached: true, outside: null }, T)
   assert.deepEqual([own.tone, own.reached], ['ok', true])
 })
+
+// ---- review round 2
+
+test('a read asked for between a run and the test that waits for it does not run beside it', async () => {
+  const h = host({ polls: [ok(run('running', STEPS_GOING)), ok(run('done', STEPS_DONE))] })
+  const r = make(h)
+  const first = r.refresh(true)
+  let between = null
+  first.then(() => { between = r.refresh() })
+  const waiting = r.refresh(true, { test: 'a.example.net:60000' })
+  await Promise.all([first, waiting])
+  await between
+  assert.equal(h.calls.filter((c) => c === 'GET /api/network/reachability').length, 1, 'only the run read the cached report; the plain read joined what was waiting')
+  assert.equal(r.view.status, 'ready')
+})
+
+test('the steps list of the overview follows the real loading state of the component, never an undeclared prop', () => {
+  const vue = fs.readFileSync(new URL('../src/vue/MReachOverview.vue', import.meta.url), 'utf8')
+  assert.match(vue, /const running = computed\(\(\) => !!\(loading\.value && props\.progress/)
+  assert.ok(!/props\.loading/.test(vue), 'props has no `loading`')
+})

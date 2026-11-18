@@ -62,7 +62,7 @@ function fix(path, row) {
   if (row.action === 'firewall' || row.action === 'outside') { open.value = open.value === key ? '' : key; return }
   emit('fix', row.action, row)
 }
-const running = computed(() => !!(props.loading && props.progress && props.progress.steps.length))
+const running = computed(() => !!(loading.value && props.progress && props.progress.steps.length))
 // what a screen reader hears while the check goes: the step that is going or the one that has just ended, with the count
 const announce = computed(() => {
   const steps = props.progress?.steps || []
