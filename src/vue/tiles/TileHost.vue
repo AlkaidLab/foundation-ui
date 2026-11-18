@@ -79,7 +79,7 @@ const kind = computed(() => ({ 'host-name': 'm-b2name', 'audio-out': 'm-b2name',
 
     <template v-else>
       <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span><button v-if="chevron && size !== 's'" type="button" class="m-calm__more" :aria-label="T.more || card.title" @click.stop="emit('act', OPEN)"><MIcon name="chevron_right" /></button></header>
-      <div class="m-b2plate" :class="plate" :data-state="av.state"><span v-if="size !== 's'" class="m-b2glyph"><MIcon name="public" /></span><span class="m-b2addr__text"><b :data-redact="av.address ? 'address' : null" :style="{ '--pv': `${pv}px` }"><MBreakText :text="av.value" /></b><small v-if="av.word" class="is-reach" :class="{ 'is-bad': av.tone === 'bad' }">{{ av.word }}</small></span></div>
+      <div class="m-b2plate" :class="plate" :data-state="av.state"><span v-if="size !== 's'" class="m-b2glyph"><MIcon name="public" /></span><span class="m-b2addr__text"><b :data-redact="av.address ? 'address' : null" :style="{ '--pv': `${pv}px` }"><MBreakText :text="av.value" /></b><small v-if="av.word" class="is-reach">{{ av.word }}</small></span></div>
     </template>
   </section>
 </template>
