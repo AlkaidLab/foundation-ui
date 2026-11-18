@@ -277,9 +277,12 @@ export function validateEndpoint(input) {
     if (o.some((n) => n > 255) || /\.$/.test(hostPart)) return fail('host')
     kind = 'ip'
     const [a, b] = o
+    // 0.0.0.0 (and the rest of 0.0.0.0/8) is what a socket binds to and what a router answers when it has no address: nothing a client can connect to
+    if (a === 0) return fail('unspecified')
     // LAN, loopback and link-local addresses are fine to keep (the host reports them) but cannot serve the internet; the mesh range (100.64/10) is a legitimate endpoint
     if (a === 10 || a === 127 || a === 0 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254)) warn = 'private'
   } else if (v6) {
+    if (/^[0:]+$/.test(bare)) return fail('unspecified')
     kind = 'ip'
     if (/^(fe80|fc|fd|::1$)/i.test(bare) && !/^fd7a:115c:a1e0/i.test(bare)) warn = 'private'
   } else {
@@ -306,8 +309,7 @@ function isIpv6(text) {
 }
 
 /** The endpoints in a configuration value (`a.example.net:60000, [2001:db8::1]:57989`): the valid ones in canonical form, de-duplicated, at most MAX_ENDPOINTS. Separators: comma, semicolon, space, new line. */
-export function parseEndpoints(text) {
-  const raw = String(text ?? '').trim()
+function endpointTokens(raw) {
   const split = (value) => {
     const out = []
     let depth = 0
@@ -321,11 +323,17 @@ export function parseEndpoints(text) {
     if (current) out.push(current)
     return out
   }
-  let tokens = split(raw)
+  const tokens = split(raw)
   if (tokens.some((t) => !validateEndpoint(t).ok) && raw.startsWith('[') && raw.endsWith(']')) {
     const inner = split(raw.slice(1, -1))
-    if (inner.every((t) => validateEndpoint(t).ok)) tokens = inner
+    if (inner.every((t) => validateEndpoint(t).ok)) return inner
   }
+  return tokens
+}
+
+export function parseEndpoints(text) {
+  const raw = String(text ?? '').trim()
+  const tokens = endpointTokens(raw)
   const seen = new Set()
   const out = []
   for (const token of tokens) {
@@ -340,6 +348,15 @@ export function parseEndpoints(text) {
 export function endpointsOfConfig(config) {
   const list = parseEndpoints(config?.external_endpoints)
   return list.length ? list : parseEndpoints(config?.external_ip)
+}
+
+/**
+ * What a configuration holds that is not an address: the entries of `external_endpoints` (or the legacy `external_ip`) that no client could use, each with the reason
+ * (`unspecified`: 0.0.0.0 or ::, `host`, `port`, `format`, `scheme`). [] when every entry is valid or none is set. A tile must not draw such an entry as the address.
+ */
+export function rejectedEndpointsOfConfig(config) {
+  const text = String(config?.external_endpoints ?? '').trim() ? config.external_endpoints : config?.external_ip
+  return endpointTokens(String(text ?? '').trim()).map((t) => ({ text: t, error: validateEndpoint(t).error })).filter((r) => r.error)
 }
 
 /** The value to store for a list of rows: canonical, de-duplicated, empty rows dropped. '' for none. */

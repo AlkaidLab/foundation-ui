@@ -1,9 +1,11 @@
 /* what the real Panel showed that the mock gate let through (fixes found with the browser check over harness/real/*, the real host of 2026-11-07).
    Every rule keeps the tile's visual; nothing below 11 px. */
 /* 公网地址: the glyph and the two lines share the plate's height; the value fits the plate, not the tile (fitText.js) */
-.m-b2addr.is-s .m-b2plate { padding: 8px 10px; gap: 4px; }
-.m-b2addr.is-s .m-b2plate .m-b2glyph { --g: 28px; }
+.m-b2addr.is-s .m-b2plate { padding: 6px 8px; gap: 2px; margin-top: 4px; justify-content: flex-end; }
 .m-b2addr .m-b2plate .m-b2addr__text { min-width: 0; max-width: 100%; }
+/* a state or an address is read in full: it wraps (a long name or a state in words) and the plate grows to its text, nothing is cut */
+.m-dash__cell .m-b2addr .m-b2plate b, .m-b2addr .m-b2plate b { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere; line-height: 1.2; }
+.m-dash__cell .m-b2addr .m-b2plate small, .m-b2addr .m-b2plate small { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere; line-height: 1.25; }
 /* 编码器: the big shape sits at the corner, below the title's words */
 /* 日志 (and every empty state at 方形): the corner shape keeps its glyph inside the tile */
 .m-tempty--s .m-tempty__shape { translate: -4% 4%; }
