@@ -1,5 +1,6 @@
 export default
 {
+  "pairGetQr": "Obter código QR",
   "gGroup_all": "Tudo",
   "on": "Ativado",
   "off": "Desativado",

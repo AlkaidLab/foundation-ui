@@ -1,7 +1,7 @@
 import { computed, reactive, watch } from 'vue'
 import { CARD_META, DEFAULT_ORDER, defaultVisible } from './homeCards.js'
 import { MAX_PINS } from '../pins/registry.js'
-import { SIZE_KEYS } from './homeSizes.js'
+import { ALL_SIZE_KEYS } from './homeSizes.js'
 import { migrateLayout } from './layoutMigrate.js'
 
 /**
@@ -43,7 +43,7 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
         // version 6 ships the star card (due after the first pairing or stream, back at every stream after 以后再说): after the host card and the pairing card; the person's own order is kept
         if ((v.v || 0) < 6 && order.includes('hero')) { order = order.filter((id) => id !== 'star'); order.splice(Math.max(order.indexOf('hero'), order.indexOf('pair')) + 1, 0, 'star') }
         const overrides = Object.fromEntries(Object.entries(v.overrides || {}).filter(([id, x]) => known(id) && typeof x === 'boolean'))
-        const sizes = Object.fromEntries(Object.entries(v.sizes || {}).filter(([id, x]) => known(id) && SIZE_KEYS.includes(x)))
+        const sizes = Object.fromEntries(Object.entries(v.sizes || {}).filter(([id, x]) => known(id) && ALL_SIZE_KEYS.includes(x)))
         // version 7: the overview is smart by default (the tiles follow what the host is doing); a layout saved before keeps what the person arranged (manual), a layout nobody touched is smart
         const touched = Object.keys(overrides).length || Object.keys(sizes).length || Object.keys(pins).length
         const mode = (v.v || 0) >= 7 ? (v.mode === 'manual' ? 'manual' : 'smart') : touched ? 'manual' : 'smart'
@@ -89,7 +89,7 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
       const target = visibleIds[i + delta]
       if (i >= 0 && target) moveTo(id, target)
     },
-    setSize(id, size) { if (valid(id) && SIZE_KEYS.includes(size)) state.sizes = { ...state.sizes, [id]: size } },
+    setSize(id, size) { if (valid(id) && ALL_SIZE_KEYS.includes(size)) state.sizes = { ...state.sizes, [id]: size } },
     setVisible(id, on) { if (valid(id)) state.overrides = { ...state.overrides, [id]: !!on } },
     /** Pin a setting (a tile with its control, or a link to its page): shown, after the last card that is shown. false when the layout is full or the spec is not a pin. */
     addPin(spec) {

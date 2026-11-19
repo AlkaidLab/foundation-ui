@@ -1,5 +1,6 @@
 export default
 {
+  "pairGetQr": "QRコードを取得",
   "gGroup_all": "すべて",
   "on": "オン",
   "off": "オフ",
