@@ -36,7 +36,7 @@ import { HERO } from '../about/hero.js'
 //   version, channel ('stable' | 'prerelease' | ''), a build date when the version carries one,
 //   build   the build identity the host recorded (about/build.js); when given, its channel and UTC build time replace the guesses from the version
 //   update  { state: 'idle' | 'checking' | 'available' | 'latest' | 'error', version }  (the product runs the real check and opens MUpdateSheet)
-//   sponsors [{ id, label, url }] the product's own constant
+//   sponsors [{ id, label, url, zh? }] the product's own constant; zh is used for Chinese locales
 // Emits: check, open-update, open (url), copied.
 const developer = useDeveloperMode()
 const props = defineProps({

@@ -106,7 +106,8 @@ test('tile buttons anchor the touch expansion to the button rather than its card
   const text = css('touch.css').replace(/\/\*[\s\S]*?\*\//g, '')
   const anchors = [...text.matchAll(/:is\(([\s\S]*?)\)\s*\{\s*position:\s*relative;/g)]
   assert.ok(anchors.some((match) => match[1].split(',').some((selector) => selector.trim() === '.m-b2__btn')))
-  assert.match(text, /\.m-b2__btn[\s\S]*?\)::after\s*\{[^}]*position:\s*absolute/)
+  const slops = [...text.matchAll(/:is\(([^()]*)\)::after\s*\{[^}]*position:\s*absolute/g)]
+  assert.ok(slops.some((match) => match[1].split(',').some((selector) => selector.trim() === '.m-b2__btn')))
   assert.match(text, /\.m-b2dl\s+\.m-b2__btn::after\s*\{\s*content:\s*none;/)
 })
 

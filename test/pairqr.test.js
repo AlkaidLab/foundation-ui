@@ -63,6 +63,26 @@ test('a manually requested code expires without automatic renewal', async (t) =>
   assert.equal(calls.start, 1)
 })
 
+test('a renewal that finishes after expiry cannot show a stale QR code', async (t) => {
+  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] })
+  let renderCount = 0
+  let finishRender
+  const q = createPairQr({
+    start: async () => ({ url: 'https://host/pair', expires_in: 2 }),
+    poll: async () => ({ status: 'waiting' }),
+    cancel: async () => {},
+    render: async () => ++renderCount === 1 ? 'initial' : new Promise((resolve) => { finishRender = resolve }),
+  })
+  await q.begin()
+  t.mock.timers.tick(1000); await settle()
+  assert.equal(renderCount, 2)
+  t.mock.timers.tick(1000); await settle()
+  assert.equal(q.view.state, 'expired')
+  finishRender('late image'); await settle()
+  assert.equal(q.view.state, 'expired')
+  assert.equal(q.view.image, '')
+})
+
 test('a client that pairs ends the countdown', async () => {
   mock.timers.enable({ apis: ['setInterval'] })
   try {

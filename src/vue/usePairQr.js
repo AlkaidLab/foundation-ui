@@ -38,7 +38,7 @@ export function createPairQr({ start, poll, cancel, render, onPaired, autoRenew 
       if (mine !== token || graceTimer) { if (r && r.url) quiet(cancel()); return }
       if (!r || !r.url) return
       const image = await render(r.url)
-      if (mine !== token || graceTimer) return
+      if (mine !== token || graceTimer || view.state !== 'ready') return
       view.image = image; view.pin = String(r.pin || ''); view.seconds = Math.max(0, Number(r.expires_in) || 0); view.address = addressOf(r)
     } catch { /* the code on screen runs out and shows the refresh button */ } finally { renewing = false }
   }
@@ -68,7 +68,7 @@ export function createPairQr({ start, poll, cancel, render, onPaired, autoRenew 
         if (++tick % 2) return
         try {
           const s = await poll()
-          if (mine === token && s && s.status === 'paired') { clear(); view.state = 'paired'; if (onPaired) onPaired() }
+          if (mine === token && view.state === 'ready' && s && s.status === 'paired') { clear(); view.state = 'paired'; if (onPaired) onPaired() }
         } catch { /* the next tick asks again */ }
       }, 1000)
     } catch {

@@ -70,11 +70,11 @@ onBeforeUnmount(() => { if (qrShown.value) emit('act', { type: 'pair-qr-stop' })
     <template v-else-if="size === 's'">
       <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span></header>
       <MTileNumeral class="m-b2paired__count" :value="String(count)" size="m" :unit="T.pairedCount" />
-      <button type="button" class="m-b2__btn m-b2pair__go" @click.stop="emit('act', { type: 'pair-qr' })">{{ T.pairGetQr || T.pairQr }}</button>
+      <button type="button" class="m-b2__btn m-b2pair__go" @click.stop="emit('act', { type: 'pair-qr' })"><MIcon name="qr_code_scanner" />{{ T.pairGetQr || T.pairQr }}</button>
     </template>
     <template v-else>
       <div class="m-b2pair__qr" :class="{ 'is-wait': !qrOpen || !qr?.image }" data-redact="pin">
-        <button v-if="!qrOpen" type="button" class="m-b2pair__action" :disabled="preview || !qr" @click.stop="qrOpen = true">{{ T.pairGetQr || T.pairQr }}</button>
+        <button v-if="!qrOpen" type="button" class="m-b2pair__action" :disabled="preview || !qr" @click.stop="qrOpen = true"><MIcon name="qr_code_scanner" /><span>{{ T.pairGetQr || T.pairQr }}</span></button>
         <img v-else-if="qr?.state === 'ready' && qr.image" :src="qr.image" :alt="T.pairQr" decoding="async">
         <div v-else-if="qr?.state === 'loading' || qr?.state === 'idle'" class="m-b2pair__state" role="status"><MIcon name="hourglass_empty" /><span>{{ T.pairQr }}</span></div>
         <div v-else-if="qr?.state === 'paired'" class="m-b2pair__state" role="status"><MIcon name="check_circle" /><span>{{ T.pairDone }}</span><button type="button" class="m-b2pair__retry" @click.stop="emit('act', { type: 'pair-qr-begin', value: true })">{{ T.pairGetQr || T.pairQr }}</button></div>

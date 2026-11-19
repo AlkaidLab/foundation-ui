@@ -30,7 +30,7 @@ test('the pairing tile starts hidden without requesting or displaying a code', a
     assert.deepEqual(actions, [])
     assert.doesNotMatch(html, /data:image\/png/)
     assert.match(html, /Get QR code/)
-    assert.doesNotMatch(html, /data-icon="qr_code_2"/)
+    assert.match(html, /data-icon="qr_code_scanner"/)
   }
 })
 
