@@ -154,6 +154,52 @@ export function componentSections(view, locale) {
   }))
 }
 
+// ---------------------------------------------------------------- the install location
+
+/** 1536 -> '1.5 KB' ... : binary units, as Explorer shows them; one decimal under 10, none above */
+export function formatBytes(n) {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let v = Math.max(0, Number(n) || 0)
+  let i = 0
+  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++ }
+  return `${i < 3 || v >= 10 ? Math.round(v) : Math.round(v * 10) / 10} ${units[i]}`
+}
+
+/** a path in two parts: the head may be cut short with an ellipsis, the tail (the last folder, taking its parents while it is under 12 characters and the whole stays under 32) shows whole while there is room */
+export function splitPath(path) {
+  const parts = String(path || '').split('\\')
+  let tail = parts.length > 1 ? `\\${parts[parts.length - 1]}` : String(path || '')
+  let at = parts.length - 1
+  while (tail.length < 12 && at > 1 && parts[at - 1].length + 1 + tail.length <= 32) { at -= 1; tail = `\\${parts[at]}${tail}` }
+  const head = String(path || '').slice(0, String(path || '').length - tail.length)
+  return { head, tail }
+}
+
+/**
+ * The install-location row: label, the path in two parts, the free space, the Change button (a fresh install only) and the reason when the folder is refused.
+ * null when the host sent no folder (a host without the row).
+ */
+export function locationModel(view, locale) {
+  const d = view.installDir
+  if (!d || !d.path) return null
+  const { head, tail } = splitPath(d.path)
+  let error = null
+  if (d.error) {
+    const key = `dir.err.${d.error}`
+    error = { code: d.error, text: d.error === 'too-long' ? t(locale, key, d.maxLength) : d.error === 'no-space' ? t(locale, key, formatBytes(d.neededBytes)) : t(locale, key) }
+  }
+  return {
+    label: t(locale, 'dir.label'),
+    path: d.path,
+    head,
+    tail,
+    free: typeof d.freeBytes === 'number' && !d.error ? t(locale, 'dir.free', formatBytes(d.freeBytes)) : '',
+    editable: !!d.editable,
+    change: t(locale, 'dir.change'),
+    error,
+  }
+}
+
 // ---------------------------------------------------------------- the page: header, notes, facts and buttons
 
 const btn = (key, label, variant, act, extra = {}) => ({ key, label, variant, act, ...extra })
@@ -169,6 +215,8 @@ const btn = (key, label, variant, act, extra = {}) => ({ key, label, variant, ac
 export function pageModel(view, locale) {
   const m = view.maintenance
   const out = { page: view.page, glyph: { icon: 'desktop_windows', tone: 'primary', busy: false }, title: '', lead: '', note: null, facts: [], start: [], end: [] }
+  // a folder the host refused: no way on until another one is picked (the reason shows under the location row)
+  const dirBad = !!view.installDir?.error
   const fact = (icon, tone, key) => ({ icon, tone, title: t(locale, key), text: t(locale, `${key}.text`) })
   switch (view.page) {
     case 'welcome':
@@ -179,7 +227,7 @@ export function pageModel(view, locale) {
       // only two facts: the administrator permission and the components; with a note the page is full and the Customize button says the second
       out.facts = [fact('shield', 'tertiary', 'fact.admin'), ...(out.note ? [] : [fact('display_settings', 'primary', 'fact.components')])]
       out.start = [btn('exit', t(locale, 'btn.exit'), 'text', { type: 'exit' })]
-      out.end = [btn('customize', t(locale, 'btn.customize'), 'tonal', { type: 'customize' }), btn('install', t(locale, 'btn.install'), 'filled', { type: 'install' })]
+      out.end = [btn('customize', t(locale, 'btn.customize'), 'tonal', { type: 'customize' }, { disabled: dirBad }), btn('install', t(locale, 'btn.install'), 'filled', { type: 'install' }, { disabled: dirBad })]
       break
     case 'maintenance': {
       out.glyph = { icon: 'restart_alt', tone: 'primary', busy: false }
@@ -198,7 +246,7 @@ export function pageModel(view, locale) {
     case 'components':
       out.title = t(locale, 'comp.title')
       out.lead = t(locale, view.maintenance ? 'comp.lead.maint' : 'comp.lead.fresh')
-      out.end = [btn('back', t(locale, 'comp.back'), 'tonal', { type: 'back' }), btn('install', t(locale, 'comp.start'), 'filled', { type: 'install' })]
+      out.end = [btn('back', t(locale, 'comp.back'), 'tonal', { type: 'back' }), btn('install', t(locale, 'comp.start'), 'filled', { type: 'install' }, { disabled: dirBad })]
       break
     case 'uac':
       out.glyph = { icon: 'shield', tone: 'tertiary', busy: false }

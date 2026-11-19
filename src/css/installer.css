@@ -279,3 +279,30 @@ html[data-motion='reduced'] .m-inst :is(.m-wave-circle--spin) { animation: m-rm-
 /* the free-software notice and the support line of the first page: secondary body text under the lead */
 .m-inst__legal { display: grid; gap: 4px; margin-top: 12px; font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); text-wrap: pretty; }
 .m-inst__legal p { margin: 0; }
+
+/* ---- the install location (the first page and the maintenance page): a row that names the folder, the room left on its drive, and the Change button; a refused folder says why under it ---- */
+.m-inst__loc { flex: none; margin-top: 16px; }
+.m-inst__loc-row { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 10px 12px 10px 12px; border-radius: 20px; background: var(--md-sys-color-surface-container-low); }
+.m-inst__loc.is-error .m-inst__loc-row { background: color-mix(in srgb, var(--md-sys-color-error-container) 38%, var(--md-sys-color-surface-container-low)); }
+.m-inst__loc-icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.m-inst__loc-icon .m-icon { width: 22px; height: 22px; }
+.m-inst__loc-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.m-inst__loc-text b { font: var(--m-title-medium); color: var(--md-sys-color-on-surface); }
+.m-inst__loc-path { display: flex; min-width: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface); }
+.m-inst__loc-head { flex: 0 100 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the last folder gives way only after the head is gone, and then with an ellipsis of its own */
+.m-inst__loc-tail { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-inst__loc-free { font: var(--m-body-small); color: var(--md-sys-color-on-surface-variant); }
+.m-inst__loc-change { flex: none; }
+.m-inst__loc-error { display: flex; align-items: flex-start; gap: 8px; margin: 8px 4px 0; font: var(--m-body-medium); color: var(--md-sys-color-error); }
+.m-inst__loc-error .m-icon { flex: none; width: 20px; height: 20px; margin-top: 1px; }
+.m-inst__loc-error span { min-width: 0; text-wrap: pretty; }
+.m-inst__page--welcome .m-inst__loc, .m-inst__page--maintenance .m-inst__loc { animation: m-inst-rise 420ms var(--m-ease-decelerate) 40ms both; }
+@container m-inst (max-height: 540px) {
+  .m-inst__loc { margin-top: 12px; }
+  .m-inst__loc-row { min-height: 56px; padding-block: 6px; }
+}
+@container m-inst (max-height: 440px) {
+  .m-inst__loc { margin-top: 8px; }
+  .m-inst__loc-icon { width: 32px; height: 32px; } .m-inst__loc-icon .m-icon { width: 20px; height: 20px; }
+}
