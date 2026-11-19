@@ -354,3 +354,50 @@ test('the steps list of the overview follows the real loading state of the compo
   assert.match(vue, /const running = computed\(\(\) => !!\(loading\.value && props\.progress/)
   assert.ok(!/props\.loading/.test(vue), 'props has no `loading`')
 })
+
+// ---- the outside check behind a proxy on the router, or out of budget
+
+test('a proxy on the router is a note with its own sentence, never red, said once', () => {
+  for (const locale of ['zh', 'en']) {
+    const T = reachTexts(locale)
+    // the host names the reason itself, and the sentence is said once whether or not the report also lists it
+    for (const reasons of [['outside_router_proxy', 'mappings_complete'], ['mappings_complete']]) {
+      const v = reachView(withOutside({ state: 'unavailable', reason: 'router_proxy', caller: '198.51.100.7' }, reasons, 'likely'), locale)
+      const found = v.paths[0].reasons.filter((r) => r.code === 'outside_router_proxy')
+      assert.equal(found.length, 1, `${locale}: once`)
+      assert.equal(found[0].kind, 'note')
+      assert.equal(found[0].text, T.reasons.outside_router_proxy)
+      assert.ok(!v.paths[0].reasons.some((r) => r.code === 'outside_unavailable'), `${locale}: not the general sentence as well`)
+      assert.notEqual(v.paths[0].verdict, 'unreachable')
+      assert.notEqual(v.paths[0].endpoints[0].tone, 'error')
+    }
+  }
+  assert.match(reachTexts('zh').reasons.outside_router_proxy, /路由器层面走了代理/)
+  assert.equal(withOutside({ state: 'unavailable', reason: 'router_proxy', caller: '198.51.100.7' }).public.endpoints[0].outside.caller, '198.51.100.7')
+})
+
+test('a service that has used up its day says so and asks to come back tomorrow, not that something is wrong', () => {
+  for (const locale of ['zh', 'en']) {
+    const T = reachTexts(locale)
+    const v = reachView(withOutside({ state: 'unavailable', reason: 'budget', caller: '' }, ['mappings_complete'], 'likely'), locale)
+    const found = v.paths[0].reasons.find((r) => r.code === 'outside_budget')
+    assert.equal(found.text, T.reasons.outside_budget, locale)
+    assert.ok(!v.paths[0].reasons.some((r) => r.code === 'outside_unavailable'), locale)
+  }
+  assert.match(reachTexts('zh').reasons.outside_budget, /次数已用尽/)
+  // any other reason is still the general sentence
+  const other = reachView(withOutside({ state: 'unavailable', reason: 'no_answer', caller: '' }, ['mappings_complete'], 'likely'), 'en')
+  assert.ok(other.paths[0].reasons.some((r) => r.code === 'outside_unavailable'))
+})
+
+test('endpoints with different reasons each get their own sentence, and the general one stays for a reason without one', () => {
+  const x = reachView(normalizeReport(report((r) => {
+    r.public.verdict = 'likely'; r.public.reasons = ['mappings_complete']
+    const base = fixture('reachability-endpoints').public.endpoints[0]
+    r.public.endpoints = [{ ...base, input: 'a.example.net:60000', outside: { state: 'unavailable', reason: 'router_proxy', caller: '198.51.100.7' } },
+      { ...base, input: 'b.example.net:60000', outside: { state: 'unavailable', reason: 'budget' } },
+      { ...base, input: 'c.example.net:60000', outside: { state: 'unavailable', reason: 'no_answer' } }]
+  })), 'en')
+  const codes = x.paths[0].reasons.map((r) => r.code)
+  for (const code of ['outside_router_proxy', 'outside_budget', 'outside_unavailable']) assert.equal(codes.filter((c) => c === code).length, 1, code)
+})

@@ -31,7 +31,7 @@ export const REASON_FIX = Object.freeze({
 /** What a reason is: a problem (a warning with its fix), good news the host reports (a tick), or a note (neutral: what was not possible to know). */
 export const REASON_KIND = Object.freeze({
   session_evidence: 'good', hairpin_verified: 'good', host_public_ip: 'good', mappings_complete: 'good', mesh_adapter_up: 'good',
-  hairpin_not_tried: 'note', firewall_unknown: 'note', unset: 'note', loopback_unverifiable: 'note', udp_unverified: 'note', udp_unverified_forwarded: 'note', outside_unavailable: 'note', outside_verified: 'good',
+  hairpin_not_tried: 'note', firewall_unknown: 'note', unset: 'note', loopback_unverifiable: 'note', udp_unverified: 'note', udp_unverified_forwarded: 'note', outside_unavailable: 'note', outside_router_proxy: 'note', outside_budget: 'note', outside_verified: 'good',
 })
 
 /** `mapping_missing:udp/47998` -> { code: 'mapping_missing', arg: 'udp/47998', proto: 'udp', port: 47998 }. */
@@ -67,7 +67,7 @@ function endpointOf(raw) {
   return {
     input: str(raw.input), host: str(raw.host), kind: pick(str(raw.kind), ['ip', 'hostname'], 'hostname'), port: num(raw.port), portExplicit: raw.port_explicit === true, httpsPort: num(raw.https_port),
     resolved: list(raw.resolved).map(str).filter(Boolean), scope: pick(str(raw.scope), ENDPOINT_SCOPES, 'unknown'), matchesWan: raw.matches_wan === true,
-    reached: str(raw.state) === 'reached', inconclusive: raw.inconclusive === true, outside: raw.outside && typeof raw.outside === 'object' ? { state: pick(str(raw.outside.state), OUTSIDE_STATES, 'unavailable'), reason: str(raw.outside.reason) } : null, error: ENDPOINT_ERRORS.includes(error) ? error : error ? 'failed' : '', tested,
+    reached: str(raw.state) === 'reached', inconclusive: raw.inconclusive === true, outside: raw.outside && typeof raw.outside === 'object' ? { state: pick(str(raw.outside.state), OUTSIDE_STATES, 'unavailable'), reason: str(raw.outside.reason), caller: str(raw.outside.caller) } : null, error: ENDPOINT_ERRORS.includes(error) ? error : error ? 'failed' : '', tested,
     attempts: list(raw.attempts).filter((a) => a && typeof a === 'object').map((a) => ({ address: str(a.address), port: num(a.port), connected: a.connected === true, identityMatch: a.identity_match === true, error: str(a.error), latencyMs: num(a.latency_ms) })),
     reasons: list(raw.reasons).map(str).filter(Boolean),
   }
@@ -82,7 +82,12 @@ function publicNotes(pub) {
   const outsideOk = pub.endpoints.some((e) => e.outside?.state === 'reachable')
   if (pub.endpoints.some((e) => e.inconclusive && !e.reached && e.outside?.state !== 'reachable')) notes.push('loopback_unverifiable')
   // the outside check was on and its service did not answer: the screen says what the result rests on
-  if (pub.endpoints.some((e) => e.outside?.state === 'unavailable')) notes.push('outside_unavailable')
+  // A proxy on the router (the service saw its exit) and a service that is out of budget for the day have a sentence of their own, because the person can do something about the first and only wait for the second.
+  const unavailable = pub.endpoints.filter((e) => e.outside?.state === 'unavailable')
+  // each kind of reason has its sentence, and a mix of endpoints with different reasons gets each of them; the general one is for a reason that has none of its own
+  if (unavailable.some((e) => e.outside.reason === 'router_proxy') && !pub.reasons.includes('outside_router_proxy')) notes.push('outside_router_proxy')
+  if (unavailable.some((e) => e.outside.reason === 'budget')) notes.push('outside_budget')
+  if (unavailable.some((e) => e.outside.reason !== 'router_proxy' && e.outside.reason !== 'budget')) notes.push('outside_unavailable')
   if (pub.verdict !== 'unreachable' && !pub.evidence.length && !pub.reasons.includes('session_evidence')) notes.push(outsideOk && pub.reasons.includes('mappings_complete') ? 'udp_unverified_forwarded' : 'udp_unverified')
   return notes
 }
