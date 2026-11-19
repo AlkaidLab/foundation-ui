@@ -1,28 +1,26 @@
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import MButton from '../MButton.vue'
 import MDialog from '../MDialog.vue'
-import MIcon from '../MIcon.vue'
 import { useCountdown } from '../useCountdown.js'
 import { confirmLabel } from './installerModel.js'
 
 // The question before an install into a folder that only has a warning (installer-dir: a parent that others can replace, a user folder): what is wrong, the folder and the safe place, and a
 // button that counts down before it can be pressed, like the other risky questions (MResetConfirm). The safe place is the primary choice. The host asks the same of the answer: it takes
 // "install anyway" only after the same seconds, so a page that counts wrong cannot skip them.
-const props = defineProps({ model: { type: Object, default: null }, locale: { type: String, default: 'zh' } })
+// The page mounts this only while the question is open (MInstaller v-if), so every question starts its own countdown with the seconds the host named for it.
+const props = defineProps({ model: { type: Object, required: true }, locale: { type: String, default: 'zh' } })
 const emit = defineEmits(['action'])
-const open = computed(() => !!props.model)
-const countdown = useCountdown(props.model?.seconds || 5)
+const countdown = useCountdown(props.model.seconds)
 // the countdown runs in the window only (a page that is rendered to text starts no timer)
-onMounted(() => { if (open.value) countdown.begin() })
-watch(open, (value) => { if (value) countdown.begin(); else countdown.end() })
-const label = computed(() => (props.model ? confirmLabel(props.locale, props.model, countdown.remaining.value) : ''))
+onMounted(() => countdown.begin())
+const label = computed(() => confirmLabel(props.locale, props.model, countdown.remaining.value))
 const canInstall = computed(() => countdown.ready.value)
 const cancel = () => emit('action', { type: 'cancel-dir-risk' })
 </script>
 
 <template>
-  <MDialog v-if="model" :model-value="true" :title="model.title" icon="warning" tone="warning" persistent data-inst-confirm @cancel="cancel" @update:model-value="cancel">
+  <MDialog :model-value="true" :title="model.title" icon="warning" tone="warning" persistent data-inst-confirm @cancel="cancel" @update:model-value="cancel">
     <p class="m-dialog__message">{{ model.text }}</p>
     <dl class="m-inst__confirm-paths">
       <div><dt>{{ model.pathLabel }}</dt><dd>{{ model.path }}</dd></div>

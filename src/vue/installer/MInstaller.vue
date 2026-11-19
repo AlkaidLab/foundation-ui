@@ -151,7 +151,7 @@ const done = computed(() => view.value.page === 'done')
               </li>
             </ul>
           </template>
-          <InstallerDirConfirm :model="dirConfirm" :locale="L" @action="act" />
+          <InstallerDirConfirm v-if="dirConfirm" :model="dirConfirm" :locale="L" @action="act" />
           <p v-if="stalled" class="m-inst__stall" role="alert"><MIcon name="error" fill /><span>{{ stalled }}</span></p>
           <footer class="m-inst__foot">
             <div class="m-inst__foot-start">

@@ -439,7 +439,8 @@ test('the question about a warning: its words, the countdown label, the safe pla
   // the countdown is the one of the other risky questions, and Esc answers the question before it can close the window
   const app = read('vue/installer/MInstaller.vue')
   assert.match(app, /if \(dirConfirm\.value\) \{ act\(\{ type: 'cancel-dir-risk' \}\); return \}/)
-  assert.match(read('vue/installer/InstallerDirConfirm.vue'), /useCountdown/)
+  assert.match(read('vue/installer/InstallerDirConfirm.vue'), /useCountdown\(props\.model\.seconds\)/, 'every question counts the seconds the host named for it')
+  assert.match(app, /<InstallerDirConfirm v-if="dirConfirm"/, 'it is mounted with the question, not before')
 })
 
 test('the location texts: every error and warning has its words in zh and en, sizes and paths are cut for the row', () => {
@@ -465,8 +466,9 @@ test('the actions of the location: typing, the picker, the picked folder, the sa
   assert.equal(validAction({ type: 'set-dir', path: 'x'.repeat(5000) }), false)
   const field = read('vue/installer/InstallerLocation.vue')
   assert.match(field, /type: 'set-dir', path: draft\.value/, 'the field sends what was typed')
-  assert.match(field, /@keydown\.enter\.prevent="commit"/); assert.match(field, /@blur="leave"/)
-  assert.match(field, /document\.activeElement !== input\.value\) draft\.value = path/, 'what the host sends does not overwrite a field that is being typed in')
+  assert.match(field, /@keydown\.enter="enter"/); assert.match(field, /@blur="leave"/)
+  assert.match(field, /event\.isComposing \|\| event\.keyCode === 229\) return\n  event\.preventDefault\(\)/, 'the Enter that picks a candidate in an input method is the input method\'s: it neither commits nor is stopped')
+  assert.match(field, /document\.activeElement !== input\.value\) draft\.value = model\.path/, 'what the host sends does not overwrite a field that is being typed in')
 })
 
 test('Change sends choose-dir, shows busy until the host answers, and the mock host adds the product folder to a pick, takes typed paths as they are and refuses a refused folder', async () => {
@@ -475,7 +477,8 @@ test('Change sends choose-dir, shows busy until the host answers, and the mock h
   assert.match(app, /a\.type === 'choose-dir'\) choosing\.value = true/, 'the button shows busy while the system picker is open')
   assert.ok(!/WAITS = \[[^\]]*choose-dir/.test(app), 'the picker may stay open: no no-answer watchdog')
   assert.ok(!/WAITS = \[[^\]]*set-dir/.test(app), 'typing has no no-answer watchdog either')
-  const mock = createMockBridge({ speed: 0 })
+  const clock = { t: 1_000_000 }  // the question about a warning counts its seconds on this clock
+  const mock = createMockBridge({ speed: 0, now: () => clock.t })
   const dir = () => mock.state().installDir
   assert.equal(dir().editable, true)
   // pick 1: D:\Games has files and a parent that others can replace: the product folder is added, the pick is kept, the note says why, and the warning follows
@@ -505,7 +508,7 @@ test('Change sends choose-dir, shows busy until the host answers, and the mock h
   // pick 4: a user folder is a warning; the safe place is the default folder on the system drive
   await mock.send({ type: 'choose-dir' })
   assert.equal(dir().warning, 'user'); assert.equal(dir().safePath, 'C:\\Program Files\\Sunshine')
-  // the first press of Install opens the question, and nothing starts; the answer is taken only while it is open
+  // the first press of Install opens the question, and nothing starts; the answer is taken only while it is open and after its five seconds
   await mock.send({ type: 'confirm-dir-risk' })
   assert.equal(mock.state().page, 'welcome', 'no answer to a question nobody asked')
   await mock.send({ type: 'install' })
@@ -514,7 +517,20 @@ test('Change sends choose-dir, shows busy until the host answers, and the mock h
   assert.equal(dir().confirm, false)
   await mock.send({ type: 'install' }); assert.equal(dir().confirm, true)
   await mock.send({ type: 'confirm-dir-risk' })
-  assert.equal(mock.state().page, 'uac', 'confirmed: the install starts')
+  assert.equal(mock.state().page, 'welcome', 'an answer that comes early is not taken'); assert.equal(dir().confirm, true, 'and the question stays open')
+  clock.t += 4999
+  await mock.send({ type: 'confirm-dir-risk' })
+  assert.equal(mock.state().page, 'welcome', 'one millisecond short')
+  clock.t += 1
+  await mock.send({ type: 'confirm-dir-risk' })
+  assert.equal(mock.state().page, 'uac', 'after the five seconds: the install starts')
+  // cancelling and asking again starts the count again
+  const timed = createMockBridge({ speed: 0, now: () => clock.t })
+  await timed.send({ type: 'choose-dir' }); await timed.send({ type: 'install' })
+  clock.t += 6000
+  await timed.send({ type: 'cancel-dir-risk' }); await timed.send({ type: 'install' })
+  await timed.send({ type: 'confirm-dir-risk' })
+  assert.equal(timed.state().page, 'welcome', 'the count began again with the second question')
   // the safe place: one press, no question, and it is the default folder
   const again = createMockBridge({ speed: 0 })
   await again.send({ type: 'choose-dir' })

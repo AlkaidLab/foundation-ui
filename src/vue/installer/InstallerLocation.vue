@@ -13,8 +13,9 @@ const emit = defineEmits(['action'])
 const input = ref(null)
 const draft = ref(props.model.path)
 let timer = null
-// the host's answer sets the field, unless the person is typing in it: what they typed stays until they leave it
-watch(() => props.model.path, (path) => { if (typeof document === 'undefined' || document.activeElement !== input.value) draft.value = path })
+// every snapshot of the host sets the field to the folder it has, unless the person is typing in it: what they typed stays until they leave the field, and the answer to it
+// (the folder as the host tidied it: quotes and spaces at the ends dropped) is what the field shows then
+watch(() => props.model, (model) => { if (typeof document === 'undefined' || document.activeElement !== input.value) draft.value = model.path })
 function commit() {
   clearTimeout(timer)
   if (draft.value !== props.model.path) emit('action', { type: 'set-dir', path: draft.value })
@@ -24,9 +25,14 @@ function typed() {
   clearTimeout(timer)
   timer = setTimeout(commit, 450)
 }
+// Enter confirms the path, but not the Enter that picks a candidate in an input method (a Chinese path is typed with one): that one belongs to the input method
+function enter(event) {
+  if (event.isComposing || event.keyCode === 229) return
+  event.preventDefault()
+  commit()
+}
 function leave() {
   commit()
-  draft.value = props.model.path
 }
 onBeforeUnmount(() => clearTimeout(timer))
 </script>
@@ -39,7 +45,7 @@ onBeforeUnmount(() => clearTimeout(timer))
         <span class="m-inst__loc-top"><b>{{ model.label }}</b><span v-if="model.free" class="m-inst__loc-free">{{ model.free }}</span></span>
         <input
           v-if="model.editable" ref="input" v-model="draft" class="m-inst__loc-input" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" inputmode="url"
-          :aria-label="model.field" :aria-invalid="model.error ? 'true' : undefined" data-inst-path @input="typed" @keydown.enter.prevent="commit" @keydown.esc.stop="draft = model.path" @blur="leave"
+          :aria-label="model.field" :aria-invalid="model.error ? 'true' : undefined" data-inst-path @input="typed" @keydown.enter="enter" @keydown.esc.stop="draft = model.path" @blur="leave"
         >
         <span v-else class="m-inst__loc-path" :title="model.path"><span class="m-inst__loc-head">{{ model.head }}</span><span class="m-inst__loc-tail">{{ model.tail }}</span></span>
       </span>

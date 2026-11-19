@@ -14,14 +14,16 @@ export const MOCK_SCENARIOS = Object.freeze(['fresh', 'upgrade', 'upgrade-guide-
 /**
  * A scripted host. Same transitions as the native shell; the worker is a timer that emits the engine phases.
  * @param {{scenario?: MockScenario, locale?: 'zh'|'en', speed?: number, page?: InstallerPage,
- *          onAction?: (a: InstallerAction) => void, timers?: {set: Function, clear: Function}}} [opts]
- *   speed: multiplies the scripted delays (0 = synchronous steps for tests); page: jump straight to a page (gallery)
+ *          onAction?: (a: InstallerAction) => void, timers?: {set: Function, clear: Function}, now?: () => number}} [opts]
+ *   speed: multiplies the scripted delays (0 = synchronous steps for tests); page: jump straight to a page (gallery);
+ *   now: the clock the question about a folder warning counts its seconds with (milliseconds; tests move it)
  * @returns {InstallerBridge & {state: () => InstallerView, step: () => boolean}}
  */
 export function createMockBridge(opts = {}) {
   const scenario = opts.scenario || 'fresh'
   const speed = opts.speed ?? 1
   const timers = opts.timers || { set: (f, ms) => setTimeout(f, ms), clear: (t) => clearTimeout(t) }
+  const now = opts.now || (() => Date.now())
   const listeners = new Set()
   const v = emptyView()
   v.locale = opts.locale || 'zh'
@@ -78,9 +80,11 @@ export function createMockBridge(opts = {}) {
   const safeOf = (path) => (path[0].toUpperCase() === 'C' ? DEFAULT_DIR : `${path[0].toUpperCase()}:\\${PRODUCT}`)
   // another folder: what was confirmed and an open question are void
   let confirmed = ''
+  let askedAt = 0  // when the question about a warning opened (the host takes "install anyway" only after confirmSeconds)
   const setDir = (path, pickedPath = null, note = null) => {
     const r = verdictOf(path)
     confirmed = ''
+    askedAt = 0
     v.installDir = { ...v.installDir, path, pickedPath, note: r.error ? null : note, error: r.error, warning: r.error ? null : r.warning, freeBytes: r.freeBytes,
       safePath: !r.error && r.warning ? safeOf(path) : null, confirm: false }
     emit()
@@ -186,16 +190,19 @@ export function createMockBridge(opts = {}) {
       case 'set-dir': if (v.installDir.editable && ['welcome', 'components'].includes(v.page) && norm(a.path) !== v.installDir.path) setDir(norm(a.path)); break
       case 'use-picked-dir': if (v.installDir.editable && v.installDir.pickedPath) setDir(v.installDir.pickedPath); break
       case 'use-safe-dir': if (v.installDir.editable && v.installDir.safePath) { setDir(v.installDir.safePath); if (v.page === 'components') go('welcome') } break
-      case 'cancel-dir-risk': if (v.installDir.confirm) { v.installDir = { ...v.installDir, confirm: false }; emit() } break
+      case 'cancel-dir-risk': if (v.installDir.confirm) { askedAt = 0; v.installDir = { ...v.installDir, confirm: false }; emit() } break
       case 'install':
       case 'confirm-dir-risk': {
         if (!['welcome', 'maintenance', 'components'].includes(v.page) || v.installDir.error) break
         if (a.type === 'confirm-dir-risk') {
-          if (!v.installDir.confirm) break  // the host takes the answer only while the question is open (and, for real, after its seconds)
+          // the host takes the answer only while the question is open and after its seconds: an answer that comes early is not taken, and the question stays open
+          if (!v.installDir.confirm || now() - askedAt < v.installDir.confirmSeconds * 1000) break
           confirmed = v.installDir.path
+          askedAt = 0
           v.installDir = { ...v.installDir, confirm: false }
         }
         else if (v.installDir.editable && v.installDir.warning && confirmed !== v.installDir.path) {
+          if (!v.installDir.confirm) askedAt = now()
           v.installDir = { ...v.installDir, confirm: true }  // a warning is asked about once
           emit()
           break
