@@ -192,6 +192,7 @@ export { default as MFeedbackButton } from "./feedback/MFeedbackButton.vue"
 export { default as MFeedbackDecision } from "./feedback/MFeedbackDecision.vue"
 export { default as MFeedbackPanel } from "./feedback/MFeedbackPanel.vue"
 export { default as MDoctor } from "./MDoctor.vue"
+export { default as MDriverGuardNotice } from './MDriverGuardNotice.vue'
 export { DOCTOR_GROUPS, LOCAL_GROUPS as DOCTOR_LOCAL_GROUPS, FIX_LEVEL as DOCTOR_FIX_LEVEL, hostSource as doctorHostSource, STATUS_LOOK as DOCTOR_STATUS_LOOK, createDoctor, doctorSnapshot, doctorText, doctorTexts, normalizeReport as normalizeDoctorReport, sortItems as sortDoctorItems, MOCK_DOCTOR, MOCK_DOCTOR_LOCAL, MOCK_DOCTOR_LOCAL_DOWN, mockDoctorRequest, mockLocalSource } from "../doctor/index.js"
 export { diagnosticsTexts, startupProblems, parseLog, findSessions, buildErrorCentre, problemSummary, issueUrl, redactAll, redactSecrets, redactConfig, maskNetwork, prepareBundle, finalizeBundle, zipStore, zipList, decodeLogBytes, decodeLogLine, createLogByteDecoder, parseRecords, parseHostText, parsePanelLogs, recordsToRows, recordsToText, formatRecord, createRecord, severityOf, levelOf, recordOf, isRecord, isErrorRecord, attributeOf, setAttribute, SEVERITY_NUMBER, SEVERITY_TEXT, DOMAINS, FIELD_CLASS, classifyKey, redactRecord, redactRecords, registerAdapter, adapterById, listAdapters, HOST_TEXT_ADAPTER_ID, PANEL_ADAPTER_ID } from "../diagnostics/index.js"
 export { default as MRoute } from './MRoute.vue'

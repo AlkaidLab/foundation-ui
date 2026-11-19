@@ -31,6 +31,8 @@
     "./service": "./src/service/index.js",
     "./diagnostics": "./src/diagnostics/index.js",
     "./doctor": "./src/doctor/index.js",
+    "./driverGuard": "./src/driverGuard/index.js",
+    "./driver-guard": "./src/driverGuard/index.js",
     "./apps": "./src/apps/index.js",
     "./settings": "./src/settings/index.js",
     "./settings/*": "./src/settings/*",
