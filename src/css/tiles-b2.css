@@ -155,7 +155,9 @@ button.m-b2item { cursor: pointer; } button.m-b2item:focus-visible { outline: 3p
 /* ---------- 设备 · USB · 手柄 · 虚拟显示器 · 麦克风 ---------- */
 .m-b2dev .m-calo__tiles li > b.m-b2dev__n { font: 600 24px/1 var(--m-font-display); } .m-b2dev .m-calo__tiles span b { white-space: normal; }
 .m-b2usb .m-b2plate, .m-b2vdd .m-b2plate, .m-b2pad .m-b2plate, .m-b2mic .m-b2plate { flex: 1 1 auto; margin-top: 10px; }
-.m-b2usb .m-b2plate b { --pv: 52px; letter-spacing: -.035em; } .m-b2usb .m-b2plate { justify-content: flex-end; gap: 6px; }
+.m-b2usb .m-b2plate { justify-content: center; gap: 2px; padding: 6px 12px; }
+.m-b2usb .m-b2plate b { --pv: 28px; line-height: 1; flex: none; letter-spacing: -.035em; }
+.m-b2usb .m-b2plate small { white-space: normal; overflow-wrap: anywhere; line-height: 1.15; }
 .m-b2vdd .m-b2plate { justify-content: flex-end; gap: 6px; } .m-b2vdd .m-b2plate b { --pv: 40px; letter-spacing: -.03em; }
 .m-b2vdd.is-m .m-b2vdd__body { flex: 1 1 auto; min-height: 0; display: flex; gap: 14px; margin-top: 10px; } .m-b2vdd.is-m .m-b2plate { flex: 0 0 52%; margin: 0; }
 .m-b2vdd__side { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
