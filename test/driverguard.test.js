@@ -48,13 +48,27 @@ test('a driver without a known version still reads whole', () => {
 test('update goes to the official download page, support to the vendor, and the notice can be dismissed', () => {
   for (const vendor of ['intel', 'nvidia', 'amd']) {
     const n = driverNotice(guard({ driver: { ...intel, vendor } }), 'zh')
-    assert.deepEqual(n.actions.map((a) => a.id), ['update', 'support', 'dismiss'])
-    assert.equal(n.actions[0].href, DRIVER_LINKS[vendor].update)
-    assert.equal(n.actions[1].href, DRIVER_LINKS[vendor].support)
-    assert.equal(n.actions[2].href, undefined)
+    const ids = n.actions.map((a) => a.id)
+    assert.deepEqual(ids, vendor === 'intel' ? ['update', 'assistant', 'support', 'dismiss'] : ['update', 'support', 'dismiss'])
+    for (const id of ['update', 'assistant', 'support']) {
+      if (ids.includes(id)) assert.equal(n.actions.find((a) => a.id === id).href, DRIVER_LINKS[vendor][id])
+    }
+    assert.equal(n.actions.at(-1).href, undefined)
   }
-  assert.equal(driverNotice(guard({ driver: intel }), 'zh').actions[1].label, '联系 Intel 支持')
-  assert.equal(driverNotice(guard({ driver: intel }), 'en').actions[1].label, 'Contact Intel support')
+  const support = (locale) => driverNotice(guard({ driver: intel }), locale).actions.find((a) => a.id === 'support').label
+  assert.equal(support('zh'), '联系 Intel 支持')
+  assert.equal(support('en'), 'Contact Intel support')
+})
+
+test('Intel has two ways to the driver, because its download pages are split by hardware generation: the download center category and its own assistant', () => {
+  const links = DRIVER_LINKS.intel
+  assert.equal(new URL(links.update).pathname, '/content/www/us/en/search.html')
+  assert.match(new URL(links.update).hash, /cf-downloadsppth=Graphics/)
+  assert.equal(links.assistant, 'https://www.intel.com/content/www/us/en/support/detect.html')
+  const labels = (locale) => driverNotice(guard({ driver: intel }), locale).actions.map((a) => a.label)
+  assert.deepEqual(labels('zh'), ['更新驱动', 'Intel 驱动与支持助理', '联系 Intel 支持', '关闭'])
+  assert.deepEqual(labels('en'), ['Update driver', 'Intel Driver & Support Assistant', 'Contact Intel support', 'Dismiss'])
+  for (const vendor of ['nvidia', 'amd']) assert.equal(DRIVER_LINKS[vendor].assistant, undefined)
 })
 
 test('the links are the vendors own https pages', () => {

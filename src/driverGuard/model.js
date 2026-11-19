@@ -8,10 +8,15 @@ import { driverGuardTexts, fill } from './texts.js'
 // and takes { action: 'dismiss' | 'retry' } on POST. The host decides whether a notice is due (not dismissed for this driver version, the installed driver is still
 // the one it happened in); `driver.show` is its answer.
 
-/** The official pages of each vendor: where the driver is updated, and where its support is reached when the driver is already the latest version. */
+/**
+ * The official pages of each vendor: where the driver is updated, and where its support is reached when the driver is already the latest version.
+ * `assistant` is for a vendor whose download pages are split by hardware generation, so no single page covers them all: its own tool that finds the right driver.
+ * Intel: `update` is the Graphics category of its download center (Arc and Core Ultra, 11th-14th gen, 7th-10th gen and 6th gen are separate downloads there).
+ */
 export const DRIVER_LINKS = Object.freeze({
   intel: Object.freeze({
-    update: 'https://www.intel.com/content/www/us/en/support/detect.html',
+    update: 'https://www.intel.com/content/www/us/en/search.html#sortCriteria=@lastmodifieddt%20descending&cf-tabfilter=Downloads&cf-downloadsppth=Graphics',
+    assistant: 'https://www.intel.com/content/www/us/en/support/detect.html',
     support: 'https://www.intel.com/content/www/us/en/support/contact-intel.html',
   }),
   nvidia: Object.freeze({
@@ -39,7 +44,7 @@ function driverValues(driver, t) {
 
 /**
  * The notice for the last failure that lay in a graphics driver, or null when there is none to show.
- * `{ id, tone, icon, title, text, actions: [{ id: 'update' | 'support', label, href } | { id: 'dismiss', label }] }`
+ * `{ id, tone, icon, title, text, actions: [{ id: 'update' | 'assistant' | 'support', label, href } | { id: 'dismiss', label }] }`; `assistant` only where the vendor has one
  */
 export function driverNotice(guard, locale = 'zh') {
   const driver = guard?.driver
@@ -57,6 +62,7 @@ export function driverNotice(guard, locale = 'zh') {
     text: fill(values.version ? t.driverBody : t.driverBodyNoVersion, values),
     actions: [
       { id: 'update', label: t.update, href: links.update },
+      ...(links.assistant ? [{ id: 'assistant', label: fill(t.assistant, values), href: links.assistant }] : []),
       { id: 'support', label: fill(t.support, values), href: links.support },
       { id: 'dismiss', label: t.dismiss },
     ],

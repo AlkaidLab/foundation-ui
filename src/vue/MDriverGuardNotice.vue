@@ -36,7 +36,7 @@ const run = (notice, action) => {
 
 <style>
 .m-driver-guard { display: grid; gap: 8px; min-width: 0; }
-/* three actions do not fit beside each other on a phone: they wrap and the banner keeps to its column */
+/* four actions do not fit beside each other on a phone: they wrap and the banner keeps to its column */
 .m-driver-guard .m-banner { grid-template-columns: auto minmax(0, 1fr); }
 .m-driver-guard .m-banner__actions { flex-wrap: wrap; }
 @media (max-width: 520px) { .m-driver-guard .m-banner__actions { grid-column: 1 / -1; justify-content: flex-start; } }
