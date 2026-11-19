@@ -1,5 +1,6 @@
 export default
 {
+  "pairGetQr": "QR 코드 받기",
   "gGroup_all": "모두",
   "on": "켜짐",
   "off": "꺼짐",

@@ -345,7 +345,7 @@ const team = computed(() => TEAM.map((p) => ({ ...p, founder: p.login === FOUNDE
 
     <MSection :title="T.supportTitle">
       <MGroup>
-        <MItem v-for="s in sponsors" :key="s.id" action icon="favorite" :title="`${T.sponsor} · ${s.label}`" @click="open(s.url)"><template #trail><MIcon name="open_in_new" /></template></MItem>
+        <MItem v-for="s in sponsors" :key="s.id" action icon="favorite" :title="`${T.sponsor} · ${s.label}`" @click="open(resolveLink(s, locale))"><template #trail><MIcon name="open_in_new" /></template></MItem>
         <MItem v-for="t in STAR_TARGETS" :key="t.url" action :title="`${T.star} · ${t.name}`" :text="t.repo" @click="open(t.url)"><template #lead><MGithubMark :size="22" /></template><template #trail><MIcon name="open_in_new" /></template></MItem>
         <MItem action :icon="copied === 'share' ? 'check_circle' : 'share'" :title="copied === 'share' ? T.shareCopied : T.share" @click="share" />
       </MGroup>

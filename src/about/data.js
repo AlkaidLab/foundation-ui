@@ -63,8 +63,8 @@ export const TEAM_SPONSORS = Object.freeze({
   Yundi339: 'https://www.ifdian.net/a/Yundi339',
   skyhua0224: 'https://ifdian.net/a/skyhua',
 })
-/** The sponsor rows (爱发电) in team order: the same list as the products' config/sponsors.js (a test in each product compares them). */
-export const SPONSORS = Object.freeze(TEAM_ORDER.filter((login) => TEAM_SPONSORS[login]).map((login) => Object.freeze({ login, url: TEAM_SPONSORS[login] })))
+/** Sponsor links shared by the products, including the official website options. */
+export const SPONSORS = Object.freeze([...TEAM_ORDER.filter((login) => TEAM_SPONSORS[login]).map((login) => Object.freeze({ login, url: TEAM_SPONSORS[login] })), Object.freeze({ login: '微信赞赏 / WeChat', url: 'https://www.alkaidlab.com/#sponsors', zh: 'https://www.alkaidlab.cn/#sponsors' }), Object.freeze({ login: 'GitHub Sponsors', url: 'https://github.com/sponsors/qiin2333' })])
 const rank = (login) => { const i = TEAM_ORDER.indexOf(login); return i < 0 ? TEAM_ORDER.length : i }
 /** People in team order; anyone the order does not name keeps their place after the named ones. */
 export const inTeamOrder = (people) => [...people].sort((a, b) => rank(a.login) - rank(b.login))

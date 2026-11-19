@@ -1,5 +1,6 @@
 export default
 {
+  "pairGetQr": "QR-Code abrufen",
   "gGroup_all": "Alle",
   "on": "Ein",
   "off": "Aus",

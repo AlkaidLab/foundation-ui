@@ -1,4 +1,5 @@
 export default {
+  "pairGetQr": "取得二維碼",
   "on": "開",
   "off": "關",
   "c_ctl-vdd": "基地虛擬顯示器",

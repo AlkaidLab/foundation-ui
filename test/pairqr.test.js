@@ -52,6 +52,17 @@ test('stop gives the pairing window back after the grace and a code that arrives
   } finally { mock.timers.reset() }
 })
 
+test('a manually requested code expires without automatic renewal', async (t) => {
+  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] })
+  const { q, calls } = make({ api: { autoRenew: false } })
+  await q.begin()
+  t.mock.timers.tick(4000)
+  await settle()
+  assert.equal(q.view.state, 'expired')
+  assert.equal(q.view.image, '')
+  assert.equal(calls.start, 1)
+})
+
 test('a client that pairs ends the countdown', async () => {
   mock.timers.enable({ apis: ['setInterval'] })
   try {

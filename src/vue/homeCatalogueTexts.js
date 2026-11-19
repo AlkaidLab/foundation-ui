@@ -7,7 +7,7 @@ import { GROWTH2_TEXTS } from './homeGrowth2.js'
 
 const BASE = Object.freeze({
   en: {
-    gGroup_all: 'All', on: 'On', off: 'Off', 'c_ctl-vdd': 'Foundation Virtual Display', 
+    gGroup_all: 'All', on: 'On', off: 'Off', pairGetQr: 'Get QR code', 'c_ctl-vdd': 'Foundation Virtual Display',
     c_latency: 'Host latency', c_loss: 'Packet loss', s_loss: 'Only with adaptive bitrate on', c_dropped: 'Dropped frames', 
     'c_session-time': 'Streaming for', 'c_current-app': 'Now playing', c_budget: 'Frame budget', frameTime: 'Frame time', stageCapture: 'Capture', stageConvert: 'Convert', stageQueue: 'Queue', stageEncode: 'Encode', stageSend: 'Send', s_budget: 'Host latency against the frame time',
     'c_last-session': 'Last session', 'c_session-heat': 'Streaming history', 's_session-heat': 'Minutes per day', 'c_recent-games': 'Recently played', 
@@ -23,7 +23,7 @@ const BASE = Object.freeze({
     openDocs: 'Open', pairAction: 'Pair', addAction: 'Add', scanAction: 'Scan', restartAction: 'Restart', starAction: 'Star', joinAction: 'Join', usbNone: 'No devices attached', usbCount: 'attached',
   },
   zh: {
-    gGroup_all: '全部', on: '开', off: '关', 'c_ctl-vdd': '基地虚拟显示器', 
+    gGroup_all: '全部', on: '开', off: '关', pairGetQr: '获取二维码', 'c_ctl-vdd': '基地虚拟显示器',
     c_latency: '主机延迟', c_loss: '丢包率', s_loss: '仅在开启自适应码率时有', c_dropped: '丢帧', 
     'c_session-time': '串流时长', 'c_current-app': '正在玩', c_budget: '帧时间占用', frameTime: '帧时间', stageCapture: '捕获', stageConvert: '转换', stageQueue: '排队', stageEncode: '编码', stageSend: '发送', s_budget: '主机延迟与帧时间之比',
     'c_last-session': '上次串流', 'c_session-heat': '串流历史', 's_session-heat': '每天的分钟数', 'c_recent-games': '最近玩过', 
