@@ -25,7 +25,10 @@ const bad = computed(() => ['error', 'missing', 'warn'].includes(row.value.state
 const problem = computed(() => row.value.checks.find((c) => c.result === 'error' || c.result === 'warn'))
 const sub = computed(() => (problem.value ? T.value.checks[problem.value.id] || '' : row.value.version ? `v${row.value.version}` : row.value.note || (row.value.state === 'unknown' ? T.value.unknownNote : '')))
 // the short name on a square ('USB 转发', not 'Foundation USB 转发')
-const name = computed(() => { const n = String(T.value.names?.[cid.value] || props.card.title); return size.value === 's' && n.includes(' ') && /[一-鿿]/.test(n) ? n.slice(n.lastIndexOf(' ') + 1) : n })
+// and in the other languages: the kind of thing (driver, device, transport, layer) and the maker's name go, 'ViGEmBus virtual gamepad driver' is 'ViGEmBus' and 'Virtual microphone device' 'Virtual microphone'
+const SHORT = { usb: 'USB/IP', vigem: 'ViGEmBus', mouse: 'Virtual mouse' }
+const shorten = (n) => (SHORT[cid.value] && !/[一-鿿]/.test(n) ? SHORT[cid.value] : n.replace(/^Foundation\s+/i, '').replace(/\s+(driver|device|transport|layer|component)s?$/i, ''))
+const name = computed(() => { const n = String(T.value.names?.[cid.value] || props.card.title); if (size.value !== 's') return n; return n.includes(' ') && /[一-鿿]/.test(n) ? n.slice(n.lastIndexOf(' ') + 1) : shorten(n) })
 </script>
 
 <template>

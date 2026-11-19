@@ -29,8 +29,15 @@ export function columnsOf(width, density = 'standard') {
   const u = Math.round(UNIT_PX * (DENSITY[density] || 1))
   const n = Math.max(2, Math.min(MAX_COLUMNS, Math.floor((width + UNIT_GAP) / (u + UNIT_GAP))))
   const fit = Math.floor(((width - (n - 1) * UNIT_GAP) / n) * 100) / 100
+  // A narrow pane (a phone, a small window, a tablet standing up) is filled edge to edge: the columns share the whole width, so the grid's edges are the other cards' edges and the margins are the
+  // same on both sides (a fixed unit left a strip of up to a column's width, and the grid sat narrower than the card above it). The unit stays within [the standard, FLEX_MAX]; a wider pane keeps the standard unit.
+  if (width < FLEX_BELOW) return { columns: n, unit: Math.min(Math.round(UNIT_FLEX_MAX * (DENSITY[density] || 1)), fit) }
   return { columns: n, unit: Math.min(u, fit) }
 }
+/** Below this pane width (px) the columns share the whole width; from it on the unit is the standard one and the grid sits in the middle. */
+export const FLEX_BELOW = 800
+/** The largest a unit gets while a narrow pane is filled (px at the standard density). */
+export const UNIT_FLEX_MAX = 200
 /** The width of a grid of `columns` units. */
 export const gridWidthOf = (columns, unit) => columns * unit + (columns - 1) * UNIT_GAP
 export const unitPx = (width, density = 'standard') => columnsOf(width, density).unit

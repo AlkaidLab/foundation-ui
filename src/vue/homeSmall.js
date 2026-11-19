@@ -17,6 +17,16 @@ const coversOf = (items, nameKey = 'title', icon = 'sports_esports') => (items |
 const avatarsOf = (list, n = 3) => (list || []).slice(0, n).map((x) => ({ icon: x.icon || 'devices', tone: x.tone || '' }))
 const displayOf = (sub, unit, hdr) => { const m = /(\d{3,5})\s*×\s*(\d{3,5})/.exec(sub || ''); return { ratio: m ? `${m[1]} / ${m[2]}` : '16 / 9', label: (/(\d+)/.exec(unit || '') || [])[1] || '', hdr: !!hdr } }
 
+/** A processor or a graphics card as a short name that is whole in a small tile: the generation, the vendor, the trademark signs and the filler words go
+ *  ("13th Gen Intel(R) Core(TM) i7-13700K" is i7-13700K, "AMD Ryzen 7 7800X3D 8-Core Processor" Ryzen 7 7800X3D, "NVIDIA GeForce RTX 4070" RTX 4070). Nothing short enough or unknown is touched. */
+export function shortHardware(name) {
+  const raw = String(name || '').trim()
+  if (!raw) return ''
+  let s = raw.replace(/\((?:R|TM)\)|[®™]/gi, '').replace(/@\s*[\d.]+\s*GHz/i, '').replace(/\b\d+(?:st|nd|rd|th) Gen\b/i, '').replace(/\b\d+-Core\b/i, '').replace(/\b(?:CPU|Processor|Graphics|with Radeon Graphics|Series)\b/gi, '')
+  s = s.replace(/^\s*(?:Intel|AMD|NVIDIA|Apple|Qualcomm)\s+/i, '').replace(/^(?:GeForce|Radeon)\s+(?=RTX|GTX|RX|Pro|Vega)/i, '').replace(/^Core\s+(?=i\d)/i, '').replace(/\s+/g, ' ').trim()
+  return s || raw
+}
+
 export function smallOf(card, T = {}) {
   const d = card.data || {}
   const title = card.title || d.title || ''
@@ -30,7 +40,8 @@ export function smallOf(card, T = {}) {
   }
   const empty = (text, action = null) => ({ ...base, value: text || '', empty: true, action: action || fill() })
   switch (card.kind) {
-    case 'hero': return { icon: d.icon || 'dns', title, value: d.statusLabel || d.title || '', secondary: dot(d.title, ...(d.pairs || []).map((p) => `${p.label} ${p.value}`)), tone: d.statusTone, pulse: true }
+    // the state is a dot beside the word (no drawn circle: it said nothing); the name of the host and how long it has run are the two parts of the second line (the pairs are the pairing tile's)
+    case 'hero': return { icon: d.icon || 'dns', title, value: d.statusLabel || d.title || '', secondary: dot(d.title, ...(d.pairs || []).slice(0, 1).map((p) => `${p.label} ${p.value}`)), tone: d.statusTone, state: d.statusTone || 'ok' }
     case 'table': {
       const tab = d.tabs?.[0]; const count = first(tab?.count, tab?.rows?.length, 0)
       const act = d.action ? { label: d.action.label, type: 'table-action' } : null
@@ -53,7 +64,8 @@ export function smallOf(card, T = {}) {
     }
     case 'curve': {
       const pts = (d.points || []).filter((v) => Number.isFinite(v))
-      return { ...base, value: String(first(d.value, '')), unit: d.unit, secondary: d.caption || (d.peak ? `${d.peak} ${d.unit || ''}` : ''), spark: pts.length > 1 ? pts : null }
+      const hw = card.id === 'cpu' || card.id === 'gpu'
+      return { ...base, value: String(first(d.value, '')), unit: d.unit, secondary: (hw ? shortHardware(d.caption) : d.caption) || (d.peak ? `${d.peak} ${d.unit || ''}` : ''), spark: pts.length > 1 ? pts : null }
     }
     case 'info': {
       const segs = d.bar?.segments
@@ -88,7 +100,8 @@ export function smallOf(card, T = {}) {
     case 'live-ds5': return { ...base, value: d.sliders?.[0] ? `${Math.round(d.sliders[0].value * 100) / 100}` : '', secondary: d.sliders?.[0]?.label || '' }
     case 'pin-switch': return { ...base, value: d.on ? d.onText : d.offText, tone: d.on ? 'ok' : '' }
     case 'pin-slider': return { ...base, value: d.value === 0 && d.zeroText ? d.zeroText : `${d.value}${d.unit || ''}`, progress: num(d.max) > num(d.min) ? (d.value - d.min) / (d.max - d.min) : undefined }
-    case 'pair': return d.count ? { icon: 'person_add', title, value: String(d.count), secondary: d.latest?.name || '', avatars: [d.latest || {}, ...Array.from({ length: Math.min(d.count - 1, 2) }, () => ({}))], more: Math.max(0, d.count - 3) } : empty(T.noClients, null)
+    // the name under the count says what it is: the client that paired last
+    case 'pair': return d.count ? { icon: 'person_add', title, value: String(d.count), secondary: d.latest?.name ? String(T.latestClient || 'Latest: {name}').replace('{name}', d.latest.name) : '', avatars: [d.latest || {}, ...Array.from({ length: Math.min(d.count - 1, 2) }, () => ({}))], more: Math.max(0, d.count - 3) } : empty(T.noClients, null)
     case 'vivi': return { icon: 'favorite', title, value: d.text || title, image: d.image }
     case 'tip': return { icon: 'lightbulb', title, value: d.text || title }
     case 'clients': { const n = first(d.count, d.items?.length, 0); return n ? { ...base, value: String(n), secondary: names(d.items), avatars: avatarsOf(d.items), more: Math.max(0, n - 3) } : empty(d.empty) }
@@ -98,7 +111,7 @@ export function smallOf(card, T = {}) {
     case 'gauge': case 'arc': return { ...base, value: `${first(d.centre, '')}`, unit: d.unit, secondary: d.caption || '', progress: num(d.value) ?? undefined, tone: d.zones?.find((z) => d.value <= z.to)?.tone }
     // an elapsed time has no full: the time is the value, no ring
     case 'ring': return { ...base, value: String(first(d.centre, '')), secondary: d.caption || '' }
-    case 'now': return { ...base, value: String(first(d.name, '')), secondary: dot(...(d.rows || []).map((r) => r.value)), covers: d.name ? coversOf([{ cover: d.cover, name: d.name }], 'name') : null }
+    case 'now': return { ...base, value: String(first(d.name, '')), secondary: dot(...(d.rows || []).map((r) => r.value).slice(0, 2)), covers: d.name ? coversOf([{ cover: d.cover, name: d.name }], 'name') : null }
     case 'apps': return d.items?.length ? { ...base, value: String(d.items.length), secondary: names(d.items, 'name'), covers: coversOf(d.items, 'name', 'apps') } : empty(d.empty)
     case 'bars': { const v = d.series?.[0]?.values || []; return { ...base, value: String(v.reduce((a, b) => a + (Number(b) || 0), 0)), secondary: d.series?.[0]?.label || '', bars: v.slice(-14).map(Number) } }
     case 'chart': case 'chartx': { const v = (d.series?.[0]?.values || []).filter((x) => Number.isFinite(x)); return { ...base, value: '', spark: v.length > 1 ? v : null } }

@@ -83,7 +83,7 @@ useDashEditSheet(D)
 useDashDrag(D)
 useDashContext(D)
 useDashSkeleton(D)
-const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, clockLocale, clockSizeDrawn, dateText, statusText, dockCards, dockStyle, setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockRow, dockEdge, measureDock, dockScroll, onDockWheel, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
+const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, clockLocale, clockSizeDrawn, dateText, statusText, dockCards,  setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockGridStyle, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
 </script>
 
 <template>
@@ -100,12 +100,8 @@ const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart,
         <p class="m-dock__date">{{ dateText }}</p>
         <p class="m-dock__status">{{ statusText }}</p>
       </header>
-      <div class="m-dock__wrap" :class="{ 'is-scroll': dockEdge.scroll }">
-      <div ref="dockRow" class="m-dock__row" :class="{ 'is-more-l': dockEdge.left, 'is-more-r': dockEdge.right }" role="list" @wheel="onDockWheel" @scroll.passive="measureDock">
-        <div v-for="c in dockCards" :key="c.id" class="m-dock__cell" role="listitem" :data-group="c.group" :data-card="c.id" :data-ctx="`tile:${c.id}`" :data-size="c.size" :style="dockStyle(c)"><div class="m-dash__body"><MDashCardView :card="c" :details="details" :texts="T" @act="onAct" /></div></div>
-      </div>
-      <button v-if="dockEdge.left" type="button" class="m-dock__more m-dock__more--l" :aria-label="T.back || 'Back'" @click="dockScroll(-1)"><MIcon name="chevron_left" /></button>
-      <button v-if="dockEdge.right" type="button" class="m-dock__more m-dock__more--r" :aria-label="T.more || 'More'" @click="dockScroll(1)"><MIcon name="chevron_right" /></button>
+      <div class="m-dock__grid" :style="dockGridStyle" role="list">
+        <div v-for="c in dockCards" :key="c.id" class="m-dock__cell" role="listitem" :data-group="c.group" :data-card="c.id" :data-ctx="`tile:${c.id}`" :data-size="c.size"><div class="m-dash__body"><MDashCardView :card="c" :details="details" :texts="T" @act="onAct" /></div></div>
       </div>
     </div>
     <div v-if="skeleton && skeletonTop" class="m-dskel__top" :style="{ height: `${skeletonTop}px` }" aria-hidden="true" />

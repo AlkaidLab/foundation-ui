@@ -140,7 +140,7 @@ html[data-motion='reduced'] .m-clock *, html[data-motion='reduced'] .m-clock, ht
    the header) cannot reach the tiles, the banner or the window's edge. The inset from the content edge grows with the window (16 px compact, ≥ 24 px from 840 px expanded,
    48 px at most), steplessly; the clock's ink, not its box, sits on it (see [data-ink]). The date and the status line keep the same inset. */
 .m-dock { display: grid; grid-template-rows: minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); } /* a grid, not a flex column: the header's height is a track the dock resolves before its content, so the container units below are right in the first layout */
-.m-dock__head { container: m-clock-head / size; min-height: calc(164px + 4vh); --m-clock-inset: clamp(16px, calc(2vw + 8px), 48px); padding-inline: var(--m-clock-inset); overflow-x: clip; } /* clip: a wide tabular 1's empty advance may reach past the edge; the ink never does */
+.m-dock__head { container: m-clock-head / size; min-height: min(calc(164px + 4vh), max(112px, 38vh)); --m-clock-inset: clamp(16px, calc(2vw + 8px), 48px); padding-inline: var(--m-clock-inset); overflow-x: clip; } /* clip: a wide tabular 1's empty advance may reach past the edge; the ink never does */
 .m-dock__head[data-align='left'] { align-items: flex-start; text-align: left; }
 .m-dock__head[data-align='center'] { align-items: center; text-align: center; }
 .m-dock__head[data-align='right'] { align-items: flex-end; text-align: right; }
@@ -162,6 +162,15 @@ html[data-motion='reduced'] .m-clock *, html[data-motion='reduced'] .m-clock, ht
 .m-dock__head[data-align='left'] > .m-clock.is-xl { grid-column: 1; }
 .m-dock__head[data-align='left']:has(> .m-clock.is-xl) > :not(.m-clock) { grid-column: 2; justify-self: start; white-space: nowrap; }
 .m-dock__head:not([data-align='center']):has(> .m-clock.is-xl) > :nth-child(2) { grid-row: 2; } .m-dock__head:not([data-align='center']):has(> .m-clock.is-xl) > :nth-child(3) { grid-row: 3; }
+/* a short window (a phone on its side, a small window): the date and the status line shrink to one tight pair, so the clock keeps the height and the first tile row stays on the first screen */
+@media (max-height: 479.98px) {
+  .m-dock { gap: 8px; min-height: 0; }
+  .m-dock__head { padding-block: 0; gap: 0; }
+  .m-dock__head > .m-clock { --clock-text-h: 44px; }
+  .m-dock__date { font: var(--m-title-medium); }
+  .m-dock__status { font: var(--m-body-medium); }
+  .m-dock__grid { padding-bottom: 8px; }
+}
 
 /* the picker in 个性化: fifteen faces, each drawn live */
 .m-ap__faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }

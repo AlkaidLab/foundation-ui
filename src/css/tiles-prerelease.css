@@ -156,6 +156,10 @@ html[data-bs-theme='dark'] .m-b2pair__qr, html[data-theme='dark'] .m-b2pair__qr,
 .m-b2__field:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 0; }
 .m-b2__field:disabled { opacity: .6; }
 .m-b2pair__row .m-b2pair__go { flex: none; width: auto; height: 40px; margin: 0; }
+/* the label of the button is whole at the narrowest tile (a unit of 148 leaves it 112 px: the icon, the word and 10 px of padding on each side) */
+.m-b2pair__go { padding-inline: 10px; gap: 4px; font-size: 13px; }
+/* a 320 px window (the unit is 138): the icon gives its place to the whole label, in every language */
+@media (max-width: 340px) { .m-b2pair__go .m-icon { display: none; } }
 .m-b2pair__go.is-tonal:disabled { background: color-mix(in srgb, var(--md-sys-color-secondary-container) 55%, var(--cal-inner)); color: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 70%, transparent); }
 
 /* 组件状态 at one cell: the header keeps its icon and name, without the chevron. */

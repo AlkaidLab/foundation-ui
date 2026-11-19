@@ -1,11 +1,20 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { MAX_COLUMNS, UNIT_GAP, UNIT_PX, columnsOf, gridWidthOf } from '../src/vue/homeSizes.js'
+import { FLEX_BELOW, MAX_COLUMNS, UNIT_FLEX_MAX, UNIT_GAP, UNIT_PX, columnsOf, gridWidthOf } from '../src/vue/homeSizes.js'
 
 // The unit of the overview grid is one fixed square (148 px at the standard density): the same on every window and every screen at the same OS scale. A bigger window holds more columns of it, never a bigger tile.
-test('the unit is the same in every pane that holds two units, at the standard density', () => {
-  for (let w = 2 * UNIT_PX + UNIT_GAP; w <= 4000; w += 7) assert.equal(columnsOf(w).unit, UNIT_PX, `${w}`)
+test('the unit is the same in every pane of FLEX_BELOW or more, at the standard density', () => {
+  for (let w = FLEX_BELOW; w <= 4000; w += 7) assert.equal(columnsOf(w).unit, UNIT_PX, `${w}`)
+})
+
+test('a narrow pane is filled edge to edge: the columns share the whole width, between the standard unit and UNIT_FLEX_MAX', () => {
+  for (let w = 2 * UNIT_PX + UNIT_GAP; w < FLEX_BELOW; w += 3) {
+    const { columns, unit } = columnsOf(w)
+    assert.ok(unit >= UNIT_PX && unit <= UNIT_FLEX_MAX, `${w}: ${unit}`)
+    if (unit < UNIT_FLEX_MAX) assert.ok(w - gridWidthOf(columns, unit) <= 1, `${w} leaves ${w - gridWidthOf(columns, unit)} px`)
+  }
+  for (const [w, u] of [[328, 158], [358, 173], [398, 193]]) assert.equal(Math.round(columnsOf(w).unit), u, `${w}`)
 })
 
 test('a bigger pane holds more columns and never fewer', () => {
@@ -15,9 +24,9 @@ test('a bigger pane holds more columns and never fewer', () => {
   assert.ok(columnsOf(3800).columns > columnsOf(1760).columns)
 })
 
-test('only a pane narrower than two units and a gap (a phone) gets a smaller unit, and the grid never exceeds the pane', () => {
-  for (let w = 200; w <= 4000; w += 3) { const { columns, unit } = columnsOf(w); assert.ok(gridWidthOf(columns, unit) <= w + 0.5 || columns === 2, `${w}`); if (w >= 2 * UNIT_PX + UNIT_GAP) assert.equal(unit, UNIT_PX) }
-  assert.ok(columnsOf(300).unit < UNIT_PX); assert.equal(columnsOf(360).unit, UNIT_PX)
+test('a pane narrower than two units and a gap gets a smaller unit, and the grid never exceeds the pane', () => {
+  for (let w = 200; w <= 4000; w += 3) { const { columns, unit } = columnsOf(w); assert.ok(gridWidthOf(columns, unit) <= w + 0.5 || columns === 2, `${w}`); if (w >= FLEX_BELOW) assert.equal(unit, UNIT_PX) }
+  assert.ok(columnsOf(300).unit < UNIT_PX); assert.ok(columnsOf(360).unit > UNIT_PX)
 })
 
 test('the density the person chose scales the fixed unit, and the unit stays fixed at that density too', () => {
