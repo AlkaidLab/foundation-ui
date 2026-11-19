@@ -14,7 +14,7 @@ const EN = {
   backupsWait: 'Available when the host is back',
   panelTitle: 'Panel',
   panelRow: 'Restore default Panel preferences',
-  panelRowText: 'Appearance, language, overview layout, tray, start-up and notification options go back to the defaults. Host settings stay',
+  panelRowText: 'Appearance, overview layout, tray, start-up and notification options go back to the defaults. Host settings and the language stay',
   host: {
     title: 'Restore default settings?',
     resetsLabel: 'Resets',
@@ -38,9 +38,9 @@ const EN = {
   panel: {
     title: 'Restore default Panel preferences?',
     resetsLabel: 'Resets',
-    resets: 'theme and appearance, language, overview layout, tray, start-up and notification options.',
+    resets: 'theme and appearance, overview layout, tray, start-up and notification options.',
     keepsLabel: 'Stays',
-    keeps: 'host settings, paired devices, the privacy choices and the AI assistant connection.',
+    keeps: 'host settings, the language, paired devices, the privacy choices and the AI assistant connection.',
     restarts: 'The Panel loads again.',
     confirm: 'Restore defaults',
   },
@@ -55,6 +55,7 @@ const EN = {
     no_backup: 'There is no backup to restore.',
     unreachable: 'The host did not answer, so the result is not confirmed. Reconnect and check the settings.',
     defaults_missing: 'The default application list is missing from this install.',
+    panel_failed: 'The panel preferences were not fully restored. Try again.',
   },
   retry: 'Try again',
 }
@@ -70,7 +71,7 @@ const ZH = {
   backupsWait: '主机重启后可恢复',
   panelTitle: '面板',
   panelRow: '恢复面板默认偏好',
-  panelRowText: '外观、语言、概览布局、托盘、启动和通知选项回到默认值，主机设置不变',
+  panelRowText: '外观、概览布局、托盘、启动和通知选项回到默认值，主机设置和语言不变',
   host: {
     title: '恢复默认设置？',
     resetsLabel: '会重置',
@@ -94,9 +95,9 @@ const ZH = {
   panel: {
     title: '恢复面板默认偏好？',
     resetsLabel: '会重置',
-    resets: '主题与外观、语言、概览布局、托盘、启动和通知选项。',
+    resets: '主题与外观、概览布局、托盘、启动和通知选项。',
     keepsLabel: '不会改变',
-    keeps: '主机设置、已配对的设备、隐私选项和米塔 AI 的连接设置。',
+    keeps: '主机设置、语言、已配对的设备、隐私选项和米塔 AI 的连接设置。',
     restarts: '面板会重新载入。',
     confirm: '恢复默认',
   },
@@ -111,6 +112,7 @@ const ZH = {
     no_backup: '没有可恢复的备份。',
     unreachable: '主机没有响应，结果未确认。重新连接后请检查设置。',
     defaults_missing: '这个安装缺少默认的应用列表。',
+    panel_failed: '面板偏好没有完全恢复，请重试。',
   },
   retry: '重试',
 }
