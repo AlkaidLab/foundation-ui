@@ -1,4 +1,5 @@
 import { pinSpecForAction } from '../pins/registry.js'
+import { RESET_KEYWORDS } from '../reset/texts.js'
 // The words of the unified search, in the two languages of the products.
 const ZH = {
   placeholder: '搜索设置、页面、操作…', open: '搜索', close: '关闭搜索', clear: '清除', back: '返回', shortcut: 'Ctrl K',
@@ -21,6 +22,7 @@ const ZH = {
     addApp: { title: '添加应用', keywords: 'add application app 新建应用 游戏' },
     scanGames: { title: '扫描游戏库', keywords: 'scan games library steam epic gog import 扫描 游戏 导入 添加游戏' },
     stopApp: { title: '关闭正在运行的应用', keywords: 'close app force close stop running application 关闭应用 结束应用 强制关闭 关掉游戏 结束 应用 游戏', confirm: '正在运行的应用会被关闭，没保存的进度会丢失。' },
+    resetSettings: { title: '恢复默认设置', keywords: RESET_KEYWORDS },
     resetDisplay: { title: '重置显示器记忆', keywords: 'reset display memory restore display device persistence 显示器 显示设备 恢复 记忆', confirm: 'Sunshine 会忘掉上一次串流前保存的显示器设置。Sunshine 一直想恢复显示器却恢复不了时再用。' },
     setupGuide: { title: '重新打开新手引导', keywords: 'guide setup wizard first run onboarding 新手引导 向导 首次设置' },
     quitHost: { title: '关闭 Sunshine', keywords: 'quit exit stop shutdown 退出 停止 关机 Sunshine', confirm: 'Sunshine 会立即停止，需要手动重新启动。正在进行的串流会中断。' },
@@ -48,6 +50,7 @@ const EN = {
     addApp: { title: 'Add an application', keywords: 'add application app new game' },
     scanGames: { title: 'Scan the game library', keywords: 'scan games library steam epic gog import add games' },
     stopApp: { title: 'Close the running application', keywords: 'close app force close stop running application game', confirm: 'The running application is closed; progress that is not saved is lost.' },
+    resetSettings: { title: 'Restore default settings', keywords: RESET_KEYWORDS },
     resetDisplay: { title: 'Reset the display memory', keywords: 'reset display memory restore display device persistence', confirm: 'Sunshine forgets the display settings it saved before the last stream. Use it when Sunshine keeps trying to restore a display and cannot.' },
     setupGuide: { title: 'Reopen the first-run guide', keywords: 'guide setup wizard first run onboarding' },
     quitHost: { title: 'Quit Sunshine', keywords: 'quit exit stop shutdown', confirm: 'Sunshine stops at once and has to be started again by hand. The stream that is running ends.' },
@@ -76,6 +79,8 @@ export const ACTION_DEFS = Object.freeze([
   { id: 'addApp', icon: 'add', tier: 1 },
   { id: 'scanGames', icon: 'sports_esports', tier: 1 },
   { id: 'stopApp', icon: 'stop_circle', tier: 3 },
+  // opens 恢复默认设置 (the page asks before it resets anything)
+  { id: 'resetSettings', icon: 'restart_alt', tier: 1 },
   { id: 'resetDisplay', icon: 'desktop_windows', tier: 3 },
   { id: 'setupGuide', icon: 'rocket_launch', tier: 1 },
   { id: 'quitHost', icon: 'power_settings_new', tier: 3 },
