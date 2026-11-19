@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { createNotifyStore } from '../src/notify/store.js'
 import { snackPlan } from '../src/notify/hostPlan.js'
 
@@ -84,4 +85,18 @@ test('the host draws a new message once and changes a replaced one in place, wit
   assert.equal(next.show, true)
   assert.equal(next.timeout, 5000)
   assert.deepEqual(snackPlan(next.id, null), { id: '', timeout: 0, show: false })
+})
+
+// The bar of the host is a popover whose entrance is the enter class and nothing else. The base rule of .m-snackbar (components.css) carries m-dialog-in; with the enter class
+// gone at the end of the entrance that base animation started for the first time (transparent, 0.92 scale, from the side): the bar left and entered again about 430 ms in.
+test('the snackbar of the host has no animation of its own: only the enter class animates it, so nothing starts when the class goes', () => {
+  const read = (f) => readFileSync(new URL(`../src/css/${f}`, import.meta.url), 'utf8')
+  const notify = read('notify.css')
+  assert.match(read('components.css'), /\.m-snackbar \{[^}]*animation: m-dialog-in/, 'the base rule still animates the plain bar (MLinkActions copy toast)')
+  assert.match(notify, /\.m-snackbar\[popover\] \{ animation: none; \}/)
+  assert.match(notify, /\.m-snackbar\[popover\]\.m-snack-enter-active \{ animation: m-snack-in /)
+  assert.doesNotMatch(notify, /\.m-snackbar\[popover\]\.m-snack-leave-active/, 'a leave rule of weight (0,3,0) would beat the reduced-motion rules that switch the transition off')
+  // the no-animation rule must come after the base rule in the cascade of all.css, and carry more weight than it (class + attribute vs class)
+  const all = read('all.css')
+  assert.ok(all.indexOf("./components.css") < all.indexOf("./notify.css"))
 })
