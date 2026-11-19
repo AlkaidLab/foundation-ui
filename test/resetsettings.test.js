@@ -7,7 +7,7 @@ import { createServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-import { RESET_KEYWORDS, RESET_SECONDS, backupTime, countdownLabel, createCountdown, createResetClient, failureText, fill, latestBackup, resetTexts } from '../src/reset/index.js'
+import { RESET_KEYWORDS, RESET_SECONDS, backupTime, backupView, countdownLabel, createCountdown, createResetClient, failureText, fill, latestBackup, resetTexts } from '../src/reset/index.js'
 import { ACTION_DEFS, actionDocs, searchTexts } from '../src/search/texts.js'
 import { buildIndex, search } from '../src/search/index.js'
 import { diagnosticsTexts } from '../src/diagnostics/texts.js'
@@ -139,6 +139,13 @@ test('what is reset and what stays is written down, and the host keeps the pairi
   assert.ok(zh.clearApps.includes('应用列表') && en.clearApps.includes('application list'))
   assert.match(failureText(resetTexts('en'), 'busy'), /still working.*not changed/)
   assert.equal(failureText(resetTexts('en'), 'http_500'), resetTexts('en').failed)
+  // a call that got no answer may have been carried out before the connection dropped: it never says that nothing was changed
+  for (const locale of ['en', 'zh']) {
+    const T = resetTexts(locale)
+    assert.equal(failureText(T, 'unreachable'), T.errors.unreachable)
+    assert.ok(!failureText(T, 'unreachable').includes(T.failed))
+  }
+  assert.match(failureText(resetTexts('en'), 'unreachable'), /not confirmed/)
 })
 
 test('the diagnostics page row says what the page says', () => {
@@ -174,13 +181,26 @@ test('the page shows the host rows, the panel row only where there is a panel, a
   const withPanel = await render(mod.MResetSettings, { locale: 'zh', host: idle, panel: { reset: async () => {} } })
   assert.match(withPanel, /恢复默认设置/)
   for (const kind of ['host', 'restore', 'panel']) assert.ok(withPanel.includes(`data-reset="${kind}"`), kind)
-  assert.match(withPanel, /还没有备份/)
   const restore = /<[a-z]+[^>]*data-reset="restore"[^>]*>/.exec(withPanel)[0]
   assert.match(restore, /disabled/)
   const web = await render(mod.MResetSettings, { locale: 'en', host: idle, panel: null })
   assert.ok(web.includes('data-reset="host"') && !web.includes('data-reset="panel"'))
   assert.match(web, /Restore default settings/)
-  assert.match(web, /No backup yet/)
+})
+
+test('the restore row: what the last read of the backups says, and when it offers a backup, a retry or nothing', () => {
+  const T = resetTexts('en')
+  const backups = [{ stamp: 'b', created_ms: Date.UTC(2026, 10, 19, 7, 30), has_apps: true }, { stamp: 'a', created_ms: 1000 }]
+  const ok = backupView({ state: 'ok', backups }, T, 'en')
+  assert.equal(ok.enabled, true); assert.equal(ok.retry, false); assert.match(ok.text, /Backed up .*2026/)
+  assert.deepEqual(backupView({ state: 'ok', backups: [] }, T, 'en'), { text: T.noBackup, enabled: false, retry: false })
+  // a read that failed is not “no backup”: the row offers to read again
+  assert.deepEqual(backupView({ state: 'error', backups: [] }, T, 'en'), { text: T.backupsFailed, enabled: true, retry: true })
+  // after a reset or restore the list is old: no backup is offered until it is read again
+  assert.deepEqual(backupView({ state: 'stale', backups }, T, 'en'), { text: T.backupsWait, enabled: false, retry: false })
+  // not read yet: nothing is claimed
+  assert.deepEqual(backupView({ state: 'loading', backups: [] }, T, 'en'), { text: '', enabled: false, retry: false })
+  assert.deepEqual(backupView(undefined, T, 'en'), { text: '', enabled: false, retry: false })
 })
 
 test('the question names what is reset and what stays, offers the application list, and its button waits', async () => {

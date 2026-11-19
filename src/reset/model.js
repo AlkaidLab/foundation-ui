@@ -61,5 +61,22 @@ export function createCountdown(seconds = RESET_SECONDS) {
   }
 }
 
-/** The text of an answer that did not work: the reason, when there is one, and that nothing was changed. */
-export const failureText = (texts, code) => [texts.errors?.[code], texts.failed].filter(Boolean).join(' ')
+/**
+ * The text of an answer that did not work: the reason, and that nothing was changed. A call that got no answer (`unreachable`) may have been carried out before the connection
+ * dropped (the host restarts right after a reset), so it never says that nothing was changed.
+ */
+export const failureText = (texts, code) => [texts.errors?.[code], code === 'unreachable' ? null : texts.failed].filter(Boolean).join(' ')
+
+/**
+ * What the restore row shows. `state` is how the last read of the backups went: 'loading' (not read yet), 'ok', 'error' (the read failed: the row offers to read again), 'stale'
+ * (a reset or restore worked: the list is read again when the host is back, and until then the row does not offer a backup that is no longer the newest).
+ */
+export function backupView({ state = 'loading', backups = [] } = {}, texts, locale = 'en') {
+  if (state === 'ok') {
+    const latest = latestBackup({ backups })
+    return latest ? { text: fill(texts.restoreRowText, { time: backupTime(latest.created_ms, locale) }), enabled: true, retry: false } : { text: texts.noBackup, enabled: false, retry: false }
+  }
+  if (state === 'error') return { text: texts.backupsFailed, enabled: true, retry: true }
+  if (state === 'stale') return { text: texts.backupsWait, enabled: false, retry: false }
+  return { text: '', enabled: false, retry: false }
+}
