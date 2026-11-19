@@ -11,7 +11,7 @@ import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import { ACTION_TYPES, COMPONENT_IDS, createMockBridge, emptyView, validAction } from '../src/vue/installer/bridge.js'
 import { INSTALLER_STATES, snapshotOf, staticBridge } from '../src/vue/installer/installerStates.js'
-import { installProgress, pageDirection, pageModel, railItems, railStates, stepRows, componentSections, formatBytes, locationModel, splitPath } from '../src/vue/installer/installerModel.js'
+import { installProgress, pageDirection, pageModel, railItems, railStates, stepRows, componentSections, formatBytes, locationModel, splitPath, confirmModel, confirmLabel } from '../src/vue/installer/installerModel.js'
 import { LOCALES, t, textKeys } from '../src/vue/installer/installerTexts.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -132,7 +132,7 @@ test('the footers: the dismissive button at the left, the primary one the last a
 
 test('maintenance: the update, same-version and downgrade pages say which, the button names the version', () => {
   const up = pageModel(snapshotOf('maintenance'), 'zh'), same = pageModel(snapshotOf('maintenance-same'), 'zh'), down = pageModel(snapshotOf('maintenance-downgrade'), 'zh')
-  assert.equal(up.note, null); assert.equal(up.facts.length, 3); assert.equal(up.end[1].label, '更新到 2026.1109.0')
+  assert.equal(up.note, null); assert.equal(up.facts.length, 2, "two facts: a third did not fit the window with the location row above it"); assert.equal(up.end[1].label, '更新到 2026.1109.0')
   assert.equal(same.note.tone, 'secondary'); assert.equal(same.end[1].label, '重新安装 2026.1109.0'); assert.equal(same.facts.length, 2)
   assert.equal(down.note.tone, 'warning'); assert.equal(down.end[1].label, '降级到 2026.1109.0')
   assert.match(up.lead, /2026\.1101\.0.*2026\.1109\.0/)
@@ -250,7 +250,7 @@ test('motion is CSS: springs for the slide, real wave indicators, nothing steps 
   const dir = join(root, 'src/vue/installer')
   const src = readdirSync(dir).filter((f) => /\.(vue|js)$/.test(f) && !['bridge.js', 'bridgeMock.js'].includes(f)).map((f) => readFileSync(join(dir, f), 'utf8')).join('\n')
   assert.doesNotMatch(src, /setInterval|requestAnimationFrame/)
-  assert.equal((src.match(/setTimeout/g) || []).length, 3, 'the only timers: the "copied" label, the no-answer watchdog of a press, the switch of the bar to its slow creep (a CSS transition moves it)')
+  assert.equal((src.match(/setTimeout/g) || []).length, 4, 'the only timers: the "copied" label, the no-answer watchdog of a press, the switch of the bar to its slow creep (a CSS transition moves it), the moment after the last key before a typed path is checked')
   assert.match(css, /\.m-inst-fwd-enter-active[^}]*var\(--m-spring-default-spatial\)/)
   assert.match(css, /\.m-inst-fwd-leave-active[^}]*var\(--m-spring-fast-spatial\)/)
   assert.match(css, /translateX\(30px\)/)
@@ -328,23 +328,30 @@ test('the done emblem: the ring closes, fills into the shape and the check draws
 
 // ---------------------------------------------------------------- the install location
 
-const DIR_ERRORS = ['invalid', 'chars', 'not-fixed', 'fs', 'root', 'system', 'user', 'synced', 'parent', 'not-empty', 'too-long', 'no-space', 'no-access']
+// a problem refuses the folder; a warning (parent, user) only asks once
+const DIR_ERRORS = ['invalid', 'chars', 'not-fixed', 'fs', 'root', 'system', 'synced', 'not-empty', 'too-long', 'no-space', 'no-access']
+const DIR_WARNINGS = ['parent', 'user']
 const withDir = (over, page = 'welcome') => ({ ...snapshotOf(page), installDir: { ...snapshotOf(page).installDir, ...over } })
+const strip = (html) => html.replace(/<!--.*?-->/g, '')
+const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;')
 
-test('the first page shows where the program goes, with the free space and a Change button; the maintenance page shows the place without one', async () => {
+test('the first page shows where the program goes, with the free space, a field to type in and a Change button; the maintenance page shows the place without them', async () => {
   for (const l of LOCALES) {
-    const welcome = (await render('welcome-dir-custom', l)).replace(/<!--.*?-->/g, '')
+    const welcome = strip(await render('welcome-dir-custom', l))
     assert.match(welcome, /data-inst-location/)
     assert.ok(welcome.includes(t(l, 'dir.label')), `${l} label`)
     assert.ok(welcome.includes('Foundation Sunshine'), `${l} the folder`)
     assert.ok(welcome.includes(t(l, 'dir.free', '412 GB')), `${l} free space`)
     assert.equal((welcome.match(/m-inst__loc-change/g) || []).length, 1, `${l} one Change button`)
     assert.ok(welcome.includes(`>${t(l, 'dir.change')}</`), `${l} Change label`)
-    for (const id of ['welcome-upgrade']) assert.ok(!/m-inst__loc-change/.test(await render(id, l)), `${id} ${l} an upgrade keeps its place`)
+    assert.match(welcome, /<input[^>]*data-inst-path/, `${l} the path is a field`)
+    assert.ok(welcome.includes(`aria-label="${t(l, 'dir.field')}"`), `${l} the field has a name`)
+    assert.ok(welcome.includes(escapeHtml('D:\\Games\\安装\\Foundation Sunshine')), `${l} the field holds the folder as typed`)
+    for (const id of ['welcome-upgrade']) assert.ok(!/m-inst__loc-change|data-inst-path/.test(await render(id, l)), `${id} ${l} an upgrade keeps its place`)
     for (const id of ['maintenance', 'maintenance-same', 'maintenance-downgrade']) {
       const html = await render(id, l)
       assert.match(html, /data-inst-location/, `${id} ${l}`)
-      assert.ok(!/m-inst__loc-change/.test(html), `${id} ${l} an installed copy cannot be moved`)
+      assert.ok(!/m-inst__loc-change|data-inst-path/.test(html), `${id} ${l} an installed copy cannot be moved or edited`)
     }
     // the other pages have no such row
     for (const id of ['components', 'uac', 'installing-files', 'done', 'failed-generic']) assert.ok(!/data-inst-location/.test(await render(id, l)), id)
@@ -363,7 +370,7 @@ test('a refused folder says why under the row and keeps Install and Customize of
     assert.deepEqual(m.end.map((b) => [b.key, !!b.disabled]), [['customize', true], ['install', true]], `${code} ${l}`)
     const html = renderToString(createSSRApp(MInstaller, { bridge: staticBridge(v), locale: l }))
     assert.match(await html, new RegExp(`data-code="${code}"`), `${code} ${l}`)
-    assert.ok((await html).includes(loc.error.text.replace(/&/g, '&amp;').replace(/'/g, '&#39;')), `${code} ${l} the reason is on the page`)
+    assert.ok((await html).includes(escapeHtml(loc.error.text)), `${code} ${l} the reason is on the page`)
   }
   // a usable folder leaves both on
   for (const l of LOCALES) assert.deepEqual(pageModel(snapshotOf('welcome-dir-custom'), l).end.map((b) => !!b.disabled), [false, false])
@@ -371,40 +378,155 @@ test('a refused folder says why under the row and keeps Install and Customize of
   assert.equal(pageModel(withDir({ error: 'fs' }, 'components'), 'zh').end.find((b) => b.key === 'install').disabled, true)
 })
 
-test('the location texts: every error has its words in zh and en, sizes and paths are cut for the row', () => {
+test('a warning is not a refusal: Install stays on, the risk and the safe place show under the row, in both languages', async () => {
+  for (const code of DIR_WARNINGS) for (const l of LOCALES) {
+    const v = withDir({ path: 'D:\\Games\\Foundation Sunshine', warning: code, safePath: 'D:\\Foundation Sunshine', pickedPath: null })
+    const loc = locationModel(v, l)
+    assert.equal(loc.error, null)
+    assert.equal(loc.warning.code, code)
+    assert.ok(loc.warning.text.length > 20 && /SYSTEM|系统/.test(loc.warning.text), `${code} ${l} the risk is named: the service runs it as SYSTEM`)
+    assert.deepEqual(loc.safe, { label: t(l, 'dir.safe'), path: 'D:\\Foundation Sunshine' })
+    assert.deepEqual(pageModel(v, l).end.map((b) => !!b.disabled), [false, false], `${code} ${l} the buttons stay on`)
+    const html = strip(await renderToString(createSSRApp(MInstaller, { bridge: staticBridge(v), locale: l })))
+    assert.match(html, new RegExp(`data-warning="${code}"`), `${code} ${l}`)
+    assert.ok(html.includes(escapeHtml(loc.warning.text)), `${code} ${l} the risk is on the page`)
+    assert.match(html, /data-inst-safe/, `${code} ${l} the safe place is one press away`)
+    assert.ok(!/data-code=/.test(html), `${code} ${l} it is not drawn as a refusal`)
+  }
+  // a refusal wins over a warning (the host sends only one, and the page shows only the reason)
+  const both = locationModel(withDir({ error: 'fs', warning: 'parent', safePath: 'D:\\x' }), 'en')
+  assert.equal(both.warning, null); assert.equal(both.safe, null)
+  // a copy that is installed has no safe place to offer
+  assert.equal(locationModel(withDir({ editable: false, warning: 'parent', safePath: 'D:\\x' }), 'en').safe, null)
+})
+
+test('"use the selected folder itself" shows only while the path is the picked one with the product name added; a folder with files says so', async () => {
+  for (const l of LOCALES) {
+    const picked = locationModel(snapshotOf('welcome-dir-picked'), l)
+    assert.equal(picked.useSelected, t(l, 'dir.useSelected'))
+    assert.match(strip(await render('welcome-dir-picked', l)), /data-inst-use-selected/)
+    assert.equal(locationModel(snapshotOf('welcome-dir-custom'), l).useSelected, '', `${l} a typed folder has no pick to go back to`)
+    assert.ok(!/data-inst-use-selected/.test(await render('welcome-dir-custom', l)))
+    assert.equal(locationModel(snapshotOf('welcome-dir-picked'), l).note, '')
+    const redirected = locationModel(snapshotOf('welcome-dir-redirected'), l)
+    assert.equal(redirected.note, t(l, 'dir.note.redirected'))
+    assert.ok(strip(await render('welcome-dir-redirected', l)).includes(escapeHtml(t(l, 'dir.note.redirected'))))
+    // the pick that is refused can still be used as it is, and then the rule about files in it answers
+    assert.equal(locationModel(snapshotOf('welcome-dir-not-empty'), l).useSelected, t(l, 'dir.useSelected'))
+  }
+})
+
+test('the question about a warning: its words, the countdown label, the safe place as the primary choice, in both languages', async () => {
+  assert.equal(confirmModel(snapshotOf('welcome-dir-warning-parent'), 'en'), null, 'closed until the host opens it')
+  assert.equal(confirmModel(withDir({ confirm: true, warning: null }), 'en'), null, 'no warning, no question')
+  for (const l of LOCALES) {
+    const m = confirmModel(snapshotOf('welcome-dir-confirm'), l)
+    assert.equal(m.title, t(l, 'dir.confirm.title'))
+    assert.equal(m.text, t(l, 'dir.warn.parent'))
+    assert.equal(m.path, 'D:\\Games\\Foundation Sunshine'); assert.equal(m.safePath, 'D:\\Foundation Sunshine')
+    assert.equal(m.seconds, 5)
+    assert.equal(confirmLabel(l, m, 5), l === 'zh' ? '仍然安装（5 秒）' : 'Install anyway (5 s)')
+    assert.equal(confirmLabel(l, m, 1), l === 'zh' ? '仍然安装（1 秒）' : 'Install anyway (1 s)')
+    assert.equal(confirmLabel(l, m, 0), m.install, 'the plain label once it can be pressed')
+    const html = strip(await render('welcome-dir-confirm', l))
+    assert.match(html, /data-inst-confirm/, `${l} the dialog is on the page`)
+    assert.ok(html.includes(escapeHtml(m.title)) && html.includes(escapeHtml(m.text)), `${l} its words`)
+    assert.ok(/data-inst-confirm-install[^>]*>/.test(html) && /data-inst-confirm-safe/.test(html), `${l} both ways on`)
+    // the question is not on the pages that have no folder to ask about
+    assert.ok(!/data-inst-confirm/.test(await render('welcome-dir-warning-parent', l)), `${l} closed question`)
+  }
+  assert.equal(confirmModel({ ...snapshotOf('welcome-dir-confirm'), installDir: { ...snapshotOf('welcome-dir-confirm').installDir, confirmSeconds: 0 } }, 'en').seconds, 5, 'a host without the number gets the same five seconds')
+  // the countdown is the one of the other risky questions, and Esc answers the question before it can close the window
+  const app = read('vue/installer/MInstaller.vue')
+  assert.match(app, /if \(dirConfirm\.value\) \{ act\(\{ type: 'cancel-dir-risk' \}\); return \}/)
+  assert.match(read('vue/installer/InstallerDirConfirm.vue'), /useCountdown/)
+})
+
+test('the location texts: every error and warning has its words in zh and en, sizes and paths are cut for the row', () => {
   assert.equal(formatBytes(0), '0 B'); assert.equal(formatBytes(1536), '2 KB'); assert.equal(formatBytes(5.5 * 2 ** 30), '5.5 GB'); assert.equal(formatBytes(412 * 2 ** 30), '412 GB'); assert.equal(formatBytes(2 * 2 ** 40), '2 TB')
   assert.deepEqual(splitPath('C:\\Program Files\\Sunshine'), { head: 'C:', tail: '\\Program Files\\Sunshine' }, 'a short last folder takes its parent with it')
   assert.deepEqual(splitPath('D:\\Games\\Foundation Sunshine'), { head: 'D:\\Games', tail: '\\Foundation Sunshine' })
   assert.deepEqual(splitPath('D:\\A\\B\\C'), { head: 'D:', tail: '\\A\\B\\C' })
   assert.deepEqual(splitPath('C:\\' + 'A'.repeat(100) + '\\bin'), { head: 'C:\\' + 'A'.repeat(100), tail: '\\bin' }, 'a long parent stays in the head, which is the part that gets cut')
   assert.deepEqual(splitPath('D:\\Games\\安装\\Foundation Sunshine'), { head: 'D:\\Games\\安装', tail: '\\Foundation Sunshine' })
-  assert.equal(locationModel({ ...emptyView(), installDir: { ...emptyView().installDir, path: '' } }, 'zh'), null)
+  assert.equal(locationModel({ ...emptyView(), installDir: undefined }, 'zh'), null)
+  assert.notEqual(locationModel({ ...emptyView(), installDir: { ...emptyView().installDir, path: '' } }, 'zh'), null, 'an empty field is still the field, with the reason under it')
   for (const l of LOCALES) for (const code of DIR_ERRORS) assert.doesNotThrow(() => t(l, `dir.err.${code}`, 5), `${l} ${code}`)
+  for (const l of LOCALES) for (const code of DIR_WARNINGS) assert.doesNotThrow(() => t(l, `dir.warn.${code}`), `${l} ${code}`)
   for (const l of LOCALES) assert.ok(!/遥测|telemetry/i.test(textKeys(l).map((k) => { try { return String(t(l, k, 1, 2)) } catch { return '' } }).join(' ')))
 })
 
-test('Change sends choose-dir, shows busy until the host answers, and the mock host picks folders and refuses to install into a refused one', async () => {
-  assert.ok(ACTION_TYPES.includes('choose-dir'))
+test('the actions of the location: typing, the picker, the picked folder, the safe place and the question are all valid and carry what they need', () => {
+  for (const type of ['choose-dir', 'set-dir', 'use-picked-dir', 'use-safe-dir', 'confirm-dir-risk', 'cancel-dir-risk']) assert.ok(ACTION_TYPES.includes(type), type)
+  assert.equal(validAction({ type: 'set-dir', path: 'D:\\串流基地' }), true)
+  assert.equal(validAction({ type: 'set-dir', path: '' }), true, 'an empty field is sent too (the host answers with the reason)')
+  assert.equal(validAction({ type: 'set-dir' }), false)
+  assert.equal(validAction({ type: 'set-dir', path: 5 }), false)
+  assert.equal(validAction({ type: 'set-dir', path: 'x'.repeat(5000) }), false)
+  const field = read('vue/installer/InstallerLocation.vue')
+  assert.match(field, /type: 'set-dir', path: draft\.value/, 'the field sends what was typed')
+  assert.match(field, /@keydown\.enter\.prevent="commit"/); assert.match(field, /@blur="leave"/)
+  assert.match(field, /document\.activeElement !== input\.value\) draft\.value = path/, 'what the host sends does not overwrite a field that is being typed in')
+})
+
+test('Change sends choose-dir, shows busy until the host answers, and the mock host adds the product folder to a pick, takes typed paths as they are and refuses a refused folder', async () => {
   assert.equal(validAction({ type: 'choose-dir' }), true)
-  const app = readFileSync(join(root, 'src/vue/installer/MInstaller.vue'), 'utf8')
+  const app = read('vue/installer/MInstaller.vue')
   assert.match(app, /a\.type === 'choose-dir'\) choosing\.value = true/, 'the button shows busy while the system picker is open')
   assert.ok(!/WAITS = \[[^\]]*choose-dir/.test(app), 'the picker may stay open: no no-answer watchdog')
+  assert.ok(!/WAITS = \[[^\]]*set-dir/.test(app), 'typing has no no-answer watchdog either')
   const mock = createMockBridge({ speed: 0 })
-  assert.equal(mock.state().installDir.editable, true)
+  const dir = () => mock.state().installDir
+  assert.equal(dir().editable, true)
+  // pick 1: D:\Games has files and a parent that others can replace: the product folder is added, the pick is kept, the note says why, and the warning follows
   await mock.send({ type: 'choose-dir' })
-  assert.equal(mock.state().installDir.path, 'D:\\Games\\Foundation Sunshine'); assert.equal(mock.state().installDir.error, null)
-  await mock.send({ type: 'choose-dir' })
-  assert.equal(mock.state().installDir.error, 'not-empty')
+  assert.equal(dir().path, 'D:\\Games\\Foundation Sunshine'); assert.equal(dir().pickedPath, 'D:\\Games'); assert.equal(dir().note, 'redirected'); assert.equal(dir().warning, 'parent'); assert.equal(dir().error, null)
+  assert.equal(dir().safePath, 'D:\\Foundation Sunshine')
+  // use the selected folder itself: a folder with files in it is refused, the rule that protects the person's files
+  await mock.send({ type: 'use-picked-dir' })
+  assert.equal(dir().path, 'D:\\Games'); assert.equal(dir().error, 'not-empty'); assert.equal(dir().pickedPath, null)
   await mock.send({ type: 'install' })
   assert.equal(mock.state().page, 'welcome', 'no install into a refused folder')
-  await mock.send({ type: 'choose-dir' }); await mock.send({ type: 'choose-dir' })
-  assert.equal(mock.state().installDir.error, null); assert.equal(mock.state().installDir.path, 'C:\\Program Files\\Sunshine')
+  // pick 2: a disk root gets the product folder, no warning (directly on the drive)
+  await mock.send({ type: 'choose-dir' })
+  assert.equal(dir().path, 'D:\\Foundation Sunshine'); assert.equal(dir().warning, null); assert.equal(dir().error, null); assert.equal(dir().pickedPath, 'D:\\')
+  // typing: taken as typed, no product folder added, the pick is gone
+  await mock.send({ type: 'set-dir', path: 'D:\\串流基地' })
+  assert.equal(dir().path, 'D:\\串流基地'); assert.equal(dir().pickedPath, null); assert.equal(dir().error, null)
+  await mock.send({ type: 'set-dir', path: 'D:\\' })
+  assert.equal(dir().error, 'root', 'a typed root is not turned into a folder: the reason shows')
+  await mock.send({ type: 'set-dir', path: 'D:\\a!b' })
+  assert.equal(dir().error, 'chars')
+  await mock.send({ type: 'set-dir', path: '' })
+  assert.equal(dir().error, 'invalid')
+  // pick 3: FAT32
+  await mock.send({ type: 'choose-dir' })
+  assert.equal(dir().error, 'fs')
+  // pick 4: a user folder is a warning; the safe place is the default folder on the system drive
+  await mock.send({ type: 'choose-dir' })
+  assert.equal(dir().warning, 'user'); assert.equal(dir().safePath, 'C:\\Program Files\\Sunshine')
+  // the first press of Install opens the question, and nothing starts; the answer is taken only while it is open
+  await mock.send({ type: 'confirm-dir-risk' })
+  assert.equal(mock.state().page, 'welcome', 'no answer to a question nobody asked')
   await mock.send({ type: 'install' })
-  assert.equal(mock.state().page, 'uac')
+  assert.equal(mock.state().page, 'welcome'); assert.equal(dir().confirm, true)
+  await mock.send({ type: 'cancel-dir-risk' })
+  assert.equal(dir().confirm, false)
+  await mock.send({ type: 'install' }); assert.equal(dir().confirm, true)
+  await mock.send({ type: 'confirm-dir-risk' })
+  assert.equal(mock.state().page, 'uac', 'confirmed: the install starts')
+  // the safe place: one press, no question, and it is the default folder
+  const again = createMockBridge({ speed: 0 })
+  await again.send({ type: 'choose-dir' })
+  await again.send({ type: 'use-safe-dir' })
+  assert.equal(again.state().installDir.path, 'D:\\Foundation Sunshine'); assert.equal(again.state().installDir.warning, null); assert.equal(again.state().installDir.confirm, false)
+  await again.send({ type: 'install' })
+  assert.equal(again.state().page, 'uac', 'a folder without a warning installs at once')
+  // the default folder again (pick 6), and an installed copy stays where it is
   const upgrade = createMockBridge({ scenario: 'upgrade', speed: 0 })
   assert.equal(upgrade.state().installDir.editable, false)
-  await upgrade.send({ type: 'choose-dir' })
+  await upgrade.send({ type: 'choose-dir' }); await upgrade.send({ type: 'set-dir', path: 'D:\\x' })
   assert.equal(upgrade.state().installDir.path, 'D:\\Programs\\Foundation Sunshine', 'an installed copy stays where it is')
   // the host sends every key of emptyView().installDir
-  assert.deepEqual(Object.keys(emptyView().installDir).sort(), ['editable', 'error', 'freeBytes', 'maxLength', 'neededBytes', 'path'])
+  assert.deepEqual(Object.keys(emptyView().installDir).sort(), ['confirm', 'confirmSeconds', 'editable', 'error', 'freeBytes', 'maxLength', 'neededBytes', 'note', 'path', 'pickedPath', 'safePath', 'warning'])
 })

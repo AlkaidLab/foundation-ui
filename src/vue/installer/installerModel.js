@@ -176,29 +176,63 @@ export function splitPath(path) {
 }
 
 /**
- * The install-location row: label, the path in two parts, the free space, the Change button (a fresh install only) and the reason when the folder is refused.
- * null when the host sent no folder (a host without the row).
+ * The install-location row: label, the path (as typed in the field, and in two parts for a place that only shows it), the free space, the Change button and the field (a fresh install
+ * only), the reason when the folder is refused, the warning with its safe place when it is only a risk, the note about a picked folder with files in it, and the choice to use the picked
+ * folder as it is. null when the host sent no folder (a host without the row).
  */
 export function locationModel(view, locale) {
   const d = view.installDir
-  if (!d || !d.path) return null
+  if (!d || typeof d.path !== 'string') return null
   const { head, tail } = splitPath(d.path)
   let error = null
   if (d.error) {
     const key = `dir.err.${d.error}`
     error = { code: d.error, text: d.error === 'too-long' ? t(locale, key, d.maxLength) : d.error === 'no-space' ? t(locale, key, formatBytes(d.neededBytes)) : t(locale, key) }
   }
+  const editable = !!d.editable
+  const warning = !error && d.warning ? { code: d.warning, text: t(locale, `dir.warn.${d.warning}`) } : null
   return {
     label: t(locale, 'dir.label'),
+    field: t(locale, 'dir.field'),
     path: d.path,
     head,
     tail,
     free: typeof d.freeBytes === 'number' && !d.error ? t(locale, 'dir.free', formatBytes(d.freeBytes)) : '',
-    editable: !!d.editable,
+    editable,
     change: t(locale, 'dir.change'),
     error,
+    warning,
+    note: !error && !warning && d.note ? t(locale, `dir.note.${d.note}`) : '',
+    // "use the selected folder itself": only for a fresh install, and only while the path is the picked one with the product's name added
+    useSelected: editable && d.pickedPath ? t(locale, 'dir.useSelected') : '',
+    // the safe place of a warning, one press away
+    safe: editable && warning && d.safePath ? { label: t(locale, 'dir.safe'), path: d.safePath } : null,
   }
 }
+
+/**
+ * The question about a folder that only has a warning (installDir.confirm): what is wrong, the folder and the safe place, and the buttons. "Install anyway" counts down
+ * `seconds` (the same seconds as the other risky questions: reset's RESET_SECONDS); the safe place is the primary choice. null while the question is closed.
+ */
+export function confirmModel(view, locale) {
+  const d = view.installDir
+  if (!d?.editable || !d.confirm || !d.warning) return null
+  return {
+    title: t(locale, 'dir.confirm.title'),
+    text: t(locale, `dir.warn.${d.warning}`),
+    pathLabel: t(locale, 'dir.label'),
+    path: d.path,
+    safeLabel: t(locale, 'dir.confirm.safeLabel'),
+    safePath: d.safePath || '',
+    safe: t(locale, 'dir.safe'),
+    install: t(locale, 'dir.confirm.install'),
+    cancel: t(locale, 'dir.confirm.cancel'),
+    seconds: Number.isFinite(d.confirmSeconds) && d.confirmSeconds > 0 ? d.confirmSeconds : 5,
+  }
+}
+
+/** the label of "Install anyway" while it counts down: "仍然安装（5 秒）" / "Install anyway (5 s)"; the plain label when it can be pressed */
+export const confirmLabel = (locale, model, remaining) => (remaining > 0 ? t(locale, 'dir.confirm.seconds', model.install, remaining) : model.install)
 
 // ---------------------------------------------------------------- the page: header, notes, facts and buttons
 
@@ -224,8 +258,12 @@ export function pageModel(view, locale) {
       out.lead = t(locale, 'welcome.lead')
       if (view.uacCancelled) out.note = { icon: 'warning', tone: 'warning', text: t(locale, 'welcome.cancelled') }
       else if (view.upgrade) out.note = { icon: 'info', tone: 'secondary', text: t(locale, 'welcome.upgrade') }
-      // only two facts: the administrator permission and the components; with a note the page is full and the Customize button says the second
-      out.facts = [fact('shield', 'tertiary', 'fact.admin'), ...(out.note ? [] : [fact('display_settings', 'primary', 'fact.components')])]
+      // only two facts: the administrator permission and the components. With a note the page is full and the Customize button says the second; a picked folder that offers "use the selected
+      // folder itself" leaves the room of one fact, and a message under the location row (a refusal, a warning, a folder with files in it) the room of none
+      const dir = view.installDir
+      const dirMessage = !!(dir?.editable && (dir.error || dir.warning || dir.note))
+      const dirLink = !!(dir?.editable && dir.pickedPath)
+      out.facts = dirMessage ? [] : [fact('shield', 'tertiary', 'fact.admin'), ...(out.note || dirLink ? [] : [fact('display_settings', 'primary', 'fact.components')])]
       out.start = [btn('exit', t(locale, 'btn.exit'), 'text', { type: 'exit' })]
       out.end = [btn('customize', t(locale, 'btn.customize'), 'tonal', { type: 'customize' }, { disabled: dirBad }), btn('install', t(locale, 'btn.install'), 'filled', { type: 'install' }, { disabled: dirBad })]
       break
@@ -235,7 +273,8 @@ export function pageModel(view, locale) {
       out.lead = t(locale, 'maint.lead', m?.installedVersion ?? '', m?.packageVersion ?? '')
       if (m?.downgrade) out.note = { icon: 'warning', tone: 'warning', text: t(locale, 'maint.downgrade') }
       else if (m?.same) out.note = { icon: 'restart_alt', tone: 'secondary', text: t(locale, 'maint.same') }
-      out.facts = [fact('folder', 'primary', 'maint.f1'), fact('build', 'tertiary', 'maint.f2'), ...(out.note ? [] : [fact('download', 'secondary', 'maint.f3')])]
+      // two facts: with the location row above them a third does not fit the window (it was cut at the edge of the list)
+      out.facts = [fact('folder', 'primary', 'maint.f1'), fact('build', 'tertiary', 'maint.f2')]
       const verb = m?.downgrade ? 'maint.downgradeTo' : m?.same ? 'maint.reinstall' : 'maint.update'
       out.start = [btn('uninstall', t(locale, 'maint.uninstall'), 'text', { type: 'uninstall' }, { disabled: !m?.hasUninstaller })]
       // `short`: the label in a narrow window (the version is in the lead already)

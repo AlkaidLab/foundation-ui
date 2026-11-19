@@ -100,30 +100,40 @@ export const PROGRESS_GROUPS = Object.freeze([
  */
 
 /**
- * @typedef {'invalid'|'chars'|'not-fixed'|'fs'|'root'|'system'|'user'|'synced'|'parent'|'not-empty'|'too-long'|'no-space'|'no-access'} InstallDirError
+ * @typedef {'invalid'|'chars'|'not-fixed'|'fs'|'root'|'system'|'synced'|'not-empty'|'too-long'|'no-space'|'no-access'} InstallDirError
+ *   A problem: the folder cannot be used, whatever the person says. The install buttons stay off.
  *   invalid     the path is not usable (not a full path, characters Windows does not allow)
  *   chars       a character the installer's scripts cannot carry (! % ^ & ; , = ' ` { } $)
  *   not-fixed   not a fixed disk of this PC (network, removable, mapped, optical)
  *   fs          the volume is not NTFS or ReFS (no permissions to protect the program with)
  *   root        the root of a disk
  *   system      inside the Windows folder
- *   user        inside a user's folder (the profile, Desktop, Documents, Downloads)
  *   synced      inside a synced folder (OneDrive and the like)
- *   parent      a folder above it can be renamed, replaced or re-permissioned by ordinary users, so the program could be swapped out from above
- *   not-empty   the folder has files and is not an existing Foundation Sunshine folder
+ *   not-empty   the folder has files and is not an existing Foundation Sunshine folder (it would be taken over, and an uninstall would remove them)
  *   too-long    the longest path of the package would pass `maxLength`
  *   no-space    the drive has less than `neededBytes` free
  *   no-access   the folder cannot be opened or created
+ *
+ * @typedef {'parent'|'user'} InstallDirWarning
+ *   A warning: the folder works and is protected itself, but sits where others can replace it from above. Usable after the person confirmed it once (`confirm`), with a safe place offered instead (`safePath`).
+ *   parent      a folder above it can be renamed, replaced or re-permissioned by ordinary users, so the program could be swapped out from above
+ *   user        inside a user's folder (the profile, Desktop, Documents, Downloads): the user and the programs that run as that user can replace the whole folder
  */
 
 /**
  * @typedef {object} InstallerLocation
- * @property {string} path               the folder the install goes to: the default on a fresh install, the picked one, or the installed copy's
+ * @property {string} path               the folder the install goes to: the default on a fresh install, the picked one (with the product's folder name added: Inno Setup and NSIS do the same after Browse), the typed one as typed, or the installed copy's
  * @property {boolean} editable          a fresh install on its first page: the Change button shows. false = the place of an installed copy (an upgrade keeps it; to move, uninstall and install again)
  * @property {number|null} freeBytes     free space of the drive of `path`; null when it could not be read
  * @property {number} neededBytes        the space the install needs
  * @property {number} maxLength          the longest path of the folder that is accepted
  * @property {InstallDirError|null} error  why the folder cannot be used; the install buttons stay off while it is set
+ * @property {InstallDirWarning|null} warning  why the folder is a risk; null while `error` is set. Install stays on and asks once (`confirm`)
+ * @property {string|null} safePath      the safe place for a `warning` (the default folder on the system drive, else the product folder directly on the drive); null without a warning
+ * @property {string|null} pickedPath    the folder that was picked when `path` is that folder with the product's name added: one press (`use-picked-dir`) uses it as it is; null after the person typed or pressed it
+ * @property {'redirected'|null} note    `redirected`: the picked folder has files in it, so a folder inside it is used
+ * @property {boolean} confirm           the question about a `warning` is open (the page draws it, `confirmSeconds` of countdown); the host takes the answer only after that time too
+ * @property {number} confirmSeconds     how long "Install anyway" stays closed
  */
 
 /**
@@ -165,7 +175,12 @@ export const PROGRESS_GROUPS = Object.freeze([
  *   | {type:'back'}                                         // components -> welcome or maintenance
  *   | {type:'toggle-component', id: ComponentId}            // components
  *   | {type:'select-all'}                                   // components: all on, or all off when all are on
- *   | {type:'choose-dir'}                                   // welcome (fresh install): the host opens the system folder picker, checks the folder and answers with a new `installDir`
+ *   | {type:'choose-dir'}                                   // welcome (fresh install): the host opens the system folder picker, adds the product's folder name to the pick, checks it and answers with a new `installDir`
+ *   | {type:'set-dir', path: string}                        // welcome (fresh install): the path as typed; the host takes it as it is, checks it and answers with a new `installDir`
+ *   | {type:'use-picked-dir'}                               // welcome: the picked folder as it is, without the product's folder name (`installDir.pickedPath`)
+ *   | {type:'use-safe-dir'}                                 // welcome or the question: the safe place for a warning (`installDir.safePath`)
+ *   | {type:'confirm-dir-risk'}                             // the question: install into the folder with the warning (not before `confirmSeconds` have passed)
+ *   | {type:'cancel-dir-risk'}                              // the question: back to the page
  *   | {type:'uninstall'}                                    // maintenance: start the installed uninstaller, then the host exits
  *   | {type:'open-panel'}                                   // done: start the Panel (at the guide when guidePending)
  *   | {type:'restart-pc'}                                   // done: Windows restart (Windows asks open apps to close)
@@ -177,8 +192,8 @@ export const PROGRESS_GROUPS = Object.freeze([
  */
 
 /** @type {ReadonlyArray<InstallerAction['type']>} */
-export const ACTION_TYPES = Object.freeze(['ready', 'install', 'retry', 'customize', 'back', 'toggle-component', 'select-all', 'choose-dir',
-  'uninstall', 'open-panel', 'restart-pc', 'copy-details', 'open-log-folder', 'minimise', 'exit'])
+export const ACTION_TYPES = Object.freeze(['ready', 'install', 'retry', 'customize', 'back', 'toggle-component', 'select-all', 'choose-dir', 'set-dir', 'use-picked-dir', 'use-safe-dir',
+  'confirm-dir-risk', 'cancel-dir-risk', 'uninstall', 'open-panel', 'restart-pc', 'copy-details', 'open-log-folder', 'minimise', 'exit'])
 
 /**
  * @typedef {object} InstallerBridge
@@ -202,7 +217,7 @@ export function emptyView() {
     unsupported: {},
     windowsBuild: 0,
     uacCancelled: false,
-    installDir: { path: 'C:\\Program Files\\Sunshine', editable: true, freeBytes: null, neededBytes: 0, maxLength: 0, error: null },
+    installDir: { path: 'C:\\Program Files\\Sunshine', editable: true, freeBytes: null, neededBytes: 0, maxLength: 0, error: null, warning: null, safePath: null, pickedPath: null, note: null, confirm: false, confirmSeconds: 5 },
     progress: {
       groups: PROGRESS_GROUPS.map((g) => ({ id: g.id, state: 'pending' })),
       current: 0,
@@ -246,6 +261,7 @@ export function groupState(progress, groupIndex) {
 export function validAction(a) {
   if (!a || typeof a !== 'object' || !ACTION_TYPES.includes(a.type)) return false
   if (a.type === 'toggle-component') return COMPONENT_IDS.includes(a.id)
+  if (a.type === 'set-dir') return typeof a.path === 'string' && a.path.length <= 4096
   return true
 }
 
