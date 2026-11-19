@@ -6,13 +6,21 @@ const SLOW_MS = 30000
 
 export function createDriverGuardClient(api, onState) {
   let state = null
+  let latest = 0
   const set = (next) => {
     state = next && typeof next === 'object' && !Array.isArray(next) && next.v === 1 ? next : null
     onState(state)
     return state
   }
+  // a response that comes back after a later call was made is old: it does not overwrite the newer state
   const swallow = async (call) => {
-    try { return set(await call()) } catch { return set(null) }
+    const mine = ++latest
+    try {
+      const next = await call()
+      return mine === latest ? set(next) : state
+    } catch {
+      return mine === latest ? set(null) : state
+    }
   }
   return {
     refresh: () => swallow(() => api.get()),

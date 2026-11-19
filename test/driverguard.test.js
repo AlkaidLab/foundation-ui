@@ -30,6 +30,7 @@ test('every phase and both outcomes read as a sentence', () => {
 test('an unknown phase or kind falls back, an unknown vendor has no notice', () => {
   assert.equal(driverNotice(guard({ driver: { ...intel, phase: '??', kind: '??' } }), 'zh').title, '上次启动时 Intel 显卡驱动崩溃')
   assert.equal(driverNotice(guard({ driver: { ...intel, vendor: 'apple' } }), 'zh'), null)
+  for (const vendor of ['constructor', 'toString', '__proto__']) assert.equal(driverNotice(guard({ driver: { ...intel, vendor } }), 'zh'), null)
 })
 
 test('no notice while the host says it is not due, and none without a guard', () => {
@@ -173,5 +174,19 @@ test('it looks soon while the encoders are checked and rarely afterwards', async
   assert.equal(client.nextDelay(), 3000)
   reply = idleState
   await client.refresh()
+  assert.equal(client.nextDelay(), 30000)
+})
+
+test('a response that arrives after a later call does not overwrite the newer state', async () => {
+  const seen = []
+  const waiting = []
+  const api = { get: () => new Promise((resolve) => waiting.push(resolve)), post: async () => ({ v: 1, probe: 'done' }) }
+  const client = createDriverGuardClient(api, (state) => seen.push(state))
+  const slow = client.refresh()
+  const fast = await client.retry()
+  waiting[0]({ v: 1, probe: 'running' })
+  await slow
+  assert.equal(fast.probe, 'done')
+  assert.deepEqual(seen.map((s) => s.probe), ['done'])
   assert.equal(client.nextDelay(), 30000)
 })

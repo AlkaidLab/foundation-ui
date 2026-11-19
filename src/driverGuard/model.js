@@ -34,7 +34,7 @@ const KINDS = ['crash', 'hang']
 
 /** The values of one driver mark for the templates; nothing is trusted: an unknown vendor has no notice. */
 function driverValues(driver, t) {
-  if (!driver || !DRIVER_LINKS[driver.vendor]) return null
+  if (!driver || !Object.hasOwn(DRIVER_LINKS, driver.vendor)) return null
   const phase = PHASES.includes(driver.phase) ? driver.phase : 'startup'
   const kind = KINDS.includes(driver.kind) ? driver.kind : 'crash'
   const version = typeof driver.driver === 'string' ? driver.driver : ''
