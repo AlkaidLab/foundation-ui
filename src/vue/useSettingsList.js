@@ -1,5 +1,5 @@
 import { computed, getCurrentScope, onScopeDispose, ref, unref } from 'vue'
-import { getSearchIndex, labelOf, onSettingsData } from '../settings/provider.js'
+import { getAliases, getSearchIndex, labelOf, onSettingsData } from '../settings/provider.js'
 import { buildSettingsEntries } from '../settings/search.js'
 import { dualsenseEntries } from '../settings/dualsense.js'
 import { SETTINGS_CATEGORIES, STANDALONE_CATEGORIES, settingsGroups } from '../settings/model.js'
@@ -42,7 +42,7 @@ export function useSettingsList({ locale, config = ref(null), dualsenseKeys = re
     }),
   ])
   const entries = computed(() => [
-    ...buildSettingsEntries({ index: (void supplied.value, getSearchIndex()), label, altLabel }),
+    ...buildSettingsEntries({ index: (void supplied.value, getSearchIndex()), label, altLabel, aliases: getAliases() }),
     ...dualsenseEntries({ keys: unref(dualsenseKeys) || [], label, locale: lang.value, altLocale: other.value }),
   ])
   const searchItems = computed(() => [...categoryEntries.value, ...entries.value])
