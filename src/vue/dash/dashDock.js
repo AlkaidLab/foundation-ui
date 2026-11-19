@@ -158,9 +158,10 @@ export function useDashDock(D) {
     return parts.join(' · ')
   })
   const dockCards = computed(() => (dockOn.value ? visibleCards.value.map((c) => boxFor(c, 8)) : []))
-  // one anatomy, one size: a near-square tile (176 px), the graphic and the badge on top, the text under them
-  const DOCK_TILE = 176
-  const dockStyle = () => ({ width: `${DOCK_TILE}px`, height: `${DOCK_TILE}px` })
+  // The tiles are the overview's standard squares (s: one unit), wrapped into the same columns as the grid, so they never form a row that scrolls: a row that does not fit goes below and the page scrolls.
+  // The grid is as wide as its columns and sits in the middle of the pane, edge to edge in a narrow one (columnsOf), the same on every window.
+  const dockGrid = computed(() => gridOf(width.value))
+  const dockGridStyle = computed(() => { const g = dockGrid.value; return { gridTemplateColumns: `repeat(${g.columns}, ${g.unit}px)`, gridAutoRows: `${g.unit}px`, width: `${gridWidthOf(g.columns, g.unit)}px` } })
   const setOverview = (value) => appearance.set({ overview: value })
   // the ask for a star: while a stream runs the star of the client in use (from the family the host says of the device of the session; the host star when it is not one of ours), when nothing streams the
   // host star and the sponsor entry
@@ -178,30 +179,6 @@ export function useDashDock(D) {
   const starOpen = (url) => { emit('action', { card: 'star', type: 'open-url', value: url }); emit('action', { card: 'star', type: 'star-dismiss' }) }
   const starLater = () => emit('action', { card: 'star', type: 'star-dismiss' })
   const starSponsor = () => emit('action', { card: 'star', type: 'sponsor', value: '' })
-  const dockRow = ref(null)
-  const dockEdge = ref({ left: false, right: false, scroll: false })
-  // the tiles outrun the row when their total width is more than the wrap (measured on the tiles, so the room kept for the arrows does not change the answer)
-  const measureDock = () => {
-    const r = dockRow.value; if (!r) return
-    const cells = r.children, last = cells[cells.length - 1], wrap = r.parentElement
-    const content = last ? last.offsetLeft + last.offsetWidth - cells[0].offsetLeft : 0
-    const scroll = !!wrap && content > wrap.clientWidth - 0.5
-    dockEdge.value = { scroll, left: scroll && r.scrollLeft > 4, right: scroll && r.scrollLeft + r.clientWidth < r.scrollWidth - 4 }
-  }
-  const dockScroll = (dir) => dockRow.value?.scrollBy({ left: dir * Math.round(dockRow.value.clientWidth * 0.8), behavior: 'smooth' })
-  watch([dockOn, dockCards], async () => { await nextTick(); measureDock() }, { flush: 'post' })
-  // the size of the window is the observer's business (below)
-  watch(dockRow, (el, _old, onCleanup) => { if (!el) return; const o = new ResizeObserver(() => measureDock()); o.observe(el); if (el.parentElement) o.observe(el.parentElement); onCleanup(() => o.disconnect()) })
-  // the row opens at its start (the first tile is 本主机), and the wheel moves it sideways: a mouse has no horizontal scroll
-  watch(dockOn, async (on) => { if (!on) return; await nextTick(); if (dockRow.value) dockRow.value.scrollLeft = 0 }, { immediate: true, flush: 'post' })
-  // the row takes the wheel only while it can still move that way; at either end the wheel goes on to the page, so it never gets stuck over the dock
-  const onDockWheel = (event) => {
-    const row = dockRow.value
-    if (!row || row.scrollWidth <= row.clientWidth || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return
-    const max = row.scrollWidth - row.clientWidth
-    if ((event.deltaY < 0 && row.scrollLeft <= 0) || (event.deltaY > 0 && row.scrollLeft >= max - 1)) return
-    row.scrollLeft = Math.max(0, Math.min(max, row.scrollLeft + event.deltaY)); event.preventDefault()
-  }
   const blocks = computed(() => {
     const list = visibleCards.value
     if (!sectioned.value) {
@@ -309,5 +286,5 @@ export function useDashDock(D) {
     }
     emit('action', a)
   }
-  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockEdge, dockOn, dockRow, dockScroll, dockStyle, hideGhost, measureDock, onAct, onDockWheel, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
+  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockGridStyle, dockOn, hideGhost, onAct, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
 }

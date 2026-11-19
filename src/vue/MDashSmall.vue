@@ -15,6 +15,8 @@ const props = defineProps({ small: { type: Object, required: true }, group: { ty
 const emit = defineEmits(['act'])
 // the width of a text in em: a CJK character is one, any other about .55 (a long text is set smaller and may take two lines)
 const long = computed(() => [...String(props.small.value || props.small.title || '')].reduce((w, c) => w + (/[\u3000-\u9fff\uff00-\uffef]/.test(c) ? 1 : 0.55), 0) > 4.6)
+// the second line in its parts (the pieces of one fact: the host's name, its uptime): a line breaks between pieces, never inside one, so nothing is cut
+const parts = computed(() => String(props.small.secondary || '').split(' · ').filter(Boolean).slice(0, 2))
 const barMax = computed(() => Math.max(1, ...(props.small.bars || [])))
 const kind = computed(() => {
   const s = props.small
@@ -41,8 +43,8 @@ const kind = computed(() => {
       <div class="m-dsmall__body">
         <span v-if="small.value && small.title" class="m-dsmall__title">{{ small.title }}</span>
         <!-- the value and the second line change while the page is idle (a live number): their text is patched in place, the node stays (textNode.js) -->
-        <b class="m-dsmall__value" :class="{ 'is-long': long }"><span><MText :text="small.value || small.title" /></span><small v-if="small.unit && small.value">{{ small.unit }}</small></b>
-        <span v-if="small.secondary" class="m-dsmall__sub"><MText :text="small.secondary" /></span>
+        <b class="m-dsmall__value" :class="{ 'is-long': long }"><i v-if="small.state" class="m-dsmall__state" :class="`is-${small.state}`" aria-hidden="true" /><span><MText :text="small.value || small.title" /></span><small v-if="small.unit && small.value">{{ small.unit }}</small></b>
+        <span v-if="small.secondary" class="m-dsmall__sub"><span v-for="(p, i) in parts" :key="i" class="m-dsmall__part"><MText :text="p" /></span></span>
       </div>
       <div class="m-dsmall__end">
         <button v-if="kind === 'action'" type="button" class="m-dsmall__act" @click.stop="emit('act', small.action)">{{ small.action.label }}</button>

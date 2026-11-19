@@ -44,8 +44,6 @@
   .m-rail:not(.m-rail--bar) .m-rail__items { overflow: visible; flex: none; gap: 0; }
   .m-rail .m-rail__item { min-height: var(--m-hit); justify-content: center; }
   .m-rail--bar .m-rail__items { gap: 0; }
-  .m-rail--rail[data-tier='3'] .m-rail__items { grid-template-columns: 1fr; }
-  .m-rail--rail[data-tier='3'] .m-rail__item { width: 100%; }
   .m-rail .m-rail__foot { gap: 0; }
   .m-rail:not(.m-rail--expanded) .m-rail__foot { display: flex; flex-direction: column; align-items: center; }
   .m-rail .m-rail__foot .m-icon-btn { width: var(--m-hit); height: var(--m-hit); }

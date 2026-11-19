@@ -128,7 +128,7 @@ export { useCaptionRoom, SEARCH_MIN, roomFor, isTight } from './useCaptionRoom.j
 export { default as MCaptionVersion } from './MCaptionVersion.vue'
 export { default as MCaptionBack } from './MCaptionBack.vue'
 export { default as MBackChip } from './MBackChip.vue'
-export { BREAKPOINTS, RAIL_WIDTH, navigationOf, railWidthOf, calculateScene, listDetailStrategy, supportingPaneStrategy, singlePaneStrategy, listWidth, layoutOf } from '../nav/scenes.js'
+export { BREAKPOINTS, RAIL_WIDTH, SHORT_HEIGHT, barSideOf, isCompactNav, navigationOf, railWidthOf, calculateScene, listDetailStrategy, supportingPaneStrategy, singlePaneStrategy, listWidth, layoutOf } from '../nav/scenes.js'
 
 /** Consumers must compile `md-*` tags as custom elements: compilerOptions.isCustomElement = (tag) => tag.startsWith('md-'). */
 export const isMaterialWebElement = (tag) => tag.startsWith('md-')
@@ -287,6 +287,7 @@ export { default as MAnnouncementPopup } from "./MAnnouncementPopup.vue"
 export { default as MAnnouncementButton } from "./MAnnouncementButton.vue"
 export { default as MAnnouncementPage } from "./MAnnouncementPage.vue"
 export { announcementTexts } from "./announcementTexts.js"
+export { feedbackTexts } from "../feedback/texts.js"
 export { useDeveloperMode, tapOnVersion, usableSource, TAPS_NEEDED } from "./useDeveloperMode.js"
 export { ackedAt } from "../announcements/store.js"
 export { firstImage } from "../announcements/markdown.js"

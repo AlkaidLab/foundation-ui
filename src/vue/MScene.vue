@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
-import { calculateScene, canExpand, layoutOf, listDetailStrategy, navigationOf, railWidthOf, settledWidth, supportingPaneStrategy } from '../nav/scenes.js'
+import { barSideOf, calculateScene, canExpand, layoutOf, listDetailStrategy, navigationOf, railWidthOf, settledWidth, supportingPaneStrategy } from '../nav/scenes.js'
 import MRail from './MRail.vue'
 import MSheet from './MSheet.vue'
 import { watchPixelRatio } from '../nav/dpr.js'
@@ -64,7 +64,7 @@ let readSize = null
 onMounted(() => {
   const read = () => {
     const r = root.value.getBoundingClientRect()
-    const next = { width: Math.round(r.width), height: Math.round(r.height), bar: root.value.querySelector('.m-scene__bar')?.offsetHeight || 0 }
+    const next = { width: Math.round(r.width), height: Math.round(r.height), bar: root.value.classList.contains('m-scene--side') ? 0 : root.value.querySelector('.m-scene__bar')?.offsetHeight || 0 }
     // a window that is being resized is not animated: the columns are what the size says in the same frame, and the spring only moves what the person asked for (the rail, the list)
     if (next.width !== size.value.width || next.height !== size.value.height) { noteResize(); animating.value = false; settleWidth.value = null }
     size.value = next
@@ -93,13 +93,17 @@ onMounted(() => { document.documentElement.classList.add('m-shell'); window.addE
 onBeforeUnmount(() => { document.documentElement.classList.remove('m-shell'); window.removeEventListener('scroll', keepDocument) })
 
 // the choice stays; the rail only shows collapsed while the window is too narrow to keep list and detail usable
-const mode = computed(() => navigationOf(size.value.width, expandedChoice.value))
+const mode = computed(() => navigationOf(size.value.width, expandedChoice.value, size.value.height))
+// the compact navigation of a short window stands beside the content (a narrow rail) and takes no height; in a tall narrow one it is the bar at the bottom
+const side = computed(() => mode.value === 'bar' && barSideOf(size.value.width, size.value.height))
+const bottomBar = computed(() => mode.value === 'bar' && !side.value)
 // the bar's height is read again once the bar is there (it is not in the page while the window is wide)
-watch(mode, () => nextTick(() => readSize?.()))
+watch([mode, side], () => nextTick(() => readSize?.()))
 const toggleable = computed(() => canExpand(size.value.width) && mode.value !== 'bar')
-const railWidth = computed(() => railWidthOf(mode.value))
+const railWidth = computed(() => railWidthOf(mode.value, side.value))
 const space = computed(() => size.value.width - railWidth.value)
-const strategies = computed(() => props.strategies || [supportingPaneStrategy(), listDetailStrategy()])
+// the compact navigation has the phone's flow: one pane, the hubs of the bar, whatever the width of the window
+const strategies = computed(() => (mode.value === 'bar' ? [] : props.strategies || [supportingPaneStrategy(), listDetailStrategy()]))
 const scene = computed(() => calculateScene(strategies.value, props.nav.entries.value, { width: size.value.width, height: size.value.height, defaultDetailOf: props.nav.defaultDetailOf, railWidth: railWidth.value }))
 // A page that is being read (an open issue) asks for the whole width: `focus` (provided as `scene.focus`) folds the list pane away while it is on, and the page lets go of it when it closes. The rail, the caption and a
 // single pane scene are not touched; a rail click or another page ends it.
@@ -161,12 +165,13 @@ provide('m-scene', {
 })
 
 // the product's caption bar starts right of the rail: it reads the rail's width from the document
-watch(railWidth, (w) => document.documentElement.style.setProperty('--m-rail-w', `${w}px`), { immediate: true })
+// (the side navigation of a short window starts below the caption bar: the caption has the whole width)
+watch([railWidth, side], ([w, s]) => document.documentElement.style.setProperty('--m-rail-w', `${s ? 0 : w}px`), { immediate: true })
 // the wallpaper lies in the content panel only (the frame, the rail and the caption bar, is solid): it starts below the caption bar, beside the rail
 watch(() => props.captionHeight, (h) => document.documentElement.style.setProperty('--m-caption-h', `${h}px`), { immediate: true })
 onBeforeUnmount(() => { document.documentElement.style.removeProperty('--m-rail-w'); document.documentElement.style.removeProperty('--m-caption-h') })
 // with a caption bar and a rail the two are one L-shaped frame and the content is an inset panel with a rounded corner where it meets the frame
-const framed = computed(() => props.captionHeight > 0 && mode.value !== 'bar')
+const framed = computed(() => props.captionHeight > 0 && !bottomBar.value)
 // The window's material: the frame (the rail and the caption bar as one L, the bar at the bottom) is the most solid, the list pane fades from nearly the frame's tone
 // to the content panel's across its width, the content panel (detail and supporting panes) is the lightest. The frame is drawn as the whole window less a hole, a clip path
 // (layout.css); the panel is a box whose top-left corner is rounded where it meets the frame, with a hairline and a soft shadow along the seam.
@@ -175,9 +180,9 @@ const OUTER = 'M-4000 -4000H24000V24000H-4000Z'
 const regions = computed(() => {
   const W = size.value.width, H = size.value.height
   if (!W || !H) return {}
-  const x = mode.value === 'bar' ? 0 : railWidth.value, cx = railWidth.value + (mode.value === 'bar' ? 0 : layout.value.cols[0]), y = props.captionHeight, bar = mode.value === 'bar' ? size.value.bar : 0, bottom = H - bar, r = framed.value ? 24 : 0
+  const x = bottomBar.value ? 0 : railWidth.value, cx = railWidth.value + (bottomBar.value ? 0 : layout.value.cols[0]), y = props.captionHeight, bar = bottomBar.value ? size.value.bar : 0, bottom = H - bar, r = framed.value ? 24 : 0
   const modalHole = `M${cx} ${y}H${W}V${bottom}H${cx}Z`
-  return { '--m-modal-clip': `path(evenodd, '${OUTER}${modalHole}')`, '--m-content-x': `${cx}px`, '--m-content-y': `${y}px`, '--m-content-b': `${bar}px`, '--m-seam-r': `${r}px`, '--m-content-r': `${layout.value.cols[0] === 0 || mode.value === 'bar' ? r : 0}px` }
+  return { '--m-modal-clip': `path(evenodd, '${OUTER}${modalHole}')`, '--m-content-x': `${cx}px`, '--m-content-y': `${y}px`, '--m-content-b': `${bar}px`, '--m-seam-r': `${r}px`, '--m-content-r': `${layout.value.cols[0] === 0 || bottomBar.value ? r : 0}px` }
 })
 
 // ---- a modal of an embedded page (the overlay slot): the page cannot dim the window around its frame, so it tells the shell (useModalBridge) and the shell lays the same scrim
@@ -293,7 +298,7 @@ const allShortcuts = computed(() => [
 </script>
 
 <template>
-  <div ref="root" class="m-scene" :class="[`m-scene--${scene.kind}`, `m-scene--${mode}`, { 'm-scene--framed': framed, 'm-scene--status': status, 'is-animating': animating && !dragging && !resizing, 'is-dragging': dragging, 'm-scene--fab': fabCount > 0, 'm-scene--backchip': chip && !!$slots['back-chip'] }]" :style="style" @keydown="keydown">
+  <div ref="root" class="m-scene" :class="[`m-scene--${scene.kind}`, `m-scene--${mode}`, { 'm-scene--side': side, 'm-scene--framed': framed, 'm-scene--status': status, 'is-animating': animating && !dragging && !resizing, 'is-dragging': dragging, 'm-scene--fab': fabCount > 0, 'm-scene--backchip': chip && !!$slots['back-chip'] }]" :style="style" @keydown="keydown">
     <div class="m-scene__listfill" aria-hidden="true" />
     <div class="m-scene__seam" aria-hidden="true" />
     <div class="m-scene__railfill" aria-hidden="true" />
@@ -330,7 +335,7 @@ const allShortcuts = computed(() => [
       @keydown.left.prevent="nudge(-16)"
       @keydown.right.prevent="nudge(16)"
     />
-    <MRail v-if="mode === 'bar'" class="m-scene__bar" :inert="modalOpen ? '' : undefined" :items="barItems || railItems" :current="barCurrent || nav.rail.value" mode="bar" :label="T.main" @select="(i) => emit('rail', i)" />
+    <MRail v-if="mode === 'bar'" class="m-scene__bar" :inert="modalOpen ? '' : undefined" :items="barItems || railItems" :current="barCurrent || nav.rail.value" mode="bar" :side="side" :label="T.main" @select="(i) => emit('rail', i)" />
     <Teleport to="body"><Transition name="m-modalscrim"><div v-if="modalOpen" class="m-scene__modalscrim" :style="{ '--m-modal-clip': modalClip }" aria-hidden="true" @click="closeFrameModal" /></Transition></Teleport>
     <MSheet v-model="help" :title="T.shortcuts" side="center" :close-label="T.close">
       <ul class="m-shortcuts">

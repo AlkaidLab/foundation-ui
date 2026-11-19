@@ -87,7 +87,7 @@
 /* (#9) the title keeps its width and the buttons their own width where the strip has room for it; in a narrow strip (under 640 px, the rules above and in tilefit.css) the buttons share the row, which the 360 px check needs */
 @container m-calq (min-width: 640px) {
   .m-b3s.m-calq:has(> .m-b3s__row) > .m-calq__title { flex: 0 0 auto; max-width: none; }
-  .m-b3s.m-calq .m-b3s__row > * { flex: 0 1 auto; width: auto; max-width: 240px; min-width: min-content; }
+  .m-b3s.m-calq .m-b3s__row > * { flex: 0 0 auto; width: auto; max-width: none; min-width: min-content; white-space: nowrap; }
   .m-b3s.m-calq .m-b3s__row button { padding-right: 18px; }
 }
 .m-calq:has(> .m-b3s__row) .m-b3s__tt small { white-space: normal; line-height: 14px; }

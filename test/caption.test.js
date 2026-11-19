@@ -8,7 +8,18 @@ test('the caption bar orders its slots: [back] brand [version], search, mita, co
   const order = [...source.matchAll(/<slot name="([a-z]+)"/g)].map((m) => m[1])
   // back and version share a row with the brand; a product that fills neither gets the brand alone (a second slot with v-else)
   assert.deepEqual(order, ['back', 'brand', 'version', 'search', 'mita', 'connect', 'announcements', 'account', 'controls'])
-  assert.match(source, /<header class="m-caption" :class="bem">/)
+  assert.match(source, /<header ref="root" class="m-caption" :class="\[bem, \{ 'm-caption--bar-more': barMore \}\]">/)
+})
+
+// whatever the width, the window's own buttons stay: the bar leaves things out by tier, from the lowest priority, and lists them in 更多; the controls slot is in no tier
+test('the caption bar picks the roomiest tier in which everything it shows fits; the window buttons are in no tier', () => {
+  assert.match(source, /const TIERS = 6/)
+  assert.match(source, /new ResizeObserver\(fit\)/)
+  assert.ok(!/setTimeout|requestAnimationFrame/.test(source), 'decided in the frame of the change')
+  const css = fs.readFileSync(new URL('../src/css/layout.css', import.meta.url), 'utf8')
+  assert.match(css, /\.m-caption:not\(\[data-tier='0'\]\):not\(\[data-tier=''\]\) \.m-capver \{ display: none; \}/)
+  assert.match(css, /\.m-caption:is\(\[data-tier='4'\], \[data-tier='5'\]\) :is\(\.m-annbtn, \[data-fb='titlebar'\]\) \{ display: none; \}/)
+  assert.ok(!/data-tier[^{]*\.m-caption__controls|data-tier[^{]*__controls|data-tier[^{]*panel-caption__btn/.test(css), 'the window buttons are never left out')
 })
 
 // the caption bar of a phone is one design for both products: the sizes of its buttons are here, not in the product's styles

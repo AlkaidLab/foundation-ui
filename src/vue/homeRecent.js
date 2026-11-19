@@ -90,7 +90,7 @@ export function recentCatalogue(x, T) {
 export const RECENT_TEXTS = Object.freeze({
   en: {
     'c_recent-actions': 'Recent actions', 's_recent-actions': 'The settings you used last', rcNone: 'No setting used yet', rcOpen: 'Open the setting', rcOpenSettings: 'Open settings',
-    saveFailed: 'This setting was not saved', 'c_live-bitrate': 'Target bitrate of this stream', 's_live-bitrate': 'The command of the host for a running client', lbNow: 'Now', lbSet: 'Set', lbCapped: 'Host limit: {cap} Mbps', lbUncapped: 'No host limit', lbApplies: 'Applies to the running stream', lbSent: 'Bitrate request sent to {client}', lbFailed: 'The host did not take the bitrate request', dsFailed: 'The host did not take the tuning',
+    saveFailed: 'This setting was not saved', 'c_live-bitrate': 'Stream bitrate', 's_live-bitrate': 'The command of the host for a running client', lbNow: 'Now', lbSet: 'Set', lbCapped: 'Host limit: {cap} Mbps', lbUncapped: 'No host limit', lbApplies: 'Applies to the running stream', lbSent: 'Bitrate request sent to {client}', lbFailed: 'The host did not take the bitrate request', dsFailed: 'The host did not take the tuning',
     'c_live-ds5': 'DualSense tuning', 's_live-ds5': 'The common tuning of the host', dsLive: 'Applies while the controller is in use', dsMore: 'All tuning',
     rIdleActions: 'The settings you used last', rLiveBitrate: 'The bitrate of the running stream', rLiveDs5: 'DualSense tuning while a controller is in use',
   },
