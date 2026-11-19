@@ -6,7 +6,7 @@ import MGroup from './MGroup.vue'
 import MItem from './MItem.vue'
 import MNotice from './MNotice.vue'
 import MResetConfirm from './MResetConfirm.vue'
-import { backupTime, backupView, failureText, latestBackup } from '../reset/model.js'
+import { backupTime, backupView, createLatest, failureText, latestBackup } from '../reset/model.js'
 import { resetTexts } from '../reset/texts.js'
 
 // 恢复默认设置, one page for both products. The product passes what it can reset:
@@ -34,9 +34,13 @@ const busy = ref(false)
 const note = ref(null)
 let refresh = 0
 
+// an answer to a read that was started before a reset worked, or before a newer read, is dropped
+const reads = createLatest()
 async function load() {
   if (!props.host) return
+  const token = reads.next()
   const answer = await props.host.status()
+  if (!reads.isCurrent(token)) return
   if (answer.ok) { backups.value = Array.isArray(answer.data?.backups) ? answer.data.backups : []; state.value = 'ok' } else state.value = 'error'
 }
 onMounted(load)
@@ -55,14 +59,14 @@ async function confirm(choice) {
     if (kind === 'host') answer = await props.host.reset(choice?.clearApps)
     else if (kind === 'restore') answer = await props.host.restore()
     else { await props.panel.reset(); answer = { ok: true } }
-  } catch { answer = { ok: false, code: 'failed' } }
+  } catch { answer = { ok: false, code: kind === 'panel' ? 'panel_failed' : 'failed' } }
   busy.value = false
   asking.value = ''
   if (answer.ok) {
     note.value = { tone: 'info', icon: 'check_circle', text: kind === 'host' ? T.value.doneHost : kind === 'restore' ? T.value.doneRestore : T.value.donePanel }
     emit('done', kind)
     // the host restarts: the backup that was newest is not the newest any more, so the row offers none until the list is read again once the host is back
-    if (kind !== 'panel') { state.value = 'stale'; clearTimeout(refresh); refresh = setTimeout(load, 9000) }
+    if (kind !== 'panel') { reads.invalidate(); state.value = 'stale'; clearTimeout(refresh); refresh = setTimeout(load, 9000) }
   } else {
     note.value = { tone: 'error', icon: 'error', text: failureText(T.value, answer.code) }
   }

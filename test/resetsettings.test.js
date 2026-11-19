@@ -7,7 +7,7 @@ import { createServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-import { RESET_KEYWORDS, RESET_SECONDS, backupTime, backupView, countdownLabel, createCountdown, createResetClient, failureText, fill, latestBackup, resetTexts } from '../src/reset/index.js'
+import { RESET_KEYWORDS, RESET_SECONDS, backupTime, backupView, countdownLabel, createCountdown, createLatest, createResetClient, failureText, fill, latestBackup, resetTexts } from '../src/reset/index.js'
 import { ACTION_DEFS, actionDocs, searchTexts } from '../src/search/texts.js'
 import { buildIndex, search } from '../src/search/index.js'
 import { diagnosticsTexts } from '../src/diagnostics/texts.js'
@@ -146,6 +146,12 @@ test('what is reset and what stays is written down, and the host keeps the pairi
     assert.ok(!failureText(T, 'unreachable').includes(T.failed))
   }
   assert.match(failureText(resetTexts('en'), 'unreachable'), /not confirmed/)
+  // the panel's own reset that stopped half way: it does not say that nothing was changed either
+  for (const locale of ['en', 'zh']) {
+    const T = resetTexts(locale)
+    assert.equal(failureText(T, 'panel_failed'), T.errors.panel_failed)
+    assert.ok(!failureText(T, 'panel_failed').includes(T.failed))
+  }
 })
 
 test('the diagnostics page row says what the page says', () => {
@@ -226,4 +232,26 @@ test('the entry row at the bottom of a settings page opens the page', async () =
   const out = await render(mod.MResetEntry, { locale: 'zh' })
   assert.match(out, /data-reset="entry"/)
   assert.match(out, /恢复默认设置/)
+})
+
+test('a read that was started before a reset worked, or before a newer read, is not the current one', () => {
+  const reads = createLatest()
+  const first = reads.next()
+  assert.equal(reads.isCurrent(first), true)
+  const second = reads.next()
+  assert.equal(reads.isCurrent(first), false, 'a newer read makes the older one old')
+  assert.equal(reads.isCurrent(second), true)
+  reads.invalidate()
+  assert.equal(reads.isCurrent(second), false, 'a reset that worked makes every read in flight old')
+  assert.equal(reads.isCurrent(reads.next()), true)
+})
+
+test('the language is not part of the panel reset: it is kept, because the host and the tray follow it', () => {
+  for (const locale of ['en', 'zh']) {
+    const T = resetTexts(locale)
+    const reset = locale === 'zh' ? /语言/ : /language/i
+    assert.doesNotMatch(T.panel.resets, reset)
+    assert.match(T.panel.keeps, reset)
+    assert.match(T.panelRowText, reset)
+  }
 })

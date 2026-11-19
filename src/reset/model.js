@@ -61,11 +61,23 @@ export function createCountdown(seconds = RESET_SECONDS) {
   }
 }
 
+/** Answers that do not say that nothing was changed: no answer came (the call may have been carried out), or the panel's own reset stopped half way. */
+const UNSURE = new Set(['unreachable', 'panel_failed'])
+
 /**
  * The text of an answer that did not work: the reason, and that nothing was changed. A call that got no answer (`unreachable`) may have been carried out before the connection
  * dropped (the host restarts right after a reset), so it never says that nothing was changed.
  */
-export const failureText = (texts, code) => [texts.errors?.[code], code === 'unreachable' ? null : texts.failed].filter(Boolean).join(' ')
+export const failureText = (texts, code) => [texts.errors?.[code], UNSURE.has(code) ? null : texts.failed].filter(Boolean).join(' ')
+
+/**
+ * Reads that are answered out of order: `next()` starts one (its token), `isCurrent(token)` is true only for the newest, and `invalidate()` makes every read in flight old (a reset
+ * or restore worked: what an earlier read says is not the list any more).
+ */
+export function createLatest() {
+  let n = 0
+  return { next: () => ++n, isCurrent: (token) => token === n, invalidate: () => { n += 1 } }
+}
 
 /**
  * What the restore row shows. `state` is how the last read of the backups went: 'loading' (not read yet), 'ok', 'error' (the read failed: the row offers to read again), 'stale'
