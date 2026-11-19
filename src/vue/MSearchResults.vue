@@ -34,7 +34,15 @@ const view = computed(() => {
     return out
   }
   const r = s.result.value
-  if (!r.total) { out.push({ kind: 'none', key: 'none' }); return out }
+  if (!r.total) {
+    out.push({ kind: 'none', key: 'none', hint: !r.suggest?.length })
+    // nothing matched: the nearest settings, pages and actions, so the person is not left with an empty page
+    if (r.suggest?.length) {
+      out.push({ kind: 'header', key: 'h-did', text: props.texts.didYouMean })
+      for (const { doc } of r.suggest) out.push({ kind: 'row', key: `d-${doc.id}`, i: i++, row: { kind: 'doc', doc }, icon: doc.icon || 'tune', title: doc.title, path: doc.path, ranges: [] })
+    }
+    return out
+  }
   for (const g of r.groups) {
     out.push({ kind: 'header', key: `h-${g.type}`, text: props.texts.types[g.type] || g.type })
     // a setting that cannot be used now is a row like any other (it opens its place and the row is marked there) with the reason under the path
@@ -72,7 +80,7 @@ defineExpose({ rowId })
       </li>
       <li v-else-if="e.kind === 'more'" class="m-usearch__more" role="presentation">{{ e.text }}</li>
       <li v-else-if="e.kind === 'hint'" class="m-usearch__empty" role="presentation">{{ e.text }}</li>
-      <li v-else class="m-usearch__empty" role="presentation"><b>{{ fill(texts.noResults, { q: s.query.value.trim() }) }}</b><small>{{ texts.noResultsHint }}</small></li>
+      <li v-else class="m-usearch__empty" role="presentation"><b>{{ fill(texts.noResults, { q: s.query.value.trim() }) }}</b><small v-if="e.hint">{{ texts.noResultsHint }}</small></li>
     </template>
   </ul>
 </template>
