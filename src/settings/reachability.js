@@ -84,9 +84,10 @@ function publicNotes(pub) {
   // the outside check was on and its service did not answer: the screen says what the result rests on
   // A proxy on the router (the service saw its exit) and a service that is out of budget for the day have a sentence of their own, because the person can do something about the first and only wait for the second.
   const unavailable = pub.endpoints.filter((e) => e.outside?.state === 'unavailable')
-  if (unavailable.some((e) => e.outside.reason === 'router_proxy')) { if (!pub.reasons.includes('outside_router_proxy')) notes.push('outside_router_proxy') }
-  else if (unavailable.some((e) => e.outside.reason === 'budget')) notes.push('outside_budget')
-  else if (unavailable.length) notes.push('outside_unavailable')
+  // each kind of reason has its sentence, and a mix of endpoints with different reasons gets each of them; the general one is for a reason that has none of its own
+  if (unavailable.some((e) => e.outside.reason === 'router_proxy') && !pub.reasons.includes('outside_router_proxy')) notes.push('outside_router_proxy')
+  if (unavailable.some((e) => e.outside.reason === 'budget')) notes.push('outside_budget')
+  if (unavailable.some((e) => e.outside.reason !== 'router_proxy' && e.outside.reason !== 'budget')) notes.push('outside_unavailable')
   if (pub.verdict !== 'unreachable' && !pub.evidence.length && !pub.reasons.includes('session_evidence')) notes.push(outsideOk && pub.reasons.includes('mappings_complete') ? 'udp_unverified_forwarded' : 'udp_unverified')
   return notes
 }

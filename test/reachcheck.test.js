@@ -389,3 +389,15 @@ test('a service that has used up its day says so and asks to come back tomorrow,
   const other = reachView(withOutside({ state: 'unavailable', reason: 'no_answer', caller: '' }, ['mappings_complete'], 'likely'), 'en')
   assert.ok(other.paths[0].reasons.some((r) => r.code === 'outside_unavailable'))
 })
+
+test('endpoints with different reasons each get their own sentence, and the general one stays for a reason without one', () => {
+  const x = reachView(normalizeReport(report((r) => {
+    r.public.verdict = 'likely'; r.public.reasons = ['mappings_complete']
+    const base = fixture('reachability-endpoints').public.endpoints[0]
+    r.public.endpoints = [{ ...base, input: 'a.example.net:60000', outside: { state: 'unavailable', reason: 'router_proxy', caller: '198.51.100.7' } },
+      { ...base, input: 'b.example.net:60000', outside: { state: 'unavailable', reason: 'budget' } },
+      { ...base, input: 'c.example.net:60000', outside: { state: 'unavailable', reason: 'no_answer' } }]
+  })), 'en')
+  const codes = x.paths[0].reasons.map((r) => r.code)
+  for (const code of ['outside_router_proxy', 'outside_budget', 'outside_unavailable']) assert.equal(codes.filter((c) => c === code).length, 1, code)
+})
