@@ -9,8 +9,9 @@ import InstallerRail from './InstallerRail.vue'
 import InstallerComponents from './InstallerComponents.vue'
 import InstallerSteps from './InstallerSteps.vue'
 import InstallerLocation from './InstallerLocation.vue'
+import InstallerDirConfirm from './InstallerDirConfirm.vue'
 import { createBridge, emptyView } from './bridge.js'
-import { locationModel, pageDirection, pageModel } from './installerModel.js'
+import { confirmModel, locationModel, pageDirection, pageModel } from './installerModel.js'
 import { t } from './installerTexts.js'
 
 // The installer always runs with full motion and does not follow the system reduce-motion setting
@@ -36,6 +37,8 @@ const view = shallowRef(emptyView())
 const L = computed(() => props.locale || view.value.locale || 'zh')
 const model = computed(() => pageModel(view.value, L.value))
 const location = computed(() => (view.value.page === 'welcome' || view.value.page === 'maintenance' ? locationModel(view.value, L.value) : null))
+// the question about a folder that only has a warning: open while the host says so, on whichever page the install was pressed
+const dirConfirm = computed(() => (view.value.page === 'welcome' || view.value.page === 'components' ? confirmModel(view.value, L.value) : null))
 // the folder picker is the system's and stays open as long as the person wants: the Change button shows busy until the host answers (it always does, a cancelled picker included)
 const choosing = ref(false)
 const copied = ref(false)
@@ -62,6 +65,8 @@ let cancelReady = () => {}
 function onKey(e) {
   if (e.key !== 'Escape' || e.defaultPrevented || !got.value) return
   e.preventDefault()
+  // Esc answers the question about a folder warning first (as Cancel): it never closes the window under it
+  if (dirConfirm.value) { act({ type: 'cancel-dir-risk' }); return }
   act(view.value.page === 'components' ? { type: 'back' } : { type: 'exit' })
 }
 onMounted(() => {
@@ -146,6 +151,7 @@ const done = computed(() => view.value.page === 'done')
               </li>
             </ul>
           </template>
+          <InstallerDirConfirm v-if="dirConfirm" :model="dirConfirm" :locale="L" @action="act" />
           <p v-if="stalled" class="m-inst__stall" role="alert"><MIcon name="error" fill /><span>{{ stalled }}</span></p>
           <footer class="m-inst__foot">
             <div class="m-inst__foot-start">
