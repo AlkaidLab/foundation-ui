@@ -68,7 +68,7 @@ export function createPairQr({ start, poll, cancel, render, onPaired, autoRenew 
         if (++tick % 2) return
         try {
           const s = await poll()
-          if (mine === token && view.state === 'ready' && s && s.status === 'paired') { clear(); view.state = 'paired'; if (onPaired) onPaired() }
+          if (mine === token && (view.state === 'ready' || view.state === 'expired') && s && s.status === 'paired') { clear(); view.state = 'paired'; if (onPaired) onPaired() }
         } catch { /* the next tick asks again */ }
       }, 1000)
     } catch {

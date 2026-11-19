@@ -93,6 +93,32 @@ test('a client that pairs ends the countdown', async () => {
   } finally { mock.timers.reset() }
 })
 
+test('a pairing reported by an in-flight poll after expiry is accepted once, but not after refresh', async (t) => {
+  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] })
+  const pending = []
+  let paired = 0
+  const q = createPairQr({
+    start: async () => ({ url: 'https://host/pair', expires_in: 3 }),
+    poll: () => new Promise((resolve) => pending.push(resolve)),
+    cancel: async () => {}, render: async () => 'image', autoRenew: false,
+    onPaired: () => { paired++ },
+  })
+  await q.begin()
+  t.mock.timers.tick(2000); await settle()
+  t.mock.timers.tick(1000); await settle()
+  assert.equal(q.view.state, 'expired')
+  pending.shift()({ status: 'paired' }); await settle()
+  assert.equal(q.view.state, 'paired'); assert.equal(paired, 1)
+
+  await q.begin(true)
+  t.mock.timers.tick(2000); await settle()
+  t.mock.timers.tick(1000); await settle()
+  await q.begin(true)
+  pending.shift()({ status: 'paired' }); await settle()
+  assert.equal(q.view.state, 'ready'); assert.equal(paired, 1)
+  q.stop()
+})
+
 test('a host that refuses shows the error state, not a stale code', async () => {
   const { q } = make({ api: { start: async () => { throw new Error('no') } } })
   q.begin(); await settle()
