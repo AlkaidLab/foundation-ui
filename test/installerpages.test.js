@@ -9,9 +9,9 @@ import { createServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-import { COMPONENT_IDS, createMockBridge, emptyView } from '../src/vue/installer/bridge.js'
+import { ACTION_TYPES, COMPONENT_IDS, createMockBridge, emptyView, validAction } from '../src/vue/installer/bridge.js'
 import { INSTALLER_STATES, snapshotOf, staticBridge } from '../src/vue/installer/installerStates.js'
-import { installProgress, pageDirection, pageModel, railItems, railStates, stepRows, componentSections } from '../src/vue/installer/installerModel.js'
+import { installProgress, pageDirection, pageModel, railItems, railStates, stepRows, componentSections, formatBytes, locationModel, splitPath } from '../src/vue/installer/installerModel.js'
 import { LOCALES, t, textKeys } from '../src/vue/installer/installerTexts.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -324,4 +324,87 @@ test('the done emblem: the ring closes, fills into the shape and the check draws
   assert.match(app, /m-inst__seal-ring[\s\S]*m-inst__seal-tick/)
   for (const k of ['m-inst-seal-ring', 'm-inst-seal-fill', 'm-inst-seal-shape', 'm-inst-seal-tick']) assert.match(css, new RegExp('@keyframes ' + k))
   assert.match(css, /\.m-inst__seal \{[^}]*width: 112px/)
+})
+
+// ---------------------------------------------------------------- the install location
+
+const DIR_ERRORS = ['invalid', 'chars', 'not-fixed', 'fs', 'root', 'system', 'user', 'synced', 'parent', 'not-empty', 'too-long', 'no-space', 'no-access']
+const withDir = (over, page = 'welcome') => ({ ...snapshotOf(page), installDir: { ...snapshotOf(page).installDir, ...over } })
+
+test('the first page shows where the program goes, with the free space and a Change button; the maintenance page shows the place without one', async () => {
+  for (const l of LOCALES) {
+    const welcome = (await render('welcome-dir-custom', l)).replace(/<!--.*?-->/g, '')
+    assert.match(welcome, /data-inst-location/)
+    assert.ok(welcome.includes(t(l, 'dir.label')), `${l} label`)
+    assert.ok(welcome.includes('Foundation Sunshine'), `${l} the folder`)
+    assert.ok(welcome.includes(t(l, 'dir.free', '412 GB')), `${l} free space`)
+    assert.equal((welcome.match(/m-inst__loc-change/g) || []).length, 1, `${l} one Change button`)
+    assert.ok(welcome.includes(`>${t(l, 'dir.change')}</`), `${l} Change label`)
+    for (const id of ['welcome-upgrade']) assert.ok(!/m-inst__loc-change/.test(await render(id, l)), `${id} ${l} an upgrade keeps its place`)
+    for (const id of ['maintenance', 'maintenance-same', 'maintenance-downgrade']) {
+      const html = await render(id, l)
+      assert.match(html, /data-inst-location/, `${id} ${l}`)
+      assert.ok(!/m-inst__loc-change/.test(html), `${id} ${l} an installed copy cannot be moved`)
+    }
+    // the other pages have no such row
+    for (const id of ['components', 'uac', 'installing-files', 'done', 'failed-generic']) assert.ok(!/data-inst-location/.test(await render(id, l)), id)
+  }
+})
+
+test('a refused folder says why under the row and keeps Install and Customize off, in both languages', async () => {
+  for (const code of DIR_ERRORS) for (const l of LOCALES) {
+    const v = withDir({ error: code, maxLength: 85, neededBytes: 1.5 * 2 ** 30 })
+    const loc = locationModel(v, l)
+    assert.ok(loc.error.text.length > 8, `${code} ${l}`)
+    assert.ok(!/undefined|NaN|\[object/.test(JSON.stringify(loc)), `${code} ${l}`)
+    if (code === 'too-long') assert.match(loc.error.text, /85/)
+    if (code === 'no-space') assert.match(loc.error.text, /1\.5 GB/)
+    const m = pageModel(v, l)
+    assert.deepEqual(m.end.map((b) => [b.key, !!b.disabled]), [['customize', true], ['install', true]], `${code} ${l}`)
+    const html = renderToString(createSSRApp(MInstaller, { bridge: staticBridge(v), locale: l }))
+    assert.match(await html, new RegExp(`data-code="${code}"`), `${code} ${l}`)
+    assert.ok((await html).includes(loc.error.text.replace(/&/g, '&amp;').replace(/'/g, '&#39;')), `${code} ${l} the reason is on the page`)
+  }
+  // a usable folder leaves both on
+  for (const l of LOCALES) assert.deepEqual(pageModel(snapshotOf('welcome-dir-custom'), l).end.map((b) => !!b.disabled), [false, false])
+  // the components page cannot start an install with a refused folder either
+  assert.equal(pageModel(withDir({ error: 'fs' }, 'components'), 'zh').end.find((b) => b.key === 'install').disabled, true)
+})
+
+test('the location texts: every error has its words in zh and en, sizes and paths are cut for the row', () => {
+  assert.equal(formatBytes(0), '0 B'); assert.equal(formatBytes(1536), '2 KB'); assert.equal(formatBytes(5.5 * 2 ** 30), '5.5 GB'); assert.equal(formatBytes(412 * 2 ** 30), '412 GB'); assert.equal(formatBytes(2 * 2 ** 40), '2 TB')
+  assert.deepEqual(splitPath('C:\\Program Files\\Sunshine'), { head: 'C:', tail: '\\Program Files\\Sunshine' }, 'a short last folder takes its parent with it')
+  assert.deepEqual(splitPath('D:\\Games\\Foundation Sunshine'), { head: 'D:\\Games', tail: '\\Foundation Sunshine' })
+  assert.deepEqual(splitPath('D:\\A\\B\\C'), { head: 'D:', tail: '\\A\\B\\C' })
+  assert.deepEqual(splitPath('C:\\' + 'A'.repeat(100) + '\\bin'), { head: 'C:\\' + 'A'.repeat(100), tail: '\\bin' }, 'a long parent stays in the head, which is the part that gets cut')
+  assert.deepEqual(splitPath('D:\\Games\\安装\\Foundation Sunshine'), { head: 'D:\\Games\\安装', tail: '\\Foundation Sunshine' })
+  assert.equal(locationModel({ ...emptyView(), installDir: { ...emptyView().installDir, path: '' } }, 'zh'), null)
+  for (const l of LOCALES) for (const code of DIR_ERRORS) assert.doesNotThrow(() => t(l, `dir.err.${code}`, 5), `${l} ${code}`)
+  for (const l of LOCALES) assert.ok(!/遥测|telemetry/i.test(textKeys(l).map((k) => { try { return String(t(l, k, 1, 2)) } catch { return '' } }).join(' ')))
+})
+
+test('Change sends choose-dir, shows busy until the host answers, and the mock host picks folders and refuses to install into a refused one', async () => {
+  assert.ok(ACTION_TYPES.includes('choose-dir'))
+  assert.equal(validAction({ type: 'choose-dir' }), true)
+  const app = readFileSync(join(root, 'src/vue/installer/MInstaller.vue'), 'utf8')
+  assert.match(app, /a\.type === 'choose-dir'\) choosing\.value = true/, 'the button shows busy while the system picker is open')
+  assert.ok(!/WAITS = \[[^\]]*choose-dir/.test(app), 'the picker may stay open: no no-answer watchdog')
+  const mock = createMockBridge({ speed: 0 })
+  assert.equal(mock.state().installDir.editable, true)
+  await mock.send({ type: 'choose-dir' })
+  assert.equal(mock.state().installDir.path, 'D:\\Games\\Foundation Sunshine'); assert.equal(mock.state().installDir.error, null)
+  await mock.send({ type: 'choose-dir' })
+  assert.equal(mock.state().installDir.error, 'not-empty')
+  await mock.send({ type: 'install' })
+  assert.equal(mock.state().page, 'welcome', 'no install into a refused folder')
+  await mock.send({ type: 'choose-dir' }); await mock.send({ type: 'choose-dir' })
+  assert.equal(mock.state().installDir.error, null); assert.equal(mock.state().installDir.path, 'C:\\Program Files\\Sunshine')
+  await mock.send({ type: 'install' })
+  assert.equal(mock.state().page, 'uac')
+  const upgrade = createMockBridge({ scenario: 'upgrade', speed: 0 })
+  assert.equal(upgrade.state().installDir.editable, false)
+  await upgrade.send({ type: 'choose-dir' })
+  assert.equal(upgrade.state().installDir.path, 'D:\\Programs\\Foundation Sunshine', 'an installed copy stays where it is')
+  // the host sends every key of emptyView().installDir
+  assert.deepEqual(Object.keys(emptyView().installDir).sort(), ['editable', 'error', 'freeBytes', 'maxLength', 'neededBytes', 'path'])
 })

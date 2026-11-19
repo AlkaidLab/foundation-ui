@@ -100,6 +100,33 @@ export const PROGRESS_GROUPS = Object.freeze([
  */
 
 /**
+ * @typedef {'invalid'|'chars'|'not-fixed'|'fs'|'root'|'system'|'user'|'synced'|'parent'|'not-empty'|'too-long'|'no-space'|'no-access'} InstallDirError
+ *   invalid     the path is not usable (not a full path, characters Windows does not allow)
+ *   chars       a character the installer's scripts cannot carry (! % ^ & ; , = ' ` { } $)
+ *   not-fixed   not a fixed disk of this PC (network, removable, mapped, optical)
+ *   fs          the volume is not NTFS or ReFS (no permissions to protect the program with)
+ *   root        the root of a disk
+ *   system      inside the Windows folder
+ *   user        inside a user's folder (the profile, Desktop, Documents, Downloads)
+ *   synced      inside a synced folder (OneDrive and the like)
+ *   parent      a folder above it can be renamed, replaced or re-permissioned by ordinary users, so the program could be swapped out from above
+ *   not-empty   the folder has files and is not an existing Foundation Sunshine folder
+ *   too-long    the longest path of the package would pass `maxLength`
+ *   no-space    the drive has less than `neededBytes` free
+ *   no-access   the folder cannot be opened or created
+ */
+
+/**
+ * @typedef {object} InstallerLocation
+ * @property {string} path               the folder the install goes to: the default on a fresh install, the picked one, or the installed copy's
+ * @property {boolean} editable          a fresh install on its first page: the Change button shows. false = the place of an installed copy (an upgrade keeps it; to move, uninstall and install again)
+ * @property {number|null} freeBytes     free space of the drive of `path`; null when it could not be read
+ * @property {number} neededBytes        the space the install needs
+ * @property {number} maxLength          the longest path of the folder that is accepted
+ * @property {InstallDirError|null} error  why the folder cannot be used; the install buttons stay off while it is set
+ */
+
+/**
  * @typedef {object} InstallerView
  * @property {1} schema
  * @property {number} seq                  increases with every snapshot; drop a snapshot older than the last one
@@ -113,6 +140,7 @@ export const PROGRESS_GROUPS = Object.freeze([
  *                                         version each needs ('1803', '1903'): shown disabled and unticked
  * @property {number} windowsBuild         the Windows build (0 = unknown)
  * @property {boolean} uacCancelled        the last attempt was cancelled at the UAC prompt (show a note on welcome/maintenance)
+ * @property {InstallerLocation} installDir  where the program goes (first page and maintenance page)
  * @property {InstallerProgress} progress
  * @property {'none'|'optional'} restart   done page: 'optional' = Windows asked for a restart (the weak Restart PC button);
  *                                         never shown as a blocking step
@@ -137,6 +165,7 @@ export const PROGRESS_GROUPS = Object.freeze([
  *   | {type:'back'}                                         // components -> welcome or maintenance
  *   | {type:'toggle-component', id: ComponentId}            // components
  *   | {type:'select-all'}                                   // components: all on, or all off when all are on
+ *   | {type:'choose-dir'}                                   // welcome (fresh install): the host opens the system folder picker, checks the folder and answers with a new `installDir`
  *   | {type:'uninstall'}                                    // maintenance: start the installed uninstaller, then the host exits
  *   | {type:'open-panel'}                                   // done: start the Panel (at the guide when guidePending)
  *   | {type:'restart-pc'}                                   // done: Windows restart (Windows asks open apps to close)
@@ -148,7 +177,7 @@ export const PROGRESS_GROUPS = Object.freeze([
  */
 
 /** @type {ReadonlyArray<InstallerAction['type']>} */
-export const ACTION_TYPES = Object.freeze(['ready', 'install', 'retry', 'customize', 'back', 'toggle-component', 'select-all',
+export const ACTION_TYPES = Object.freeze(['ready', 'install', 'retry', 'customize', 'back', 'toggle-component', 'select-all', 'choose-dir',
   'uninstall', 'open-panel', 'restart-pc', 'copy-details', 'open-log-folder', 'minimise', 'exit'])
 
 /**
@@ -173,6 +202,7 @@ export function emptyView() {
     unsupported: {},
     windowsBuild: 0,
     uacCancelled: false,
+    installDir: { path: 'C:\\Program Files\\Sunshine', editable: true, freeBytes: null, neededBytes: 0, maxLength: 0, error: null },
     progress: {
       groups: PROGRESS_GROUPS.map((g) => ({ id: g.id, state: 'pending' })),
       current: 0,

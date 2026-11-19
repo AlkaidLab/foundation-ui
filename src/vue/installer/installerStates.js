@@ -12,7 +12,7 @@ const STEPS = {
 
 /** a view with the given engine events reduced into its progress (groups, current group, last step), as the host does */
 export function viewWith(patch = {}, events = []) {
-  const v = { ...emptyView(), ...patch }
+  const v = { ...emptyView(), installDir: dir(), ...patch }
   v.components = { ...emptyView().components, ...(patch.components || {}) }
   v.progress = { groups: [], current: 0, steps: {}, lastStep: null, finished: false }
   for (const [phase, state] of events) { v.progress.steps[phase] = state; v.progress.lastStep = phase }
@@ -25,17 +25,26 @@ export function viewWith(patch = {}, events = []) {
   return v
 }
 
+const GB = 2 ** 30
+/** the install-location part of a snapshot: a fresh install on the default folder unless `over` says otherwise */
+const dir = (over = {}) => ({ path: 'C:\\Program Files\\Sunshine', editable: true, freeBytes: 238 * GB, neededBytes: 1.2 * GB, maxLength: 85, error: null, ...over })
 const maint = (over = {}) => ({ installedVersion: '2026.1101.0', packageVersion: '2026.1109.0', downgrade: false, same: false, hasUninstaller: true, ...over })
 const installed = { usbip: false }
+const here = dir({ path: 'D:\\Programs\\Foundation Sunshine', editable: false, freeBytes: 311 * GB })
 
 /** [id, group, label, snapshot] in the order of a person's path through the installer */
 export const INSTALLER_STATES = Object.freeze([
   ['welcome', 'welcome', '欢迎', () => viewWith({ page: 'welcome' })],
-  ['welcome-upgrade', 'welcome', '欢迎 · 检测到旧版', () => viewWith({ page: 'welcome', upgrade: true })],
+  ['welcome-upgrade', 'welcome', '欢迎 · 检测到旧版', () => viewWith({ page: 'welcome', upgrade: true, installDir: here })],
   ['welcome-cancelled', 'welcome', '欢迎 · 已取消授权', () => viewWith({ page: 'welcome', uacCancelled: true })],
-  ['maintenance', 'maintenance', '维护 · 更新', () => viewWith({ page: 'maintenance', upgrade: true, maintenance: maint(), components: installed })],
-  ['maintenance-same', 'maintenance', '维护 · 同版本', () => viewWith({ page: 'maintenance', upgrade: true, maintenance: maint({ installedVersion: '2026.1109.0', same: true }), components: installed })],
-  ['maintenance-downgrade', 'maintenance', '维护 · 降级', () => viewWith({ page: 'maintenance', upgrade: true, maintenance: maint({ installedVersion: '2026.1110.0', downgrade: true }), components: installed })],
+  ['welcome-dir-custom', 'welcome', '欢迎 · 自选安装位置', () => viewWith({ page: 'welcome', installDir: dir({ path: 'D:\\Games\\安装\\Foundation Sunshine', freeBytes: 412 * GB }) })],
+  ['welcome-dir-not-empty', 'welcome', '欢迎 · 文件夹不是空的', () => viewWith({ page: 'welcome', installDir: dir({ path: 'D:\\Games', freeBytes: 412 * GB, error: 'not-empty' }) })],
+  ['welcome-dir-parent', 'welcome', '欢迎 · 上级文件夹不安全', () => viewWith({ page: 'welcome', installDir: dir({ path: 'D:\\Games\\Sunshine', freeBytes: 412 * GB, error: 'parent' }) })],
+  ['welcome-dir-fs', 'welcome', '欢迎 · 磁盘格式不对', () => viewWith({ page: 'welcome', installDir: dir({ path: 'F:\\Sunshine', freeBytes: 58 * GB, error: 'fs' }) })],
+  ['welcome-dir-no-space', 'welcome', '欢迎 · 空间不足', () => viewWith({ page: 'welcome', installDir: dir({ path: 'E:\\Sunshine', freeBytes: 0.4 * GB, error: 'no-space' }) })],
+  ['maintenance', 'maintenance', '维护 · 更新', () => viewWith({ page: 'maintenance', upgrade: true, maintenance: maint(), components: installed, installDir: here })],
+  ['maintenance-same', 'maintenance', '维护 · 同版本', () => viewWith({ page: 'maintenance', upgrade: true, maintenance: maint({ installedVersion: '2026.1109.0', same: true }), components: installed, installDir: here })],
+  ['maintenance-downgrade', 'maintenance', '维护 · 降级', () => viewWith({ page: 'maintenance', upgrade: true, maintenance: maint({ installedVersion: '2026.1110.0', downgrade: true }), components: installed, installDir: here })],
   ['components', 'components', '选择组件', () => viewWith({ page: 'components' })],
   ['components-maintenance', 'components', '选择组件 · 维护(已勾选当前组件)', () => viewWith({ page: 'components', upgrade: true, maintenance: maint(), components: { ...installed, desktopicon: false } })],
   ['uac', 'uac', '等待授权', () => viewWith({ page: 'uac', busy: true })],

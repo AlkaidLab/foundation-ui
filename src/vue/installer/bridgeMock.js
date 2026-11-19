@@ -40,6 +40,18 @@ export function createMockBridge(opts = {}) {
     v.components.usbip = false
     v.guidePending = scenario !== 'upgrade-guide-done' && scenario !== 'maintenance-same'
   }
+  const GB = 2 ** 30
+  v.installDir = maint
+    ? { path: 'D:\\Programs\\Foundation Sunshine', editable: false, freeBytes: 311 * GB, neededBytes: 1.2 * GB, maxLength: 85, error: null }
+    : { path: 'C:\\Program Files\\Sunshine', editable: true, freeBytes: 238 * GB, neededBytes: 1.2 * GB, maxLength: 85, error: null }
+  // what the folder picker answers, one after another (a real host opens the system picker and checks the folder it returns)
+  const picks = [
+    { path: 'D:\\Games\\Foundation Sunshine', freeBytes: 412 * GB, error: null },
+    { path: 'D:\\Games', freeBytes: 412 * GB, error: 'not-empty' },
+    { path: 'F:\\Sunshine', freeBytes: 58 * GB, error: 'fs' },
+    { path: 'C:\\Program Files\\Sunshine', freeBytes: 238 * GB, error: null },
+  ]
+  let pick = 0
   let script = []
   let timer = null
 
@@ -130,7 +142,8 @@ export function createMockBridge(opts = {}) {
     opts.onAction?.(a)
     switch (a.type) {
       case 'ready': emit(); break
-      case 'install': if (['welcome', 'maintenance', 'components'].includes(v.page)) startWorker(); break
+      case 'choose-dir': if (v.page === 'welcome' && v.installDir.editable) { v.installDir = { ...v.installDir, ...picks[pick % picks.length] }; pick += 1; emit() } break
+      case 'install': if (['welcome', 'maintenance', 'components'].includes(v.page) && !v.installDir.error) startWorker(); break
       case 'retry': if (v.page === 'failed') startWorker(); break
       case 'customize': if (v.page === 'welcome' || v.page === 'maintenance') go('components'); break
       case 'back': if (v.page === 'components') go(v.maintenance ? 'maintenance' : 'welcome'); break
