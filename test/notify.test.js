@@ -95,7 +95,7 @@ test('the snackbar of the host has no animation of its own: only the enter class
   assert.match(read('components.css'), /\.m-snackbar \{[^}]*animation: m-dialog-in/, 'the base rule still animates the plain bar (MLinkActions copy toast)')
   assert.match(notify, /\.m-snackbar\[popover\] \{ animation: none; \}/)
   assert.match(notify, /\.m-snackbar\[popover\]\.m-snack-enter-active \{ animation: m-snack-in /)
-  assert.match(notify, /\.m-snackbar\[popover\]\.m-snack-leave-active \{ transition: opacity 100ms linear, bottom /)
+  assert.doesNotMatch(notify, /\.m-snackbar\[popover\]\.m-snack-leave-active/, 'a leave rule of weight (0,3,0) would beat the reduced-motion rules that switch the transition off')
   // the no-animation rule must come after the base rule in the cascade of all.css, and carry more weight than it (class + attribute vs class)
   const all = read('all.css')
   assert.ok(all.indexOf("./components.css") < all.indexOf("./notify.css"))

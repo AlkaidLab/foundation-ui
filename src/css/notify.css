@@ -102,10 +102,9 @@ html[data-motion='reduced'] .m-plistpop:popover-open { animation: none; }
 .m-snackbar[popover] { position: fixed; inset: auto auto 20px 50%; margin: 0; border: 0; overflow: visible; width: max-content; }
 /* The base rule of .m-snackbar (components.css) plays m-dialog-in; the enter class of the host (.m-snack-enter-active) only covers it while the class is on the element. When Vue
    takes the class off at the end of the entrance the base animation starts for the first time: the bar went transparent and entered a second time from the side. The host's bar
-   (a popover) has no animation of its own, only the enter class has one, and the leave class keeps its fade next to the move of the stack (the rule above would replace it). */
+   (a popover) has no animation of its own, only the enter class has one. */
 .m-snackbar[popover] { animation: none; }
 .m-snackbar[popover].m-snack-enter-active { animation: m-snack-in var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
-.m-snackbar[popover].m-snack-leave-active { transition: opacity 100ms linear, bottom var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
 body:has(.m-dedit__fab) .m-snackbar[popover] { bottom: 92px !important; }
 .m-snackbar__text { flex: 1; min-width: 0; padding-right: 8px; font: var(--m-label-large); }
 .m-snackbar .m-btn--text { flex: none; }
