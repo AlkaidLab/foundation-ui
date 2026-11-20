@@ -61,6 +61,8 @@ try { expandedChoice.value = localStorage.getItem(railKey) === 'expanded' } catc
 const toggleRail = () => { expandedChoice.value = !expandedChoice.value; try { localStorage.setItem(railKey, expandedChoice.value ? 'expanded' : 'collapsed') } catch { /* storage unavailable */ } }
 
 let observer = null
+let barObserver = null
+let observedBar = null
 let readSize = null
 onMounted(() => {
   const read = () => {
@@ -70,8 +72,12 @@ onMounted(() => {
     if (next.width !== size.value.width || next.height !== size.value.height) { noteResize(); animating.value = false; settleWidth.value = null }
     size.value = next
     bottomStack.setBarRoom(next.bar)
+    // the bar can change its own height (a label, a badge, the font) without the scene changing its size
+    const barEl = root.value.classList.contains('m-scene--side') ? null : root.value.querySelector('.m-scene__bar')
+    if (barEl !== observedBar) { barObserver?.disconnect(); observedBar = barEl; if (barEl) barObserver?.observe(barEl) }
   }
   readSize = read
+  barObserver = new ResizeObserver(read)
   read()
   observer = new ResizeObserver(read)
   observer.observe(root.value)
@@ -84,7 +90,7 @@ onMounted(() => {
 // (and from the product's own bar over the window, where a button that was just pressed, the bell or the connect button, keeps the focus)
 const onWindowKey = (event) => { if (root.value && (event.target === document.body || event.target.closest?.(props.captionSelector))) keydown(event) }
 onMounted(() => window.addEventListener('keydown', onWindowKey))
-onBeforeUnmount(() => { bottomStack.setBarRoom(0); observer?.disconnect(); stopPixelRatio(); stopResizing(); window.removeEventListener('keydown', onWindowKey) })
+onBeforeUnmount(() => { bottomStack.setBarRoom(0); observer?.disconnect(); barObserver?.disconnect(); stopPixelRatio(); stopResizing(); window.removeEventListener('keydown', onWindowKey) })
 
 // The shell fills the window exactly (html.m-shell, layout.css): only the panes scroll. Nothing else may ever move, whatever asks for it:
 // a scrollIntoView or a focus reaches every ancestor, and an element with overflow hidden can be scrolled by a script, so the frame is

@@ -1,8 +1,8 @@
 /* Phone pages (card web-pages-phone-1120): what the audit of every Web UI page at 320-932 px found. A finger needs the rows to keep their title, and a short window needs the sheets to keep their body. */
 
-/* a settings row has up to four trailing controls (pin menu, info, value, switch): at phone width they took 160 px of a 326 px row and the title was left with three lines or one glyph per line. The pin menu stays the long press of the row (MItem), its button leaves the row; the info button and the switch keep their 48 px hit slop (40 + 8 px gap, the switch 52 px). */
+/* a settings row has up to four trailing controls (pin menu, info, value, switch): at phone width they took 160 px of a 326 px row and the title was left with three lines or one glyph per line. The pin menu stays the long press of the row (MItem), its button leaves the row but stays in the tab order, so the keyboard still reaches the menu; the info button and the switch keep their 48 px hit slop (40 + 8 px gap, the switch 52 px). */
 @media (pointer: coarse) and (max-width: 440px) {
-  .m-item__more { display: none; }
+  .m-item__more { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); opacity: 0; pointer-events: none; }
   .m-item > .m-item__trail { gap: 8px; }
   .m-item__title { text-wrap: balance; }
 }
