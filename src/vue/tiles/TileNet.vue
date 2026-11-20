@@ -34,6 +34,8 @@ const size = computed(() => ({ m: 'm', l: 'l', xl: 'xl' }[props.card?.size] || '
 // '2.5 Gbps' -> the number and its unit; an adapter without a speed shows its kind
 const speed = computed(() => { const m = /^([\d.]+)\s*(\S+)$/.exec(p.value.speed || ''); return m ? { v: m[1], u: m[2] } : { v: '', u: '' } })
 const options = computed(() => choice.value.options || [])
+// the kind after the name, unless the name already says it (Ethernet Ethernet), and the network name of a wireless adapter
+const sub = computed(() => [p.value.kind && p.value.kind !== p.value.name ? p.value.kind : '', p.value.ssid].filter(Boolean).join(' · '))
 const chipLabel = computed(() => (choice.value.manual ? p.value.name : L.value.auto))
 const menu = computed(() => [{ id: '', label: `${L.value.auto}${choice.value.auto ? ` · ${choice.value.auto}` : ''}`, icon: 'sync', checked: !choice.value.manual }, { id: 'line', divider: true }, ...options.value.map((o) => ({ id: `nic:${o.id}`, label: `${o.title}${o.up ? '' : ` · ${L.value.down}`}`, icon: o.icon, checked: choice.value.manual && o.current }))])
 // What the preview of a tile in edit mode and a tile of a host without the API must not do: write the choice
@@ -62,7 +64,7 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
         <div class="m-tnet__info">
           <div class="m-tnet__main">
             <MTileNumeral :value="speed.v || p.kind" :unit="speed.u" :size="size === 'xl' ? 'l' : 'm'" />
-            <b class="m-tnet__name" :title="p.description || p.name">{{ p.name }} <small>{{ p.kind }}<template v-if="p.ssid"> · {{ p.ssid }}</template></small></b>
+            <b class="m-tnet__name" :title="p.description || p.name">{{ p.name }} <small v-if="sub">{{ sub }}</small></b>
             <span class="m-tnet__ip m-dnum" data-redact="address">{{ p.ipv4 }}</span>
           </div>
           <template v-if="size === 'xl'">
