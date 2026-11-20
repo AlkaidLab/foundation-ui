@@ -158,6 +158,12 @@ html[data-bs-theme='dark'] .m-b2pair__qr, html[data-theme='dark'] .m-b2pair__qr,
 .m-b2pair__row .m-b2pair__go { flex: none; width: auto; height: 40px; margin: 0; }
 /* the label of the button is whole at the narrowest tile (a unit of 148 leaves it 112 px: the icon, the word and 10 px of padding on each side) */
 .m-b2pair__go { padding-inline: 10px; gap: 4px; font-size: 13px; }
+/* 获取二维码 at 方形: the button keeps a finger's height (40 px; tilefit.css lets every tile button shrink to 26 px in a short column, and a tap box of 26 px is under the 40 px floor of a touch screen). The column makes the room: the count above it gives up its line gap, the tile keeps its size */
+.m-b2pair.is-s, .m-tile:has(> .m-b2pair__go) { gap: 0; }
+.m-tile > .m-b2pair__go { flex: none; height: 40px; min-height: 40px; }
+/* the button clipped its own tap slop (the ::after of touch.css grows the hit box to 48 px, and overflow: hidden cut it at the 40 px box, so the tap area measured 32 px at the pill's corners): clip the label alone and let the slop out by 8 px */
+.m-tile > .m-b2pair__go { overflow: clip; overflow-clip-margin: 8px; }
+.m-tile:has(> .m-b2pair__go) > .m-b2paired__count { margin-block: auto 6px; }
 /* a 320 px window (the unit is 138): the icon gives its place to the whole label, in every language */
 @media (max-width: 340px) { .m-b2pair__go .m-icon { display: none; } }
 .m-b2pair__go.is-tonal:disabled { background: color-mix(in srgb, var(--md-sys-color-secondary-container) 55%, var(--cal-inner)); color: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 70%, transparent); }
