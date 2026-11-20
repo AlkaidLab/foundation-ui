@@ -54,4 +54,7 @@ test('a smart overview ends in a full row at every window class: the tail fill r
   assert.match(dock, /max: heightOf\(packed, rowPx, UNIT_GAP\)/)
   // the tiles of the tail are not part of the memory that orders the fill
   assert.match(dock, /fillMemory = memory0/)
+  // editing starts from the page that was on the screen: the tiles of the fill are frozen into the saved layout with the plan's
+  assert.match(dock, /layout\.freeze\(withFill\(/)
+  assert.match(dock, /watch\(blocks, \(list\) => \{ if \(!edit\.value\) lastShown =/)
 })

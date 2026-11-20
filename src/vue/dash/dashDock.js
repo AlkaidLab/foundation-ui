@@ -324,8 +324,12 @@ export function useDashDock(D) {
   let editSnap = ''
   const layoutKey = () => JSON.stringify([layout.state.order, layout.state.overrides, layout.state.sizes, layout.state.pins])
   let editRaw = ''
+  // what the smart overview shows, the tiles of the fill too (blocks is read while it is not edited: the last smart drawing stays here when editing begins), so that editing starts from the page that was on the screen
+  let lastShown = []
+  watch(blocks, (list) => { if (!edit.value) lastShown = list.flatMap((b) => b.boxed).filter((c) => !c.ghost).map((c) => ({ id: c.id, size: c.sizeKey })) }, { immediate: true, flush: 'sync' })
+  const withFill = (base) => { const extra = lastShown.filter((x) => !base.visible.includes(x.id) && cardById.value.has(x.id)); return extra.length ? { ...base, visible: [...base.visible, ...extra.map((x) => x.id)], sizes: { ...base.sizes, ...Object.fromEntries(extra.map((x) => [x.id, x.size])) } } : base }
   watch(edit, (on) => {
-    if (on) { editRaw = JSON.stringify(layout.state); if (appearance.state.smartTiles && layout.state.mode === 'smart') layout.freeze(D.seenPlan && Date.now() - D.flushedAt < 1500 ? D.seenPlan : plan.value); D.seenPlan = null; editSnap = layoutKey(); return }
+    if (on) { editRaw = JSON.stringify(layout.state); if (appearance.state.smartTiles && layout.state.mode === 'smart') layout.freeze(withFill(D.seenPlan && Date.now() - D.flushedAt < 1500 ? D.seenPlan : plan.value)); D.seenPlan = null; editSnap = layoutKey(); return }
     if (appearance.state.smartTiles && layoutKey() !== editSnap) { appearance.set({ smartTiles: false }); return }
     // nothing was changed: the saved layout is as it was before editing began (what was copied into it to keep the tiles in place goes again)
     if (editRaw && layoutKey() === editSnap) Object.assign(layout.state, JSON.parse(editRaw))
