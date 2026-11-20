@@ -145,7 +145,7 @@ test("the 大 host card's chips wrap and give up what does not fit (data-fit-row
 test("the overview shows no mode label: no 手动 / 恢复智能布局 chip; 恢复智能布局 stays in the layout edit sheet", () => {
   const dash = fs.readFileSync(new URL("../src/vue/MHomeDash.vue", import.meta.url), "utf8")
   assert.doesNotMatch(dash, /m-dash__smart|m-dash__bar|manualChip/)
-  assert.match(dash, /<button type="button" class="m-dpill" @click="restoreSmart"><MIcon name="wand_stars" \/>\{\{ T\.restoreSmart \}\}<\/button>/)
+  assert.match(dash, /<button type="button" class="m-dpill"[^>]*@click="restoreSmart"><MIcon name="wand_stars" \/><span class="m-dpill__t">\{\{ T\.restoreSmart \}\}<\/span><\/button>/)
   assert.doesNotMatch(fs.readFileSync(new URL("../src/css/dash.css", import.meta.url), "utf8"), /\.m-dash__smart|\.m-dash__bar/)
   assert.doesNotMatch(fs.readFileSync(new URL("../src/vue/homeCatalogueTextsMore.js", import.meta.url), "utf8"), /manualChip/)
 })
