@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, provide, ref, useSlots } from 'vue'
 import MIconButton from './MIconButton.vue'
 import { SEARCH_ICON, SEARCH_MIN, partsOf } from './useCaptionRoom.js'
+import { isCompactNav } from '../nav/scenes.js'
 
 // The caption bar over the top of the window, beside the rail, one for both products. It only orders what the product puts in it:
 //   [back] brand [version] | search | mita (a character's avatar button: the control panel only) | connect (连接设备) | announcements (公告) | account (the account menu) | controls (the window's own buttons: the control panel only)
@@ -14,6 +15,9 @@ import { SEARCH_ICON, SEARCH_MIN, partsOf } from './useCaptionRoom.js'
 // writes it as data-tier. What a tier leaves out is not gone: the product lists it in 更多 (the `more` event), in the order it has in the bar.
 //   0 everything · 1 the version and the update line · 2 the label of 连接设备 (the icon stays) and the search field (its icon stays) · 3 the name beside the logo · 4 公告 and 反馈 · 5 连接设备
 // The search field needs about SEARCH_MIN; as its icon, SEARCH_ICON.
+//
+// A phone is what the shell says it is (isCompactNav: narrower than 600, or shorter than 480, so a phone on its side too), never what a media query on the width says: the bar writes it as data-phone and
+// every phone rule of the bar hangs on that, so the rail, the search and the bar are one decision. A phone never has the field or the words of 连接设备 or the version: it starts at tier 2.
 const props = defineProps({
   bem: { type: String, default: 'm-caption' },
   /** the product has a 更多 surface to open: from tier 4 a button at the end of the actions opens it (`more`) */
@@ -30,6 +34,8 @@ const root = ref(null)
 const tier = ref(0)
 provide('m-caption-tier', tier)
 const TIERS = 6
+const PHONE_TIER = 2
+const phone = ref(typeof window !== 'undefined' && isCompactNav(window.innerWidth, window.innerHeight))
 let observer = null
 let mutations = null
 let busy = false
@@ -37,7 +43,7 @@ let busy = false
 function fits(el, t) {
   el.dataset.tier = String(t)
   const { bar, lead, end } = partsOf(el)
-  const need = t < 2 && bar >= 600 ? SEARCH_MIN : SEARCH_ICON
+  const need = t < 2 && !phone.value ? SEARCH_MIN : SEARCH_ICON
   const cut = [...el.querySelectorAll('.m-caption__lead, .m-brand, .m-brand__name')].some((n) => n.scrollWidth > n.clientWidth + 1)
   return bar - lead - end >= need && !cut
 }
@@ -46,8 +52,11 @@ function fit() {
   const el = root.value
   if (!el || busy) return
   busy = true
-  let t = tier.value
-  if (fits(el, t)) { while (t > 0 && fits(el, t - 1)) t-- }
+  phone.value = isCompactNav(window.innerWidth, window.innerHeight)
+  el.toggleAttribute('data-phone', phone.value)
+  const floor = phone.value ? PHONE_TIER : 0
+  let t = Math.max(tier.value, floor)
+  if (fits(el, t)) { while (t > floor && fits(el, t - 1)) t-- }
   else { t++; while (t < TIERS - 1 && !fits(el, t)) t++ }
   el.dataset.tier = String(t)
   tier.value = t
@@ -56,6 +65,8 @@ function fit() {
 onMounted(() => {
   observer = new ResizeObserver(fit)
   observer.observe(root.value)
+  // a phone turned on its side keeps its width class in the width but not in the height
+  window.addEventListener('resize', fit)
   // what the product puts in the bar changes its widths (the version arrives, an update line comes, a button appears)
   mutations = new MutationObserver(fit)
   mutations.observe(root.value, { childList: true, subtree: true, characterData: true })
@@ -63,11 +74,11 @@ onMounted(() => {
   document.fonts?.addEventListener?.('loadingdone', fit)
   fit()
 })
-onBeforeUnmount(() => { observer?.disconnect(); mutations?.disconnect(); document.fonts?.removeEventListener?.('loadingdone', fit) })
+onBeforeUnmount(() => { window.removeEventListener('resize', fit); observer?.disconnect(); mutations?.disconnect(); document.fonts?.removeEventListener?.('loadingdone', fit) })
 </script>
 
 <template>
-  <header ref="root" class="m-caption" :class="[bem, { 'm-caption--bar-more': barMore }]">
+  <header ref="root" class="m-caption" :class="[bem, { 'm-caption--bar-more': barMore }]" :data-phone="phone ? '' : null">
     <div v-if="$slots.back || $slots.version" class="m-caption__lead" :class="`${bem}__lead`">
       <slot name="back" />
       <slot name="brand" />

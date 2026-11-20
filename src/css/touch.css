@@ -32,10 +32,10 @@
 /* ---- the layout: what a finger needs apart from the box. Two small controls next to each other need `width + gap` of 48 px (their slops meet in the gap and no further); a stack of rows has no room
    for slop, so the rows are the size ---- */
 @media (pointer: coarse) {
-  /* the caption bar: icon buttons of 44 and a gap of 4 */
-  .m-caption__actions { gap: 4px; }
-  .m-caption .m-caption-connect { min-width: 44px; min-height: 44px; }
-  .m-usearch.is-compact .m-usearch__open { width: 44px; height: 44px; margin-inline-end: 4px; }
+  /* the caption bar: icon buttons of --m-cap-btn (44) and a gap of --m-cap-gap (4), the same as with a mouse (css/layout.css): the search icon carries no gap of its own (the bar gives it one) */
+  .m-caption__actions { gap: var(--m-cap-gap, 4px); }
+  .m-caption .m-caption-connect { min-width: var(--m-cap-btn, 44px); min-height: var(--m-cap-btn, 44px); }
+  .m-usearch.is-compact .m-usearch__open { width: var(--m-cap-btn, 44px); height: var(--m-cap-btn, 44px); }
   /* the search field is as high as a finger and the input is the field */
   .m-usearch__field { height: max(var(--m-usearch-h, 40px), var(--m-hit)); }
   .m-usearch__input { align-self: stretch; }
