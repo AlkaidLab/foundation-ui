@@ -37,15 +37,26 @@ const options = computed(() => choice.value.options || [])
 // the kind after the name, unless the name already says it (Ethernet Ethernet), and the network name of a wireless adapter
 const sub = computed(() => [p.value.kind && p.value.kind !== p.value.name ? p.value.kind : '', p.value.ssid].filter(Boolean).join(' · '))
 const chipLabel = computed(() => (choice.value.manual ? p.value.name : L.value.auto))
-const menu = computed(() => [{ id: '', label: `${L.value.auto}${choice.value.auto ? ` · ${choice.value.auto}` : ''}`, icon: 'sync', checked: !choice.value.manual }, { id: 'line', divider: true }, ...options.value.map((o) => ({ id: `nic:${o.id}`, label: `${o.title}${o.up ? '' : ` · ${L.value.down}`}`, icon: o.icon, checked: choice.value.manual && o.current }))])
+const menu = computed(() => [...(L.value.gone ? [{ id: '__gone', label: L.value.gone, icon: 'info' }, { id: 'line0', divider: true }] : []), { id: '', label: `${L.value.auto}${choice.value.auto ? ` · ${choice.value.auto}` : ''}`, icon: 'sync', checked: !choice.value.manual }, { id: 'line', divider: true }, ...options.value.map((o) => ({ id: `nic:${o.id}`, label: `${o.title}${o.up ? '' : ` · ${L.value.down}`}`, icon: o.icon, checked: choice.value.manual && o.current }))])
 // What the preview of a tile in edit mode and a tile of a host without the API must not do: write the choice
 const live = computed(() => !props.preview)
 function pick(id) {
-  if (!live.value) return
+  if (!live.value || id === '__gone') return
   const v = String(id || '')
   setNicChoice(choice.value.host, v.startsWith('nic:') ? v.slice(4) : '')
 }
 const choose = (value) => { if (live.value) setNicChoice(choice.value.host, value) }
+// the list is a radio group: the arrow keys move the choice (and the focus) along it, Home and End go to its ends, only the chosen row is in the Tab order
+function onKey(e) {
+  const keys = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }
+  const rows = [...e.currentTarget.querySelectorAll('[role="radio"]')]
+  const at = rows.indexOf(e.target.closest('[role="radio"]'))
+  if (at < 0 || !(e.key in keys || e.key === 'Home' || e.key === 'End')) return
+  e.preventDefault()
+  const to = e.key === 'Home' ? 0 : e.key === 'End' ? rows.length - 1 : (at + keys[e.key] + rows.length) % rows.length
+  choose(to === 0 ? '' : options.value[to - 1]?.id || '')
+  rows[to]?.focus()
+}
 const sent = computed(() => (usage.value.series || []).filter(Number.isFinite))
 const sentNow = computed(() => (usage.value.now === null || usage.value.now === undefined ? '' : usage.value.now >= 100 ? Math.round(usage.value.now) : +usage.value.now.toFixed(1)))
 const share = computed(() => (usage.value.ratio === null || usage.value.ratio === undefined ? '' : `${usage.value.ratio < 0.01 && usage.value.ratio > 0 ? '<1' : Math.round(usage.value.ratio * 100)} %`))
@@ -53,7 +64,7 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
 
 <template>
   <section class="m-tile m-tnet" :class="`is-${size}`" data-accent="primary" :data-size="size">
-    <MTileEmpty v-if="empty || !d.primary" :icon="empty?.icon || 'lan'" :title="empty?.title || card.title" :text="empty?.value || d.empty || ''" :action="empty?.action" :size="size" @act="(a) => emit('act', a)" />
+    <MTileEmpty v-if="empty || !d.primary" :icon="empty?.icon || 'lan'" :title="empty?.title || card.title" :text="empty?.value || d.empty || ''" :action="empty?.action" :size="size === 'xl' ? 'l' : size" @act="(a) => emit('act', a)" />
     <template v-else>
       <MTileShape class="m-tile__corner m-tnet__corner" :icon="p.icon" shape="cookie" size="60px" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron" @open="emit('act', OPEN)">
@@ -86,18 +97,18 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
         </div>
         <div v-if="size !== 'm'" class="m-tnet__pick">
           <p v-if="L.gone" class="m-tnet__note">{{ L.gone }}</p>
-          <ul class="m-tnet__list" role="radiogroup" :aria-label="L.adapter">
+          <ul class="m-tnet__list" role="radiogroup" :aria-label="L.adapter" @keydown="onKey">
             <li>
-              <button type="button" class="m-tnet__opt" role="radio" :aria-checked="!choice.manual" :class="{ 'is-on': !choice.manual }" @click.stop="choose('')">
+              <button type="button" class="m-tnet__opt" role="radio" :aria-checked="!choice.manual" :tabindex="!choice.manual ? 0 : -1" :class="{ 'is-on': !choice.manual }" @click.stop="choose('')">
                 <MTileShape icon="sync" shape="circle" size="34px" :tone="choice.manual ? 'container' : 'solid'" />
                 <span class="m-tnet__txt"><b>{{ L.auto }}</b><small>{{ choice.auto || '–' }}</small></span>
                 <MIcon :name="choice.manual ? 'radio_button_unchecked' : 'radio_button_checked'" />
               </button>
             </li>
             <li v-for="o in options" :key="o.id">
-              <button type="button" class="m-tnet__opt" role="radio" :aria-checked="choice.manual && o.current" :class="{ 'is-on': choice.manual && o.current, 'is-down': !o.up }" @click.stop="choose(o.id)">
+              <button type="button" class="m-tnet__opt" role="radio" :aria-checked="choice.manual && o.current" :tabindex="choice.manual && o.current ? 0 : -1" :class="{ 'is-on': choice.manual && o.current, 'is-down': !o.up }" @click.stop="choose(o.id)">
                 <MTileShape :icon="o.icon" shape="circle" size="34px" :tone="choice.manual && o.current ? 'solid' : 'container'" />
-                <span class="m-tnet__txt"><b>{{ o.title }}</b><small>{{ o.sub }}</small></span>
+                <span class="m-tnet__txt"><b>{{ o.title }}</b><small data-redact="address">{{ o.sub }}</small></span>
                 <MIcon :name="choice.manual && o.current ? 'radio_button_checked' : 'radio_button_unchecked'" />
               </button>
             </li>

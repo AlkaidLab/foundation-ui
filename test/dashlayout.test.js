@@ -167,3 +167,8 @@ test('a saved 方形 of the 网卡 tile (it has none any more) is read as 中; t
   assert.deepEqual(at({ net: 's', cpu: 's' }), { net: 'm', cpu: 's' })
   assert.deepEqual(at({ net: 'l' }), { net: 'l' }); assert.deepEqual(at({ net: 'xl' }), { net: 'xl' }); assert.deepEqual(at({}), {})
 })
+
+test('a layout saved before version 8 whose only choice is a 方形 网卡 stays the person\'s (manual) and reads it as 中', () => {
+  const l = useDashLayout('r2', { getItem: () => JSON.stringify({ v: 7, order: DEFAULT_ORDER, overrides: {}, sizes: { net: 's' }, pins: {}, mode: 'manual' }), setItem() {} })
+  assert.equal(l.state.sizes.net, 'm'); assert.equal(l.state.mode, 'manual')
+})

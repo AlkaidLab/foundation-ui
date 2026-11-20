@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
 import { autoNic, boundAddress, isVirtualNic, nicChoiceOf, nicChoices, orderedNics, resolveNic, sameNetwork, setNicChoice } from '../src/vue/nicChoice.js'
 import { buildCatalogue } from '../src/vue/homeCatalogue.js'
 import { homeTexts } from '../src/vue/homeModel.js'
@@ -50,7 +51,7 @@ test('the address the host is bound to decides first, also when it is a virtual 
   assert.equal(autoNic([eth, radmin], { bind: '203.0.113.26' }).nic.name, 'Radmin VPN')
   for (const any of ['', '0.0.0.0', '::', undefined, '  ']) assert.equal(autoNic([eth, wifi], { bind: any }).reason, 'default', JSON.stringify(any))
   assert.equal(autoNic([eth, wifi], { bind: '192.0.2.200' }).reason, 'default', 'an address no adapter holds binds nothing')
-  assert.equal(boundAddress('[2001:DB8::1]'), '2001:db8::1')
+  assert.equal(boundAddress('[2001:DB8::1]'), boundAddress('2001:db8:0:0:0:0:0:1'))
 })
 
 test('the network of the streaming client picks the adapter that carries the stream', () => {
@@ -150,4 +151,24 @@ test('the 网卡 tile has no 方形: 中, 大 and 特大 only; a saved 方形 is
   assert.equal(sizesOf('net', meta).size, 'm')
   assert.equal(sizeKeyOf('net', meta, 's'), 'm', 'the preference is kept, the size drawn is the smallest the tile offers')
   assert.equal(sizeKeyOf('net', meta, 'xl'), 'xl'); assert.equal(sizeKeyOf('net', meta, 'l'), 'l')
+})
+
+test('an IPv6 bind address is compared by value, and only an ethernet or wifi adapter is a physical one', () => {
+  const v6 = nic({ name: 'Wi-Fi', type: 'wifi', ipv4: [], ipv6: ['2001:db8::1'] })
+  assert.equal(autoNic([eth, v6], { bind: '2001:0db8:0:0:0:0:0:1' }).nic.name, 'Wi-Fi', 'the same address written long')
+  assert.equal(autoNic([eth, v6], { bind: '[2001:DB8::1]' }).reason, 'bound')
+  const bridge = nic({ name: 'bridge0', description: 'Network bridge', type: 'other', link_speed_mbps: 10000, is_default_route: true })
+  assert.equal(autoNic([bridge, wifi]).nic.name, 'Wi-Fi', 'a type "other" adapter does not beat a wireless one')
+  assert.equal(autoNic([bridge]).nic.name, 'bridge0', 'but it is shown when nothing else is up')
+})
+
+test('the 网卡 tile draws the stream curve only when the host reports the measured bitrate; the list addresses are marked for the screenshot cover', () => {
+  const hist = { samples: { bitrate: [30000, 40000] }, sessions: [], days: {}, last: () => null }
+  const budgetOnly = netOf({ sysinfo: si([eth]), session: { client_address: '192.0.2.40', bitrate: 40000 }, history: hist })
+  assert.deepEqual(budgetOnly.usage.series, [], 'a configured budget is not a measurement')
+  const measured = netOf({ sysinfo: si([eth]), session: { client_address: '192.0.2.40', bitrate: 40000, measured_bitrate_kbps: 38000 }, history: hist })
+  assert.deepEqual(measured.usage.series, [30, 40])
+  const v = fs.readFileSync(new URL('../src/vue/tiles/TileNet.vue', import.meta.url), 'utf8')
+  assert.match(v, /<small data-redact="address">\{\{ o\.sub \}\}<\/small>/)
+  assert.match(v, /role="radiogroup"[^>]*@keydown="onKey"/)
 })

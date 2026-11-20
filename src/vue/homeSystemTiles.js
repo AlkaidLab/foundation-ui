@@ -81,7 +81,9 @@ export function systemCatalogue(x, T) {
       const option = (n) => ({ id: n.name, title: n.name, sub: n.up ? sub(n) : [kindOf(T, n), T.nicDown].join(' · '), icon: KIND_ICON[n.type] || 'lan', up: !!n.up, virtual: isVirtualNic(n), current: n === main, auto: n === res.auto.nic })
       // the stream leaves by the adapter the rule finds (or the one the person chose when it is that one): only then does the host's measured bitrate belong to this tile
       const streamHere = !!x.session && (res.reason !== 'manual' || res.auto.nic === main)
-      const sent = streamHere ? (x.series?.bitrate?.length ? x.series.bitrate : x.history?.samples?.bitrate || []).map((v) => v / 1000).filter(Number.isFinite).slice(-120) : []
+      // the curve is the host's measured bitrate: a host that reports only the configured budget (no measured_bitrate_kbps) draws none
+      const measured = streamHere && Number.isFinite(x.session?.measured_bitrate_kbps)
+      const sent = measured ? (x.series?.bitrate?.length ? x.series.bitrate : x.history?.samples?.bitrate || []).map((v) => v / 1000).filter(Number.isFinite).slice(-120) : []
       const speed = Number.isFinite(main.link_speed_mbps) ? main.link_speed_mbps : 0
       d.net = {
         type: 'nics', icon: 'lan', title: T.c_net, empty: T.netNone,

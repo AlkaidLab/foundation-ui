@@ -16,7 +16,9 @@ const VIRTUAL_WORDS = /radmin|hamachi|zerotier|tailscale|wireguard|wintun|openvp
 
 const lower = (v) => String(v ?? '').trim().toLowerCase()
 const num = (v) => { const n = typeof v === 'number' ? v : parseFloat(v); return Number.isFinite(n) ? n : 0 }
-const addressesOf = (n) => [...(Array.isArray(n?.ipv4) ? n.ipv4 : []), ...(Array.isArray(n?.ipv6) ? n.ipv6 : [])].map((a) => lower(a).replace(/%.*$/, '')).filter(Boolean)
+// an address by its value: the same IPv6 address written as 2001:db8::1 and as 2001:0db8:0:0:0:0:0:1 is one address
+const canon = (a) => { const t = lower(a).replace(/^\[|\]$/g, '').replace(/%.*$/, ''); const g = t.includes(':') ? v6Groups(t) : null; return g ? g.map((x) => x.toString(16)).join(':') : t }
+const addressesOf = (n) => [...(Array.isArray(n?.ipv4) ? n.ipv4 : []), ...(Array.isArray(n?.ipv6) ? n.ipv6 : [])].map(canon).filter(Boolean)
 const linkLocal = (a) => /^169\.254\./.test(a) || /^fe80:/.test(a)
 const usable = (n) => addressesOf(n).some((a) => !linkLocal(a))
 
@@ -31,7 +33,7 @@ export const isLive = (n) => !!n && (n.up === true || n.is_default_route === tru
 
 /** The address the host is bound to, or '' (nothing set, any address). */
 export function boundAddress(bind) {
-  const a = lower(bind).replace(/^\[|\]$/g, '').replace(/%.*$/, '')
+  const a = canon(bind)
   return !a || a === '0.0.0.0' || a === '::' || a === '*' ? '' : a
 }
 
@@ -80,7 +82,7 @@ export function autoNic(nics, ctx = {}) {
     const hit = live.filter((n) => usable(n) && addressesOf(n).some((a) => !linkLocal(a) && sameNetwork(a, client))).sort((a, b) => Number(isVirtualNic(a)) - Number(isVirtualNic(b)) || tie(a, b))[0]
     if (hit) return { nic: hit, reason: 'stream' }
   }
-  const physical = live.filter((n) => !isVirtualNic(n) && usable(n))
+  const physical = live.filter((n) => !isVirtualNic(n) && usable(n) && (n.type === 'ethernet' || n.type === 'wifi'))
   const onRoute = physical.filter((n) => n.is_default_route).sort(tie)[0]
   if (onRoute) return { nic: onRoute, reason: 'default' }
   const other = [...physical].sort(tie)[0]

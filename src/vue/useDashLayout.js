@@ -46,14 +46,15 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
         if ((v.v || 0) < 6 && order.includes('hero')) { order = order.filter((id) => id !== 'star'); order.splice(Math.max(order.indexOf('hero'), order.indexOf('pair')) + 1, 0, 'star') }
         const overrides = Object.fromEntries(Object.entries(v.overrides || {}).filter(([id, x]) => known(id) && typeof x === 'boolean'))
         const sizes = Object.fromEntries(Object.entries(v.sizes || {}).filter(([id, x]) => known(id) && ALL_SIZE_KEYS.includes(x)))
-        for (const [id, map] of Object.entries(RETIRED_SIZES)) if (map[sizes[id]]) sizes[id] = map[sizes[id]]
         // version 7: the overview is smart by default (the tiles follow what the host is doing); a layout saved before keeps what the person arranged (manual), a layout nobody touched is smart
         const touched = Object.keys(overrides).length || Object.keys(sizes).length || Object.keys(pins).length
         const mode = (v.v || 0) >= 7 ? (v.mode === 'manual' ? 'manual' : 'smart') : touched ? 'manual' : 'smart'
         const strings = (x) => (Array.isArray(x) ? x.filter((i) => typeof i === 'string').slice(0, 64) : [])
         const sectionOf = Object.fromEntries(Object.entries(v.sectionOf || {}).filter(([id, n]) => known(id) && Number.isInteger(n) && n >= 0 && n < 8))
         const loaded = { order, overrides, sizes, pins, mode, accepted: strings(v.accepted), hiddenSuggest: strings(v.hiddenSuggest), sectionOf, sectionCount: Number.isInteger(v.sectionCount) && v.sectionCount >= 0 && v.sectionCount <= 8 ? v.sectionCount : 0 }
-        const { state: migrated, migrated: changed } = migrateLayout(loaded, v.v)
+        // a size a tile no longer has is read as its replacement only after the legacy migration has seen what the person saved (a saved 方形 is a choice of theirs, not the default)
+        const { state: legacy, migrated: changed } = migrateLayout(loaded, v.v)
+        const migrated = { ...legacy, sizes: Object.fromEntries(Object.entries(legacy.sizes || {}).map(([id, k]) => [id, RETIRED_SIZES[id]?.[k] || k])) }
         if (changed) { try { storage?.setItem(key, JSON.stringify({ v: LAYOUT_VERSION, order: migrated.order, overrides: migrated.overrides, sizes: migrated.sizes, pins: migrated.pins, mode: migrated.mode, accepted: migrated.accepted, hiddenSuggest: migrated.hiddenSuggest, sectionOf: migrated.sectionOf, sectionCount: migrated.sectionCount })) } catch { /* storage unavailable */ } }
         return migrated
       }
