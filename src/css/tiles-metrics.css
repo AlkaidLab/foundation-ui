@@ -72,6 +72,15 @@
 
 /* 网卡 */
 /* 网卡 (TileNet.vue): 中 the speed, the adapter and the chooser chip in the header; 大 adds the adapters as a list that chooses; 特大 two columns and the stream's rate across the lower third */
+/* the tile is the container of its own height: 中 on the smallest phone (a unit of 138 px) has 106 px inside its padding, and the numeral and the lines under it come down to it */
+.m-tnet { container-type: size; }
+.m-tnet.is-m .m-mchip__btn { height: 28px; }
+@container (max-height: 112px) {
+  .m-tnet.is-m .m-tnum--m { --tn: 32px; }
+  .m-tnet.is-m .m-tnet__main { gap: 2px; }
+  .m-tnet.is-m .m-tnet__name { line-height: 16px; }
+  .m-tnet.is-m .m-tnet__ip { line-height: 14px; }
+}
 .m-tnet__cols { flex: 1 1 0; min-height: 0; display: flex; gap: 16px; }
 .m-tnet__info { flex: none; min-width: 0; display: flex; flex-direction: column; }
 .m-tnet.is-m .m-tnet__info { flex: 1; }
