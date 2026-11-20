@@ -73,7 +73,7 @@ export const TILE_RANGES = Object.freeze({
   ...each(['ports-check', 'file-maps', 'encode-budget'], R('s', 'l')), 'web-access': R('s', 'm'),
   // the second round (homeGrowth2.js): a hero at every size; the two with a choice on the tile (麦克风, 捕获方式) keep it at 中 and 大
   ...each(['link-margin', 'frame-supply', 'mic-health', 'capture-method'], R('s', 'l')),
-  ...each(['ctl-controller', 'ctl-keyboard', 'ctl-mouse', 'ctl-cursor', 'ctl-audio', 'act-stop'], R('s', 's')),
+  ...each(['ctl-controller', 'ctl-keyboard', 'ctl-mouse', 'ctl-cursor', 'ctl-audio', 'live-audio', 'act-stop'], R('s', 's')),
 })
 const COMPONENT = R('s', 'm')
 const ACTION = R('s', 's')

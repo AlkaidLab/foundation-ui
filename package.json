@@ -8,6 +8,7 @@
   "exports": {
     ".": "./src/index.js",
     "./vue": "./src/vue/index.js",
+    "./home/perf": "./src/vue/homePerfInputs.js",
     "./popup": "./src/popup.js",
     "./tray": "./src/tray/trayModel.js",
     "./tray/*": "./src/tray/*",
