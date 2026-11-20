@@ -65,7 +65,7 @@ test('a phone on its side keeps its type size and the search field never makes t
   const base = fs.readFileSync(new URL('../src/css/base.css', import.meta.url), 'utf8')
   const search = fs.readFileSync(new URL('../src/css/usearch.css', import.meta.url), 'utf8')
   assert.match(base, /html \{ font-synthesis: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; \}/)
-  assert.match(search, /@media \(pointer: coarse\) \{ \.m-usearch__input \{ font-size: max\(16px, calc\(16px \* var\(--m-text-scale, 1\)\)\); \} \}/)
+  assert.match(search, /@media \(any-pointer: coarse\) \{ \.m-usearch__input \{ font-size: max\(16px, calc\(16px \* var\(--m-text-scale, 1\)\)\); \} \}/)
 })
 
 test('a hint longer than the field ends in an ellipsis, it is never cut in the middle of a letter', () => {
