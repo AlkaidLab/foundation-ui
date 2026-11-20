@@ -209,6 +209,7 @@ export { vddTexts, VDD_TEXTS } from '../settings/vddTexts.js'
 export { VDD_MODES, VDD_PROTECTED, VDD_KEYS, vddModeOf, vddPatchForMode, vddSummary, vddStatusOf } from '../settings/virtualDisplay.js'
 export { default as MDashWidget } from "./MDashWidget.vue"
 export { buildCatalogue, buildCatalogueDetails, CATALOGUE_IDS, LINKS } from "./homeCatalogue.js"
+export { PIPELINE_FIELDS, pipelineAverages, perfExtras } from "./homePerfInputs.js"
 export { saveSettingKey } from "../settings/save.js"
 export { createHistory, pushSample, heatDays, errorsByHour, logDays, recentApps } from "./homeHistory.js"
 export { sessionSummary, rowText, selectionText } from "../diagnostics/logs.js"
