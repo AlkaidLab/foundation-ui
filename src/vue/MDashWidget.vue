@@ -122,9 +122,9 @@ onBeforeUnmount(() => stripObserver?.disconnect())
   <section v-else-if="size === 'strip' && ['control', 'appearance', 'fps', 'tip'].includes(data.type)" class="m-dcard m-dstripctl" :class="`m-dstripctl--${data.type}`">
     <MIcon class="m-dcard__icon" :name="data.type === 'tip' ? 'lightbulb' : data.icon" />
     <span class="m-dstripctl__title"><b>{{ data.type === 'tip' ? data.text : data.title }}</b><small v-if="data.type === 'control' && data.note">{{ data.note }}</small></span>
-    <MChipSet v-if="data.type === 'control'" :model-value="data.value" :options="data.options" :label="data.title" @update:model-value="(v) => emit('act', 'setting', { key: data.key, value: v })" />
-    <MSwatches v-else-if="data.type === 'appearance' && data.which === 'preset'" :model-value="presetHex" :colors="swatches" :label="data.title" @update:model-value="setPreset" />
-    <MChipSet v-else-if="data.type === 'appearance'" :model-value="apValue" :options="data.options" :label="data.title" @update:model-value="setAp" />
+    <MChipSet v-if="data.type === 'control'" ref="stripChips" :data-edge="stripEdge" :model-value="data.value" :options="data.options" :label="data.title" @scroll.passive="measureStrip" @update:model-value="(v) => emit('act', 'setting', { key: data.key, value: v })" />
+    <MSwatches v-else-if="data.type === 'appearance' && data.which === 'preset'" ref="stripChips" :data-edge="stripEdge" :model-value="presetHex" :colors="swatches" :label="data.title" @scroll.passive="measureStrip" @update:model-value="setPreset" />
+    <MChipSet v-else-if="data.type === 'appearance'" ref="stripChips" :data-edge="stripEdge" :model-value="apValue" :options="data.options" :label="data.title" @scroll.passive="measureStrip" @update:model-value="setAp" />
     <MFpsPresets v-else-if="data.type === 'fps'" :model-value="data.value" :label="data.title" :add-label="data.addLabel" :add-text="data.addText" @update:model-value="(v) => emit('act', 'setting', { key: 'fps', value: `[${[...v].sort((a, b) => a - b).join(',')}]` })" />
   </section>
   <section v-else-if="data.type === 'strip-control'" class="m-dcard m-dstripctl">

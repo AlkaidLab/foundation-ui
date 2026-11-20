@@ -60,6 +60,25 @@ export function useDashDock(D) {
     }
     return out
   })
+  // The last resort for a hole: a tile with nothing to show yet (it says so, with the action that gives it something: 添加应用, 开始串流), at its smallest size when that is the square. It comes after every tile with data, so the page is
+  // never left with an empty standard slot while the catalogue still has a tile that offers one (a phone's last row used to end with a lone tile and a hole beside it).
+  const fillCardsEmpty = computed(() => {
+    if (!smart.value) return []
+    const onPage = new Set(visibleCards.value.map((c) => c.id))
+    const named = new Set(visibleCards.value.map((c) => String(c.title || '').trim().toLowerCase()))
+    const out = []
+    for (const id of fillOrder(plan.value.scenario, allCards.value.map((c) => c.id))) {
+      const c = cardById.value.get(id)
+      if (!c || c.available === false || onPage.has(id) || c.kind === 'stack' || ['strip', 'journey'].includes(c.cls) || id === 'hero' || id === 'table' || !hasNoData(c.data)) continue
+      if (layout.state.hiddenSuggest.includes(id)) continue
+      const name = String(c.title || '').trim().toLowerCase()
+      if (name && named.has(name)) continue
+      if (!sizesOf(c.id, c, windowClass.value, tall.value).sizes.s) continue
+      named.add(name)
+      out.push({ ...c, fillSize: 's' })
+    }
+    return out
+  })
   // the free standard slots of the rows that fit under `max` px (a slim strip row is one row of its own height, and is full); rows below the last placed one count as free
   const freeCells = (packed, units, unit, max) => {
     const used = new Set()
@@ -80,7 +99,7 @@ export function useDashDock(D) {
     if (freeCells(packed, units, unit, fill.max) === 0) return { boxed, packed }
     const scenario = plan.value.scenario
     if (fillMemory.scenario !== scenario) fillMemory = { scenario, ids: [] }
-    const pool = fillCards.value
+    const pool = fill.pool || fillCards.value
     const byId = new Map(pool.map((c) => [c.id, c]))
     const ordered = [...fillMemory.ids.filter((id) => byId.has(id)).map((id) => byId.get(id)), ...pool.filter((c) => !fillMemory.ids.includes(c.id))]
     const taken = []
@@ -108,7 +127,7 @@ export function useDashDock(D) {
     return free
   }
   const blockOf = (key, list, w, more = {}) => {
-    const { light, ghostSection, taken, only, fill, ...rest } = more
+    const { light, ghostSection, taken, only, fill, tail, ...rest } = more
     const grid0 = gridOf(w)
     // the suggestions of the section's own purpose come first
     const candidates = light || fill ? [] : (only || ghostCards.value).filter((g) => !list.some((x) => x.id === g.id) && !(taken && taken.has(g.id))).sort((a, b) => Number(ghostSection !== undefined && sectionIndexOf(purposeOf(b.id, b.group), sectionCount.value) === ghostSection) - Number(ghostSection !== undefined && sectionIndexOf(purposeOf(a.id, a.group), sectionCount.value) === ghostSection))
@@ -119,6 +138,14 @@ export function useDashDock(D) {
       let boxed = f.boxed.map((c) => (ghosts.has(c.id) ? { ...c, ghost: true } : c))
       let packed = f.packed
       if (fill) ({ boxed, packed } = fillGrid(boxed, packed, f.units, grid.unit, fill))
+      // the tail (smart overview, any window): a hole inside the rows that are there is filled with standard tiles, tiles with data first; no row is added and no tile is stretched
+      if (tail && holesOf(packed, f.units) > 0) {
+        const rowPx = rowPxIn(grid.unit)
+        const memory0 = fillMemory // the tiles of the tail are not part of the memory of the fill: the order of the fill does not depend on them
+        ;({ boxed, packed } = fillGrid(boxed, packed, f.units, grid.unit, { max: heightOf(packed, rowPx, UNIT_GAP) }))
+        if (holesOf(packed, f.units) > 0) ({ boxed, packed } = fillGrid(boxed, packed, f.units, grid.unit, { max: heightOf(packed, rowPx, UNIT_GAP), pool: fillCardsEmpty.value }))
+        fillMemory = memory0
+      }
       return { f, boxed, packed, grid }
     }
     let best = build(grid0.columns)
@@ -214,15 +241,19 @@ export function useDashDock(D) {
   const starOpen = (url) => { emit('action', { card: 'star', type: 'open-url', value: url }); emit('action', { card: 'star', type: 'star-dismiss' }) }
   const starLater = () => emit('action', { card: 'star', type: 'star-dismiss' })
   const starSponsor = () => emit('action', { card: 'star', type: 'sponsor', value: '' })
+  const TAIL_BELOW = 1000
   const blocks = computed(() => {
     const list = visibleCards.value
     if (!sectioned.value) {
-      if (!smart.value || edit.value || windowClass.value === 'compact' || !fillReady.value) return [blockOf('grid', list, width.value)]
+      if (!smart.value || edit.value || !fillReady.value) return [blockOf('grid', list, width.value)]
+      // a phone-sized window draws the plan as it is, with the last row completed (no rows are added: the first screen is the person's own to scroll)
+      if (windowClass.value === 'compact') return [blockOf('grid', list, width.value, { tail: true })]
       // the same cell as manual mode (gridOf); the height left under the banner is measured (the banner is one line or three), and the tiles that fill it are chosen by whole rows in the packer
       const grid = gridOf(width.value)
       const avail = Math.max(2 * grid.unit, tall.value - (blocksTop.value || 212) - 16)
       const rows = Math.max(2, Math.floor((avail + UNIT_GAP) / (grid.unit + UNIT_GAP)))
-      return [blockOf('grid', list, width.value, { fill: { rows, max: avail } })]
+      // the tail is for the windows of a phone and a small tablet (under 1000 px): a desktop window keeps its columns and its own way of filling (the column count is chosen for the fewest holes)
+      return [blockOf('grid', list, width.value, { fill: { rows, max: avail }, tail: width.value < TAIL_BELOW })]
     }
     const per = sectionLayout(width.value)
     const groups = Array.from({ length: sectionCount.value }, () => [])
@@ -295,8 +326,16 @@ export function useDashDock(D) {
   let editSnap = ''
   const layoutKey = () => JSON.stringify([layout.state.order, layout.state.overrides, layout.state.sizes, layout.state.pins])
   let editRaw = ''
+  // what the smart overview shows, the tiles of the fill too (blocks is read while it is not edited: the last smart drawing stays here when editing begins), so that editing starts from the page that was on the screen
+  let lastShown = []
+  watch(blocks, (list) => { if (!edit.value) lastShown = list.flatMap((b) => b.boxed).filter((c) => !c.ghost).map((c) => ({ id: c.id, size: c.sizeKey })) }, { immediate: true, flush: 'sync' })
+  // the sizes are the ones drawn (the smart plan lifts a tile a size where a row is short), so editing starts from the page as it was
+  const withFill = (base) => {
+    const extra = lastShown.filter((x) => !base.visible.includes(x.id) && cardById.value.has(x.id))
+    return { ...base, visible: [...base.visible, ...extra.map((x) => x.id)], sizes: { ...base.sizes, ...Object.fromEntries(lastShown.filter((x) => cardById.value.has(x.id)).map((x) => [x.id, x.size])) } }
+  }
   watch(edit, (on) => {
-    if (on) { editRaw = JSON.stringify(layout.state); if (appearance.state.smartTiles && layout.state.mode === 'smart') layout.freeze(D.seenPlan && Date.now() - D.flushedAt < 1500 ? D.seenPlan : plan.value); D.seenPlan = null; editSnap = layoutKey(); return }
+    if (on) { editRaw = JSON.stringify(layout.state); if (appearance.state.smartTiles && layout.state.mode === 'smart') layout.freeze(withFill(D.seenPlan && Date.now() - D.flushedAt < 1500 ? D.seenPlan : plan.value)); D.seenPlan = null; editSnap = layoutKey(); return }
     if (appearance.state.smartTiles && layoutKey() !== editSnap) { appearance.set({ smartTiles: false }); return }
     // nothing was changed: the saved layout is as it was before editing began (what was copied into it to keep the tiles in place goes again)
     if (editRaw && layoutKey() === editSnap) Object.assign(layout.state, JSON.parse(editRaw))
