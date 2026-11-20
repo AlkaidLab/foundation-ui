@@ -58,3 +58,11 @@ test('on a phone the status bell keeps no empty slot, the version and the global
 test('the name in the bar is set in the type scale (title-medium), not by hand', () => {
   assert.match(layout, /\.m-brand__name \{ font: var\(--m-title-medium\); font-weight: 600;/)
 })
+
+// what only a real phone does to a page (iOS Safari, Chrome for Android): rotation enlarges text unless told not to, and a field under 16px zooms the page when it is focused
+test('a phone on its side keeps its type size and the search field never makes the page zoom', () => {
+  const base = fs.readFileSync(new URL('../src/css/base.css', import.meta.url), 'utf8')
+  const search = fs.readFileSync(new URL('../src/css/usearch.css', import.meta.url), 'utf8')
+  assert.match(base, /html \{ font-synthesis: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; \}/)
+  assert.match(search, /@media \(pointer: coarse\) \{ \.m-usearch__input \{ font-size: max\(16px, calc\(16px \* var\(--m-text-scale, 1\)\)\); \} \}/)
+})

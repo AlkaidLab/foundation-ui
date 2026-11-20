@@ -55,6 +55,8 @@ html[data-bs-theme='dark'], html.dark, html[data-theme='dark'] { --m-search-surf
 .m-usearch__head { display: flex; align-items: center; gap: 8px; flex: none; height: 72px; padding: 0 8px 0 8px; }
 .m-usearch__head .m-usearch__back { width: 48px; height: 48px; color: var(--md-sys-color-on-surface); } .m-usearch__head .m-usearch__back .m-icon { width: 24px; height: 24px; }
 .m-usearch__head .m-usearch__clear { width: 48px; height: 48px; }
+/* a field under 16px makes iOS Safari zoom the whole page when it takes the focus (the bar and the view then look deformed until the person pinches back): on a touch screen the field is never smaller */
+@media (pointer: coarse) { .m-usearch__input { font-size: max(16px, calc(16px * var(--m-text-scale, 1))); } }
 /* a phone on its side: the view has the height of the window, so the field and its rows take less of it */
 @media (max-height: 479.98px) { .m-usearch__head { height: 56px; } .m-usearch__head .m-usearch__back, .m-usearch__head .m-usearch__clear { width: 44px; height: 44px; } .m-usearch__row { min-height: 48px; } }
 .m-usearch__divider { flex: none; height: 1px; background: var(--md-sys-color-outline-variant); }
