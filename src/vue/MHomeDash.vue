@@ -86,7 +86,7 @@ useDashSkeleton(D)
 // Touch: the selected tile's actions (size, join a stack, remove) are a bar at the bottom of the window, in the place of the add button, with targets a finger can hit (edit-phone.css). It sits above the
 // app's bottom bar where the window has one.
 const fabBottom = ref(0)
-const measureBar = () => { const bar = document.querySelector('.m-rail--bar'); const r = bar && getComputedStyle(bar).display !== 'none' ? bar.getBoundingClientRect() : null; fabBottom.value = r && r.height ? Math.max(0, Math.round(window.innerHeight - r.top + 16)) : 0 }
+const measureBar = () => { const bar = document.querySelector('.m-rail--bar:not(.m-rail--side)'); const r = bar && getComputedStyle(bar).display !== 'none' ? bar.getBoundingClientRect() : null; fabBottom.value = r && r.height ? Math.max(0, Math.round(window.innerHeight - r.top + 16)) : 0 }
 const fabStyle = computed(() => (fabBottom.value ? { bottom: `${fabBottom.value}px` } : undefined))
 onMounted(() => window.addEventListener('resize', measureBar))
 onBeforeUnmount(() => window.removeEventListener('resize', measureBar))
