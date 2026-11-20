@@ -35,7 +35,8 @@ export const TILE_RANGES = Object.freeze({
   // 中 of 加密 says what each mode means for the path; 中 of the session bitrate draws its curve under the gauge (a size is not dropped to pass a gate)
   // 大: the covers of the latest games as a grid of six with their names (from five games on, see `largestOf`)
   'recent-games': R('s', 'l'),
-  net: R('s', 'l'),
+  // 网卡: the adapter, its link and its address need more than a square: 中 is the adapter with the chooser; 大 adds the adapters as a list that chooses; 特大 the stream's rate against the link, the details and the other adapters
+  net: R('m', 'xl'),
   // 正在玩: the cover at 方形, beside the name at 中; 大 the shape-masked cover large with the name and the client
   'current-app': R('s', 'l'),
   // three states (gamepad, microphone, USB) or three codecs cannot be read in a square without cutting them

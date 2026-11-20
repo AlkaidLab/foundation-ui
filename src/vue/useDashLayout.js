@@ -11,6 +11,8 @@ import { migrateLayout } from './layoutMigrate.js'
  * size (s, m, l) the person chose for a card, a card without one has its default size.
  */
 export const LAYOUT_VERSION = 8
+/** Sizes a tile no longer has, and the size a layout that kept it gets instead: 网卡 has no 方形 (it needs a name, a speed and the way to change the adapter), a saved 方形 is 中. */
+export const RETIRED_SIZES = Object.freeze({ net: Object.freeze({ s: 'm' }) })
 /** The id of a pinned tile: the setting it controls (or opens). */
 export const pinIdOf = (spec) => `pin:${spec.type}:${spec.key}`
 const PIN_TYPES = ['setting', 'link']
@@ -50,7 +52,9 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
         const strings = (x) => (Array.isArray(x) ? x.filter((i) => typeof i === 'string').slice(0, 64) : [])
         const sectionOf = Object.fromEntries(Object.entries(v.sectionOf || {}).filter(([id, n]) => known(id) && Number.isInteger(n) && n >= 0 && n < 8))
         const loaded = { order, overrides, sizes, pins, mode, accepted: strings(v.accepted), hiddenSuggest: strings(v.hiddenSuggest), sectionOf, sectionCount: Number.isInteger(v.sectionCount) && v.sectionCount >= 0 && v.sectionCount <= 8 ? v.sectionCount : 0 }
-        const { state: migrated, migrated: changed } = migrateLayout(loaded, v.v)
+        // a size a tile no longer has is read as its replacement only after the legacy migration has seen what the person saved (a saved 方形 is a choice of theirs, not the default)
+        const { state: legacy, migrated: changed } = migrateLayout(loaded, v.v)
+        const migrated = { ...legacy, sizes: Object.fromEntries(Object.entries(legacy.sizes || {}).map(([id, k]) => [id, RETIRED_SIZES[id]?.[k] || k])) }
         if (changed) { try { storage?.setItem(key, JSON.stringify({ v: LAYOUT_VERSION, order: migrated.order, overrides: migrated.overrides, sizes: migrated.sizes, pins: migrated.pins, mode: migrated.mode, accepted: migrated.accepted, hiddenSuggest: migrated.hiddenSuggest, sectionOf: migrated.sectionOf, sectionCount: migrated.sectionCount })) } catch { /* storage unavailable */ } }
         return migrated
       }

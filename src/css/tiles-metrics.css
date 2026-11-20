@@ -71,32 +71,57 @@
 .m-tstream__foot { margin-top: 2px; font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); text-align: center; }
 
 /* 网卡 */
+/* 网卡 (TileNet.vue): 中 the speed, the adapter and the chooser chip in the header; 大 adds the adapters as a list that chooses; 特大 two columns and the stream's rate across the lower third */
+/* the tile is the container of its own height: 中 on the smallest phone (a unit of 138 px) has 106 px inside its padding, and the numeral and the lines under it come down to it */
+.m-tnet { container-type: size; }
+.m-tnet.is-m .m-mchip__btn { height: 28px; }
+@container (max-height: 112px) {
+  .m-tnet.is-m .m-tnum--m { --tn: 32px; }
+  .m-tnet.is-m .m-tnet__main { gap: 2px; }
+  .m-tnet.is-m .m-tnet__name { line-height: 16px; }
+  .m-tnet.is-m .m-tnet__ip { line-height: 14px; }
+}
+.m-tnet__cols { flex: 1 1 0; min-height: 0; display: flex; gap: 16px; }
+.m-tnet__info { flex: none; min-width: 0; display: flex; flex-direction: column; }
+.m-tnet.is-m .m-tnet__info { flex: 1; }
 .m-tnet__main { margin-top: auto; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.m-tnet.is-l .m-tnet__main { margin-top: 18px; }
-.m-tnet.is-s .m-tnum--s { --tn: 36px; }
+.m-tnet.is-l .m-tnet__main { margin-top: 6px; gap: 4px; }
+.m-tnet.is-l .m-tnum--m { --tn: 54px; }
+.m-tnet.is-xl .m-tnet__main { margin-top: 8px; gap: 6px; }
 .m-tnet__name { font: var(--m-tile-text-15-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-tnet__name small { font-weight: 500; color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
-.m-tnet__name--s { font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
 .m-tnet__ip { font: var(--m-tile-text-13-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
-.m-tnet__facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin-top: 14px; font: var(--m-tile-text-13-strong); }
+.m-tile__head > .m-tnet__chip { margin-left: auto; min-width: 0; max-width: 62%; flex: 0 1 auto; }
+.m-tnet__chip .m-mchip__btn { max-width: 100%; }
+.m-tnet__chip .m-mchip__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-tnet.is-l .m-tnet__cols { flex-direction: column; gap: 10px; }
+.m-tnet.is-l .m-tnet__info { flex: none; }
+.m-tnet.is-xl .m-tnet__info { width: 44%; }
+.m-tnet__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.m-tnet__facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 10px 0 0; font: var(--m-tile-text-13-strong); }
 .m-tnet__facts div { display: contents; } .m-tnet__facts dt { color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); } .m-tnet__facts dd { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.m-tnet__rows { list-style: none; margin: auto 0 0; padding: 0; display: grid; gap: 8px; }
-.m-tnet__rows li { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.m-tnet__rows li > span { display: flex; flex-direction: column; min-width: 0; } .m-tnet__rows b { font: var(--m-tile-text-14-strong); line-height: 18px; } .m-tnet__rows small { font: var(--m-tile-text-12-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.m-tnet__rows--plain li > .m-icon { flex: none; width: 22px; height: 22px; color: var(--tk); }
-.m-tnet__rows li.is-warn { color: var(--md-sys-color-error); }
-.m-tnet--v2 .m-tnet__body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 16px; margin-top: 4px; }
-.m-tnet--v2.is-s .m-tnet__body { flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 8px; }
-.m-tnet__hero { position: relative; flex: none; display: grid; aspect-ratio: 1; height: 100%; }
-.m-tnet--v2.is-s .m-tnet__hero { position: absolute; z-index: -1; top: 0; right: 0; height: auto; width: 62%; translate: 0 0; }
-.m-tnet--v2.is-l .m-tnet__body { flex: none; height: 46%; }
-.m-tnet__hero > * { grid-area: 1 / 1; }
-.m-tnet__hero .m-tshape { width: 100%; height: 100%; } .m-tnet__signal { padding: 0; margin: -10%; width: 120%; height: 120%; }
-.m-tnet__hero:has(.m-tnet__signal) .m-tshape { scale: .78; }
-.m-tnet__text { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.m-tnet--v2 .m-tnet__ip { color: inherit; }
-.m-tnet__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-.m-tnet--v2 .m-tnet__rows { margin-top: 12px; }
+.m-tnet__pick { flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.m-tnet__note { margin: 0; font: var(--m-tile-text-12-strong); color: var(--md-sys-color-error); }
+.m-tnet__list { list-style: none; margin: 0; padding: 0; flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; display: grid; align-content: start; gap: 2px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent); padding-bottom: 20px; }
+.m-tnet__list::-webkit-scrollbar { display: none; }
+.m-tnet__opt { all: unset; box-sizing: border-box; width: 100%; min-height: 42px; display: flex; align-items: center; gap: 10px; padding: 4px 10px 4px 4px; border-radius: 21px; cursor: pointer; color: inherit; -webkit-tap-highlight-color: transparent; transition: background-color 120ms; }
+.m-tnet__opt:hover { background: color-mix(in srgb, var(--tk) 10%, transparent); }
+.m-tnet__opt:focus-visible { outline: 2px solid var(--tk); outline-offset: -2px; }
+.m-tnet__opt.is-on { background: color-mix(in srgb, var(--tk) 16%, transparent); }
+.m-tnet__opt.is-down { opacity: .62; }
+.m-tnet__opt .m-tshape { flex: none; }
+/* the text only: a rule on every child span also hit the avatar (a span too), made it a column that fills the row, and left its glyph at the top of the circle */
+.m-tnet__txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.m-tnet__opt b { font: var(--m-tile-text-14-strong); line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-tnet__opt small { font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-tnet__opt > .m-icon { flex: none; width: 22px; height: 22px; color: var(--tk); }
+.m-tnet__trend { margin-top: auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.m-tnet__rate { display: flex; align-items: baseline; gap: 8px; font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; min-width: 0; }
+.m-tnet__rate b { font: var(--m-tile-text-15-strong); color: var(--md-sys-color-on-surface); } .m-tnet__rate b small { font: inherit; color: inherit; }
+.m-tnet__rate span:last-child { margin-left: auto; }
+.m-tnet__history { height: 54px; margin: 0 0 calc(-1 * var(--tile-pad)) calc(-1 * var(--tile-pad)); }
+/* the corner shape of every tile is 88 px and ends 82 px under the tile's top edge: the list starts under it, never beside or beneath it */
+.m-tnet.is-xl .m-tnet__pick { padding-top: 40px; }
 
 /* 温度, CPU 与 GPU */
 .m-tgauge__body { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 18px; margin-top: 4px; }
