@@ -8,6 +8,7 @@ import { playPageEnter } from '../nav/pageEnter.js'
 import { createPaneScroll, placeOf } from '../nav/paneScroll.js'
 import { noteResize, trackWindowResize, watchResizing } from '../nav/resizing.js'
 import { useFabLift } from './useFabLift.js'
+import { bottomStack } from '../notify/stack.js'
 import { MODAL_CLOSE, MODAL_FRAME, MODAL_OPEN, modalsAfter, modalsAfterFrameGone } from './useModalBridge.js'
 
 /**
@@ -68,6 +69,7 @@ onMounted(() => {
     // a window that is being resized is not animated: the columns are what the size says in the same frame, and the spring only moves what the person asked for (the rail, the list)
     if (next.width !== size.value.width || next.height !== size.value.height) { noteResize(); animating.value = false; settleWidth.value = null }
     size.value = next
+    bottomStack.setBarRoom(next.bar)
   }
   readSize = read
   read()
@@ -82,7 +84,7 @@ onMounted(() => {
 // (and from the product's own bar over the window, where a button that was just pressed, the bell or the connect button, keeps the focus)
 const onWindowKey = (event) => { if (root.value && (event.target === document.body || event.target.closest?.(props.captionSelector))) keydown(event) }
 onMounted(() => window.addEventListener('keydown', onWindowKey))
-onBeforeUnmount(() => { observer?.disconnect(); stopPixelRatio(); stopResizing(); window.removeEventListener('keydown', onWindowKey) })
+onBeforeUnmount(() => { bottomStack.setBarRoom(0); observer?.disconnect(); stopPixelRatio(); stopResizing(); window.removeEventListener('keydown', onWindowKey) })
 
 // The shell fills the window exactly (html.m-shell, layout.css): only the panes scroll. Nothing else may ever move, whatever asks for it:
 // a scrollIntoView or a focus reaches every ancestor, and an element with overflow hidden can be scrolled by a script, so the frame is
