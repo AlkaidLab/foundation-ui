@@ -10,7 +10,7 @@ import { createHistory } from '../src/vue/homeHistory.js'
 import { sizesOf, largestOf } from '../src/vue/homeSizes.js'
 import { rangeOf } from '../src/vue/homeRanges.js'
 
-const XL_VIEWS = ['hero', 'clients-paired', 'covers', 'errors', 'recent-actions', 'announcements']
+const XL_VIEWS = ['hero', 'clients-paired', 'covers', 'errors', 'recent-actions', 'announcements', 'net']
 
 const T = homeTexts('en')
 const memory = () => { const m = new Map(); return { getItem: (k) => m.get(k) ?? null, setItem: (k, v) => m.set(k, v) } }

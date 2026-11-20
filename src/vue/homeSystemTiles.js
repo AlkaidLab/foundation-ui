@@ -1,13 +1,16 @@
 // The tiles that read the host's system information (GET /api/system/info) and its public address: 网卡, 系统, 公网地址. Nothing is invented: a tile is `null` while its source is not there.
 // Sources are listed in docs/home-tiles.md.
 import { endpointsOfConfig, rejectedEndpointsOfConfig, reachView, validateEndpoint } from '../settings/reachability.js'
+import { isLive, isVirtualNic, nicChoiceOf, orderedNics, resolveNic } from './nicChoice.js'
 
 export const SYSTEM_META = { net: ['host', 'off', 4, 'card', 'widget'], sys: ['host', 'off', 2, 'card', 'widget'], 'public-address': ['host', 'off', 4, 'card', 'widget'] }
-export const SYSTEM_SIZES = { net: { s: [2, 1], m: [4, 1], l: [4, 2] }, sys: { s: [2, 1], m: [4, 1] }, 'public-address': { s: [2, 1], m: [4, 1], l: [4, 2] } }
+export const SYSTEM_SIZES = { net: { m: [4, 1], l: [4, 2], xl: [8, 2] }, sys: { s: [2, 1], m: [4, 1] }, 'public-address': { s: [2, 1], m: [4, 1], l: [4, 2] } }
 
 const KIND_ICON = { ethernet: 'settings_ethernet', wifi: 'wifi', mesh: 'hub', virtual: 'dns', other: 'lan' }
 export const speedText = (mbps) => (!mbps ? '' : mbps >= 1000 ? `${+(mbps / 1000).toFixed(mbps % 1000 ? 1 : 0)} Gbps` : `${mbps} Mbps`)
 const kindWord = (T, kind) => T[`nic_${kind}`] || T.nic_other
+// the word for an adapter: a VPN or hypervisor adapter that the host calls ethernet is still software, and says so
+const kindOf = (T, n) => kindWord(T, isVirtualNic(n) && n.type !== 'mesh' && n.type !== 'virtual' ? 'virtual' : n.type)
 
 /** Whether the host's check found a problem with the public address that was set (an unset address is not a problem; clients then use the address that is found). */
 /** The public address has a fault the person can fix: a name that does not resolve, an address that is not the router's, another device answering, or only private addresses. */
@@ -65,17 +68,29 @@ export function systemCatalogue(x, T) {
   const d = { net: null, sys: null, 'public-address': null }
   const si = x.sysinfo
   if (si && Array.isArray(si.nics)) {
-    const nics = si.nics.filter((n) => n.up || n.is_default_route)
-    const sorted = [...nics].sort((a, b) => Number(b.is_default_route) - Number(a.is_default_route) || Number(b.up) - Number(a.up))
-    const main = sorted[0]
+    const hostKey = si.host?.name || ''
+    // the adapter the person chose on this host (x.nicChoice overrides the kept choice: tests and previews), else the rule of nicChoice.js
+    const choice = x.nicChoice !== undefined ? x.nicChoice : nicChoiceOf(hostKey)
+    const ctx = { bind: x.config?.bind_address, client: x.session?.client_address }
+    const res = resolveNic(si.nics, choice, ctx)
+    const main = res.nic
     if (main) {
-      const row = (n) => ({ icon: KIND_ICON[n.type] || 'lan', title: n.name, sub: [kindWord(T, n.type), speedText(n.link_speed_mbps), (n.ipv4 || [])[0]].filter(Boolean).join(' · '), tone: n.up ? '' : 'warn', main: !!n.is_default_route })
+      const ordered = orderedNics(si.nics, ctx)
+      const sub = (n) => [kindOf(T, n), speedText(n.link_speed_mbps), (n.ipv4 || [])[0]].filter(Boolean).join(' · ')
+      const row = (n) => ({ icon: KIND_ICON[n.type] || 'lan', title: n.name, sub: sub(n), tone: n.up ? '' : 'warn', main: n === main })
+      const option = (n) => ({ id: n.name, title: n.name, sub: n.up ? sub(n) : [kindOf(T, n), T.nicDown].join(' · '), icon: KIND_ICON[n.type] || 'lan', up: !!n.up, virtual: isVirtualNic(n), current: n === main, auto: n === res.auto.nic })
+      // the stream leaves by the adapter the rule finds (or the one the person chose when it is that one): only then does the host's measured bitrate belong to this tile
+      const streamHere = !!x.session && (res.reason !== 'manual' || res.auto.nic === main)
+      const sent = streamHere ? (x.series?.bitrate?.length ? x.series.bitrate : x.history?.samples?.bitrate || []).map((v) => v / 1000).filter(Number.isFinite).slice(-120) : []
+      const speed = Number.isFinite(main.link_speed_mbps) ? main.link_speed_mbps : 0
       d.net = {
         type: 'nics', icon: 'lan', title: T.c_net, empty: T.netNone,
-        primary: { icon: KIND_ICON[main.type] || 'lan', name: main.name, kind: kindWord(T, main.type), speed: speedText(main.link_speed_mbps), ipv4: (main.ipv4 || [])[0] || '', signal: main.wifi && Number.isFinite(main.wifi.signal) ? main.wifi.signal : null, ssid: main.wifi?.ssid_masked || '', isDefault: !!main.is_default_route, wifi: main.type === 'wifi' },
-        rows: sorted.map(row),
+        primary: { icon: KIND_ICON[main.type] || 'lan', name: main.name, description: main.description && main.description !== main.name ? main.description : '', kind: kindOf(T, main), speed: speedText(main.link_speed_mbps), ipv4: (main.ipv4 || [])[0] || '', signal: main.wifi && Number.isFinite(main.wifi.signal) ? main.wifi.signal : null, ssid: main.wifi?.ssid_masked || '', isDefault: !!main.is_default_route, wifi: main.type === 'wifi', virtual: isVirtualNic(main), up: !!main.up },
+        rows: ordered.filter((n) => n === main || isLive(n)).map(row),
         facts: [...(main.ipv6?.length ? [{ label: 'IPv6', value: main.ipv6[0] }] : []), ...(main.mac ? [{ label: T.nicMac, value: `${main.mac}:••:••:••` }] : []), { label: T.nicDefault, value: main.is_default_route ? T.yes : T.no }],
-        labels: { signal: T.nicSignal, default: T.nicDefault },
+        labels: { signal: T.nicSignal, default: T.nicDefault, auto: T.nicAuto, adapter: T.nicAdapter, down: T.nicDown, sent: T.nicSent, others: T.nicOthers, headroom: T.nicHeadroom, mbps: T.mbps, why: T[`nicWhy_${res.reason}`] || '', gone: res.missing ? T.nicGone : '' },
+        choice: { host: hostKey, value: res.reason === 'manual' ? main.name : '', manual: res.reason === 'manual', reason: res.reason, auto: res.auto.nic?.name || '', missing: res.missing, options: ordered.map(option) },
+        usage: { here: streamHere, series: sent, now: sent.length ? sent[sent.length - 1] : null, speed, ratio: sent.length && speed > 0 ? Math.min(1, sent[sent.length - 1] / speed) : null },
       }
     }
   }
