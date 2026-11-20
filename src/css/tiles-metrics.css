@@ -110,7 +110,8 @@
 .m-tnet__opt.is-on { background: color-mix(in srgb, var(--tk) 16%, transparent); }
 .m-tnet__opt.is-down { opacity: .62; }
 .m-tnet__opt .m-tshape { flex: none; }
-.m-tnet__opt > span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+/* the text only: a rule on every child span also hit the avatar (a span too), made it a column that fills the row, and left its glyph at the top of the circle */
+.m-tnet__txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .m-tnet__opt b { font: var(--m-tile-text-14-strong); line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-tnet__opt small { font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-tnet__opt > .m-icon { flex: none; width: 22px; height: 22px; color: var(--tk); }

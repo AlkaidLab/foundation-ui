@@ -90,14 +90,14 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
             <li>
               <button type="button" class="m-tnet__opt" role="radio" :aria-checked="!choice.manual" :class="{ 'is-on': !choice.manual }" @click.stop="choose('')">
                 <MTileShape icon="sync" shape="circle" size="34px" :tone="choice.manual ? 'container' : 'solid'" />
-                <span><b>{{ L.auto }}</b><small>{{ choice.auto || '–' }}</small></span>
+                <span class="m-tnet__txt"><b>{{ L.auto }}</b><small>{{ choice.auto || '–' }}</small></span>
                 <MIcon :name="choice.manual ? 'radio_button_unchecked' : 'radio_button_checked'" />
               </button>
             </li>
             <li v-for="o in options" :key="o.id">
               <button type="button" class="m-tnet__opt" role="radio" :aria-checked="choice.manual && o.current" :class="{ 'is-on': choice.manual && o.current, 'is-down': !o.up }" @click.stop="choose(o.id)">
                 <MTileShape :icon="o.icon" shape="circle" size="34px" :tone="choice.manual && o.current ? 'solid' : 'container'" />
-                <span><b>{{ o.title }}</b><small>{{ o.sub }}</small></span>
+                <span class="m-tnet__txt"><b>{{ o.title }}</b><small>{{ o.sub }}</small></span>
                 <MIcon :name="choice.manual && o.current ? 'radio_button_checked' : 'radio_button_unchecked'" />
               </button>
             </li>
