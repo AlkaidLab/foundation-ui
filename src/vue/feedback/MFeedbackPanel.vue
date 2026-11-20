@@ -6,8 +6,9 @@ import MSheet from '../MSheet.vue'
 import MField from '../MField.vue'
 import MSeg from '../MSeg.vue'
 import MBanner from '../MBanner.vue'
+import MLoading from '../MLoading.vue'
 import DevShotMask from '../devmode/DevShotMask.vue'
-import { devReport, devProviders, closeDevReport, setDevShot, removeDevShot, retakeDevShot } from '../devmode/devReport.js'
+import { devReport, devProviders, devReportReady, closeDevReport, setDevShot, removeDevShot, retakeDevShot } from '../devmode/devReport.js'
 import { composeReport, reportZip } from '../../devmode/feedback.js'
 import { addMine } from '../../devmode/mine.js'
 import { devmodeTexts } from '../../devmode/texts.js'
@@ -123,7 +124,9 @@ async function send() {
     addMine({ id, title: titleOf(form.text), status: next.kind === 'sent' ? 'sent' : 'queued', ref: result.value.ref })
   }
 }
-function saveZip() {
+async function saveZip() {
+  // the log and the environment are collected after the sheet opens: the file waits for them
+  await devReportReady()
   const t = T.value
   const r = composeReport({ kind: 'feedback', repo: devReport.repo, title: titleOf(form.text) || F.value.title, description: form.text, contact: '', form: form.type === 'suggestion' ? 'feature' : 'bug', locale: props.locale, category: '', steps: '', error: devReport.error, env: devReport.env, logs: devReport.logs, screenshot: devReport.shot, shotRegions: { auto: devReport.shotAuto.length, manual: devReport.shotManual.length }, include: { shot: !!devReport.shot, logs: true, dump: false }, hostNames: devProviders().hostNames?.() || [], texts: { description: t.fContent, error: 'Error', environment: t.envTitle, logTail: t.aLogs, attached: t.attach, contact: t.fContact } })
   const zip = reportZip(r)
@@ -187,7 +190,8 @@ defineExpose({ send, form, doc, plan, layout, takeFile })
           <template v-if="form.contact.trim()"><h5>{{ F.previewContact }}</h5><pre>{{ form.contact.trim() }}</pre></template>
           <h5>{{ F.previewLogs }}</h5>
           <p class="fb-preview__note">{{ F.previewLogsNote }}</p>
-          <pre>{{ previewLines || F.previewNone }}</pre>
+          <MLoading v-if="devReport.loading" size="24px" data-fb="preview-loading" />
+          <pre v-else>{{ previewLines || F.previewNone }}</pre>
         </div>
       </section>
       <MField v-model="form.contact" :label="F.contact" :supporting="F.contactHint" :disabled="phase === 'sending'" data-fb="contact" />
