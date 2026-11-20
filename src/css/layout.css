@@ -359,15 +359,14 @@ html:has(.m-scene--bar) .m-caption--bar-more .m-caption__more { display: none !i
 .m-caption__actions { flex: none; display: flex; align-items: center; gap: var(--m-cap-gap); margin-inline-start: 8px; }
 .m-caption .m-icon-btn, .m-caption .m-annbtn, .m-caption .m-statusbell, .m-caption .m-usearch.is-compact .m-usearch__open { width: var(--m-cap-btn); height: var(--m-cap-btn); min-width: var(--m-cap-btn); padding: 0; justify-content: center; }
 .m-caption .m-annbtn, .m-caption .m-statusbell { height: auto; min-height: var(--m-cap-btn); }
-.m-caption .m-statusbell--rest { height: var(--m-cap-btn); }
+/* the status bell keeps no empty slot while nothing is reported, at any width: the slot was the uneven gap (a bar of buttons one pitch apart has no hole in it); the buttons left of it step aside by one pitch when a status arrives */
+.m-caption .m-statusbell--rest { display: none; }
 .m-caption:is([data-tier='2'], [data-tier='3'], [data-tier='4'], [data-tier='5']) .m-caption-connect { width: var(--m-cap-btn); height: var(--m-cap-btn); min-width: var(--m-cap-btn); padding: 0; justify-content: center; background: transparent; color: var(--md-sys-color-on-surface-variant); border-radius: 50%; }
 /* a search that is its icon (a phone, or a bar with no room for the field) leaves the middle of the bar: it sits with the other buttons, the free room goes to the logo and the name, and the product's own
    padding of its search cell is not added to the pitch */
 .m-caption.m-caption:is([data-phone], [data-tier='2'], [data-tier='3'], [data-tier='4'], [data-tier='5']) { grid-template-columns: minmax(0, 1fr) auto auto; }
 .m-caption.m-caption:is([data-phone], [data-tier='2'], [data-tier='3'], [data-tier='4'], [data-tier='5']) > :has(> .m-usearch.is-compact) { padding: 0; margin-inline-end: var(--m-cap-gap); }
 .m-caption.m-caption:is([data-phone], [data-tier='2'], [data-tier='3'], [data-tier='4'], [data-tier='5']) .m-brand { min-width: 0; overflow: hidden; padding-inline-start: 12px; }
-/* the caption bar of a phone, the same in both products: no empty slot for the status bell while nothing is reported (the empty slot was the uneven gap and pushed the last button out of the window), the
-   last button a little off the edge; the version and the global back button are the first lines of 更多 (they are not drawn here) */
+/* the caption bar of a phone, the same in both products: the last button a little off the edge; the version and the global back button are the first lines of 更多 (they are not drawn here) */
 .m-caption[data-phone] .m-caption__actions { margin-inline-start: 0; padding-inline-end: 4px; }
-.m-caption[data-phone] .m-statusbell--rest { display: none; }
 .m-caption[data-phone] :is(.m-capver, .m-capback) { display: none; }

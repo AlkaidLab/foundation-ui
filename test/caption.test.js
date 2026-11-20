@@ -49,9 +49,10 @@ test('a search that is its icon sits with the other buttons, not in the middle c
   assert.match(layout, /> :has\(> \.m-usearch\.is-compact\) \{ padding: 0; margin-inline-end: var\(--m-cap-gap\); \}/)
 })
 
-test('on a phone the status bell keeps no empty slot, the version and the global back button are left to 更多', () => {
+test('the status bell keeps no empty slot at any width; on a phone the version and the global back button are left to 更多', () => {
   assert.match(layout, /\.m-caption\[data-phone\] \.m-caption__actions \{ margin-inline-start: 0; padding-inline-end: 4px; \}/)
-  assert.match(layout, /\.m-caption\[data-phone\] \.m-statusbell--rest \{ display: none; \}/)
+  assert.match(layout, /\.m-caption \.m-statusbell--rest \{ display: none; \}/)
+  assert.ok(!/data-phone\] \.m-statusbell--rest/.test(layout), 'no empty slot at any width, not only on a phone')
   assert.match(layout, /\.m-caption\[data-phone\] :is\(\.m-capver, \.m-capback\) \{ display: none; \}/)
 })
 
