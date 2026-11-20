@@ -1,7 +1,7 @@
 // How the report sheet opens: the window is captured and redacted before the sheet exists, the log and the environment are collected beside the redaction and are not waited for, and a second press does nothing.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { devReport, devReportReady, registerDevReport, openDevReport, closeDevReport } from '../src/vue/devmode/devReport.js'
+import { devReport, devReportReady, registerDevReport, openDevReport, closeDevReport, CONTEXT_WAIT_MS } from '../src/vue/devmode/devReport.js'
 import { maskCapture } from '../src/devmode/shotCanvas.js'
 import { makePng } from './pngFixture.js'
 
@@ -62,6 +62,18 @@ test('a report opened again before the first one finished loading keeps the answ
   old.open('old log')
   await old.promise
   assert.equal(devReport.logs, 'new log'); assert.equal(devReport.env, 'new env')
+  closeDevReport()
+})
+
+test('a log or environment that never arrives does not keep the report waiting for ever', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  registerDevReport({ capture: async () => null, mask: async () => null, logs: () => new Promise(() => {}), env: () => 'env' })
+  closeDevReport()
+  await openDevReport({ kind: 'feedback' })
+  assert.equal(devReport.loading, true)
+  t.mock.timers.tick(CONTEXT_WAIT_MS)
+  await devReportReady()
+  assert.equal(devReport.loading, false)
   closeDevReport()
 })
 

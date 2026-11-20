@@ -44,6 +44,8 @@ async function takeWindowShot(onCaptured) {
 }
 
 // The log and the environment are collected after the window is captured and are not waited for: the sheet opens as soon as the redacted picture is there, the preview and the zip use them when they are in.
+// A provider that never answers must not keep the preview loading or the zip waiting for ever: after CONTEXT_WAIT_MS the report goes on with what it has, and a late answer is still taken when it comes.
+export const CONTEXT_WAIT_MS = 8000
 let contextToken = 0
 let contextLoading = Promise.resolve()
 function loadContext(carriedLogs, carriedLabel) {
@@ -52,7 +54,10 @@ function loadContext(carriedLogs, carriedLabel) {
   devReport.logs = withCarriedLogs('', carriedLogs, carriedLabel)
   devReport.env = ''
   devReport.loading = true
-  contextLoading = Promise.all([safe(providers.logs, ''), safe(providers.env, '')]).then(([logs, env]) => {
+  let timer
+  const give = new Promise((resolve) => { timer = setTimeout(resolve, CONTEXT_WAIT_MS); timer?.unref?.() }).then(() => { if (mine === contextToken) devReport.loading = false })
+  const work = Promise.all([safe(providers.logs, ''), safe(providers.env, '')]).then(([logs, env]) => {
+    clearTimeout(timer)
     if (mine !== contextToken) return
     // the log of the window as it is now, and the lines the error report carried from the time of the error
     devReport.logs = withCarriedLogs(logs, carriedLogs, carriedLabel)
@@ -60,6 +65,7 @@ function loadContext(carriedLogs, carriedLabel) {
     devReport.loading = false
     span('context', started)
   })
+  contextLoading = Promise.race([work, give])
 }
 /** Resolves when the log and the environment of the open report are in (the zip waits for it; the preview shows them when they arrive). */
 export const devReportReady = () => contextLoading
