@@ -167,6 +167,7 @@ const selCard = computed(() => (sel.value ? blocks.value.flatMap((b) => b.boxed)
         <b class="m-dedit__seltitle">{{ selCard.title }}</b>
         <span v-if="selCard.sizeKeys.length > 1" class="m-dedit__selsizes" role="radiogroup" :aria-label="`${T.size}: ${selCard.title}`"><button v-for="k in selCard.sizeKeys" :key="k" type="button" role="radio" :aria-checked="selCard.size === k" :aria-label="T['sizeName' + k.toUpperCase()]" :class="{ 'is-on': selCard.sizeKey === k }" @click="setCardSize(selCard.id, k)">{{ T['size' + k.toUpperCase()] }}</button></span>
         <button v-if="stacksOn && selCard.kind !== 'stack' && joinTargetsOf(selCard).length" type="button" class="m-dedit__selbtn" data-stack-join :aria-label="T.stackJoin || '加入轮换组'" :data-tip="T.stackJoin || '加入轮换组'" @click="joinFor = selCard.id"><MIcon name="library_add" /></button>
+        <button type="button" class="m-dedit__selbtn" :aria-label="T.addCard" :data-tip="T.addCard" @click="pickerOpen = true"><MIcon name="add" /></button>
         <button type="button" class="m-dedit__selbtn is-danger" :aria-label="`${T.hide}: ${selCard.title}`" :data-tip="T.hide" @click="removeCard(selCard.id)"><MIcon name="remove" /></button>
       </div>
       <button v-if="!pickerOpen" type="button" class="m-dedit__fab" :style="fabStyle" @click="pickerOpen = true"><MIcon name="add" />{{ T.addCard }}</button>

@@ -34,6 +34,8 @@ test('the add sheet fits a phone: its tools are a row of their own, or icons bes
 test('the selected tile has a bar of finger-sized actions where the pointer is coarse, and the add button stands above the bottom bar', () => {
   const dash = read('vue/MHomeDash.vue')
   assert.match(dash, /class="m-dedit__selbar"/)
+  // the add button stays within reach while a tile is selected (the bar replaces the floating button)
+  assert.match(dash, /class="m-dedit__selbtn" :aria-label="T\.addCard"[^>]*@click="pickerOpen = true"/)
   assert.match(dash, /querySelector\('\.m-rail--bar'\)/)
   assert.match(dash, /class="m-dedit__fab" :style="fabStyle"/)
   const css = read('css/edit-phone.css')

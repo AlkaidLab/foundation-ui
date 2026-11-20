@@ -329,7 +329,11 @@ export function useDashDock(D) {
   // what the smart overview shows, the tiles of the fill too (blocks is read while it is not edited: the last smart drawing stays here when editing begins), so that editing starts from the page that was on the screen
   let lastShown = []
   watch(blocks, (list) => { if (!edit.value) lastShown = list.flatMap((b) => b.boxed).filter((c) => !c.ghost).map((c) => ({ id: c.id, size: c.sizeKey })) }, { immediate: true, flush: 'sync' })
-  const withFill = (base) => { const extra = lastShown.filter((x) => !base.visible.includes(x.id) && cardById.value.has(x.id)); return extra.length ? { ...base, visible: [...base.visible, ...extra.map((x) => x.id)], sizes: { ...base.sizes, ...Object.fromEntries(extra.map((x) => [x.id, x.size])) } } : base }
+  // the sizes are the ones drawn (the smart plan lifts a tile a size where a row is short), so editing starts from the page as it was
+  const withFill = (base) => {
+    const extra = lastShown.filter((x) => !base.visible.includes(x.id) && cardById.value.has(x.id))
+    return { ...base, visible: [...base.visible, ...extra.map((x) => x.id)], sizes: { ...base.sizes, ...Object.fromEntries(lastShown.filter((x) => cardById.value.has(x.id)).map((x) => [x.id, x.size])) } }
+  }
   watch(edit, (on) => {
     if (on) { editRaw = JSON.stringify(layout.state); if (appearance.state.smartTiles && layout.state.mode === 'smart') layout.freeze(withFill(D.seenPlan && Date.now() - D.flushedAt < 1500 ? D.seenPlan : plan.value)); D.seenPlan = null; editSnap = layoutKey(); return }
     if (appearance.state.smartTiles && layoutKey() !== editSnap) { appearance.set({ smartTiles: false }); return }
