@@ -11,6 +11,8 @@ import { migrateLayout } from './layoutMigrate.js'
  * size (s, m, l) the person chose for a card, a card without one has its default size.
  */
 export const LAYOUT_VERSION = 8
+/** Sizes a tile no longer has, and the size a layout that kept it gets instead: 网卡 has no 方形 (it needs a name, a speed and the way to change the adapter), a saved 方形 is 中. */
+export const RETIRED_SIZES = Object.freeze({ net: Object.freeze({ s: 'm' }) })
 /** The id of a pinned tile: the setting it controls (or opens). */
 export const pinIdOf = (spec) => `pin:${spec.type}:${spec.key}`
 const PIN_TYPES = ['setting', 'link']
@@ -44,6 +46,7 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
         if ((v.v || 0) < 6 && order.includes('hero')) { order = order.filter((id) => id !== 'star'); order.splice(Math.max(order.indexOf('hero'), order.indexOf('pair')) + 1, 0, 'star') }
         const overrides = Object.fromEntries(Object.entries(v.overrides || {}).filter(([id, x]) => known(id) && typeof x === 'boolean'))
         const sizes = Object.fromEntries(Object.entries(v.sizes || {}).filter(([id, x]) => known(id) && ALL_SIZE_KEYS.includes(x)))
+        for (const [id, map] of Object.entries(RETIRED_SIZES)) if (map[sizes[id]]) sizes[id] = map[sizes[id]]
         // version 7: the overview is smart by default (the tiles follow what the host is doing); a layout saved before keeps what the person arranged (manual), a layout nobody touched is smart
         const touched = Object.keys(overrides).length || Object.keys(sizes).length || Object.keys(pins).length
         const mode = (v.v || 0) >= 7 ? (v.mode === 'manual' ? 'manual' : 'smart') : touched ? 'manual' : 'smart'
