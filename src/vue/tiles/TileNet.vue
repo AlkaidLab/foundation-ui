@@ -8,7 +8,7 @@ export const tileIds = ['net']
 //   The link speed is the hero (Pixel "Internet" tile, iStat's network numbers): the speed in display type, the adapter's shape cut by the corner.
 //     中:   the speed and the shape · the adapter, its kind and IPv4 · the chooser chip in the header (Auto or the adapter, a menu of the adapters)
 //     大:   + the adapters as a list that chooses (Auto first), the reason Auto picked this one
-//     特大: two columns: the adapter (speed, kind, IPv4, IPv6, MAC, the default route, the reason) and the adapters that choose; the stream's rate against the link across the lower third
+//     特大: two columns: the adapter (speed, kind, IPv4, IPv6, the default route, the reason) and the adapters that choose; under the adapter the stream's rate and its curve, the curve bleeding to the tile's left and bottom edge
 // No 方形: the adapter needs a name, a speed and a way to change it. A saved 方形 is drawn as 中 (sizeKeyOf, homeRanges.js).
 import { computed } from 'vue'
 import MIcon from '../MIcon.vue'
@@ -56,7 +56,6 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
     <MTileEmpty v-if="empty || !d.primary" :icon="empty?.icon || 'lan'" :title="empty?.title || card.title" :text="empty?.value || d.empty || ''" :action="empty?.action" :size="size" @act="(a) => emit('act', a)" />
     <template v-else>
       <MTileShape class="m-tile__corner m-tnet__corner" :icon="p.icon" shape="cookie" size="60px" tone="tonal" />
-      <MTileChart v-if="size === 'xl' && sent.length > 1" class="m-tile__bleed m-tnet__history" :points="sent" kind="area" :dot="true" :window="40" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron" @open="emit('act', OPEN)">
         <MMenuChip v-if="size === 'm'" class="m-tnet__chip" :label="chipLabel" :aria-label="`${L.adapter}: ${chipLabel}`" :active="choice.manual" :items="menu" @click.stop @select="pick" />
       </MTileHead>
@@ -74,11 +73,14 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
               <MTileChip v-if="p.wifi && p.signal !== null" :label="`${L.signal} ${p.signal} %`" />
               <MTileChip v-if="p.virtual" :label="p.kind" tone="" />
             </div>
-            <dl class="m-tnet__facts"><div v-for="f in (d.facts || []).filter((x) => x.label !== L.default)" :key="f.label"><dt>{{ f.label }}</dt><dd class="m-dnum" data-redact="address">{{ f.value }}</dd></div></dl>
-            <div v-if="sent.length > 1" class="m-tnet__rate">
-              <span>{{ L.sent }}</span>
-              <b class="m-dnum">{{ sentNow }} <small>{{ L.mbps }}</small></b>
-              <span v-if="share">{{ share }} {{ L.headroom }}</span>
+            <dl class="m-tnet__facts"><div v-for="f in (d.facts || []).filter((x) => x.label === 'IPv6')" :key="f.label"><dt>{{ f.label }}</dt><dd class="m-dnum" data-redact="address">{{ f.value }}</dd></div></dl>
+            <div v-if="sent.length > 1" class="m-tnet__trend">
+              <div class="m-tnet__rate">
+                <span>{{ L.sent }}</span>
+                <b class="m-dnum">{{ sentNow }} <small>{{ L.mbps }}</small></b>
+                <span v-if="share">{{ share }} {{ L.headroom }}</span>
+              </div>
+              <MTileChart class="m-tnet__history" :points="sent" kind="area" :dot="true" :window="40" />
             </div>
           </template>
         </div>
