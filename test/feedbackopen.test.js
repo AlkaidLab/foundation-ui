@@ -55,12 +55,13 @@ test('a report opened again before the first one finished loading keeps the answ
   registerDevReport({ capture: async () => null, mask: async () => null, logs: () => old.promise, env: () => '' })
   closeDevReport()
   await openDevReport({ kind: 'feedback' })
+  const oldReady = devReportReady()
   closeDevReport()
   registerDevReport({ logs: () => 'new log', env: () => 'new env' })
   await openDevReport({ kind: 'feedback' })
   await devReportReady()
   old.open('old log')
-  await old.promise
+  await oldReady // the old collection has finished, and has not touched the new report
   assert.equal(devReport.logs, 'new log'); assert.equal(devReport.env, 'new env')
   closeDevReport()
 })

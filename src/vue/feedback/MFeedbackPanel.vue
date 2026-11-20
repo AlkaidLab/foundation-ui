@@ -125,8 +125,10 @@ async function send() {
   }
 }
 async function saveZip() {
-  // the log and the environment are collected after the sheet opens: the file waits for them
+  // the log and the environment are collected after the sheet opens: the file waits for them, and only for this report (a sheet closed and opened again meanwhile is another report)
+  const mine = devReport.token
   await devReportReady()
+  if (!devReport.open || devReport.token !== mine) return
   const t = T.value
   const r = composeReport({ kind: 'feedback', repo: devReport.repo, title: titleOf(form.text) || F.value.title, description: form.text, contact: '', form: form.type === 'suggestion' ? 'feature' : 'bug', locale: props.locale, category: '', steps: '', error: devReport.error, env: devReport.env, logs: devReport.logs, screenshot: devReport.shot, shotRegions: { auto: devReport.shotAuto.length, manual: devReport.shotManual.length }, include: { shot: !!devReport.shot, logs: true, dump: false }, hostNames: devProviders().hostNames?.() || [], texts: { description: t.fContent, error: 'Error', environment: t.envTitle, logTail: t.aLogs, attached: t.attach, contact: t.fContact } })
   const zip = reportZip(r)
