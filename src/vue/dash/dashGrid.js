@@ -16,7 +16,8 @@ export function useDashGrid(D) {
   // the 底栏 layout is one row of SMALL tiles: every tile is S there whatever size it has in the smart layout (the saved sizes are not touched), and the size chooser offers S only.
   // Every tile draws the ONE generic small view (icon, value, label, chevron): the own small layouts of the cards were made for the grid and differ from each other.
   // ---- the grid in square units (round27-xl): a column is as wide as a 方形 is tall, the rows of the ladder are one column high, the strip rows are STRIP_PX; the columns follow the width and the density
-  const tileDensity = computed(() => appearance.state.tileDensity || 'standard')
+  // in the dock, a short window (a phone on its side) takes the smaller density (a unit of 130 to 175 px) unless the person chose another: the tiles of a row are shorter, so a whole row stays on the first screen
+  const tileDensity = computed(() => { const d = appearance.state.tileDensity || 'standard'; return d === 'standard' && tall.value < 480 && appearance.state.overview === 'dock' ? 'smaller' : d })
   const gridOf = (w) => columnsOf(w, tileDensity.value)
   const JOURNEY_PX = 200
   // the banner of the first pairing is as tall as its step, at least this

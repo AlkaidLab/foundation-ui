@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { FLEX_BELOW, MAX_COLUMNS, UNIT_FLEX_MAX, UNIT_GAP, UNIT_PX, columnsOf, gridWidthOf } from '../src/vue/homeSizes.js'
+import { FLEX_BELOW, MAX_COLUMNS, UNIT_FLEX_MAX, UNIT_GAP, UNIT_PX, columnsOf, gridWidthOf, missingInRow } from '../src/vue/homeSizes.js'
 
 // The unit of the overview grid is one fixed square (148 px at the standard density): the same on every window and every screen at the same OS scale. A bigger window holds more columns of it, never a bigger tile.
 test('the unit is the same in every pane of FLEX_BELOW or more, at the standard density', () => {
@@ -52,4 +52,8 @@ test('the grid has at most 12 columns of the fixed unit: a wider pane gets wider
   for (const w of [1908, 2400, 3200, 3680, 5000]) { const c = columnsOf(w); assert.equal(c.columns, 12, `${w}`); assert.equal(c.unit, UNIT_PX) }
   assert.equal(columnsOf(1760).columns, 11)
   assert.equal(gridWidthOf(12, UNIT_PX), 1908)
+})
+
+test('the last row of the dock is completed with standard tiles: how many are missing', () => {
+  assert.equal(missingInRow(10, 7), 4); assert.equal(missingInRow(14, 7), 0); assert.equal(missingInRow(0, 7), 0); assert.equal(missingInRow(3, 2), 1); assert.equal(missingInRow(5, 0), 0)
 })

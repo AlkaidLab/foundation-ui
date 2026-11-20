@@ -33,7 +33,9 @@ test('RZ2: the overview measures from the observer of its container (after layou
   const css = read('src/css/gallery.css')
   assert.match(css, /\.m-dash\.is-resizing \.m-dash__cell, \.m-dash\.is-resizing \.m-dash__cell \*[^{]*\{ transition: none !important; \}/)
   // the dock has no row to measure: its columns are the grid's, from the width the page measured (no observer of its own, nothing read after a write of the window)
-  assert.ok(!/measureDock|dockRow/.test(src))
+  assert.ok(!/measureDock\(|dockRow/.test(src), 'no row of tiles to measure')
+  // the clock block's height is read in the callback of an observer (after layout, before paint), once per change of the pane or of the overview, never in a window handler
+  assert.match(src, /dockObserver = new ResizeObserver\(measureDockHead\)/)
   assert.match(src, /const dockGrid = computed\(\(\) => gridOf\(width\.value\)\)/)
 })
 
