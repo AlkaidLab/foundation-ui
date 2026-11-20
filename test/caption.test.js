@@ -72,3 +72,9 @@ test('a hint longer than the field ends in an ellipsis, it is never cut in the m
   const search = fs.readFileSync(new URL('../src/css/usearch.css', import.meta.url), 'utf8')
   assert.match(search, /\.m-usearch__input \{ all: unset; flex: 1; min-width: 0; font: var\(--m-body-large\); color: var\(--md-sys-color-on-surface\); overflow: hidden; text-overflow: ellipsis; \}/)
 })
+
+test('on a touch screen the search icon and the actions keep the same pitch as with a mouse: the gap is the bar\'s, not a margin of the icon', () => {
+  const touch = fs.readFileSync(new URL('../src/css/touch.css', import.meta.url), 'utf8')
+  assert.match(touch, /\.m-usearch\.is-compact \.m-usearch__open \{ width: var\(--m-cap-btn, 44px\); height: var\(--m-cap-btn, 44px\); \}/)
+  assert.match(touch, /\.m-caption__actions \{ gap: var\(--m-cap-gap, 4px\); \}/)
+})
