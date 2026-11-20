@@ -38,6 +38,8 @@ export function columnsOf(width, density = 'standard') {
 export const FLEX_BELOW = 800
 /** The largest a unit gets while a narrow pane is filled (px at the standard density). */
 export const UNIT_FLEX_MAX = 200
+/** How many standard tiles complete the last row of a grid of `columns` columns holding `count` tiles (0 when the row is full or there are none). */
+export const missingInRow = (count, columns) => (count > 0 && columns > 0 ? (columns - (count % columns)) % columns : 0)
 /** The width of a grid of `columns` units. */
 export const gridWidthOf = (columns, unit) => columns * unit + (columns - 1) * UNIT_GAP
 export const unitPx = (width, density = 'standard') => columnsOf(width, density).unit

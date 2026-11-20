@@ -29,3 +29,18 @@ test('the dock and its switch have words in both languages', () => {
   }
   assert.equal(appearanceTexts('zh').overviewDock, '时钟模式')
 })
+
+test('the dock keeps its clock: the head takes what is left above one row of tiles (measured), and the last row is completed from the catalogue', () => {
+  assert.match(source, /const measureDockHead = \(\) => \{/)
+  assert.match(source, /:style="dockHeadMin \? \{ minHeight: `\$\{dockHeadMin\}px` \} : undefined"/)
+  assert.match(source, /const need = missingInRow\(list\.length, dockGrid\.value\.columns\)/)
+  assert.match(source, /fillCards\.value\.slice\(0, need\)/)
+  // a short window gives the clock block up to 84 px so that a whole row stays on the first screen, and the card that asks for a star goes under the tiles
+  assert.match(source, /H < 480/)
+  const css = readFileSync(new URL('../src/css/clock.css', import.meta.url), 'utf8')
+  assert.match(css, /\.m-dash:has\(> \.m-dock\) > \.m-sprompt \{ order: 2; \}/)
+})
+
+test('in the dock a short window takes the smaller density so that a whole row of tiles stays on the first screen', () => {
+  assert.match(source, /return d === 'standard' && tall\.value < 480 && appearance\.state\.overview === 'dock' \? 'smaller' : d/)
+})

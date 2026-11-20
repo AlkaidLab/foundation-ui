@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { boxOf, sizePx, sizesOf, unitPx } from '../src/vue/homeSizes.js'
-import { smallOf, shortHardware } from '../src/vue/homeSmall.js'
+import { smallOf, shortHardware, shortTitle } from '../src/vue/homeSmall.js'
 import { CARD_META } from '../src/vue/homeCards.js'
 
 // every card has a small view: the box of S is the same for all (2 x 1), and the generic small view reads a title and a value from any kind of card
@@ -68,4 +68,8 @@ test('a processor or a graphics card has a short name that is whole in a small t
     ['', ''],
   ]
   for (const [raw, short] of cases) assert.equal(shortHardware(raw), short, raw)
+})
+
+test('a long Latin title of a small tile loses the maker\'s name', () => {
+  assert.equal(shortTitle('Foundation Virtual Display'), 'Virtual Display'); assert.equal(shortTitle('Foundation'), 'Foundation'); assert.equal(shortTitle('Frame rate'), 'Frame rate'); assert.equal(shortTitle('基地虚拟显示器驱动程序'), '基地虚拟显示器驱动程序')
 })

@@ -59,5 +59,5 @@ test('R5: the dock has no row that scrolls (no fade, no arrow over a tile), and 
   const css = read('../src/css/dash.css')
   assert.ok(!/is-more-r|dockScroll/.test(vue)); assert.ok(!/m-dock__more|m-dock__row/.test(css))
   assert.match(css, /\.m-dock__grid \{ display: grid;[^}]*justify-content: center;/)
-  assert.match(css, /\.m-dock__head \{ flex: 1; display: flex; flex-direction: column; justify-content: center;/)
+  assert.match(css, /\.m-dock__head \{ flex: 1 0 auto; display: flex; flex-direction: column; justify-content: center;/)
 })

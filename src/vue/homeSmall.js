@@ -27,9 +27,12 @@ export function shortHardware(name) {
   return s || raw
 }
 
+/** The name of a product's part without the maker's name when it is long and in Latin letters ("Foundation Virtual Display" is "Virtual Display"): one line of a small tile, never a cut one. */
+export const shortTitle = (title) => (/^[\x20-\x7e]+$/.test(title) && title.length > 16 ? title.replace(/^Foundation\s+/i, '') : title)
+
 export function smallOf(card, T = {}) {
   const d = card.data || {}
-  const title = card.title || d.title || ''
+  const title = shortTitle(card.title || d.title || '')
   const base = { icon: d.icon || 'apps', title }
   // the one action that fills an empty tile: what is empty is what the first stream, the first pairing or the announcements fill; reuses the actions the products already handle (guide-go, table-action, open)
   const fill = () => {

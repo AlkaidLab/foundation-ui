@@ -5,7 +5,7 @@ import { PURPOSES, fillOrder, purposeOf, sectionIndexOf, suggestions } from '../
 import { clientInUse, clientRecommendation, markClientRec, readClientRec } from '../clientPrompt.js'
 import { starClientInUse } from '../starCard.js'
 import { slotAhead, slotEnter, slotLeave } from '../promptSlot.js'
-import { UNIT_GAP, gridWidthOf, hasNoData, sizesOf } from '../homeSizes.js'
+import { UNIT_GAP, gridWidthOf, hasNoData, missingInRow, sizesOf } from '../homeSizes.js'
 import { effectiveClockSize } from '../../appearance/appearance.js'
 
 /** dashDock: one part of the home overview's setup (MHomeDash.vue); D is the shared scope of the parts, in the order they are made. */
@@ -157,11 +157,46 @@ export function useDashDock(D) {
     if (Number.isInteger(s.pairedCount) && s.pairedCount > 0) parts.push(T.value.dockPaired.replace('{n}', s.pairedCount))
     return parts.join(' · ')
   })
-  const dockCards = computed(() => (dockOn.value ? visibleCards.value.map((c) => boxFor(c, 8)) : []))
+  // The dock's last row is completed with more real tiles of the catalogue at their standard size (smart mode: the ones that have data, in the order of the state, as the grid fills its holes; never a
+  // stretched tile): no row ends with empty cells beside it while the catalogue has a tile to put there.
+  const dockCards = computed(() => {
+    if (!dockOn.value) return []
+    const list = visibleCards.value.map((c) => boxFor(c, 8))
+    if (!smart.value) return list
+    const need = missingInRow(list.length, dockGrid.value.columns)
+    return need ? [...list, ...fillCards.value.slice(0, need).map((c) => boxFor(c, 8))] : list
+  })
   // The tiles are the overview's standard squares (s: one unit), wrapped into the same columns as the grid, so they never form a row that scrolls: a row that does not fit goes below and the page scrolls.
   // The grid is as wide as its columns and sits in the middle of the pane, edge to edge in a narrow one (columnsOf), the same on every window.
   const dockGrid = computed(() => gridOf(width.value))
   const dockGridStyle = computed(() => { const g = dockGrid.value; return { gridTemplateColumns: `repeat(${g.columns}, ${g.unit}px)`, gridAutoRows: `${g.unit}px`, width: `${gridWidthOf(g.columns, g.unit)}px` } })
+  // The first screen of the dock: the title, the card above, the clock and ONE row of tiles; the clock block takes what is left above that row (measured: the card above is one line or three), so the clock keeps
+  // its size however many rows of tiles follow below the fold. A window too short for it keeps the compact clock (the minimum below) and the row goes under it.
+  const dockHeadMin = ref(0)
+  const measureDockHead = () => {
+    const el = D.root?.value?.querySelector?.('.m-dock'); const pane = el?.closest?.('.m-scene__pane')
+    if (!el || !pane) return
+    const top = el.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop
+    const H = typeof window !== 'undefined' ? window.innerHeight : 900
+    const gap = H < 480 ? 8 : 24 // the gap between the clock block and the tiles (dash.css, clock.css)
+    // a short window: the clock block gives up height (down to 48: the clock alone) so that a whole row of tiles stays on the first screen; a taller one keeps its clock and the row has its room under it
+    const next = H < 480
+      ? Math.round(Math.max(48, Math.min(112, pane.clientHeight - top - dockGrid.value.unit - gap - 2)))
+      : Math.round(Math.max(Math.min(164 + 0.04 * H, Math.max(112, 0.38 * H)), pane.clientHeight - top - (dockGrid.value.unit + UNIT_GAP + 16) - gap - 4)) // a row of tiles, its gap and the room under it
+    if (Math.abs(next - dockHeadMin.value) > 1) dockHeadMin.value = next
+  }
+  let dockObserver = null
+  watch([dockOn, () => D.root?.value], async () => {
+    dockObserver?.disconnect(); dockObserver = null
+    if (!dockOn.value || !D.root?.value || typeof ResizeObserver === 'undefined') return
+    await nextTick()
+    const pane = D.root.value.closest?.('.m-scene__pane')
+    dockObserver = new ResizeObserver(measureDockHead)
+    dockObserver.observe(D.root.value); if (pane) dockObserver.observe(pane)
+    measureDockHead()
+  }, { flush: 'post', immediate: true })
+  watch([() => dockGrid.value.unit, () => tall.value], () => nextTick(measureDockHead), { flush: 'post' })
+  onBeforeUnmount(() => dockObserver?.disconnect())
   const setOverview = (value) => appearance.set({ overview: value })
   // the ask for a star: while a stream runs the star of the client in use (from the family the host says of the device of the session; the host star when it is not one of ours), when nothing streams the
   // host star and the sponsor entry
@@ -286,5 +321,5 @@ export function useDashDock(D) {
     }
     emit('action', a)
   }
-  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockGridStyle, dockOn, hideGhost, onAct, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
+  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockGridStyle, dockHeadMin, dockOn, hideGhost, onAct, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
 }

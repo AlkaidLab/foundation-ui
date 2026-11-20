@@ -541,8 +541,8 @@ html[data-motion='reduced'] .m-dpair__wait { animation: none; }
 .m-dapps__shelf--s { gap: 6px; } .m-dapps__shelf--s .m-dapps__art { border-radius: 14px; }
 
 /* the dock layout of the overview (optional): the clock above, the tiles under it as the standard squares of the grid, wrapped into its columns (never a row that scrolls); what does not fit goes below and the page scrolls */
-.m-dock { display: flex; flex-direction: column; justify-content: space-between; gap: 24px; min-height: min(calc(100dvh - 260px), 900px); }
-.m-dock__head { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding-block: 2vh; }
+.m-dock { display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+.m-dock__head { flex: 1 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding-block: 2vh; }
 .m-dock__date { margin: 0; font: var(--m-headline-small); color: var(--md-sys-color-on-surface); }
 .m-dock__status { margin: 0; font: var(--m-title-medium); color: var(--md-sys-color-on-surface-variant); }
 .m-dock__grid { display: grid; gap: 12px; justify-content: center; margin-inline: auto; max-width: 100%; padding-bottom: 16px; }

@@ -194,6 +194,8 @@ html[data-motion='reduced'] .m-rail--expanded :is(.m-rail__pill, .m-rail__label-
 .m-page__back:active { border-radius: var(--md-sys-shape-corner-large); }
 .m-page__title { flex: 1; min-width: 0; margin: 0; font: var(--m-page-title); font-variation-settings: 'wght' 460; letter-spacing: 0; white-space: normal; overflow-wrap: break-word; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } /* a long title (German, Russian) wraps to a second line instead of losing its words to an ellipsis */
 .m-page__bar-actions { position: absolute; right: 0; top: 24px; z-index: 1; display: flex; align-items: center; gap: 4px; }
+/* a short window: the title row is slimmer, the room is the page's */
+@media (max-height: 479.98px) { .m-page__bar { min-height: 56px; padding-block: 8px; } .m-page__bar-actions { top: 8px; } }
 .m-stamp { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 0; border-radius: 16px; background: transparent; color: var(--md-sys-color-on-surface-variant); font: var(--m-label-medium); white-space: nowrap; font-variant-numeric: tabular-nums; }
 button.m-stamp { cursor: pointer; }
 button.m-stamp:hover:not(:disabled) { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
