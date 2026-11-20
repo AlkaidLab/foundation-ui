@@ -58,3 +58,17 @@ test('a smart overview ends in a full row at every window class: the tail fill r
   assert.match(dock, /layout\.freeze\(withFill\(/)
   assert.match(dock, /watch\(blocks, \(list\) => \{ if \(!edit\.value\) lastShown =/)
 })
+
+test('the controls inside the tiles are not smaller than a finger: swatches and colour discs keep their size and scroll, small buttons grow where the pointer is coarse', () => {
+  const css = read('css/edit-phone.css')
+  assert.match(css, /\.m-b3s__discs button \{ flex: none; \}/)
+  assert.match(css, /\.m-b3s__discs button \{ width: 40px; height: 40px; \}/)
+  assert.match(css, /\.m-b2dl \.m-b2dl__go, \.m-b2dl\.is-s \.m-b2dl__go \{ height: 44px;/)
+  assert.match(css, /\.m-gr--access \.m-b2opt::after \{ content: ''; position: absolute; inset: -3px 0; \}/)
+  // the swatches of a strip: one row, not squeezed, with the fade of an edge that has more behind it
+  const charts = read('css/charts.css')
+  assert.match(charts, /\.m-dstripctl \.m-swatch \{ flex: none; width: 34px; height: 34px; \}/)
+  assert.match(charts, /\.m-dstripctl \.m-swatches\[data-edge='end'\]/)
+  const widget = read('vue/MDashWidget.vue')
+  assert.equal((widget.match(/ref="stripChips" :data-edge="stripEdge"/g) || []).length, 4)
+})

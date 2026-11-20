@@ -61,10 +61,11 @@ html[data-motion='reduced'] .m-cx__line { animation: none; stroke-dashoffset: 0;
 /* the home strip: shared chip sets in one row, name at the start */
 .m-dstripctl { flex-direction: row; align-items: center; gap: 10px; padding: 0 12px 0 16px; border-radius: var(--m-dash-radius); } .m-dstripctl__title { flex: 1; min-width: 0; display: flex; flex-direction: column; } .m-dstripctl__title b { font: 600 13px/18px var(--md-ref-typeface-brand); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .m-dstripctl__title small { font: 400 11px/14px var(--md-ref-typeface-brand); color: var(--md-sys-color-on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-dstripctl .m-chipset { flex: 0 1 auto; min-width: 0; flex-wrap: nowrap; gap: 4px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; } .m-dstripctl .m-chipset::-webkit-scrollbar { display: none; } .m-dstripctl .m-chipset__chip { flex: none; }
+.m-dstripctl .m-swatches { flex: 0 1 auto; min-width: 0; flex-wrap: nowrap; gap: 6px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; padding-block: 2px; } .m-dstripctl .m-swatches::-webkit-scrollbar { display: none; } .m-dstripctl .m-swatch { flex: none; width: 34px; height: 34px; }
 /* the options that do not fit scroll sideways; the edge that has more behind it fades */
-.m-dstripctl .m-chipset[data-edge='end'] { mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
-.m-dstripctl .m-chipset[data-edge='start'] { mask-image: linear-gradient(90deg, transparent, #000 28px); }
-.m-dstripctl .m-chipset[data-edge='both'] { mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 28px), transparent); } .m-dwidget__vdd { flex: 1; min-height: 0; overflow: auto; }
+.m-dstripctl .m-chipset[data-edge='end'], .m-dstripctl .m-swatches[data-edge='end'] { mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
+.m-dstripctl .m-chipset[data-edge='start'], .m-dstripctl .m-swatches[data-edge='start'] { mask-image: linear-gradient(90deg, transparent, #000 28px); }
+.m-dstripctl .m-chipset[data-edge='both'], .m-dstripctl .m-swatches[data-edge='both'] { mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 28px), transparent); } .m-dwidget__vdd { flex: 1; min-height: 0; overflow: auto; }
 
 /* an app without a cover: the games icon on a tonal square (never a lone letter), as on the apps tile */
 .m-dwidget__cover:not([style]), .m-dwidget__tile i:not([style]) { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }

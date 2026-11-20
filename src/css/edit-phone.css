@@ -61,3 +61,24 @@
   .m-gal__arrow, .m-gal__pager .m-gal__arrow { width: 48px; height: 48px; }
   .m-gal__variant { height: 40px; }
 }
+
+/* The controls inside the tiles: a finger needs 40 px at least (48 where a tile has room for it). Where the tile's own fit leaves no room for taller controls the control keeps its size and a transparent
+   box around it takes the finger (two neighbours' boxes meet in the gap between them). The pitch of a row of small controls is 40 px: swatches, wallpaper sources. */
+@media (pointer: coarse) {
+  .m-b2dl .m-b2dl__go, .m-b2dl.is-s .m-b2dl__go { height: 44px; min-height: 44px; flex: 0 0 44px; }
+  .m-b2table__tabs > button { min-height: 40px; }
+  .m-tempty__act, .m-tempty--s .m-tempty__act { height: 40px; }
+  .m-b3d__more { height: 40px; margin-block: -8px -10px; border-radius: 20px; }
+  .m-b3w__srcs { gap: 4px; }
+  .m-b3w__srcs button { width: 40px; height: 40px; }
+  .m-b2opt { position: relative; }
+  .m-b2padtype .m-b2opt { height: 36px; }
+  .m-b2padtype .m-b2opt::after { content: ''; position: absolute; inset: -2px 0; }
+  .m-gr--access.is-s .m-b2opt { height: 37px; position: relative; }
+  .m-gr--access .m-b2opt::after { content: ''; position: absolute; inset: -3px 0; }
+}
+/* the colour discs of the 取色 strip keep their size and the row scrolls (ten discs of 36 px did not fit a phone and were squeezed to ovals of 19 px) */
+.m-b3s__discs { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+.m-b3s__discs::-webkit-scrollbar { display: none; }
+.m-b3s__discs button { flex: none; }
+@media (pointer: coarse) { .m-b3s__discs { gap: 4px; } .m-b3s__discs button { width: 40px; height: 40px; } }
