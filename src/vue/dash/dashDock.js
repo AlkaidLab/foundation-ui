@@ -241,6 +241,7 @@ export function useDashDock(D) {
   const starOpen = (url) => { emit('action', { card: 'star', type: 'open-url', value: url }); emit('action', { card: 'star', type: 'star-dismiss' }) }
   const starLater = () => emit('action', { card: 'star', type: 'star-dismiss' })
   const starSponsor = () => emit('action', { card: 'star', type: 'sponsor', value: '' })
+  const TAIL_BELOW = 1000
   const blocks = computed(() => {
     const list = visibleCards.value
     if (!sectioned.value) {
@@ -251,7 +252,8 @@ export function useDashDock(D) {
       const grid = gridOf(width.value)
       const avail = Math.max(2 * grid.unit, tall.value - (blocksTop.value || 212) - 16)
       const rows = Math.max(2, Math.floor((avail + UNIT_GAP) / (grid.unit + UNIT_GAP)))
-      return [blockOf('grid', list, width.value, { fill: { rows, max: avail }, tail: true })]
+      // the tail is for the windows of a phone and a small tablet (under 1000 px): a desktop window keeps its columns and its own way of filling (the column count is chosen for the fewest holes)
+      return [blockOf('grid', list, width.value, { fill: { rows, max: avail }, tail: width.value < TAIL_BELOW })]
     }
     const per = sectionLayout(width.value)
     const groups = Array.from({ length: sectionCount.value }, () => [])
