@@ -281,3 +281,7 @@ test('MTileHead breaks a Chinese title between its words, not inside one', () =>
   const parts = [...new Intl.Segmenter(undefined, { granularity: 'word' }).segment('使用基地虚拟显示器')].map((x) => x.segment)
   assert.ok(parts.length > 1 && parts.every((x) => x.length >= 1))
 })
+
+test('the note under a toggle tile balances its lines, so the last line is never a single character', () => {
+  assert.match(css('tilefit.css'), /\.m-dash__cell \.m-b3a__note \{ text-wrap: balance; \}/)
+})

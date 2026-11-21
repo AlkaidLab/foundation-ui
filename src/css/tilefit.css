@@ -120,3 +120,6 @@ html[data-bs-theme='dark'] .m-b3n__gen, html[data-theme='dark'] .m-b3n__gen, htm
 /* 19. 手柄 (status) 方形: the art is the tile's hero, at least 40 px high (the art fills 92 % of it); the state is a short line under the name */
 .m-dash__cell .m-b2pad.is-s .m-b2plate { flex: 1 1 40px; min-height: 40px; padding: 2px 10px; }
 .m-dash__cell .m-b2pad.is-s .m-b2plate .m-ctl { max-height: 92%; }
+
+/* a one-line note under a toggle tile (对正在进行的串流生效) that has to wrap splits into even lines: the last line is never one character (「效」) */
+.m-dash__cell .m-b3a__note { text-wrap: balance; }
