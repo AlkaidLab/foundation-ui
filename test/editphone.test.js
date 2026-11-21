@@ -49,7 +49,9 @@ test('the selected tile has a bar of finger-sized actions where the pointer is c
 test('a smart overview ends in a full row at every window class: the tail fill runs for a phone too, with tiles that have data first and tiles without data last', () => {
   const dock = read('vue/dash/dashDock.js')
   assert.match(dock, /if \(windowClass\.value === 'compact'\) return \[blockOf\('grid', list, width\.value, \{ tail: true \}\)\]/)
-  assert.match(dock, /fill: \{ rows, max: avail \}, tail: width\.value < TAIL_BELOW/)
+  // every width, not only under 1000 px: a 1280 x 720 idle overview had 6 tiles in a row of 7 (the owner's rule: a hole is filled with a standard tile, never stretched)
+  assert.match(dock, /return \[blockOf\('grid', list, width\.value, \{ fill: \{ rows, max: avail \}, tail: true \}\)\]/)
+  assert.ok(!/TAIL_BELOW/.test(dock), 'no width below which the tail is off')
   assert.match(dock, /if \(tail && holesOf\(packed, f\.units\) > 0\)/)
   assert.match(dock, /pool: fillCardsEmpty\.value/)
   // no row is added and no tile is stretched: the tail's height limit is the height the plan already has
