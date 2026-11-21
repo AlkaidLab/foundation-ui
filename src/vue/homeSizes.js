@@ -61,10 +61,10 @@ const CLASS_FROM = { medium: 600, expanded: 840, large: 1200, extra: 1600 }
 export function windowClassOf(width) {
   return width >= CLASS_FROM.extra ? 'extra' : width >= CLASS_FROM.large ? 'large' : width >= CLASS_FROM.expanded ? 'expanded' : width >= CLASS_FROM.medium ? 'medium' : 'compact'
 }
-// The largest size of each class: a phone has two columns (a 大 or 特大 would fill the screen and hide everything else: 中, the width of the phone), a tablet four to six
+// The largest size of each class: a phone has two columns (a 特大 is four units wide and cannot stand there: it is 大, 2 x 2, the width of the phone; a size the person chose is kept as far as the columns allow), a tablet four to six
 // (特大 would be a whole row: 大 instead), a desktop all of them. A tile whose content needs more than its class's largest (its minimum is above it) keeps its minimum.
 // 特大竖 needs four units of height and the window chrome: from medium on, and only in a window that tall.
-const CLASS_TOP = { compact: 'm', medium: 'l', expanded: 'l', large: 'xl', extra: 'xl' }
+const CLASS_TOP = { compact: 'l', medium: 'l', expanded: 'l', large: 'xl', extra: 'xl' }
 export const XLP_MIN_HEIGHT = 4 * UNIT_PX + 3 * UNIT_GAP + 180
 
 // The box of each size in the grid the packer draws today (columns of eight, a row height per class), until it works in square units (SIZE_UNITS): one box per size name.

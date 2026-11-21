@@ -47,6 +47,8 @@ const props = defineProps({
   /** the host's configuration (the pinned setting tiles show and write its keys) and the language of the tiles the person pinned */
   config: { type: Object, default: null },
   locale: { type: String, default: 'en' },
+  /** where the host keeps the layout (createHostLayoutStore, hostLayout.js): the panel and the Web UI of one host then draw the same cards, order and sizes; null keeps the layout on this device only */
+  layoutStore: { type: Object, default: null },
 })
 const emit = defineEmits(['action'])
 // ctx.pending: the product does not know yet what decides the page (the session, the clients): the skeleton stands and the card at the top is not drawn, so nothing is drawn idle and redrawn
@@ -99,7 +101,7 @@ const clearOfBottom = () => {
 }
 onMounted(() => window.addEventListener('resize', clearOfBottom))
 onBeforeUnmount(() => { window.removeEventListener('resize', clearOfBottom); document.body.style.removeProperty('--m-dedit-clear') })
-const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, dockScale, clockLocale, clockSizeDrawn, dateText, statusText, dockCards,  setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockGridStyle, dockHeadMin, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
+const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, dockScale, faceK, clockLocale, clockSizeDrawn, dateText, statusText, dockCards,  setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockGridStyle, dockHeadMin, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
 const selCard = computed(() => (sel.value ? blocks.value.flatMap((b) => b.boxed).find((c) => c.id === sel.value && !c.ghost) : null))
 watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush: 'post' })
 </script>
@@ -127,11 +129,11 @@ watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush
     <div v-if="!dockOn && !skeleton" class="m-dash__blocks" :style="slack > 40 ? { marginTop: `${Math.round(slack / 2)}px` } : undefined">
     <section v-for="b in blocks" :key="b.key" class="m-dash__block" :data-natural="b.natural" :style="blockStyle(b)">
     <h2 v-if="sectioned" class="m-dash__sec">{{ b.title }}</h2>
-    <div class="m-dash__grid" :style="{ '--m-dash-gap': `${UNIT_GAP}px`, gridTemplateColumns: `repeat(${b.units}, minmax(0, 1fr))`, gridTemplateRows: b.template }">
+    <div class="m-dash__grid" :data-scaled="faceK(b) !== 1 ? '' : undefined" :style="{ '--m-face-k': faceK(b), '--m-dash-gap': `${UNIT_GAP}px`, gridTemplateColumns: `repeat(${b.units}, minmax(0, 1fr))`, gridTemplateRows: b.template }">
       <div
         v-for="c in b.boxed" :key="c.id" :ref="(el) => { if (el && !grid) grid = el.parentElement }" class="m-dash__cell" :data-group="c.group" :data-ctx="`tile:${c.id}`"
         :data-section="b.section"
-        :data-merge-label="drag?.merge === c.id ? (T.stackMergeLabel || '合并为轮换组') : undefined" :class="{ 'is-merge-target': drag?.merge === c.id, 'is-merging': drag?.id === c.id && !!drag?.mergeCand, 'is-landing': landing === c.id, 'is-ghost': c.ghost, 'is-dragging': drag?.id === c.id, 'is-over-sheet': drag?.id === c.id && drag.over, 'is-picked': picked === c.id, 'is-settling': settling === c.id, 'is-selected': sel === c.id, 'is-sizing': sizing === c.id }" :data-card="c.id" :data-size="c.size" :style="[cellStyle(b, c.id), dragVars(c.id)]"
+        :data-merge-label="drag?.merge === c.id ? (T.stackMergeLabel || '合并为轮换组') : undefined" :class="{ 'is-merge-target': drag?.merge === c.id, 'is-merging': drag?.id === c.id && !!drag?.mergeCand, 'is-landing': landing === c.id, 'is-ghost': c.ghost, 'is-dragging': drag?.id === c.id, 'is-over-sheet': drag?.id === c.id && drag.over, 'is-picked': picked === c.id, 'is-settling': settling === c.id, 'is-selected': sel === c.id, 'is-sizing': sizing === c.id }" :data-card="c.id" :data-size="c.size" :data-face="c.cls === 'unit' ? '' : undefined" :style="[cellStyle(b, c.id), dragVars(c.id)]"
         :tabindex="edit ? 0 : undefined" :role="edit ? 'button' : undefined" :aria-label="edit ? `${T.drag}: ${c.title}` : undefined" :aria-pressed="edit ? picked === c.id : undefined"
         @pointerdown="down($event, c.id)" @keydown="key($event, c.id)"
       >

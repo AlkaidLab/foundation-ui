@@ -17,6 +17,9 @@ export function useStacks(storageKey, { known = () => true, storage = globalThis
   return {
     state, STACK_MAX,
     reload() { apply(read()) },
+    /** The persisted shape, and a document of that shape from the host (hostLayout.js). */
+    serialize: () => JSON.parse(JSON.stringify(snap())),
+    apply(raw) { apply(normalizeStacks(raw, known)) },
     of: (tileId) => stackOf(snap(), tileId),
     create(aId, bId, size) { const r = createStack(snap(), aId, bId, size); apply(r.state); return r.id },
     add(id, tileId) { apply(addMember(snap(), id, tileId)) },

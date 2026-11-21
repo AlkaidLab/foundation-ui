@@ -1,6 +1,6 @@
 /* Home dashboard: neutral cards on the tinted page, one accent (the seed's primary), a bold hero. Rows have different heights on purpose. */
 .m-dnum { font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-.m-dash { --m-dash-gap: 14px; --m-dash-pad: 18px 20px; --m-dash-radius: 28px; --m-badge-c: 4.86px; --m-badge-r: 14px; /* the delete badge: centre from the tile's edges, radius; the page sets them from the radius it reads (homeBadge.js) */ display: flex; flex-direction: column; gap: var(--m-dash-gap); min-height: min(calc(100dvh - 118px), 900px); container-type: inline-size; }
+.m-dash { --m-face-k: 1; --m-dash-gap: 14px; --m-dash-pad: 18px 20px; --m-dash-radius: 28px; --m-badge-c: 4.86px; --m-badge-r: 14px; /* the delete badge: centre from the tile's edges, radius; the page sets them from the radius it reads (homeBadge.js) */ display: flex; flex-direction: column; gap: var(--m-dash-gap); min-height: min(calc(100dvh - 118px), 900px); container-type: inline-size; }
 .m-dash--compact { --m-dash-gap: 10px; --m-dash-pad: 14px 16px; --m-dash-radius: 28px; min-height: 0; }
 .m-dash__row { display: grid; grid-template-columns: repeat(var(--u), minmax(0, 1fr)); gap: var(--m-dash-gap); }
 .m-dash--wide .m-dash__row--top { height: 196px; } .m-dash--wide.m-dash--compact .m-dash__row--top { height: 160px; }
@@ -548,6 +548,8 @@ html[data-motion='reduced'] .m-dpair__wait { animation: none; }
 .m-dock__grid { display: grid; gap: 12px; justify-content: center; margin-inline: auto; max-width: 100%; padding-bottom: 16px; }
 .m-dock__cell { position: relative; min-width: 0; min-height: 0; }
 /* the face: the overview's 方形 at its design square, scaled as a whole to the column (MHomeDash.vue dockScale) */
+/* a narrow pane stretches its columns (columnsOf): the face of a ladder tile is drawn at the design square and scaled as a whole (MHomeDash.vue faceK), so a phone shows the tile of the panel, larger */
+.m-dash__grid[data-scaled] > .m-dash__cell[data-face] > .m-dash__body > * { flex: none; width: calc(100% / var(--m-face-k)); height: calc(100% / var(--m-face-k)); transform: scale(var(--m-face-k)); transform-origin: 0 0; }
 .m-dock__face { display: flex; flex: none; transform-origin: 0 0; }
 .m-dock__face > .m-dash__body { flex: 1; min-width: 0; min-height: 0; display: flex; }
 .m-dock__face > .m-dash__body > * { flex: 1; min-width: 0; }

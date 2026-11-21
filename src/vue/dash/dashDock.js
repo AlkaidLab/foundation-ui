@@ -133,7 +133,8 @@ export function useDashDock(D) {
     const candidates = light || fill ? [] : (only || ghostCards.value).filter((g) => !list.some((x) => x.id === g.id) && !(taken && taken.has(g.id))).sort((a, b) => Number(ghostSection !== undefined && sectionIndexOf(purposeOf(b.id, b.group), sectionCount.value) === ghostSection) - Number(ghostSection !== undefined && sectionIndexOf(purposeOf(a.id, a.group), sectionCount.value) === ghostSection))
     const build = (columns) => {
       const grid = { ...grid0, columns }
-      const f = fitDash(list, w, boxFor, { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
+      // the smart fill promotes tiles a size where a row is short, but never a tile the person sized
+      const f = fitDash(list, w, (c, u, lift) => boxFor(c, u, smart.value && layout.isUserSized(c.id) ? 0 : lift), { ...rest, units: grid.columns, caps: false, pack: { dense: true, exact: true }, maxHole: 1, promote: smart.value && !light && windowClass.value !== 'compact', priority, ghosts: candidates })
       const ghosts = new Set(f.ghosts)
       let boxed = f.boxed.map((c) => (ghosts.has(c.id) ? { ...c, ghost: true } : c))
       let packed = f.packed
@@ -198,6 +199,9 @@ export function useDashDock(D) {
   const dockGrid = computed(() => gridOf(width.value))
   // every tile is drawn as the overview's 方形 at its one design square and the whole square is scaled to the column (a phone's columns are wider than the design unit, so the tile grows with its column; at 800 px and up k is 1)
   const dockScale = computed(() => { const design = designUnitPx(); const k = dockGrid.value.unit / design; return { design, k: Math.abs(k - 1) < 0.002 ? 1 : Math.round(k * 10000) / 10000 } })
+  // The same for the overview grid: a narrow pane (a phone) stretches its columns up to 200 px (columnsOf), and a tile drawn at the stretched size reads as another tile than the panel's. A ladder tile is drawn at the
+  // design square and the whole face is scaled to the column, so the phone shows the tile of the panel, larger.
+  const faceK = (b) => { if (!b?.unit) return 1; const k = b.unit / designUnitPx(); return Math.abs(k - 1) < 0.002 ? 1 : Math.round(k * 10000) / 10000 }
   const dockGridStyle = computed(() => { const g = dockGrid.value; return { gridTemplateColumns: `repeat(${g.columns}, ${g.unit}px)`, gridAutoRows: `${g.unit}px`, width: `${gridWidthOf(g.columns, g.unit)}px` } })
   // The first screen of the dock: the title, the card above, the clock and ONE row of tiles; the clock block takes what is left above that row (measured: the card above is one line or three), so the clock keeps
   // its size however many rows of tiles follow below the fold. A window too short for it keeps the compact clock (the minimum below) and the row goes under it.
@@ -362,5 +366,5 @@ export function useDashDock(D) {
     }
     emit('action', a)
   }
-  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockGridStyle, dockHeadMin, dockScale, dockOn, hideGhost, onAct, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
+  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockGridStyle, dockHeadMin, dockScale, faceK, dockOn, hideGhost, onAct, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
 }
