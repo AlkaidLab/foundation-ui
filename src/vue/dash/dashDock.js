@@ -5,7 +5,7 @@ import { PURPOSES, fillOrder, purposeOf, sectionIndexOf, suggestions } from '../
 import { clientInUse, clientRecommendation, markClientRec, readClientRec } from '../clientPrompt.js'
 import { starClientInUse } from '../starCard.js'
 import { slotAhead, slotEnter, slotLeave } from '../promptSlot.js'
-import { UNIT_GAP, gridWidthOf, hasNoData, missingInRow, sizesOf } from '../homeSizes.js'
+import { UNIT_GAP, designUnitPx, gridWidthOf, hasNoData, missingInRow, sizesOf } from '../homeSizes.js'
 import { effectiveClockSize } from '../../appearance/appearance.js'
 
 /** dashDock: one part of the home overview's setup (MHomeDash.vue); D is the shared scope of the parts, in the order they are made. */
@@ -196,6 +196,8 @@ export function useDashDock(D) {
   // The tiles are the overview's standard squares (s: one unit), wrapped into the same columns as the grid, so they never form a row that scrolls: a row that does not fit goes below and the page scrolls.
   // The grid is as wide as its columns and sits in the middle of the pane, edge to edge in a narrow one (columnsOf), the same on every window.
   const dockGrid = computed(() => gridOf(width.value))
+  // every tile is drawn as the overview's 方形 at its one design square and the whole square is scaled to the column (a phone's columns are wider than the design unit, so the tile grows with its column; at 800 px and up k is 1)
+  const dockScale = computed(() => { const design = designUnitPx(); const k = dockGrid.value.unit / design; return { design, k: Math.abs(k - 1) < 0.002 ? 1 : Math.round(k * 10000) / 10000 } })
   const dockGridStyle = computed(() => { const g = dockGrid.value; return { gridTemplateColumns: `repeat(${g.columns}, ${g.unit}px)`, gridAutoRows: `${g.unit}px`, width: `${gridWidthOf(g.columns, g.unit)}px` } })
   // The first screen of the dock: the title, the card above, the clock and ONE row of tiles; the clock block takes what is left above that row (measured: the card above is one line or three), so the clock keeps
   // its size however many rows of tiles follow below the fold. A window too short for it keeps the compact clock (the minimum below) and the row goes under it.
@@ -360,5 +362,5 @@ export function useDashDock(D) {
     }
     emit('action', a)
   }
-  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockGridStyle, dockHeadMin, dockOn, hideGhost, onAct, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
+  Object.assign(D, { availH, measureTop, slotIn, slotOut, starSponsor, starStreaming, acceptGhost, addable, blockStyle, blocks, cellStyle, clientRec, clockLocale, clockSizeDrawn, dateText, detail, detailId, dockCards, dockGridStyle, dockHeadMin, dockScale, dockOn, hideGhost, onAct, placedOf, recLater, recOpen, restoreSmart, rootTop, sectionCount, sectioned, setOverview, shown, shownIds, slack, starClient, starLater, starOpen, statusText, whyOpen, whyRows })
 }

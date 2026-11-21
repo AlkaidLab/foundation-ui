@@ -23,6 +23,9 @@ export const MAX_COLUMNS = 12
 export const STRIP_PX = 56
 export const UNIT_GAP = 12
 const DENSITY = { smaller: 0.875, standard: 1, larger: 1.125 }
+/** The side of the one square a small tile is drawn at: always UNIT_PX (the small views are drawn for 140 px and up). The dock draws every tile at this size and scales the whole square to its column, so a
+ *  smaller density (a short window) makes the tile smaller, never re-flowed into a square it was not drawn for. */
+export const designUnitPx = () => UNIT_PX
 /** How many square columns a content width holds at a density, and the side of one: always the fixed unit (scaled by the density the person chose); only a pane narrower than two units and a gap
  *  (a phone) gets a smaller one, so two columns still fit. The grid is as wide as its columns and sits in the middle of the pane. */
 export function columnsOf(width, density = 'standard') {

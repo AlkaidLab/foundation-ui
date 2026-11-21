@@ -13,8 +13,8 @@ const awayMark = { leftAt: 0 }
 export function useDashGrid(D) {
   const { T, appearance, cardById, edit, hasDetailOf, layout, planSnap, sizeOf, smart, stacks, stacksOn, tall, windowClass } = D
   // a card boxed for a grid of `u` columns
-  // the 底栏 layout is one row of SMALL tiles: every tile is S there whatever size it has in the smart layout (the saved sizes are not touched), and the size chooser offers S only.
-  // Every tile draws the ONE generic small view (icon, value, label, chevron): the own small layouts of the cards were made for the grid and differ from each other.
+  // the 时钟 (dock) layout shows every tile at 方形 (S) whatever size it has in the overview (the saved sizes are not touched). It is the SAME tile as the overview's 方形: the same component with the same designed
+  // view (tiles/) or small view; the dock only places the square under the clock and scales it (dockScale in dashDock.js), it draws nothing of its own.
   // ---- the grid in square units (round27-xl): a column is as wide as a 方形 is tall, the rows of the ladder are one column high, the strip rows are STRIP_PX; the columns follow the width and the density
   // in the dock, a short window (a phone on its side) takes the smaller density (a unit of 130 to 175 px) unless the person chose another: the tiles of a row are shorter, so a whole row stays on the first screen
   const tileDensity = computed(() => { const d = appearance.state.tileDensity || 'standard'; return d === 'standard' && tall.value < 480 && appearance.state.overview === 'dock' ? 'smaller' : d })
@@ -24,7 +24,7 @@ export function useDashGrid(D) {
   const rowPxIn = (unit) => (cls) => (cls === 'unit' ? unit : cls === 'strip' ? STRIP_PX : JOURNEY_PX)
   const trackTemplate = (rows, unit) => rows.map((r) => (r.cls === 'unit' ? `${unit}px` : r.cls === 'strip' ? `${STRIP_PX}px` : `minmax(${JOURNEY_PX}px, auto)`)).join(' ')
   const dockLayout = computed(() => appearance.state.overview === 'dock')
-  const dockBox = (c, u) => ({ ...c, ...boxIn(c, 's', u), size: 's', sizeKey: 's', sizeKeys: ['s'], cls: 'tile', forceGeneric: true })
+  const dockBox = (c, u) => ({ ...c, ...boxIn(c, 's', u), size: 's', sizeKey: 's', sizeKeys: ['s'] })
   // The size drawn is effectiveSize of what is asked (the plan's in smart mode, the person's in manual). The smart fill may ask for the next offered size up to 大 where a row is short, but only from
   // the medium class up: a phone-sized window (under 600) draws the plan as it is, so crossing 600 changes a tile at most once whatever the number of columns does around it.
   const PROMOTE_TO = ['s', 'm', 'l']
@@ -46,8 +46,8 @@ export function useDashGrid(D) {
     return { span, rows: (SIZE_UNITS[key] || SIZE_UNITS.s)[1], cls: 'unit', max: span }
   }
   const sizeKeysOf = (c) => ALL_SIZE_KEYS.filter((k) => sizesOf(c.id, c, windowClass.value, tall.value).sizes[k])
-  // a stack is drawn at one size every member offers in this window class: the one it was made at, else the largest below it
-  const stackSizeFor = (c) => { const common = commonSizes(c.stackMembers, windowClass.value, tall.value); const order = ['s', 'm', 'l', 'xl', 'xlp']; const want = order.indexOf(c.stack.size); return [...common].reverse().find((k) => order.indexOf(k) <= want) || common[0] || 's' }
+  // a stack is drawn at one size every member offers in this window class: the one it was made at, else the largest below it (in the 时钟 layout every tile is a 方形, so a stack is one as far as its members offer it)
+  const stackSizeFor = (c) => { const common = commonSizes(c.stackMembers, windowClass.value, tall.value); if (dockLayout.value && common.includes('s')) return 's'; const order = ['s', 'm', 'l', 'xl', 'xlp']; const want = order.indexOf(c.stack.size); return [...common].reverse().find((k) => order.indexOf(k) <= want) || common[0] || 's' }
   // a tile that belongs with a stack and is in none: the purpose of one of its members, offered at the stack's size, not turned away before; the first in the catalogue's order
   const suggestFor = (st, members, size) => {
     if (!st.suggestions) return null
@@ -123,5 +123,5 @@ export function useDashGrid(D) {
     window.removeEventListener('blur', onAway); window.removeEventListener('focus', onBack)
     for (const e of INPUTS) window.removeEventListener(e, onInput)
   })
-  Object.assign(D, { boxFor, boxIn, dockBox, dockLayout, gridOf, onStackFlags, onStackHover, setStackRotate, onStackRotate, onStackSuggest, rowPxIn, sizeKeysOf, stackSizeFor, trackTemplate })
+  Object.assign(D, { boxFor, boxIn, dockBox, dockLayout, gridOf, tileDensity, onStackFlags, onStackHover, setStackRotate, onStackRotate, onStackSuggest, rowPxIn, sizeKeysOf, stackSizeFor, trackTemplate })
 }

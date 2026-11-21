@@ -546,9 +546,11 @@ html[data-motion='reduced'] .m-dpair__wait { animation: none; }
 .m-dock__date { margin: 0; font: var(--m-headline-small); color: var(--md-sys-color-on-surface); }
 .m-dock__status { margin: 0; font: var(--m-title-medium); color: var(--md-sys-color-on-surface-variant); }
 .m-dock__grid { display: grid; gap: 12px; justify-content: center; margin-inline: auto; max-width: 100%; padding-bottom: 16px; }
-.m-dock__cell { min-width: 0; min-height: 0; display: flex; }
-.m-dock__cell > .m-dash__body { flex: 1; min-width: 0; min-height: 0; display: flex; }
-.m-dock__cell > .m-dash__body > * { flex: 1; min-width: 0; }
+.m-dock__cell { position: relative; min-width: 0; min-height: 0; }
+/* the face: the overview's 方形 at its design square, scaled as a whole to the column (MHomeDash.vue dockScale) */
+.m-dock__face { display: flex; flex: none; transform-origin: 0 0; }
+.m-dock__face > .m-dash__body { flex: 1; min-width: 0; min-height: 0; display: flex; }
+.m-dock__face > .m-dash__body > * { flex: 1; min-width: 0; }
 .m-dedit__layout { margin-inline-start: auto; } .m-dedit__align { margin-inline-start: auto; } .m-dedit__align + .m-dedit__layout { margin-inline-start: 8px; }
 
 
