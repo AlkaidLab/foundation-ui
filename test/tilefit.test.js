@@ -285,3 +285,13 @@ test('MTileHead breaks a Chinese title between its words, not inside one', () =>
 test('the note under a toggle tile balances its lines, so the last line is never a single character', () => {
   assert.match(css('tilefit.css'), /\.m-dash__cell \.m-b3a__note \{ text-wrap: balance; \}/)
 })
+
+test('a numeral whose unit does not shrink with it is stepped down again until its row fits the room', () => {
+  const v = fs.readFileSync(new URL('../src/vue/MTileNumeral.vue', import.meta.url), 'utf8')
+  assert.match(v, /for \(let i = 0; i < 4 && k > 0\.5 && row\.scrollWidth > room \+ 0\.5; i\+\+\)/)
+})
+
+test('a numeral measures its row again when a font has loaded', () => {
+  const v = fs.readFileSync(new URL('../src/vue/MTileNumeral.vue', import.meta.url), 'utf8')
+  assert.match(v, /document\.fonts\.addEventListener\?\.\('loadingdone', onFonts\)/); assert.match(v, /removeEventListener\?\.\('loadingdone', onFonts\)/)
+})
