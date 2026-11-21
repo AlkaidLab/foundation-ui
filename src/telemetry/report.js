@@ -1,6 +1,7 @@
 // The error report: what an uncaught error becomes, what the person copies, downloads or sends, and the event that goes to the developers' server.
 // Pure and framework-free. Everything is scrubbed (scrub.js) and cut to the limits of the report.
 import { scrubStack, scrubText } from './scrub.js'
+import { REPLY_KEY } from '../feedback/replies.js'
 import { describeError } from './describe.js'
 
 export { describeError }
@@ -166,6 +167,8 @@ export function reportToEvent(doc) {
   if (isShotData(doc.shot)) props.shot = doc.shot
   const contact = cleanContact(doc.contact)
   if (contact) props.contact = contact
+  // the address of the developers' answer (feedback/replies.js): random, made by the sheet, kept on this computer; the host passes it on and the server writes it only into the issue of this report
+  if (REPLY_KEY.test(String(doc.reply_key || ''))) props.reply_key = doc.reply_key
   props.message = reportMessage(doc)
   return { kind: 'error', name: 'user_report', props }
 }

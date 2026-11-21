@@ -14,6 +14,8 @@ import { addMine } from '../../devmode/mine.js'
 import { devmodeTexts } from '../../devmode/texts.js'
 import { userReportDocument } from '../../devmode/userReport.js'
 import { referenceOf, reportIdOf, scrubText, submitReport, reportMessage } from '../../telemetry/index.js'
+import { queuedReplyKey } from '../../telemetry/send.js'
+import { newReplyKey, rememberReport } from '../../feedback/replies.js'
 import { SHOT_LIMITS, SHOT_TYPES, bytesToBase64, canvasCodec, compressShot, sizeText } from '../../feedback/shotImage.js'
 import { REPO_ISSUES_URL } from '../../telemetry/report.js'
 import { feedbackTexts, fillText } from '../../feedback/texts.js'
@@ -114,6 +116,10 @@ async function send() {
     d.shot = bytesToBase64(fit.bytes)
   }
   const id = reportIdOf(d)
+  // the address of the developers' answer (feedback/replies.js): made once for a report, so a second press of the same words (the first one timed out, or waits in the queue) keeps the key the first one carried;
+  // a platform without a secure random source sends the report without one
+  d.reply_key = queuedReplyKey(id) || (() => { try { return newReplyKey() } catch { return '' } })()
+  if (!d.reply_key) delete d.reply_key
   const answer = await submitReport(d, { id, explicit: true })
   const next = phaseOf(answer)
   phase.value = next.phase
@@ -122,6 +128,9 @@ async function send() {
     const sentShot = !!d.shot
     result.value = { kind: next.kind, ref: referenceOf(id).toUpperCase(), shot: sentShot && !next.shotLost && (next.kind === 'queued' || next.shot === 'uploaded'), shotNotSent: sentShot && next.kind === 'sent' && next.shot !== 'uploaded', shotLost: !!next.shotLost, contact: !!d.contact }
     addMine({ id, title: titleOf(form.text), status: next.kind === 'sent' ? 'sent' : 'queued', ref: result.value.ref })
+    // a report that was already sent says `again` without a request: its key was remembered the first time
+    if (d.reply_key && !answer.again) rememberReport({ key: d.reply_key, title: titleOf(form.text), product: d.product })
+    result.value.reply = !!d.reply_key && !!devProviders().replies
   }
 }
 async function saveZip() {
@@ -147,6 +156,7 @@ defineExpose({ send, form, doc, plan, layout, takeFile })
       <h3>{{ result.kind === 'queued' ? F.queuedTitle : F.sentTitle }}</h3>
       <p class="fb-done__ref">{{ F.refLabel }} <b data-fb="ref">#{{ result.ref }}</b></p>
       <p class="fb-done__text">{{ result.kind === 'queued' ? F.queuedText : F.sentText }}</p>
+      <p v-if="result.reply" class="fb-done__attached" data-fb="reply-note">{{ F.sentReply }}</p>
       <p class="fb-done__attached">{{ F.attached }}{{ [F.attachedText, F.attachedLogs, result.shot ? F.attachedShot : '', result.contact ? F.attachedContact : ''].filter(Boolean).join(' · ') }}</p>
       <p v-if="result.shotNotSent || result.shotLost" class="fb-done__attached" data-fb="shot-note">{{ result.shotLost ? F.shotLost : F.shotNotSent }}</p>
       <MButton variant="filled" @click="close">{{ F.done }}</MButton>
