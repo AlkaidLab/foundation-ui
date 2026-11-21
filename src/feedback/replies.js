@@ -133,8 +133,8 @@ export function dismissItem(state, id) {
   return { ...state, inbox: state.inbox.map((i) => (i.id === id ? { ...i, dismissed: true } : i)) }
 }
 
-/** The line a reply shows in the status button: the first two lines of the text, cut. A fixed message has no text of its own. */
-export function previewOf(item, words, max = 110) {
+/** The line a reply shows in the status button: the first two lines of the text, cut at 72 characters (查看 opens the rest). A fixed message has no text of its own. */
+export function previewOf(item, words, max = 72) {
   if (item.kind === 'fixed') return fillText(words.replyFixed, { version: item.version })
   const lines = String(item.text).split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 2).join(' ')
   return lines.length > max ? `${lines.slice(0, max - 1).trimEnd()}…` : lines

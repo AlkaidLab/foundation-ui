@@ -19,7 +19,7 @@ const body = computed(() => (item.value?.kind === 'fixed' ? fillText(F.value.rep
 </script>
 
 <template>
-  <MSheet v-model="replySheet.open" :title="F.replyTitle" side="end" :close-label="F.replyClose" class="fb-reply">
+  <MSheet v-model="replySheet.open" :title="F.replyTitle" side="center" :close-label="F.replyClose" class="fb-reply">
     <section v-if="item" class="fb-reply__body" data-fb-reply>
       <header class="fb-reply__about">
         <span class="fb-reply__ico" :class="{ 'is-fixed': item.kind === 'fixed' }"><MIcon :name="item.kind === 'fixed' ? 'check_circle' : 'forum'" fill /></span>
@@ -29,7 +29,7 @@ const body = computed(() => (item.value?.kind === 'fixed' ? fillText(F.value.rep
       <p v-if="when" class="fb-reply__when">{{ when }}</p>
     </section>
     <template #actions>
-      <MButton variant="text" @click="replySheet.open = false">{{ F.replyClose }}</MButton>
+      <MButton variant="text" autofocus @click="replySheet.open = false">{{ F.replyClose }}</MButton>
     </template>
   </MSheet>
 </template>

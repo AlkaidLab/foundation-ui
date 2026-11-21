@@ -110,7 +110,7 @@ test('the line in the status button: the first two lines, cut; a fixed message h
   const W = feedbackTexts('zh'), E = feedbackTexts('en')
   const long = { kind: 'reply', text: `第一行\n\n第二行\n第三行不显示${'字'.repeat(200)}` }
   assert.equal(previewOf(long, W), '第一行 第二行')
-  assert.ok(previewOf({ kind: 'reply', text: '字'.repeat(300) }, W).length === 110 && previewOf({ kind: 'reply', text: '字'.repeat(300) }, W).endsWith('…'))
+  assert.ok(previewOf({ kind: 'reply', text: '字'.repeat(300) }, W).length === 72 && previewOf({ kind: 'reply', text: '字'.repeat(300) }, W).endsWith('…'))
   assert.equal(previewOf({ kind: 'fixed', version: '1.0.8' }, W), '已修复，将在 1.0.8 发布')
   assert.equal(previewOf({ kind: 'fixed', version: '1.0.8' }, E), 'Fixed, coming in 1.0.8')
 })
