@@ -227,3 +227,11 @@ html[data-bs-theme='dark'] .m-tile:is(.m-calm, .m-tstream--latency, .m-tstream--
 .m-tile:is(.m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend).is-m { --tile-bleed: 48%; }
 .m-tile:is(.m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend).is-l { --tile-bleed: 45%; }
 .m-tile:is(.m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend) .m-tchart__target { opacity: .5; }
+
+/* The small histories inside the composite tiles (帧时间占用, CPU 与 GPU 负载, 网卡, 码率 of the session) are the same curve: only where they sit differs, the ring and the gauge beside them stay. */
+.m-tchart:is(.m-tgauge__history, .m-tgauge__chart, .m-tnet__history, .m-tstream__spark--bitrate) { --tk-fill: color-mix(in srgb, var(--tk) 22%, var(--tk-c)); --tk-fill-top: .9; --tk-fill-mid: .5; --tk-fill-end: 0; --tk-line: 3px; }
+html[data-bs-theme='dark'] .m-tchart:is(.m-tgauge__history, .m-tgauge__chart, .m-tnet__history, .m-tstream__spark--bitrate), html[data-theme='dark'] .m-tchart:is(.m-tgauge__history, .m-tgauge__chart, .m-tnet__history, .m-tstream__spark--bitrate) { --tk-fill-top: .85; --tk-fill-mid: .5; --tk-fill-end: 0; }
+.m-tchart:is(.m-tgauge__history, .m-tstream__spark--bitrate) .m-tchart__target { opacity: .5; }
+/* a history that starts or ends inside the tile (not at its edge) softens that end: 帧时间占用 at 中 starts at 42 % of the width, the history of the network adapter ends where the list begins */
+.m-tgauge--budget.is-m .m-tgauge__history { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px); mask-image: linear-gradient(to right, transparent, #000 40px); }
+.m-tnet__history { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent); }

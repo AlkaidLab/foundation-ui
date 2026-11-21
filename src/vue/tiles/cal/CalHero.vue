@@ -136,7 +136,7 @@ const tint = computed(() => { const art = props.tint && live.value && coverOk(ar
         <span class="m-calh__live">
           <span class="m-calh__metric"><small>{{ nowData.bitrateBudget ? (T.bitrateTarget || '目标码率') : (T.bitrate || '码率') }}</small><b class="m-dnum">{{ nowData.bitrate }}<i>{{ T.mbps || 'Mbps' }}</i></b><em v-if="nowData.bitrateGoal && !nowData.bitrateBudget">{{ nowData.bitrateGoal }}</em></span>
           <span v-if="size === 'xl' && nowData.fps" class="m-calh__metric"><small>{{ T.fps || '帧率' }}</small><b class="m-dnum">{{ nowData.fps }}<i>fps</i></b><em v-if="nowData.fpsGoal">{{ nowData.fpsGoal }}</em></span>
-          <MTileChart v-if="nowData.points?.length > 5" class="m-calh__spark" :points="nowData.points" kind="line" dot :window="30" :pad="0.15" />
+          <MTileChart v-if="nowData.points?.length > 5" class="m-calh__spark" :points="nowData.points" kind="line" dot monotone :window="30" :pad="0.15" />
         </span>
       </div>
       <div v-else-if="pairedList.length" class="m-calh__band">

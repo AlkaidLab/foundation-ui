@@ -91,7 +91,7 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
                 <b class="m-dnum">{{ sentNow }} <small>{{ L.mbps }}</small></b>
                 <span v-if="share">{{ share }} {{ L.headroom }}</span>
               </div>
-              <MTileChart class="m-tnet__history" :points="sent" kind="area" :dot="true" :window="40" />
+              <MTileChart class="m-tnet__history" :points="sent" kind="area" :dot="true" monotone placeholder :fade="1" :window="40" :pad="0.12" />
             </div>
           </template>
         </div>

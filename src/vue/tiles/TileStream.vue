@@ -70,7 +70,7 @@ const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTon
       <span v-if="size === 's' && id === 'stream-bitrate' && capText" class="m-tstream__foot">{{ capText }}</span>
       <!-- 中: the lowest, mean and highest of the session in a row, and its curve under the gauge -->
       <dl v-if="id === 'stream-bitrate' && size === 'm' && pts.length > 1 && stats.length" class="m-tstream__stats m-tstream__stats--row"><div v-for="x in stats" :key="x.k"><dt>{{ label(x.k) }}</dt><dd class="m-dnum">{{ x.value }}</dd></div></dl>
-      <MTileChart v-if="id === 'stream-bitrate' && size === 'm' && pts.length > 1" class="m-tile__bleed m-tstream__spark m-tstream__spark--bitrate" :points="pts" kind="area" :dot="true" :window="36" :pad="0.12" :target="cap" />
+      <MTileChart v-if="id === 'stream-bitrate' && size === 'm'" class="m-tile__bleed m-tstream__spark m-tstream__spark--bitrate" :points="pts" kind="area" :dot="true" monotone placeholder :fade="1" :window="36" :pad="0.12" :target="cap" />
     </template>
 
     <template v-else>

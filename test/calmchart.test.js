@@ -56,3 +56,16 @@ test('主机延迟, 帧率 of the session and 内存变化 draw the same curve a
   assert.match(css, /\.m-tstream:is\(\.m-tstream--loss, \.m-tstream--dropped\)\.is-m > \.m-tile__bleed \{ left: 46%; \}/, 'only the bars keep their place right of the figure')
   assert.ok(!/m-tstream--latency, \.m-tstream--loss, \.m-tstream--dropped\)\.is-m > \.m-tile__bleed \{ left: 46%/.test(css), '主机延迟 is not cut from 46 % any more')
 })
+
+test('the small histories of the composite tiles (帧时间占用, 负载, 网卡, 码率 of the session) are the same curve; rings and gauges stay', () => {
+  const g = read('src/vue/tiles/TileGauge.vue'), n = read('src/vue/tiles/TileNet.vue'), s = read('src/vue/tiles/TileStream.vue'), css = read('src/css/tiles-prerelease.css')
+  assert.match(g, /class="m-tile__bleed m-tgauge__history" :points="finite\(d\.spark\)" kind="area" :dot="true" monotone placeholder :fade="1"/)
+  assert.match(g, /class="m-tgauge__chart"[^>]*kind="area" :dot="true" monotone :placeholder="x\.i === 0" :fade="1"/)
+  assert.match(g, /const drawn = computed\(\(\) => series\.value\.map\(\(s, i\) => \(\{ s, i \}\)\)\.sort/, 'the higher curve is drawn first, so its fill never hides the lower line')
+  assert.match(css, /\.m-tgauge--budget\.is-m \.m-tgauge__history \{ -webkit-mask-image: linear-gradient\(to right, transparent, #000 40px\)/)
+  assert.match(n, /class="m-tnet__history" :points="sent" kind="area" :dot="true" monotone placeholder :fade="1"/)
+  assert.match(s, /m-tstream__spark--bitrate" :points="pts" kind="area" :dot="true" monotone placeholder :fade="1"/)
+  assert.match(css, /\.m-tchart:is\(\.m-tgauge__history, \.m-tgauge__chart, \.m-tnet__history, \.m-tstream__spark--bitrate\) \{ --tk-fill:/)
+  assert.match(read('src/vue/tiles/cal/CalHero.vue'), /kind="line" dot monotone/)
+  for (const f of [g, n, s]) assert.ok(!/<MTileChart[^>]*kind="area"(?![^>]*monotone)[^>]*\/>/.test(f), 'no area chart of the old drawing is left')
+})

@@ -32,6 +32,8 @@ const readings = computed(() => String(d.value.caption || '').split(' · ').map(
 const stages = computed(() => (isBudget.value && Array.isArray(d.value.stages) ? d.value.stages : []))
 const stageRest = computed(() => Math.max(0, Math.max(d.value.frameMs || 0, stages.value.reduce((a, x) => a + x.ms, 0)) - stages.value.reduce((a, x) => a + x.ms, 0)))
 const series = computed(() => (d.value.series || []).map((s) => ({ ...s, values: finite(s.values) })))
+// the higher curve is drawn first: the fill of a curve covers what is below its own line, so the lower line (and its dot) must be drawn after it, or the fill above hides it
+const drawn = computed(() => series.value.map((s, i) => ({ s, i })).sort((a, b) => (b.s.values.at(-1) ?? 0) - (a.s.values.at(-1) ?? 0)))
 const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === undefined ? '' : String(Math.round(v)) }
 </script>
 
@@ -65,7 +67,7 @@ const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === und
           <dl class="m-tgauge__facts"><div v-for="f in d.facts" :key="f.title"><dt>{{ f.title }}</dt><dd class="m-dnum">{{ f.value }}</dd></div></dl>
         </div>
       </div>
-      <MTileChart v-if="size !== 's' && !stages.length && finite(d.spark).length > 1" class="m-tile__bleed m-tgauge__history" :points="finite(d.spark)" kind="area" :dot="true" :window="40" :max="d.frameMs ? d.frameMs * 1.15 : null" :target="d.frameMs || null" />
+      <MTileChart v-if="size !== 's' && !stages.length" class="m-tile__bleed m-tgauge__history" :points="finite(d.spark)" kind="area" :dot="true" monotone placeholder :fade="1" :window="40" :pad="0.12" :max="d.frameMs ? d.frameMs * 1.15 : null" :target="d.frameMs || null" />
     </template>
     <template v-else-if="isTime">
       <MTileHead :icon="d.icon" :title="card.title" />
@@ -80,7 +82,7 @@ const nowOf = (s) => { const v = s.values[s.values.length - 1]; return v === und
         <div v-for="(s, i) in series" :key="s.id" class="m-tgauge__one" :class="`is-${i ? 'b' : 'a'}`"><span>{{ s.label }}</span><MTileNumeral :value="nowOf(s)" unit="%" size="m" /></div>
       </div>
       <div class="m-tile__bleed m-tgauge__charts">
-        <MTileChart v-for="(s, i) in series" :key="s.id" class="m-tgauge__chart" :class="`is-${i ? 'b' : 'a'}`" :points="s.values" :max="100" kind="area" :dot="true" :window="40" />
+        <MTileChart v-for="x in drawn" :key="x.s.id" class="m-tgauge__chart" :class="`is-${x.i ? 'b' : 'a'}`" :points="x.s.values" :max="100" kind="area" :dot="true" monotone :placeholder="x.i === 0" :fade="1" :window="40" :pad="0.12" />
       </div>
     </template>
   </section>
