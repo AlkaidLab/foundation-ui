@@ -6,7 +6,7 @@
    3. A row of pills (快捷操作) that does not fit scrolls sideways under an edge fade, and gives up its title word first. */
 .m-dash__cell :is(
   .m-tile__head > span, .m-tnum__cap, .m-b2enc__note, .m-b2plate small, .m-b2item small, .m-b2recent__mini b, .m-b2recent__grid small, .m-b2lib__grid small, .m-b2opt > span,
-  .m-calm__cap, .m-calh__head > span, .m-calh__fact, .m-calo__tiles b, .m-calh__blocks small, .m-calh__now small,
+  .m-calm__cap, .m-caln__sub > span, .m-calh__head > span, .m-calh__fact, .m-calo__tiles b, .m-calh__blocks small, .m-calh__now small,
   .m-tnet__facts dd, .m-tfacts__cap, .m-rc__text b, .m-rc__text small, .m-rc__note, .m-rc__client, .m-rc__jump span,
   .m-dsmall__title, .m-dsmall__sub, .m-dcard__title, .m-dpair__latest, .m-dnics__text b, .m-dblock__text b, .m-dapps__name, .m-dsponsor__row b, .m-dtile__word,
   .m-tenc__name, .m-tload__model, .m-b3e__lines li span, .m-b3l__newest span, .m-b3r__cap
