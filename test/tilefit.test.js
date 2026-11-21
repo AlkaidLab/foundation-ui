@@ -295,3 +295,7 @@ test('a numeral measures its row again when a font has loaded', () => {
   const v = fs.readFileSync(new URL('../src/vue/MTileNumeral.vue', import.meta.url), 'utf8')
   assert.match(v, /document\.fonts\.addEventListener\?\.\('loadingdone', onFonts\)/); assert.match(v, /removeEventListener\?\.\('loadingdone', onFonts\)/)
 })
+
+test('the client and the stream line of 正在玩 wrap with the other names of a tile instead of ending in an ellipsis', () => {
+  assert.match(css('tilefit.css'), /\.m-caln__sub > span,/)
+})
