@@ -91,8 +91,17 @@ const fabStyle = computed(() => (fabBottom.value ? { bottom: `${fabBottom.value}
 onMounted(() => window.addEventListener('resize', measureBar))
 onBeforeUnmount(() => window.removeEventListener('resize', measureBar))
 watch(edit, (on) => { if (on) nextTick(measureBar) }, { immediate: true, flush: 'post' })
+// The snackbar that says 加了 rests above the page's own bottom controls, wherever they stand: the add button, or the bar of the selected tile. On a phone they stand above the app's bottom bar, higher than the
+// fixed 92 px the snackbar used to take, so the snackbar covered the add button (and a tap on it) for the whole time it was there, after every add.
+const clearOfBottom = () => {
+  const tops = [...document.querySelectorAll('.m-dedit__fab, .m-dedit__selbar')].map((e) => e.getBoundingClientRect()).filter((r) => r.width > 0 && r.height > 0).map((r) => r.top)
+  if (tops.length) document.body.style.setProperty('--m-dedit-clear', `${Math.max(0, Math.round(window.innerHeight - Math.min(...tops)))}px`); else document.body.style.removeProperty('--m-dedit-clear')
+}
+onMounted(() => window.addEventListener('resize', clearOfBottom))
+onBeforeUnmount(() => { window.removeEventListener('resize', clearOfBottom); document.body.style.removeProperty('--m-dedit-clear') })
 const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, clockLocale, clockSizeDrawn, dateText, statusText, dockCards,  setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockGridStyle, dockHeadMin, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
 const selCard = computed(() => (sel.value ? blocks.value.flatMap((b) => b.boxed).find((c) => c.id === sel.value && !c.ghost) : null))
+watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush: 'post' })
 </script>
 
 <template>
