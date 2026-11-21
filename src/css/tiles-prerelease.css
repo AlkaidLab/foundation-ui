@@ -35,9 +35,8 @@
 .m-b2comp.is-s .m-b2__state .m-icon { flex: none; width: 16px; height: 16px; }
 .m-b2comp.is-s .m-b2__state b { font: var(--m-tile-text-13-strong); }
 
-/* 主机延迟, 帧率, 码率 at 中: the curve is drawn right of the figure, so its line never runs through the caption under the figure */
-.m-calm.is-m .m-calm__chart { left: 46%; }
-.m-tstream:is(.m-tstream--latency, .m-tstream--loss, .m-tstream--dropped).is-m > .m-tile__bleed { left: 46%; }
+/* 丢包 and 丢帧 at 中: the bars are drawn right of the figure (the curve tiles, 码率 帧率 主机延迟 内存变化, draw one curve at every size over the whole width: the end of this file) */
+.m-tstream:is(.m-tstream--loss, .m-tstream--dropped).is-m > .m-tile__bleed { left: 46%; }
 
 /* the M3 Expressive slider inside a tile: the fill is the theme's container colour (not the flat on-primary white), the handle keeps the primary, the end of the track has the stop dot of the spec,
    and the ticks of a scale are dots, not bars */
@@ -219,3 +218,12 @@ html[data-bs-theme='dark'] .m-b2pair__qr, html[data-theme='dark'] .m-b2pair__qr,
 /* the name of 使用虚拟显示器 at one cell breaks in balance (no lone character on the second line) */
 .m-tfacts--stream-vdd.is-s .m-tile__head > span { white-space: normal; overflow: visible; text-overflow: clip; text-wrap: balance; line-height: 16px; }
 .m-tile__word { white-space: nowrap; }
+
+/* The curve tiles (码率, 帧率, CPU, GPU, 内存 of CalMetric; 主机延迟 and 帧率 of the session of TileStream; 内存变化 of TileMemory) draw one curve at every size, along the bottom: the band is a third of the tile at 方形, under half at 中 and 大;
+   the fill is dense at the line and fades to nothing at the edge; the colours are the calm tile's. */
+.m-tile:is(.m-calm, .m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend) { --tk-fill: color-mix(in srgb, var(--tk) 22%, var(--tk-c)); --tk-fill-top: .9; --tk-fill-mid: .5; --tk-fill-end: 0; --tk-line: 3px; }
+html[data-bs-theme='dark'] .m-tile:is(.m-calm, .m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend), html[data-theme='dark'] .m-tile:is(.m-calm, .m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend) { --tk-fill-top: .85; --tk-fill-mid: .5; --tk-fill-end: 0; }
+.m-tile:is(.m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend).is-s { --tile-bleed: 33%; }
+.m-tile:is(.m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend).is-m { --tile-bleed: 48%; }
+.m-tile:is(.m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend).is-l { --tile-bleed: 45%; }
+.m-tile:is(.m-tstream--latency, .m-tstream--stream-fps, .m-tmem--trend) .m-tchart__target { opacity: .5; }

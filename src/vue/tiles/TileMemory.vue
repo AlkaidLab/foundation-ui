@@ -42,7 +42,8 @@ const toneOf = (p, i) => (p.tone === 'free' ? 'free' : i ? 'b' : 'a')
         <MTileNumeral :value="d.value" unit="%" :size="size" :caption="size !== 's' ? d.caption : ''" />
         <dl v-if="size !== 's' && stats.length" class="m-tmem__stats"><div v-for="x in stats" :key="x.k"><dt>{{ label(x.k) }}</dt><dd class="m-dnum">{{ x.value }}</dd></div></dl>
       </div>
-      <MTileChart class="m-tile__bleed" :points="pts" :max="100" kind="area" dot :window="size === 's' ? 20 : 40" />
+      <!-- the one curve of the metric tiles (CalMetric.vue, tiles-cal.css): the whole width along the bottom, monotone, fading out at the edge and on the left under the text -->
+      <MTileChart class="m-tile__bleed m-calm__chart" :points="pts" :max="100" kind="area" :dot="size !== 's'" monotone placeholder :fade="1" :window="size === 's' ? 20 : 40" :pad="{ s: 0.08, m: 0.12, l: 0.24 }[size] ?? 0.12" :base="size === 's' ? 0 : size === 'l' ? 46 : 28" />
     </template>
     <template v-else-if="variant === 2">
       <div class="m-tmem__tank" aria-hidden="true" :style="{ transform: `translateY(${100 - pct}%)` }">

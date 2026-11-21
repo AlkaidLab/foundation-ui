@@ -47,3 +47,10 @@ test('a narrow pane draws a tile at the design square and scales the whole face 
   for (const w of [360, 390, 430]) { const k = columnsOf(w).unit / designUnitPx(); assert.ok(k > 1 && k <= 1.36, `${w}: ${k}`) }
   assert.match(readDash(), /const faceK = \(b\) => \{ if \(!b\?\.unit\) return 1; const k = b\.unit \/ designUnitPx\(\);/)
 })
+
+test('what a tile measures about itself is in layout px, not painted px: a scaled face would otherwise draw outside its tile', () => {
+  const chart = read('src/vue/MTileChart.vue'), numeral = read('src/vue/MTileNumeral.vue')
+  assert.match(chart, /const read = \(\) => \{ const w = Math\.round\(root\.value\.offsetWidth\), h = Math\.round\(root\.value\.offsetHeight\);/)
+  assert.ok(!/getBoundingClientRect/.test(chart), 'the chart reads no painted rect')
+  assert.match(numeral, /const scale = tile\.offsetWidth > 0 && t\.width > 0 \? t\.width \/ tile\.offsetWidth : 1; const lim = \(t\.right - left\) \/ scale - /)
+})

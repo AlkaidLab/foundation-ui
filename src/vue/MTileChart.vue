@@ -8,7 +8,7 @@ let seq = 0
 // redrawn once per sample with the new point outside the box on the right, and a transform animation slides it in (no layout, no per-frame path).
 // The "now" dot is an element of its own that moves on a transform too. Nothing moves under reduced motion or while the tile is not seen.
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { smoothPath } from './curve.js'
+import { monotonePath, smoothPath } from './curve.js'
 import { useDrawnPoints, useOnScreen } from './useOnScreen.js'
 import { springOf } from './tileMotion.js'
 
@@ -26,6 +26,12 @@ const props = defineProps({
   base: { type: Number, default: 0 },
   /** a value drawn as a dashed guide across the chart (a target frame rate) */
   target: { type: Number, default: null },
+  /** the curve never overshoots between samples (monotone cubic), and the fill is densest at the line and fades to nothing at the bottom edge */
+  monotone: { type: Boolean, default: false },
+  /** with fewer samples than a curve needs: a faint flat line, so the tile is not left empty */
+  placeholder: { type: Boolean, default: false },
+  /** the fill fades out on the left, where the text of the tile stands, and the line softens there (to 40 %, it never breaks): 1 = from the left edge to full at 72 % of the width; 0 = no fade */
+  fade: { type: Number, default: 0 },
 })
 const root = ref(null)
 const svg = ref(null)
@@ -34,7 +40,8 @@ const box = ref({ w: 0, h: 0 })
 const gid = `m-tchart-${++seq}`
 let ro = null
 onMounted(() => {
-  const read = () => { const r = root.value.getBoundingClientRect(); const w = Math.round(r.width), h = Math.round(r.height); if (w !== box.value.w || h !== box.value.h) box.value = { w, h } }
+  // the box in layout px (offsetWidth/Height), not the painted one: a tile face on a phone is scaled as a whole (MHomeDash faceK), and the painted box is larger than the one the chart is drawn in, so the curve ran past the tile and its end dot stood outside it
+  const read = () => { const w = Math.round(root.value.offsetWidth), h = Math.round(root.value.offsetHeight); if (w !== box.value.w || h !== box.value.h) box.value = { w, h } }
   read()
   ro = new ResizeObserver(read)
   ro.observe(root.value)
@@ -65,7 +72,8 @@ const range = computed(() => {
 const inset = computed(() => (props.dot && props.kind !== 'bars' ? 16 : 0))
 const step = computed(() => (props.kind === 'bars' ? box.value.w / win.value : (box.value.w - inset.value) / Math.max(1, win.value - 1)))
 // the end dot has a 6 px radius and a 8 px halo: the line keeps 14 px from the top and the bottom of its box so the dot and its ring are never on the box's edge (hero band, 码率, 帧率, 内存)
-const vin = computed(() => (props.dot && props.kind !== 'bars' ? Math.min(14, box.value.h * 0.3) : 0))
+// without the dot a line keeps 5 px from the edges of its box (a 3 px stroke never sits half outside it)
+const vin = computed(() => (props.kind === 'bars' ? 0 : props.dot ? Math.min(14, box.value.h * 0.3) : props.monotone ? Math.min(5, box.value.h * 0.15) : 0))
 const yOf = (v) => { const { lo, hi } = range.value; const h = box.value.h - props.base - 2 * vin.value; const t = (Math.min(Math.max(v, lo), hi) - lo) / Math.max(hi - lo, 1e-9); return vin.value + h - t * h * (1 - props.pad) }
 // x in the svg (which rests one step to the left): the newest sample sits at the right edge of the box
 const pts = computed(() => {
@@ -83,10 +91,15 @@ const paths = computed(() => {
   }
   if (p.length < 2) return { line: '', area: '' }
   const end = (box.value.w + step.value * 2).toFixed(1)
-  const line = `${smoothPath(p)}${inset.value ? `H${end}` : ''}`
+  const line = `${(props.monotone ? monotonePath : smoothPath)(p)}${inset.value ? `H${end}` : ''}`
   return { line, area: `${line}L${inset.value ? end : p[p.length - 1].x.toFixed(1)} ${h + 2}L${p[0].x.toFixed(1)} ${h + 2}Z` }
 })
 const last = computed(() => (pts.value.length ? pts.value[pts.value.length - 1] : null))
+// the fill is densest where the curve is highest and fades to nothing at the bottom edge (monotone: the whole box height otherwise)
+const fillTop = computed(() => (props.monotone && pts.value.length ? Math.max(0, Math.min(...pts.value.map((q) => q.y)) - 2) : 0))
+const fadeStops = computed(() => (props.fade > 0 ? [0, 0.22 * props.fade, 0.72 * props.fade].map((f) => (f * box.value.w).toFixed(1)) : null))
+// the placeholder line rests above the caption row (base), where the real line would run
+const flatY = computed(() => Math.max(4, box.value.h - props.base - 8).toFixed(1))
 const svgW = computed(() => box.value.w + step.value)
 const rest = computed(() => `translateX(${(-step.value).toFixed(2)}px)`)
 const dotX = computed(() => box.value.w - inset.value)
@@ -116,21 +129,32 @@ const targetY = computed(() => (props.target != null && box.value.h ? yOf(props.
     <svg v-if="enough && (gridYs.length || targetY)" class="m-tchart__grid" :width="box.w" :height="box.h"><line v-for="y in gridYs" :key="y" x1="0" :x2="box.w" :y1="y" :y2="y" /><line v-if="targetY" class="m-tchart__target" x1="0" :x2="box.w" :y1="targetY" :y2="targetY" /></svg>
     <svg v-if="box.w && enough" ref="svg" class="m-tchart__svg" :width="svgW" :height="box.h" :viewBox="`0 0 ${svgW} ${box.h}`" :style="{ transform: rest }">
       <defs v-if="kind === 'area'">
-        <linearGradient :id="gid" gradientUnits="userSpaceOnUse" x1="0" :y1="0" x2="0" :y2="box.h">
+        <linearGradient :id="gid" gradientUnits="userSpaceOnUse" x1="0" :y1="fillTop" x2="0" :y2="box.h">
           <stop offset="0" class="m-tchart__stop0" />
           <stop offset="0.6" class="m-tchart__stop1" />
           <stop offset="1" class="m-tchart__stop2" />
         </linearGradient>
+        <template v-if="fadeStops">
+          <linearGradient :id="`${gid}-f`" gradientUnits="userSpaceOnUse" x1="0" y1="0" :x2="fadeStops[2]" y2="0">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.1" /><stop :offset="fadeStops[1] / fadeStops[2]" stop-color="#fff" stop-opacity="0.1" /><stop offset="1" stop-color="#fff" stop-opacity="1" />
+          </linearGradient>
+          <mask :id="`${gid}-m`" maskUnits="userSpaceOnUse" x="0" y="0" :width="svgW" :height="box.h"><rect x="0" y="0" :width="svgW" :height="box.h" :fill="`url(#${gid}-f)`" /></mask>
+          <linearGradient :id="`${gid}-l`" gradientUnits="userSpaceOnUse" x1="0" y1="0" :x2="fadeStops[2]" y2="0">
+            <stop offset="0" stop-color="#fff" stop-opacity="0.4" /><stop :offset="fadeStops[1] / fadeStops[2]" stop-color="#fff" stop-opacity="0.4" /><stop offset="1" stop-color="#fff" stop-opacity="1" />
+          </linearGradient>
+          <mask :id="`${gid}-ml`" maskUnits="userSpaceOnUse" x="0" y="0" :width="svgW" :height="box.h"><rect x="0" y="0" :width="svgW" :height="box.h" :fill="`url(#${gid}-l)`" /></mask>
+        </template>
       </defs>
       <template v-if="kind === 'bars'">
         <path :d="paths.past" class="m-tchart__past" />
         <path :d="paths.now" class="m-tchart__now" />
       </template>
       <template v-else-if="paths.line">
-        <path v-if="kind === 'area'" :d="paths.area" :fill="`url(#${gid})`" />
-        <path :d="paths.line" class="m-tchart__line" />
+        <path v-if="kind === 'area'" :d="paths.area" :fill="`url(#${gid})`" :mask="fadeStops ? `url(#${gid}-m)` : undefined" />
+        <path :d="paths.line" class="m-tchart__line" :mask="fadeStops ? `url(#${gid}-ml)` : undefined" />
       </template>
     </svg>
+    <svg v-if="placeholder && !enough && box.w" class="m-tchart__flat" :width="box.w" :height="box.h"><line x1="0" :x2="box.w" :y1="flatY" :y2="flatY" /></svg>
     <span v-if="enough && dot && kind !== 'bars' && last && paths.line" ref="dotEl" class="m-tchart__dot" :style="{ transform: dotRest }" />
   </div>
 </template>

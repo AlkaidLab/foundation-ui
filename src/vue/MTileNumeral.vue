@@ -28,7 +28,8 @@ const fit = () => {
   const tile = el.closest('.m-tile, .m-dcard, .m-dsmall')
   const left = row.getBoundingClientRect().left
   let room = el.clientWidth
-  if (tile) { const t = tile.getBoundingClientRect(), cs = getComputedStyle(tile); const lim = t.right - (parseFloat(cs.paddingRight) || 0) - left; room = room > 0 ? Math.min(room, lim) : lim }
+  // the rects are painted ones: a tile face that is scaled as a whole (MHomeDash faceK) is larger than the layout px the numeral is sized in, so the distance to the tile's right edge is divided by that scale
+  if (tile) { const t = tile.getBoundingClientRect(), cs = getComputedStyle(tile); const scale = tile.offsetWidth > 0 && t.width > 0 ? t.width / tile.offsetWidth : 1; const lim = (t.right - left) / scale - (parseFloat(cs.paddingRight) || 0); room = room > 0 ? Math.min(room, lim) : lim }
   const need = row.scrollWidth
   if (room > 8 && need > room + 0.5) {
     let k = Math.max(0.5, room / need - 0.01)

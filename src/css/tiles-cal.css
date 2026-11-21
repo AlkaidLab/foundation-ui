@@ -6,8 +6,12 @@ html[data-bs-theme='dark'] .m-cal, html[data-theme='dark'] .m-cal { --cal-inner:
 .m-cal[data-size='s'] { --tile-pad: 16px 18px; }
 
 /* the metric family: header, numeral, one line with its fill, caption under the line */
-.m-calm { --tk-fill: color-mix(in srgb, var(--tk) 22%, var(--tk-c)); --tk-fill-top: .9; --tk-fill-mid: .55; --tk-fill-end: .22; --tk-line: 3px; --tile-bleed: 36%; }
-html[data-bs-theme='dark'] .m-calm, html[data-theme='dark'] .m-calm { --tk-fill-top: .85; --tk-fill-mid: .5; --tk-fill-end: .2; }
+.m-calm { --tk-fill: color-mix(in srgb, var(--tk) 22%, var(--tk-c)); --tk-fill-top: .9; --tk-fill-mid: .5; --tk-fill-end: 0; --tk-line: 3px; --tile-bleed: 45%; }
+/* the band of the curve along the bottom edge: 方形 a third of the tile, 中 and 大 under half */
+.m-calm.is-s { --tile-bleed: 33%; } .m-calm.is-m { --tile-bleed: 48%; } .m-calm.is-l { --tile-bleed: 45%; }
+.m-calm .m-tchart__target { opacity: .5; }
+.m-tchart__flat { position: absolute; left: 0; top: 0; overflow: visible; } .m-tchart__flat line { stroke: var(--tk); stroke-opacity: .3; stroke-width: 2; stroke-linecap: round; }
+html[data-bs-theme='dark'] .m-calm, html[data-theme='dark'] .m-calm { --tk-fill-top: .85; --tk-fill-mid: .5; --tk-fill-end: 0; }
 .m-calm.is-s { --tile-bleed: 40%; } .m-calm.is-l { --tile-bleed: 52%; }
 .m-calm__head { display: flex; align-items: center; gap: 8px; min-height: 24px; min-width: 0; font: var(--m-tile-text-13-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
 .m-calm__head > .m-icon { flex: none; width: 18px; height: 18px; }
