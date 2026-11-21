@@ -93,14 +93,14 @@ const clock = (n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`
       <details v-if="lean" class="m-conn__others m-conn__more">
         <summary>{{ T.moreDownloads }}<MIcon class="m-conn__chev" name="keyboard_arrow_down" /></summary>
         <MClientAssets v-if="rows.length" :rows="rows" :texts="T" :qr="qr" :mirror="mirrorName(locale)" @open-url="(u) => emit('open-url', u)" />
-        <ul v-if="rec.others.length">
+        <ul v-if="rec.others.length" class="m-conn__clients">
           <li v-for="x in rec.others" :key="x.client.id + x.target.platform"><MIcon :name="x.client.icon" /><span class="m-conn__oname">{{ name(x.client) }}</span><MClientTag :official="x.client.group === 'first'" :locale="locale" /><button type="button" class="m-conn__link" @click="emit('open-url', clientUrl(x.client, locale))"><MIcon name="open_in_new" />{{ T.download }}</button><MLinkActions :url="clientUrl(x.client, locale)" :title="name(x.client)" :qr="qr" :texts="T" /></li>
         </ul>
       </details>
       <MClientAssets v-if="!lean && rows.length" :rows="rows" :texts="T" :qr="qr" :mirror="mirrorName(locale)" @open-url="(u) => emit('open-url', u)" />
       <details v-if="!lean && rec.others.length" class="m-conn__others">
         <summary>{{ othersTitle(rec.others, T) }}<small>{{ rec.others.length }}</small><MIcon class="m-conn__chev" name="keyboard_arrow_down" /></summary>
-        <ul>
+        <ul class="m-conn__clients">
           <li v-for="x in rec.others" :key="x.client.id + x.target.platform"><MIcon :name="x.client.icon" /><span class="m-conn__oname">{{ name(x.client) }}</span><MClientTag :official="x.client.group === 'first'" :locale="locale" /><button type="button" class="m-conn__link" @click="emit('open-url', clientUrl(x.client, locale))"><MIcon name="open_in_new" />{{ T.download }}</button><MLinkActions :url="clientUrl(x.client, locale)" :title="name(x.client)" :qr="qr" :texts="T" /></li>
         </ul>
         <button v-if="!noDownloadsLink" type="button" class="m-conn__link m-conn__all" @click="emit('open-downloads')"><MIcon name="arrow_forward" />{{ T.moreOthers }}</button>
