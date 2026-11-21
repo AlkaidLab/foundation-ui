@@ -105,7 +105,8 @@ html[data-motion='reduced'] .m-plistpop:popover-open { animation: none; }
    (a popover) has no animation of its own, only the enter class has one. */
 .m-snackbar[popover] { animation: none; }
 .m-snackbar[popover].m-snack-enter-active { animation: m-snack-in var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
-body:has(.m-dedit__fab) .m-snackbar[popover] { bottom: 92px !important; }
+:root { --m-dedit-clear: 80px; } /* the room under the add button or the bar of the selected tile; MHomeDash.vue clearOfBottom sets the measured one on the body */
+body:has(.m-dedit__fab, .m-dedit__selbar) .m-snackbar[popover] { bottom: calc(var(--m-dedit-clear) + 12px) !important; } /* 12 px above the add button or the bar of the selected tile (MHomeDash.vue clearOfBottom) */
 .m-snackbar__text { flex: 1; min-width: 0; padding-right: 8px; font: var(--m-label-large); }
 .m-snackbar .m-btn--text { flex: none; }
 .m-pin-toast { transition: bottom var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial); }
