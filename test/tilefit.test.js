@@ -299,3 +299,8 @@ test('a numeral measures its row again when a font has loaded', () => {
 test('the client and the stream line of 正在玩 wrap with the other names of a tile instead of ending in an ellipsis', () => {
   assert.match(css('tilefit.css'), /\.m-caln__sub > span,/)
 })
+
+test('the interface list of the network tile has one column that may shrink, so a long adapter name cannot make the list wider than the tile', () => {
+  const m = css('tiles-metrics.css')
+  assert.match(m, /\.m-tnet__list \{[^}]*grid-template-columns: minmax\(0, 1fr\);/)
+})
