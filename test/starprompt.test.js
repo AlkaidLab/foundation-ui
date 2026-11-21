@@ -83,7 +83,7 @@ test('the star card per stream: the star of the client in use while streaming, t
 
 test('the asks are real buttons: one height and shape, the filled heart and the Bilibili mark at the size of the GitHub mark, a state layer and the spring, 以后再说 quiet at the far right', () => {
   const prompt = read('../src/vue/MStarPrompt.vue'), css = read('../src/css/connect.css'), mark = read('../src/vue/MBilibiliMark.vue')
-  assert.match(prompt, /<MBilibiliMark \/>\{\{ texts\.bilibili \}\}/, 'the brand mark, not a Material Symbols stand-in')
+  assert.match(prompt, /<MBilibiliMark \/>\{\{ compact && texts\.bilibiliShort \? texts\.bilibiliShort : texts\.bilibili \}\}/, 'the brand mark, not a Material Symbols stand-in (its words are the short ones on a phone)')
   assert.match(prompt, /<MIcon name="favorite" fill \/>\{\{ texts\.sponsor \}\}/)
   assert.match(mark, /viewBox="0 0 24 24"/); assert.match(mark, /fill="currentColor"/); assert.match(mark, /Apache-2\.0/); assert.match(mark, /Richard9394\/MingCute/)
   const rule = (sel) => css.split('\n').filter((l) => l.startsWith(sel)).join('\n')

@@ -182,6 +182,14 @@ html[data-motion='reduced'] .m-pairprompt-enter-active, html[data-motion='reduce
 
 /* the recommendation of a client is the one card of the overview in the accent: its surface is the primary container (the star card and the tiles are neutral surfaces), the text is on-primary-container
    (a pair of the scheme that keeps its contrast in 清亮, 经典 and 素雅, light, dark and 纯黑), the download button is the primary itself, the strongest accent on it */
+/* the star card on a phone (MStarPrompt compact: under 600 wide, or under 480 high): no title and no line, small buttons, one or two rows */
+.m-sprompt--compact { gap: 6px 8px; padding: 6px 10px; margin-bottom: 8px; border-radius: 20px; }
+.m-sprompt--compact .m-sprompt__ico { width: 28px; height: 28px; align-self: flex-start; margin-top: 4px; } /* beside the first row of buttons (36 px high), not in the middle of two rows */
+.m-sprompt--compact .m-sprompt__ico .m-icon { font-size: 18px; }
+.m-sprompt--compact .m-sprompt__btns { flex: 1 1 0; min-width: 0; margin-inline-start: 0; justify-content: flex-start; gap: 6px; }
+.m-sprompt--compact .m-sprompt__btn, .m-sprompt--compact .m-sprompt__later { height: 36px; border-radius: 18px; }
+.m-sprompt--compact .m-sprompt__btn { gap: 6px; padding: 0 12px 0 10px; font-size: 13px; white-space: nowrap; } .m-sprompt--compact .m-sprompt__btn .m-icon, .m-sprompt--compact .m-sprompt__btn .m-ghmark, .m-sprompt--compact .m-sprompt__btn .m-bmark { width: 16px; height: 16px; font-size: 16px; }
+.m-sprompt--compact .m-sprompt__later { padding: 0 8px; white-space: nowrap; }
 .m-cprompt { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent); }
 .m-cprompt .m-sprompt__text h3, .m-cprompt .m-sprompt__text p { color: var(--md-sys-color-on-primary-container); }
 .m-cprompt__ico { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }

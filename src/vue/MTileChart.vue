@@ -43,8 +43,9 @@ onBeforeUnmount(() => ro?.disconnect())
 
 const drawn = useDrawnPoints(() => props.points, useOnScreen(root))
 const finite = computed(() => drawn.value.filter((v) => Number.isFinite(v)))
-// a history of a few samples is a short flat line with a dot at its end: it reads like the handle of a slider and says nothing. The chart is drawn from MIN_SAMPLES samples on.
-const MIN_SAMPLES = 8
+// one or two samples are a stub with a dot at its end: it reads like the handle of a slider and says nothing. The chart is drawn from MIN_SAMPLES samples on, and from then on it spans the box. It was 8: a page that
+// starts its samples at the first poll (the Web UI on a phone) had no line for the first eight seconds, and the control panel, which keeps its samples, had one at once.
+const MIN_SAMPLES = 3
 const enough = computed(() => finite.value.length >= MIN_SAMPLES)
 // the samples on screen and the one that slides out on the left
 // a line or an area spans the box edge to edge from the first samples on (it grows to its window), so a short history is a whole chart and not a stub with a dot at its end

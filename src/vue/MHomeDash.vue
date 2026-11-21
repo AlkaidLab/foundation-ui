@@ -73,6 +73,9 @@ const tall = ref(typeof window !== 'undefined' ? window.innerHeight : 900)
 const wide = ref(typeof window !== 'undefined' ? window.innerWidth : 1440)
 // the window's class (Material 3), read from the window's width: the size a tile is drawn at is its preference clamped to the class (homeSizes.js effectiveSize), nothing else decides it
 const windowClass = computed(() => windowClassOf(wide.value))
+// the star card is a small one on a phone: the window is under 600 wide, or under 480 high (on its side); its short words (主机端 Star) are for the languages that have them (zh, en)
+const starCompact = computed(() => wide.value < 600 || tall.value < 480)
+const starShort = computed(() => /^(zh|en)/i.test(String(props.locale)))
 D.ro = null
 
 Object.assign(D, { T, edit, emit, grid, props, root, tall, tileRadius, wide, width, windowClass })
@@ -111,7 +114,7 @@ watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush
     <!-- the card at the top: the recommendation of a client when it is due for the device in use, else the star card; it opens and closes in height so what is under it does not jump -->
     <Transition :css="false" mode="out-in" @enter="onSlotEnter" @leave="slotOut">
       <MClientPrompt v-if="clientRec && !edit && !pending" key="client" :texts="{ title: T.crTitle, line: T.crLine, lineAny: T.crLineAny, download: T.crDownload, later: T.crLater }" :rec="clientRec" @open="recOpen" @later="recLater" />
-      <MStarPrompt v-else-if="ctx.star && !edit && !pending" key="star" :texts="{ title: T.starTitle, sub: T.starSub, action: T.starPromptAction, later: T.starLater, sponsor: T.sponsorAction, bilibili: T.starBilibili }" :host="STAR_HOST" :client="starClient" :streaming="starStreaming" @open="starOpen" @later="starLater" @sponsor="starSponsor" />
+      <MStarPrompt v-else-if="ctx.star && !edit && !pending" key="star" :compact="starCompact" :texts="{ title: T.starTitle, sub: T.starSub, action: T.starPromptAction, later: T.starLater, sponsor: T.sponsorAction, bilibili: T.starBilibili, ...(starShort ? { hostShort: T.starHostShort, clientShort: T.starClientShort, bilibiliShort: T.starBilibiliShort } : {}) }" :host="STAR_HOST" :client="starClient" :streaming="starStreaming" @open="starOpen" @later="starLater" @sponsor="starSponsor" />
     </Transition>
     <!-- the smart arrangement is the default and has no label; only a manual one says so, with the way back -->
     <div v-if="dockOn" class="m-dock">
