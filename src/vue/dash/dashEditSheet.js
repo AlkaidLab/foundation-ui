@@ -45,7 +45,7 @@ export function useDashEditSheet(D) {
   const previewW = (c) => { const n = Math.min(units.value, sheetBox(c).span); return n * sheetUnit.value + (n - 1) * UNIT_GAP }
   const previewScale = (c) => previewW(c) / Math.max(1, prevBox(c).w)
   watch(stripEl, (el, _old, onCleanup) => { if (!el) return; const o = new ResizeObserver(() => { stripW.value = el.clientWidth }); o.observe(el); stripW.value = el.clientWidth; onCleanup(() => o.disconnect()) })
-  const prevBox = (c) => { if (dockLayout.value) return { w: 176, h: 176 }; const b = sheetBox(c); const g = gridOf(Math.max(480, width.value)); const px = ROW_PX.value(b.cls); return { w: Math.round(b.span * g.unit + (b.span - 1) * UNIT_GAP), h: Math.round(px * b.rows + (b.rows - 1) * UNIT_GAP) } }
+  const prevBox = (c) => { if (dockLayout.value) return { w: 176, h: 176 }; const b = sheetBox(c); const g = gridOf(width.value); const px = ROW_PX.value(b.cls); return { w: Math.round(b.span * g.unit + (b.span - 1) * UNIT_GAP), h: Math.round(px * b.rows + (b.rows - 1) * UNIT_GAP) } }
   // ---- the gallery: every tile the overview can show (those on it are marked 已添加), by category, each with its sizes
   const gallerySource = computed(() => {
     const all = allCards.value.filter((c) => c.available && !c.id.startsWith('pin:'))

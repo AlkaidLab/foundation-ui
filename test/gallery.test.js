@@ -28,7 +28,7 @@ test('the gallery: categories at the left with icons, a frame per tile with a li
   assert.match(g, /<div v-if="e\.sizeKeys\.length > 1" class="m-gal__dots" role="tablist"/); assert.match(g, /:aria-label="sizeName\(k\)"/)
   assert.match(g, /<Transition :name="dir > 0 \? 'gal-next' : 'gal-prev'" mode="out-in">/)
   assert.match(g, /event\.key === 'ArrowRight'[\s\S]*event\.key === 'ArrowLeft'/)
-  assert.match(g, /class="m-gal__cap" aria-live="polite">\{\{ sizeName\(e\.sizeKey\) \}\} · \{\{ boxOfKey\(e\.sizeKey\) \}\}/)
+  assert.match(g, /class="m-gal__cap" aria-live="polite">\{\{ sizeName\(e\.sizeKey\) \}\} · \{\{ boxOf\(e\) \}\}/)
   assert.equal((g.match(/class="m-gal__add"/g) || []).length, 1) // one prominent button
   assert.match(g, /:disabled="e\.added"/); assert.match(g, /e\.added \? T\.galAdded : T\.galAdd/)
   // a sideways drag on the preview is the swipe (48 px turns the page), any other direction takes the tile out
@@ -76,7 +76,7 @@ test('the preview is the real tile at the real size and is never clipped: it is 
   const vue = fs.readFileSync(new URL('../src/vue/MTileGallery.vue', import.meta.url), 'utf8')
   const dash = readDash()
   const css = fs.readFileSync(new URL('../src/css/gallery.css', import.meta.url), 'utf8')
-  assert.match(vue, /STAGE_PAD = 28/); assert.match(vue, /widthOf\(e\) - STAGE_PAD/)
+  assert.match(vue, /STAGE_PAD = 28/); assert.match(vue, /widthOf\(e\) - padFor\(widthOf\(e\)\)/)
   assert.match(vue, /MAIN_PAD = 4/) // the room is the content width of the main area
   assert.match(vue, /class="m-gal__sized"/); assert.match(vue, /width: `\$\{e\.w \* scaleOf\(e\)\}px`/) // the layout box is the scaled one: nothing overflows
   assert.match(vue, /useFlip\(\{ root: grid, select: '\.m-gal__card'/) // a card that grows moves the others on the spring, by FLIP: no TransitionGroup that clones a card on every update of a live preview
@@ -88,7 +88,7 @@ test('the preview is the real tile at the real size and is never clipped: it is 
 test('a card keeps its column while its tile is readable there and grows only when it would be scaled below 0.7; the arrows are beside the dots', () => {
   const vue = fs.readFileSync(new URL('../src/vue/MTileGallery.vue', import.meta.url), 'utf8')
   const css = fs.readFileSync(new URL('../src/css/gallery.css', import.meta.url), 'utf8')
-  assert.match(vue, /MIN_SCALE = 0\.7/); assert.match(vue, /props\.fit === 'auto' && \(colW\.value - STAGE_PAD\)/)
+  assert.match(vue, /MIN_SCALE = 0\.7/); assert.match(vue, /props\.fit === 'auto' && \(colW\.value - padFor\(colW\.value\)\)/)
   assert.match(vue, /class="m-gal__pager"/)
   assert.match(css, /\.m-gal__pager \.m-gal__arrow \{ position: static;/)
 })

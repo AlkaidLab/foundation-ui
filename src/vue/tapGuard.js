@@ -31,7 +31,7 @@ export function createTapGuard({ now = () => (typeof performance !== 'undefined'
   }
   /** `pointercancel`: the browser took the finger for a scroll */
   function cancel(e) {
-    if (press && (!e || e.pointerId === press.id)) { press = null; verdict = { ok: false, at: now() } }
+    if (press && (!e || e.pointerId === press.id)) { verdict = { ok: false, at: now(), id: press.id }; press = null }
   }
   /** `pointerup`: decides whether the click that follows is a tap */
   function up(e) {
@@ -41,13 +41,19 @@ export function createTapGuard({ now = () => (typeof performance !== 'undefined'
     const r = p.el && p.el.getBoundingClientRect ? p.el.getBoundingClientRect() : null
     const inside = !r || (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom)
     const near = Math.hypot(e.clientX - p.x, e.clientY - p.y) <= slop
-    verdict = { ok: inside && near && !p.far && !p.early && p.scrolls === scrolls, at: now() }
+    verdict = { ok: inside && near && !p.far && !p.early && p.scrolls === scrolls, at: now(), id: p.id }
   }
-  /** the `click` of the control: false when the press it ends was a scroll, a drag or the finger stopping a scroll */
-  function allowClick() {
+  /**
+   * the `click` of the control: false when the press it ends was a scroll, a drag or the finger stopping a scroll. A verdict is about the click of THAT pointer only: a click without a pointer press behind it
+   * (the keyboard, an assistive technology: no pointer type, no position) and a click of another pointer are let through, and a verdict that no click ever came for (the browser took the finger: pointercancel)
+   * holds nothing back.
+   */
+  function allowClick(e) {
     const v = verdict
+    if (!v || now() - v.at > CLICK_WINDOW) { verdict = null; return true }
+    if (e && !e.pointerType && !e.detail) return true // keyboard / assistive technology
+    if (e && e.pointerId > 0 && v.id > 0 && e.pointerId !== v.id) return true // another pointer
     verdict = null
-    if (!v || now() - v.at > CLICK_WINDOW) return true
     return v.ok
   }
   return { scrolled, down, move, cancel, up, allowClick, scrolling }
@@ -85,5 +91,29 @@ export function fingerGesture(down, { swipeable = false, onHold, onSwipe, onTurn
       finish()
       if (was === 'swipe' && u.type === 'pointerup' && Math.abs(dx) > turnPx) onTurn(dx)
     },
+  }
+}
+
+/**
+ * While a finger or a pen carries a tile the list under it must not follow: touchmove is cancelled (a finger), the list is set to overflow-y hidden and the card to touch-action none (every input
+ * device, a pen that sends no touch events included), and a scroll that still happens is pinned back on each pointermove. Every call has its own listeners, so one gesture's release never takes another
+ * gesture's away. Returns the release.
+ */
+export function holdLock({ doc, scroller = null, card = null }) {
+  const freeze = (t) => { if (t.cancelable) t.preventDefault() }
+  const top = scroller ? scroller.scrollTop : 0
+  const pin = () => { if (scroller && scroller.scrollTop !== top) scroller.scrollTop = top }
+  const was = { overflowY: scroller ? scroller.style.overflowY : '', touchAction: card ? card.style.touchAction : '' }
+  doc.addEventListener('touchmove', freeze, { passive: false })
+  doc.addEventListener('pointermove', pin)
+  if (scroller) scroller.style.overflowY = 'hidden'
+  if (card) card.style.touchAction = 'none'
+  let released = false
+  return () => {
+    if (released) return
+    released = true
+    doc.removeEventListener('touchmove', freeze); doc.removeEventListener('pointermove', pin)
+    if (scroller) scroller.style.overflowY = was.overflowY
+    if (card) card.style.touchAction = was.touchAction
   }
 }

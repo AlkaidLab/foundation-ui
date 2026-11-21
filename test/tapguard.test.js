@@ -3,7 +3,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { computed, ref } from 'vue'
-import { HOLD_MS, TAP_QUIET, TAP_SLOP, createTapGuard, fingerGesture, isFinger } from '../src/vue/tapGuard.js'
+import { HOLD_MS, TAP_QUIET, TAP_SLOP, createTapGuard, fingerGesture, holdLock, isFinger } from '../src/vue/tapGuard.js'
 import { useDashEditSheet } from '../src/vue/dash/dashEditSheet.js'
 import { resetNotify, useNotify } from '../src/notify/store.js'
 
@@ -157,9 +157,9 @@ test('the gallery follows a finger with the guards, and the mouse path is the ol
   assert.match(g, /if \(isFinger\(event\)\) \{ fingerDown\(event, e, stage\); return \}/)
   assert.match(g, /mode = Math\.abs\(dx\) > Math\.abs\(dy\) \* 1\.2 \? 'swipe' : 'pick'/) // the mouse
   assert.match(g, /@scroll\.capture\.passive="tap\.scrolled\(\)"/)
-  assert.match(g, /@pointerdown="tap\.down\(\$event\)" @pointermove="tap\.move\(\$event\)" @pointerup="tap\.up\(\$event\)" @pointercancel="tap\.cancel\(\$event\)" @click\.stop="onAdd\(e\)"/)
-  assert.match(g, /const onAdd = \(e\) => \{ if \(tap\.allowClick\(\)\) emit\('add', e\.id\) \}/)
-  assert.match(g, /document\.addEventListener\('touchmove', freeze, \{ passive: false \}\)/) // the list stays while the tile is carried
+  assert.match(g, /@pointerdown="tap\.down\(\$event\)" @pointermove="tap\.move\(\$event\)" @pointerup="tap\.up\(\$event\)" @pointercancel="tap\.cancel\(\$event\)" @click\.stop="onAdd\(\$event, e\)"/)
+  assert.match(g, /const onAdd = \(ev, e\) => \{ if \(tap\.allowClick\(ev\)\) emit\('add', e\.id\) \}/)
+  assert.match(g, /unlock = holdLock\(/) // the list stays while the tile is carried
   const css = read('src/css/gallery.css')
   assert.match(css, /@media \(pointer: coarse\) \{[\s\S]*?\.m-gal__dot \{ width: 44px; height: 44px; \}/)
   assert.match(css, /\.m-gal__variant \{ height: 44px;/)
@@ -168,4 +168,98 @@ test('the gallery follows a finger with the guards, and the mouse path is the ol
   const d = read('src/vue/dash/dashDrag.js')
   assert.match(d, /if \(ev\.pointerId !== pid \|\| moved \|\|/) // another finger's move does not add the tile
   assert.match(d, /document\.addEventListener\('pointercancel', onUpDoc\)/)
+})
+
+// ---- review round: a verdict is about its own pointer's click; every gesture has its own lock on the list ----
+test('a finger the browser took (pointercancel, no click) holds back no later click: the keyboard, an assistive technology and another pointer are let through; its own click is not', () => {
+  const c = clock(), g = createTapGuard({ now: c.now })
+  g.down(ev(150, 420, { pointerId: 7 })); g.cancel(ev(150, 400, { pointerId: 7 }))
+  assert.equal(g.allowClick({ detail: 0, pointerType: '' }), true, 'Enter / Space on the button, a screen reader')
+  assert.equal(g.allowClick({ detail: 1, pointerType: 'touch', pointerId: 9 }), true, 'a click of another pointer')
+  assert.equal(g.allowClick({ detail: 1, pointerType: 'touch', pointerId: 7 }), false, 'the click that would follow that finger')
+  assert.equal(g.allowClick({ detail: 1, pointerType: 'touch', pointerId: 7 }), true, 'a verdict is used once')
+  // a rejected tap (a scroll) and then the keyboard
+  g.down(ev(150, 420, { pointerId: 3 })); g.move(ev(150, 330, { pointerId: 3 })); g.up(ev(150, 330, { pointerId: 3 }))
+  assert.equal(g.allowClick({ detail: 0, pointerType: '' }), true)
+  assert.equal(g.allowClick({ detail: 1, pointerType: 'touch', pointerId: 3 }), false)
+})
+
+function fakeDoc() {
+  const on = []
+  return { on, addEventListener: (t, f, o) => on.push({ t, f, o }), removeEventListener: (t, f) => { const i = on.findIndex((x) => x.t === t && x.f === f); if (i >= 0) on.splice(i, 1) } }
+}
+test('carrying a tile locks the list for every input device, and one gesture releasing its lock leaves another gesture\'s alone', () => {
+  const doc = fakeDoc(), scroller = { scrollTop: 120, style: { overflowY: '' } }, card = { style: { touchAction: '' } }
+  const a = holdLock({ doc, scroller, card })
+  assert.equal(scroller.style.overflowY, 'hidden'); assert.equal(card.style.touchAction, 'none')
+  assert.equal(doc.on.filter((x) => x.t === 'touchmove' && x.o.passive === false).length, 1, 'touchmove is cancelled (a finger)')
+  // a pen sends no touchmove: a scroll that happens anyway is put back on the next pointermove
+  scroller.scrollTop = 175; doc.on.find((x) => x.t === 'pointermove').f()
+  assert.equal(scroller.scrollTop, 120)
+  const b = holdLock({ doc, scroller: { scrollTop: 0, style: {} }, card: { style: {} } })
+  assert.equal(doc.on.filter((x) => x.t === 'touchmove').length, 2)
+  const mine = doc.on.filter((x) => x.t === 'touchmove').map((x) => x.f)
+  a()
+  assert.equal(doc.on.filter((x) => x.t === 'touchmove').length, 1)
+  assert.equal(doc.on.find((x) => x.t === 'touchmove').f, mine[1], 'the second gesture keeps its own listener')
+  assert.equal(scroller.style.overflowY, ''); assert.equal(card.style.touchAction, '')
+  a() // twice is harmless
+  b()
+  assert.equal(doc.on.length, 0)
+  const g = read('src/vue/MTileGallery.vue')
+  assert.ok(!/^const freeze = /m.test(g), 'no listener shared by every gesture')
+  assert.match(g, /let unlock = null/); assert.match(g, /unlock = holdLock\(\{ doc: document, scroller: event\.target\.closest\('\.m-gal__main'\), card: event\.target\.closest\('\.m-gal__card'\) \}\)/)
+  assert.match(g, /@click\.stop="onAdd\(\$event, e\)"/)
+})
+
+// ---- the preview is the tile: same box, same proportions, whatever the width ----
+const { columnsOf, SIZE_UNITS, UNIT_GAP, ALL_SIZE_KEYS, sizesOf, effectiveSize } = await import('../src/vue/homeSizes.js')
+const { CARD_META } = await import('../src/vue/homeCards.js')
+function galleryAt(width, windowClass) {
+  resetNotify()
+  const g = columnsOf(width, 'standard')
+  const cards = ['cpu', 'hero', 'table', 'apps'].filter((id) => CARD_META[id]).map((id) => ({ ...CARD_META[id], id, title: id, available: true }))
+  const boxIn = (c, key, u) => { const k = SIZE_UNITS[key] || SIZE_UNITS.s; return { span: Math.min(k[0], u), rows: k[1], cls: 'unit', max: Math.min(k[0], u) } }
+  const D = {
+    T: ref({}), addable: ref([]), allCards: ref(cards), blocks: ref([]), boxIn, dockBox: () => ({}), dockLayout: ref(false), edit: ref(true), grid: ref(null), gridOf: (w) => columnsOf(w, 'standard'), hasDetailOf: () => false,
+    layout: {}, planMoving: ref(false), resizing: ref(false), root: ref(null), rowPxIn: (unit) => (cls) => (cls === 'unit' ? unit : 56), shownIds: computed(() => []), sizeKeysOf: (c) => ALL_SIZE_KEYS.filter((k) => sizesOf(c.id, c, windowClass, Infinity).sizes[k]),
+    stacks: {}, tall: ref(false), units: ref(g.columns), width: ref(width), windowClass: ref(windowClass), sel: ref(''),
+  }
+  useDashEditSheet(D)
+  return { D, g, cards }
+}
+for (const [width, cls] of [[374, 'compact'], [424, 'compact'], [828, 'medium'], [1288, 'large']]) {
+  test(`${width} px: the preview of every size of every card has the proportions of the tile the overview draws (a 方形 is a square, 中 is two squares and a gap wide, 大 two squares tall), never stretched`, () => {
+    const { D, g, cards } = galleryAt(width, cls)
+    let seen = 0
+    for (const c of cards) {
+      for (const key of ALL_SIZE_KEYS.filter((k) => k !== 'strip' && sizesOf(c.id, c, cls, Infinity).sizes[k])) {
+        D.sheetSize.value = { ...D.sheetSize.value, [c.id]: key }
+        const e = D.galleryEntries.value.find((x) => x.id === c.id)
+        const shown = effectiveSize({ ...c, hasDetail: false }, key, cls, 'manual', { height: false })
+        const k = SIZE_UNITS[shown], span = Math.min(k[0], g.columns), rows = k[1]
+        assert.equal(e.w, Math.round(span * g.unit + (span - 1) * UNIT_GAP), `${c.id} ${key}: width`)
+        assert.equal(e.h, Math.round(rows * g.unit + (rows - 1) * UNIT_GAP), `${c.id} ${key}: height`)
+        assert.equal(e.card.span, span); assert.equal(e.card.rows, rows)
+        if (shown === 's') assert.equal(e.w, e.h, `${c.id}: 方形 is a square`)
+        if (shown === 'm' && g.columns >= 2) assert.equal(e.w, 2 * e.h + UNIT_GAP, `${c.id}: 中 is two squares and the gap between them`)
+        if (shown === 'l' && g.columns >= 2) assert.equal(e.h, e.w, `${c.id}: 大 is two squares each way`)
+        seen++
+      }
+    }
+    assert.ok(seen >= 4)
+  })
+}
+test('the gallery draws every preview with ONE scale on both axes, shows at least two columns, and names a size by the units the tile has', () => {
+  const g = read('src/vue/MTileGallery.vue')
+  assert.match(g, /width: `\$\{e\.w \* scaleOf\(e\)\}px`, height: `\$\{e\.h \* scaleOf\(e\)\}px`/)
+  assert.match(g, /width: `\$\{e\.w\}px`, height: `\$\{e\.h\}px`, transform: `scale\(\$\{scaleOf\(e\)\}\)`/)
+  assert.match(g, /const cols = computed\(\(\) => Math\.max\(2, /)
+  assert.ok(!/SIZE_BOX/.test(g), 'the caption does not read the 8-column box table')
+  assert.match(g, /const boxOf = \(e\) => \{ const c = e\.card; return c && \(c\.cls === 'unit' \|\| c\.cls === 'tile'\) \? `\$\{c\.span\} × \$\{c\.rows\}` : '' \}/)
+  assert.match(g, /\{\{ sizeName\(e\.sizeKey\) \}\} · \{\{ boxOf\(e\) \}\}/)
+  const css = read('src/css/gallery.css')
+  assert.match(css, /\.m-gal__card\.is-narrow \{ padding: 10px;/)
+  const dock = read('src/vue/dash/dashDock.js')
+  assert.match(dock, /st\.alignSelf = 'start'; st\.height = `\$\{p\.rows \* b\.unit \+ \(p\.rows - 1\) \* UNIT_GAP\}px`/) // edit mode's wider row gap does not stretch a tile
 })
