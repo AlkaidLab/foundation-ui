@@ -33,7 +33,7 @@
 .m-master[data-pressed] { border-radius: 28px; }
 button.m-statuspill[data-pressed] { border-radius: 16px; }
 .m-pin__key[data-pressed] { border-radius: 24px; background: color-mix(in srgb, var(--md-sys-color-primary) 22%, var(--md-sys-color-secondary-container)); transform: scale(.96); }
-.m-gal__add[data-pressed] { transform: scale(.97); }
+.m-gal__add:not(.is-added)[data-pressed] { transform: scale(.97); background: color-mix(in srgb, var(--md-sys-color-on-primary) 14%, var(--md-sys-color-primary)); }
 .m-rail__menu[data-pressed] { border-radius: 16px; }
 .m-rail__item[data-pressed] .m-rail__pill { border-radius: 12px; }
 .m-navlist__item[data-pressed]::before { opacity: var(--m-state-pressed); }

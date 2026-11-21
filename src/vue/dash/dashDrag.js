@@ -166,9 +166,9 @@ export function useDashDrag(D) {
     const pid = e.pointerId, sx = e.clientX, sy = e.clientY
     let moved = false
     const onMoveDoc = async (ev) => {
-      if (moved || Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return
+      if (ev.pointerId !== pid || moved || Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return
       moved = true
-      document.removeEventListener('pointermove', onMoveDoc)
+      document.removeEventListener('pointermove', onMoveDoc); document.removeEventListener('pointercancel', onUpDoc)
       const before = layout.snapshot()
       addCard(id)
       sheetAway.value = true // the gallery slides away: the overview is what the tile is placed on
@@ -180,8 +180,9 @@ export function useDashDrag(D) {
       docDrag(pid)
       move(ev)
     }
-    const onUpDoc = () => { document.removeEventListener('pointermove', onMoveDoc); document.removeEventListener('pointerup', onUpDoc) }
-    document.addEventListener('pointermove', onMoveDoc); document.addEventListener('pointerup', onUpDoc)
+    // the press that ends without the tile having been taken (lifted, or the browser took the finger) takes its listeners with it: a later press of another finger must not add the tile
+    const onUpDoc = (ev) => { if (ev.pointerId !== pid) return; document.removeEventListener('pointermove', onMoveDoc); document.removeEventListener('pointerup', onUpDoc); document.removeEventListener('pointercancel', onUpDoc) }
+    document.addEventListener('pointermove', onMoveDoc); document.addEventListener('pointerup', onUpDoc); document.addEventListener('pointercancel', onUpDoc)
   }
   // A drag follows its pointer on the document: reordering moves the card's element in the page, which would end a pointer capture on it
   function docDrag(pid) {

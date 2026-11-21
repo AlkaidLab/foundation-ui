@@ -74,10 +74,12 @@ export function useDashEditSheet(D) {
     pickerOpen.value = false; sheetAway.value = false
     landing.value = id; clearTimeout(landTimer); landTimer = setTimeout(() => { landing.value = '' }, 900)
     nextTick(() => { const el = grid.value?.querySelector(`[data-card="${CSS.escape(id)}"]`) || root.value?.querySelector(`[data-card="${CSS.escape(id)}"]`); el?.scrollIntoView?.({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }) })
-    notify.snack((T.value.galSnack || 'Added: {name}').replace('{name}', titleOf(id)), { action: T.value.galUndo || 'Undo', timeout: 6000, onAction: () => { layout.restore(before); say(`${titleOf(id)}: ${T.value.hide}`) } })
+    // one id: a second add replaces the message of the first instead of waiting behind it, and its 撤销 takes back the tile that was added last
+    notify.snack((T.value.galSnack || 'Added: {name}').replace('{name}', titleOf(id)), { id: 'tile-added', action: T.value.galUndo || 'Undo', timeout: 6000, onAction: () => { layout.restore(before); say(`${titleOf(id)}: ${T.value.hide}`) } })
   }
   // 添加: the tile takes the first free place of the arrangement (the packer fills the first hole it fits), the gallery slides away and the tile arrives on the spring
   function addFromGallery(id) {
+    if (sheetAway.value || shownIds.value.includes(id)) return // a second tap on the way out, or a tile that is already on the overview, adds nothing
     const before = layout.snapshot()
     addCard(id)
     sheetAway.value = true

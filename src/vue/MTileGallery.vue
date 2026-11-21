@@ -3,11 +3,13 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import MIcon from './MIcon.vue'
 import { SIZE_BOX } from './homeSizes.js'
 import { useFlip } from './flipGroup.js'
+import { createTapGuard, fingerGesture, isFinger } from './tapGuard.js'
 
 // The tile gallery (after the widget galleries of Android and iPadOS on tablets): a list of categories at the left, and at the right the tiles, each in a frame of its own, drawn LIVE at the
 // size it has on the overview (scaled down only where it is wider than the room). A tile with several sizes is paged, not switched with buttons: swipe the preview sideways, or press the arrows,
 // the page dots or the arrow keys; the preview changes size with a slide, the size's name and box are the caption, and there is ONE button: 添加, or 已添加 for a tile that is already on the overview.
 // A tile pressed and dragged out of its frame goes onto the overview (the parent takes the pointer over: `pick`); a sideways drag on the preview is the swipe, any other direction is the drag-out.
+// A finger is different: its movement on the list is the scroll, so nothing is taken out until it has rested on the card for HOLD_MS (the card lifts under it), and 添加 takes only a real tap (tapGuard.js).
 const props = defineProps({
   entries: { type: Array, required: true }, // [{ id, card, title, group, added, merged, sizeKeys, sizeKey, size, w, h }]
   groups: { type: Array, required: true }, // [{ id, title, icon, count }] (the first is 'all')
@@ -49,9 +51,30 @@ const step = (e, by) => { const i = index(e) + by; if (i < 0 || i >= e.sizeKeys.
 const goto = (e, k) => { const to = e.sizeKeys.indexOf(k); if (to < 0 || k === e.sizeKey) return; dir.value = to > index(e) ? 1 : -1; emit('size', e.id, k) }
 // the pointer on a card: on the preview a sideways drag is the swipe (the preview follows the finger, a drag of 48 px turns the page), any other drag takes the tile out; elsewhere on the card it takes it out
 const swipe = ref({ id: '', dx: 0 })
+const holdId = ref('') // the card a finger has rested on long enough to take its tile up
+const tap = createTapGuard()
+const onAdd = (e) => { if (tap.allowClick()) emit('add', e.id) }
+// a finger on a card (tapGuard.js fingerGesture): a movement of more than TAP_SLOP before the hold is a scroll (a sideways one on a preview of several sizes is the swipe) and leaves the card alone; resting for
+// HOLD_MS takes the tile up and the list stops following the finger (touchmove is cancelled), after which the parent takes the pointer over: it adds the tile only when the finger moves on
+const freeze = (t) => { if (t.cancelable) t.preventDefault() }
+function fingerDown(event, e, stage) {
+  const off = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up); document.removeEventListener('touchmove', freeze) }
+  const g = fingerGesture(event, {
+    swipeable: stage,
+    onHold: () => { holdId.value = e.id; try { navigator.vibrate?.(8) } catch { /* no haptics here */ } document.addEventListener('touchmove', freeze, { passive: false }); emit('pick', event, e.id) },
+    onSwipe: (dx) => { swipe.value = { id: e.id, dx } },
+    onTurn: (dx) => step(e, dx < 0 ? 1 : -1),
+    onEnd: (mode) => { off(); if (mode === 'swipe') swipe.value = { id: '', dx: 0 }; if (holdId.value === e.id) holdId.value = '' },
+  })
+  const move = (m) => g.move(m)
+  const up = (u) => g.up(u)
+  document.addEventListener('pointermove', move); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up)
+}
 function cardDown(event, e) {
   if (event.button > 0 || event.target.closest('button, [role=tab], [role=radio]')) return
-  if (!event.target.closest('.m-gal__stage') || e.sizeKeys.length < 2) { emit('pick', event, e.id); return }
+  const stage = !!event.target.closest('.m-gal__stage') && e.sizeKeys.length > 1
+  if (isFinger(event)) { fingerDown(event, e, stage); return }
+  if (!stage) { emit('pick', event, e.id); return }
   const sx = event.clientX, sy = event.clientY, pid = event.pointerId
   let mode = ''
   const off = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up) }
@@ -79,7 +102,7 @@ const key = (event, e) => {
 </script>
 
 <template>
-  <div class="m-gal" data-variant="slide">
+  <div class="m-gal" data-variant="slide" @scroll.capture.passive="tap.scrolled()">
     <nav class="m-gal__nav" role="tablist" aria-orientation="vertical">
       <button v-for="g in groups" :key="g.id" type="button" role="tab" class="m-gal__cat" :class="{ 'is-on': group === g.id }" :aria-selected="group === g.id" @click="emit('update:group', g.id)">
         <MIcon :name="g.icon" /><span>{{ g.title }}</span><small>{{ g.count }}</small>
@@ -87,7 +110,7 @@ const key = (event, e) => {
     </nav>
     <div ref="main" class="m-gal__main">
       <div ref="grid" class="m-gal__grid" :data-fit="fit" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, columnGap: `${GAP}px` }">
-        <article v-for="e in entries" :key="e.id" class="m-gal__card" :class="{ 'is-added': e.added }" :style="{ gridColumn: `span ${spanOf(e)}` }" :data-add="e.id" tabindex="0" role="group" :aria-roledescription="e.sizeKeys.length > 1 ? 'carousel' : undefined" :aria-label="e.title" @pointerdown="cardDown($event, e)" @keydown="key($event, e)">
+        <article v-for="e in entries" :key="e.id" class="m-gal__card" :class="{ 'is-added': e.added, 'is-holding': holdId === e.id }" :style="{ gridColumn: `span ${spanOf(e)}` }" :data-add="e.id" tabindex="0" role="group" :aria-roledescription="e.sizeKeys.length > 1 ? 'carousel' : undefined" :aria-label="e.title" @pointerdown="cardDown($event, e)" @keydown="key($event, e)">
           <div class="m-gal__stage" :style="{ height: `${Math.max(72, e.h * scaleOf(e))}px` }">
             <Transition :name="dir > 0 ? 'gal-next' : 'gal-prev'" mode="out-in">
               <div :key="e.sizeKey" class="m-gal__scaled" :class="{ 'is-swiping': swipe.id === e.id }" :style="{ '--gal-scale': scaleOf(e), width: `${e.w * scaleOf(e)}px`, height: `${e.h * scaleOf(e)}px`, transform: `translateX(${swipe.id === e.id ? swipe.dx * 0.6 : 0}px)` }" aria-hidden="true"><div class="m-gal__sized" :style="{ width: `${e.w}px`, height: `${e.h}px`, transform: `scale(${scaleOf(e)})` }"><slot name="preview" :entry="e" /></div></div>
@@ -96,7 +119,7 @@ const key = (event, e) => {
           <div v-if="e.sizeKeys.length > 1" class="m-gal__pager"><button v-if="e.sizeKeys.length > 1" type="button" class="m-gal__arrow m-gal__arrow--prev" :disabled="index(e) === 0" :aria-label="`${T.galSmaller || 'Smaller'}: ${e.title}`" :data-tip="T.galSmaller || 'Smaller'" @click.stop="step(e, -1)"><MIcon name="chevron_left" /></button><div v-if="e.sizeKeys.length > 1" class="m-gal__dots" role="tablist" :aria-label="T.size"><button v-for="k in e.sizeKeys" :key="k" type="button" role="tab" class="m-gal__dot" :class="{ 'is-on': e.sizeKey === k }" :aria-selected="e.sizeKey === k" :aria-label="sizeName(k)" @click.stop="goto(e, k)"><i /></button></div><button v-if="e.sizeKeys.length > 1" type="button" class="m-gal__arrow m-gal__arrow--next" :disabled="index(e) === e.sizeKeys.length - 1" :aria-label="`${T.galLarger || 'Larger'}: ${e.title}`" :data-tip="T.galLarger || 'Larger'" @click.stop="step(e, 1)"><MIcon name="chevron_right" /></button></div>
           <footer class="m-gal__foot">
             <div class="m-gal__title"><b>{{ e.title }}</b><span class="m-gal__cap" aria-live="polite">{{ sizeName(e.sizeKey) }} · {{ boxOfKey(e.sizeKey) }}</span></div>
-            <button type="button" class="m-gal__add" :class="{ 'is-added': e.added }" :disabled="e.added" :aria-label="`${e.added ? T.galAdded : T.galAdd}: ${e.title}`" @click.stop="emit('add', e.id)"><MIcon :name="e.added ? 'check' : 'add'" />{{ e.added ? T.galAdded : T.galAdd }}</button>
+            <button type="button" class="m-gal__add" :class="{ 'is-added': e.added }" :disabled="e.added" :aria-label="`${e.added ? T.galAdded : T.galAdd}: ${e.title}`" @pointerdown="tap.down($event)" @pointermove="tap.move($event)" @pointerup="tap.up($event)" @pointercancel="tap.cancel($event)" @click.stop="onAdd(e)"><MIcon :name="e.added ? 'check' : 'add'" />{{ e.added ? T.galAdded : T.galAdd }}</button>
           </footer>
           <div v-if="e.merged && variants.length" class="m-gal__variants" role="radiogroup" :aria-label="T.compStatus">
             <button v-for="v in variants" :key="v.id" type="button" role="radio" class="m-gal__variant" :class="{ 'is-on': v.on }" :aria-checked="v.on" @click.stop="emit('variant', v.id)">{{ v.label }}</button>
