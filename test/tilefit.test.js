@@ -329,3 +329,11 @@ test('a switch square has the anatomy of the other squares: the label row, the s
   assert.match(c, /\.m-b3sw__note\.is-dropped \{ height: 0; margin-top: -8px; visibility: hidden; \}/)
   assert.doesNotMatch(css('tilefit-real.css'), /m-b3t\[data-size='s'\]/, 'the old grid (glyph, state and a two-line name) is gone')
 })
+
+test('the target-bitrate tile keeps its note on the right of the value at 中 and draws none in a square (no letter left over)', () => {
+  const c = css('tiles-recent.css')
+  assert.match(c, /\.m-rc--live \.m-rc__mid \.m-rc__note \{ flex: 1 1 0; min-width: 0; text-align: end; white-space: nowrap; \}/)
+  assert.match(c, /\.m-rc--live \{ container-type: inline-size; \}/)
+  assert.match(c, /@container \(max-width: 240px\) \{ \.m-rc--live \.m-rc__mid \.m-rc__note \{ display: none; \} \}/)
+  assert.doesNotMatch(c, /data-scaled[^\n]*m-rc--live/, 'the phone does not get a layout of its own for this tile (the note went next to the value there)')
+})
