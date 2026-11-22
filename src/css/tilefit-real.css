@@ -130,13 +130,6 @@
 .m-b2paired.is-s .m-calo__rings:has(.is-more) li:nth-child(3) { display: none; }
 /* 内存变化 at 中: the chart takes the tile below the numeral and its caption, never more (60 % of a 148 px tile put the line of a 39 % memory through 「39 %」) */
 .m-tmem--trend.is-m { --tile-bleed: min(60%, calc(100% - 108px)); }
-/* 开关 at 方形 (添加的串流音频, 控制器, 键盘, 光标): the state sits beside the glyph, so the name (two lines in English) and the note under it stay inside the tile */
-.m-b3t[data-size='s'] { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto auto; align-content: space-between; align-items: start; column-gap: 8px; row-gap: 2px; }
-.m-b3t[data-size='s'] .m-b3a__text { display: contents; }
-.m-b3t[data-size='s'] .m-cala__glyph { grid-column: 1; grid-row: 1; }
-.m-b3t[data-size='s'] .m-b3a__state { grid-column: 2; grid-row: 1; align-self: center; justify-self: end; }
-.m-b3t[data-size='s'] .m-cala__name { grid-column: 1 / -1; grid-row: 2; align-self: end; }
-.m-b3t[data-size='s'] .m-b3a__note { grid-column: 1 / -1; grid-row: 3; }
 /* 设备 at 中 (Gamepad, Microphone, USB beside each other): three columns of 84 px hold the English names on one line and the state under them inside the tile; the names broke in the middle of the word and the state was cut */
 .m-b2dev .m-calo__tiles { gap: 6px; }
 .m-b2dev .m-calo__tiles li { padding: 10px 9px; }
