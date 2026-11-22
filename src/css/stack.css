@@ -1,9 +1,11 @@
 /* The smart stack (MDashStack): one place, one tile shown, the rest a turn away */
-.m-dstack { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; border-radius: var(--m-dash-radius, 28px); outline: 0; touch-action: pan-x; container-type: size; }
+.m-dstack { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; border-radius: var(--m-dash-radius, 28px); outline: 0; touch-action: pan-y; container-type: size; }
 .m-dstack:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
 .m-dstack__view { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
 .m-dstack__page { position: absolute; inset: 0; display: flex; will-change: transform, opacity; }
 .m-dstack__page > * { flex: 1; min-width: 0; min-height: 0; }
+/* the neighbour of a swipe: under the page being moved, one stack height above or below it (MDashStack.vue) */
+.m-dstack__peek { z-index: 0; pointer-events: none; }
 /* a turn: the spatial spring, the one leaving slides and fades up (or down), the next comes from the other side; the leaving page stays under the new one for the moment of the move only */
 .m-dstack-up-enter-active, .m-dstack-up-leave-active, .m-dstack-down-enter-active, .m-dstack-down-leave-active { transition: transform var(--m-spring-default-spatial-duration, 412ms) var(--m-spring-default-spatial, ease), opacity 200ms linear; }
 .m-dstack-up-enter-from, .m-dstack-down-leave-to { transform: translateY(32%); opacity: 0; }
@@ -60,8 +62,9 @@ html[data-motion='reduced'] .m-dstack-up-enter-from, html[data-motion='reduced']
 .m-stacksheet__row.is-drag { background: var(--md-sys-color-secondary-container); transform: scale(1.02); box-shadow: 0 6px 18px color-mix(in srgb, var(--md-sys-color-shadow) 24%, transparent); z-index: 1; }
 .m-stacksheet__row.is-out { opacity: .55; transform: scale(.96); }
 .m-stacksheet__row.is-over { box-shadow: inset 0 0 0 2px var(--md-sys-color-primary); }
-.m-stacksheet__handle, .m-stacksheet__remove { all: unset; box-sizing: border-box; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; cursor: grab; color: var(--md-sys-color-on-surface-variant); touch-action: none; }
-.m-stacksheet__remove { cursor: pointer; color: var(--md-sys-color-error); touch-action: auto; }
+.m-stacksheet__list .m-stacksheet__handle, .m-stacksheet__list .m-stacksheet__remove { all: unset; box-sizing: border-box; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; cursor: grab; color: var(--md-sys-color-on-surface-variant); touch-action: none; }
+.m-stacksheet__list .m-stacksheet__remove { cursor: pointer; color: var(--md-sys-color-error); touch-action: manipulation; }
+/* the handle's own touch-action (none: the row follows the finger, the sheet does not scroll under it) must beat the global `touch-action: manipulation` of every button (touch.css, specificity of a[href] in its :is list), so it is written with the list in front of it */
 .m-stacksheet__handle:focus-visible, .m-stacksheet__remove:focus-visible { outline: 2px solid var(--md-sys-color-primary); }
 .m-stacksheet__name { flex: 1; min-width: 0; font: var(--m-title-small); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .m-stacksheet__pick { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow-y: auto; }
@@ -78,7 +81,12 @@ html[data-motion='reduced'] .m-dstack-up-enter-from, html[data-motion='reduced']
 /* the words stand in a pill in the middle: the tile under them has text of its own at the foot */
 .m-dash__cell.is-merge-target::before { pointer-events: none; z-index: 4; content: attr(data-merge-label); position: absolute; left: 50%; top: 50%; translate: -50% -50%; max-width: calc(100% - 24px); padding: 8px 16px; border-radius: 999px; white-space: nowrap; background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font: var(--m-title-small-emphasized, 600 14px/20px var(--md-ref-typeface-brand)); }
 .m-dash__cell.is-merge-target > .m-dash__body { transform: scale(1.03); transition: transform var(--m-spring-fast-spatial-duration, 300ms) var(--m-spring-fast-spatial, ease); }
-.m-dash__stackbtn { position: absolute; z-index: 5; left: 50%; bottom: 8px; translate: -50% 0; height: 32px; padding: 0 14px; border: 0; border-radius: 16px; cursor: pointer; font: var(--m-label-large); background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); box-shadow: 0 1px 6px color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent); }
+.m-dash__stackbtn { position: absolute; z-index: 5; right: 8px; top: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; min-width: 36px; max-width: calc(100% - 16px); padding: 0 14px 0 10px; border: 0; border-radius: 18px; cursor: pointer; font: var(--m-label-large); white-space: nowrap; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); box-shadow: 0 1px 6px color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent); }
+.m-dash__stackbtn .m-icon { font-size: 18px; }
+.m-dash__stackbtn-t { overflow: hidden; text-overflow: ellipsis; }
+/* a small tile has no room for words beside the icon: the button is the icon alone (its name is the aria-label) and stays out of the tile's text at the top-right corner */
+.m-dash__cell[data-size='s'] .m-dash__stackbtn { padding: 0; width: 36px; }
+.m-dash__cell[data-size='s'] .m-dash__stackbtn-t { display: none; }
 .m-joinlist { padding: 4px 0 16px; }
 .m-joinlist button { background: var(--md-sys-color-surface-container-lowest); box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant); border-radius: 16px; min-height: 52px; }
 .m-joinlist__none { padding: 12px 8px; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-medium); }

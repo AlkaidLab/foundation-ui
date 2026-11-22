@@ -1,5 +1,6 @@
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { liftOffset } from '../dragLift.js'
+import { createSwapGate } from '../dragSwap.js'
 import { UNIT_GAP, effectiveSize } from '../homeSizes.js'
 import { isStackId } from '../stackModel.js'
 
@@ -20,14 +21,43 @@ export function useDashDrag(D) {
   const LIFT_MS = 320
   const onTouchMove = (ev) => { if (drag.value?.touch && drag.value.lifted && ev.cancelable) ev.preventDefault() }
   onMounted(() => document.addEventListener('touchmove', onTouchMove, { passive: false }))
-  onBeforeUnmount(() => document.removeEventListener('touchmove', onTouchMove))
-  const dragVars = (id) => (drag.value?.id === id ? { '--dx': `${drag.value.dx}px`, '--dy': `${drag.value.dy}px` } : undefined)
+  onBeforeUnmount(() => { document.removeEventListener('touchmove', onTouchMove); stopLoop() })
+  // The lift (--dx, --dy: the carried card's body from its slot to the pointer) is written on the cell's element by `lift`, not through the template: a pointer move would re-render the whole overview
+  // for two numbers, and the slot moves under the card on every swap, so the offset is read again each frame (a lift worked out once from the slot of the moment was a card in the wrong place
+  // for as long as the slot was moving: the gallery sliding away, the cards reflowing).
+  const dragVars = () => undefined
+  const gate = createSwapGate()
+  let pending = false // the pointer moved since the last frame
+  let frameId = 0
+  const cellOf = (id) => root.value?.querySelector(`[data-card="${CSS.escape(id)}"]`)
+  function lift() {
+    const d = drag.value
+    if (!d || !d.moved) return
+    const cell = cellOf(d.id)
+    if (!cell) return
+    // a cell that is being scaled (a tile that arrives grows into its slot) scales the translation of its body with it: the offset is given in the cell's own pixels
+    const slot = cell.getBoundingClientRect()
+    const k = cell.offsetWidth > 0 && slot.width > 0 ? slot.width / cell.offsetWidth : 1
+    const off = liftOffset(lastX, lastY, { x: d.gx, y: d.gy }, slot)
+    cell.style.setProperty('--dx', `${off.dx / k}px`); cell.style.setProperty('--dy', `${off.dy / k}px`)
+  }
+  const unlift = (id) => nextTick(() => { const cell = cellOf(id); if (cell && drag.value?.id !== id) { cell.style.removeProperty('--dx'); cell.style.removeProperty('--dy') } })
+  // one look at the cards per frame (the pointer events of a finger come faster than the frames), and the lift read again in every frame
+  function loop() {
+    frameId = 0
+    if (!drag.value) return
+    if (pending) { pending = false; track(lastX, lastY) } else lift()
+    frameId = requestAnimationFrame(loop)
+  }
+  const startLoop = () => { if (!frameId) frameId = requestAnimationFrame(loop) }
+  const stopLoop = () => { pending = false; if (frameId) cancelAnimationFrame(frameId); frameId = 0 }
   function down(e, id) {
     if (!edit.value || e.button > 0 || e.target.closest('.m-dash__remove, .m-dash__sizes, .m-dash__handle')) return
     const cell = e.currentTarget
     const r = cell.getBoundingClientRect()
     const touch = e.pointerType === 'touch'
-    drag.value = { id, gx: e.clientX - r.left, gy: e.clientY - r.top, dx: 0, dy: 0, pid: e.pointerId, over: false, sx: e.clientX, sy: e.clientY, moved: false, touch, lifted: !touch }
+    drag.value = { id, gx: e.clientX - r.left, gy: e.clientY - r.top, pid: e.pointerId, over: false, sx: e.clientX, sy: e.clientY, moved: false, touch, lifted: !touch }
+    gate.reset(); scrollEl = undefined
     docDrag(e.pointerId)
     // a long press selects the card at once, a tap selects it on release
     clearTimeout(pressTimer)
@@ -51,14 +81,12 @@ export function useDashDrag(D) {
       clearTimeout(pressTimer)
       say(`${titleOf(d.id)}: ${T.value.picked || 'picked up'}`)
     }
-    const cell = root.value.querySelector(`[data-card="${CSS.escape(d.id)}"]`)
+    const cell = cellOf(d.id)
     if (!cell) return
-    // the slot of the card is where it would be without the lift (the cells are in one grid, or in the grids of several sections)
-    const cr = cell.getBoundingClientRect()
-    // the lift is a translation of the card's body: the cell stays in its slot, so the offset is the pointer less the grab point less the slot
-    const off = liftOffset(x, y, { x: d.gx, y: d.gy }, cr); d.dx = off.dx; d.dy = off.dy
+    // the lift is a translation of the card's body: the cell stays in its slot (the cells are in one grid, or in the grids of several sections), so the offset is the pointer less the grab point less the slot
+    lift()
     d.over = !d.fromGallery && inside(sheetEl.value, x, y) // a tile that came out of the gallery is never dropped back on it
-    if (d.over) return
+    if (d.over) { gate.over(''); return } // over the gallery the pointer is in no card's middle: the card swapped last is let go
     // behind the flag: the centre of a tile of the same size, held for a moment, is a stack; while over it the cards do not shuffle
     if (stacksOn && !d.fromGallery && !isStackId(d.id)) {
       d.size = cell.dataset.size
@@ -69,6 +97,7 @@ export function useDashDrag(D) {
         if (x >= r.left + mx && x <= r.right - mx && y >= r.top + my && y <= r.bottom - my && mergeable(d.id, id)) { cand = id; break }
       }
       if (cand) {
+        gate.over(cand) // the middle of a card to join is inside its swap zone
         if (d.mergeCand !== cand) { clearMerge(); d.mergeCand = cand; D.mergeTimer = setTimeout(() => { if (drag.value && drag.value.mergeCand === cand) drag.value.merge = cand }, MERGE_HOLD_MS) }
         return
       }
@@ -76,6 +105,7 @@ export function useDashDrag(D) {
     }
     // the card whose middle part is under the pointer takes the dragged card's place
     let inZone = false
+    let under = ''
     for (const other of root.value.querySelectorAll('[data-card]:not(.is-ghost)')) {
       const id = other.dataset.card
       if (id === d.id) continue
@@ -83,28 +113,40 @@ export function useDashDrag(D) {
       const mx = r.width * 0.2, my = r.height * 0.2
       if (x >= r.left + mx && x <= r.right - mx && y >= r.top + my && y <= r.bottom - my) {
         inZone = true
-        const take = () => { layout.moveTo(laid(d.id), laid(id)); if (sectioned.value) layout.setSection(laid(d.id), Number(other.dataset.section) || 0) }
+        under = id
+        if (!gate.allow(id, x, y)) break // the swap just made is not undone by the reflow it caused (dragSwap.js)
+        // the slot moves with the swap: the lift is read again as soon as the cells are in their new places, before the next frame is drawn
+        const take = () => { layout.moveTo(laid(d.id), laid(id)); if (sectioned.value) layout.setSection(laid(d.id), Number(other.dataset.section) || 0); gate.took(id, lastX, lastY); nextTick(lift) }
         // a tile of the same size can be joined as well as passed: on the way to its middle the places are not swapped at once, the pointer is given a moment to arrive (and rest there)
         if (stacksOn && !d.fromGallery && !isStackId(d.id) && other.dataset.size === d.size && mergeable(d.id, id)) {
           if (d.swapCand !== id) { clearSwap(); d.swapCand = id; D.swapTimer = setTimeout(() => { const ok = drag.value && drag.value.swapCand === id && !drag.value.mergeCand; clearSwap(); if (ok) take() }, SWAP_DWELL_MS) }
           break
         }
+        clearSwap() // a swap that was waiting for another card's middle is not made later, over this one
         take(); break
       }
     }
+    gate.over(under)
     if (!inZone && d.swapCand) clearSwap()
   }
   function move(e) {
     const d = drag.value
     if (!d || e.pointerId !== d.pid) return
-    track(e.clientX, e.clientY)
+    lastX = e.clientX; lastY = e.clientY
+    // before the card is picked up the move is judged at once (a finger that moves first is a scroll); once it is carried the moves are taken one look per frame
+    if (!d.moved) track(lastX, lastY)
+    else { pending = true; startLoop() }
+    if (drag.value?.moved) startLoop()
     scrollNear(e.clientY)
   }
   function up(e) {
     const d = drag.value
     if (!d || e.pointerId !== d.pid) return
     clearTimeout(D.swapTimer); D.swapTimer = 0
+    // the lift and the places of the last pointer move are made before the card is let go (the next frame, where they were to be made, does not come)
+    if (d.moved && pending && e.type === 'pointerup') { lastX = e.clientX; lastY = e.clientY; track(lastX, lastY) }
     drag.value = null
+    stopLoop(); unlift(d.id)
     clearTimeout(pressTimer)
     stopScroll()
     if (!d.moved) { sel.value = sel.value === d.id ? '' : d.id; if (sel.value) say(`${titleOf(d.id)}: ${T.value.selected || 'selected, choose a size'}`); return }
@@ -150,7 +192,9 @@ export function useDashDrag(D) {
   // ---- the page scrolls while a card is held near its top or bottom edge ----
   let scrollRaf = 0
   let scrollDir = 0
-  const scroller = () => { for (let el = grid.value?.parentElement; el; el = el.parentElement) { const o = getComputedStyle(el).overflowY; if ((o === 'auto' || o === 'scroll') && el.scrollHeight > el.clientHeight) return el } return null }
+  // found once per drag: walking the ancestors with getComputedStyle on every pointer move made each move force a style recalculation
+  let scrollEl
+  const scroller = () => { if (scrollEl !== undefined) return scrollEl; scrollEl = null; for (let el = grid.value?.parentElement; el; el = el.parentElement) { const o = getComputedStyle(el).overflowY; if ((o === 'auto' || o === 'scroll') && el.scrollHeight > el.clientHeight) { scrollEl = el; break } } return scrollEl }
   function scrollNear(y) {
     const el = scroller()
     if (!el) return
@@ -176,7 +220,10 @@ export function useDashDrag(D) {
       const cell = grid.value?.querySelector(`[data-card="${CSS.escape(id)}"]`)
       if (!cell) return
       const r = cell.getBoundingClientRect()
-      drag.value = { id, gx: r.width / 2, gy: Math.min(40, r.height / 2), dx: 0, dy: 0, pid, over: false, sx: sx, sy: sy, moved: true, fromGallery: true, before }
+      drag.value = { id, gx: r.width / 2, gy: Math.min(40, r.height / 2), pid, over: false, sx: sx, sy: sy, moved: true, fromGallery: true, before }
+      gate.reset(); scrollEl = undefined
+      lastX = ev.clientX; lastY = ev.clientY
+      lift() // before the card is drawn as the one that is carried: it is never seen in its slot
       docDrag(pid)
       move(ev)
     }
@@ -191,7 +238,7 @@ export function useDashDrag(D) {
       if (ev.pointerId !== pid) return
       document.removeEventListener('pointermove', m); document.removeEventListener('pointerup', u); document.removeEventListener('pointercancel', u)
       // the browser took the finger over (the page scrolls): not a tap, nothing is selected; a tile that was being carried is dropped where it is
-      if (ev.type === 'pointercancel' && drag.value && !drag.value.moved) { clearTimeout(pressTimer); clearTimeout(D.swapTimer); D.swapTimer = 0; drag.value = null; stopScroll(); return }
+      if (ev.type === 'pointercancel' && drag.value && !drag.value.moved) { clearTimeout(pressTimer); clearTimeout(D.swapTimer); D.swapTimer = 0; drag.value = null; stopLoop(); stopScroll(); return }
       up(ev)
     }
     document.addEventListener('pointermove', m); document.addEventListener('pointerup', u); document.addEventListener('pointercancel', u)

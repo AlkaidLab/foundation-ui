@@ -8,13 +8,16 @@ import { readDash } from './dashSource.js'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8')
 
-test('the stack is a group a person can turn: swipe, wheel after a rest, the dots, keys; only the member shown is drawn', () => {
+test('the stack is a group a person can turn: swipe, wheel, the dots, keys; only the member shown is drawn (and the neighbour of a swipe while it is moving)', () => {
   const v = read('src/vue/MDashStack.vue')
   assert.match(v, /role="group" aria-roledescription="轮换组" :aria-label="label"/)
   assert.match(v, /<MDashCardView v-else-if="shown" :card="shown"/, 'one member is drawn (the one leaving only for the moment of the move)')
-  assert.match(v, /performance\.now\(\) - enteredAt < 350/, 'the wheel turns it only after the pointer rested on it')
-  assert.match(v, /Math\.abs\(dy\) > 40/); assert.match(v, /\['ArrowDown', 'PageDown'\]|e\.key === 'ArrowDown'/)
-  assert.match(v, /<Transition :name="fade \? 'm-dstack-fade' : dir > 0 \? 'm-dstack-up' : 'm-dstack-down'">/)
+  assert.match(v, /createWheelGesture\(\)/, 'the wheel steps once per gesture and never takes the page\'s own scroll (stackGesture.js)')
+  assert.match(v, /swipeIntent\(dx, dy, \{ canTurn, pageCanScroll, touch \}\)/, 'the first movement of a finger decides who has it')
+  assert.match(v, /@touchmove="touchMove"/); assert.match(v, /lock === 'swipe' && e\.cancelable\) e\.preventDefault\(\)/, 'the page is stopped only for a finger the stack has')
+  assert.match(v, /e\.key === 'ArrowDown'/)
+  assert.match(v, /commit\(pos\.value === from \? verdict : 0\)/, 'a member chosen while a swipe settles stands')
+  assert.match(v, /<Transition :name="skipAnim \? 'm-dstack-none' : fade \? 'm-dstack-fade' : dir > 0 \? 'm-dstack-up' : 'm-dstack-down'">/)
   assert.doesNotMatch(v, /aria-live="assertive"/)
   // a turn by hand is told in the page's polite live region (one region for the page), a turn by the host is not
   const d = readDash()
@@ -26,7 +29,7 @@ test('the motion is the spatial spring, a vertical shared axis; reduced motion i
   const css = read('src/css/stack.css')
   assert.match(css, /transition: transform var\(--m-spring-default-spatial-duration, 412ms\) var\(--m-spring-default-spatial, ease\), opacity 200ms linear/)
   assert.match(css, /prefers-reduced-motion: reduce/); assert.match(css, /html\[data-motion='reduced'\]/)
-  assert.match(css, /touch-action: pan-x/, 'a vertical swipe on the stack is the stack\'s, not the page\'s')
+  assert.match(css, /touch-action: pan-y; container-type: size/, 'the page keeps its vertical scroll until the stack has taken the finger on its first movement (a cancelled touchmove)')
   assert.match(read('src/css/all.css'), /@import '\.\/stack\.css'/)
 })
 

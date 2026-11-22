@@ -312,7 +312,7 @@ html[data-motion='reduced'] .m-dedit { animation: none; } html[data-motion='redu
 .is-edit .m-dash__cell.is-settling { z-index: 30; }
 .is-edit .m-dash__cell.is-selected { z-index: 8; }
 .is-edit .m-dash__body { position: relative; z-index: 1; transform: scale(.975); translate: 0 0; transition: translate var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial), transform 300ms var(--m-spring-fast-spatial), filter 240ms linear, opacity 160ms linear; }
-.is-edit .m-dash__cell.is-dragging .m-dash__body { translate: var(--dx) var(--dy); transform: scale(1.04); transition: transform 200ms var(--m-spring-fast-spatial), filter 200ms linear, opacity 160ms linear; filter: brightness(1.1) drop-shadow(0 16px 28px color-mix(in srgb, var(--md-sys-color-shadow) 38%, transparent)); }
+.is-edit .m-dash__cell.is-dragging .m-dash__body { translate: var(--dx) var(--dy); transform: scale(1.04); will-change: translate, transform; transition: transform 200ms var(--m-spring-fast-spatial), filter 200ms linear, opacity 160ms linear; filter: brightness(1.1) drop-shadow(0 16px 28px color-mix(in srgb, var(--md-sys-color-shadow) 38%, transparent)); }
 .is-edit .m-dash__cell.is-dragging.is-over-sheet .m-dash__body { transform: scale(.88); opacity: .75; }
 .m-dash__ph { position: absolute; inset: 0; border-radius: var(--m-dash-radius); border: 2px dashed color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent); background: color-mix(in srgb, var(--md-sys-color-primary) 9%, transparent); opacity: 0; transition: opacity 160ms linear; pointer-events: none; }
 .is-edit .m-dash__cell.is-dragging .m-dash__ph { opacity: 1; }
