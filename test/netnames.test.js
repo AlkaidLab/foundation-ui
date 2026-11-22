@@ -19,7 +19,7 @@ test('the tile writes the address whole: its own item in a row, one nowrap line 
   assert.match(v, /<span v-if="o\.ip" class="m-tnet__subip m-dnum">\{\{ o\.ip \}\}<\/span>/)
   assert.match(v, /<MTrimWords :text="p\.label \|\| p\.name" \/>/)
   assert.match(css, /\.m-tnet__subip \{ flex: none; white-space: nowrap; \}/)
-  assert.match(css, /:is\(\.m-dash__cell, \.m-dock__cell\) \.m-tnet__ip, :is\(\.m-dash__cell, \.m-dock__cell\) \.m-tnet__ip\[data-fit-wrap\] \{ white-space: nowrap !important; overflow-wrap: normal; \}/)
+  assert.match(css, /:is\(\.m-dash__cell, \.m-dock__cell\) \.m-tnet__ip, :is\(\.m-dash__cell, \.m-dock__cell\) \.m-tnet__ip\[data-fit-wrap\], :is\(\.m-dash__cell, \.m-dock__cell\) \.m-tile\.m-tnet \.m-tnet__ip\.m-dnum\[data-fit-wrap\] \{ white-space: nowrap !important; overflow-wrap: normal !important; \}/)
   const w = read('../src/vue/MTrimWords.vue')
   assert.match(w, /words\.slice\(0, n\)\.join\(props\.sep\)\}…/)
 })

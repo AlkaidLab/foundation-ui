@@ -363,3 +363,12 @@ test('the quick-actions strip never cuts a button: a row that does not fit share
   assert.match(c, /\.m-calq\.is-tight \.m-calq__row \{ display: flex; overflow: visible;[^}]*mask-image: none;/)
   assert.match(c, /\.m-calq\.is-icons \.m-calq__lab \{ display: none; \}/); assert.match(c, /\.m-calq\.is-compact \.m-calq__title \{ display: none; \}/)
 })
+
+test('review fixes: the line mask exists for a line with a fade, the quick tile follows a change between square and strip, the address rule outranks the fit rule, the two-row star card keeps its width limit', () => {
+  const chart = fs.readFileSync(new URL('../src/vue/MTileChart.vue', import.meta.url), 'utf8'), q = fs.readFileSync(new URL('../src/vue/tiles/cal/CalQuick.vue', import.meta.url), 'utf8')
+  assert.match(chart, /<defs v-if="kind === 'area' \|\| fadeStops">/); assert.match(chart, /<linearGradient v-if="kind === 'area'" :id="gid"/)
+  assert.match(q, /watch\(square, \(\) => \{ ro\?\.disconnect\(\); ro2\?\.disconnect\(\);/)
+  assert.match(css('tiles-metrics.css'), /\.m-tile\.m-tnet \.m-tnet__ip\.m-dnum\[data-fit-wrap\] \{ white-space: nowrap !important; overflow-wrap: normal !important; \}/)
+  assert.match(css('connect.css'), /\.m-sprompt--star\.is-two \.m-sprompt__btns \{[^}]*min-width: 0; max-width: 100%;/)
+  assert.doesNotMatch(css('tiles-cal.css'), /\.m-calm\.is-s \{ --tile-bleed: 33%; \}/)
+})

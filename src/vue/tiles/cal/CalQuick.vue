@@ -29,6 +29,12 @@ const measureStrip = () => {
 }
 onMounted(() => { if (typeof ResizeObserver !== 'undefined' && stripRoot.value) { ro2 = new ResizeObserver(measureStrip); ro2.observe(stripRoot.value) } measureStrip(); if (typeof document !== 'undefined') document.fonts?.ready?.then(measureStrip) })
 watch(() => (d.value.items || []).map((i) => i.label).join('|'), measureStrip)
+// the same card can change between the square and the strip without the component being made again: the branch drawn now is measured and observed, the other one's state is let go
+watch(square, () => { ro?.disconnect(); ro2?.disconnect(); ro = ro2 = null; icons.value = false; stage.value = 0
+  nextTick(() => {
+    if (typeof ResizeObserver !== 'undefined') { if (square.value && sqRoot.value) { ro = new ResizeObserver(measure); ro.observe(sqRoot.value) } else if (!square.value && stripRoot.value) { ro2 = new ResizeObserver(measureStrip); ro2.observe(stripRoot.value) } }
+    square.value ? measure() : measureStrip()
+  }) }, { flush: 'post' })
 onBeforeUnmount(() => { ro?.disconnect(); ro2?.disconnect() })
 function onKey(e) {
   const n = props.card.data?.items?.length || 0; if (!n) return

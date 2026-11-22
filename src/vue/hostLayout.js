@@ -7,6 +7,8 @@ import { onScopeDispose, watch } from 'vue'
 
 export const HOST_LAYOUT_PATH = '/api/ui/home-layout'
 export const HOST_LAYOUT_VERSION = 1
+/** `load()` answers this when the host has no document yet (204); null is "could not read it" (an error, a bad document): nothing is written over it. */
+export const NONE = Object.freeze({ none: true })
 
 /**
  * The store over a request function of the product: `request(path, init)` answers like fetch (the panel's hostFetch, the Web UI's apiFetch). A host without the route (404, 405, 501) is
@@ -22,7 +24,8 @@ export function createHostLayoutStore({ request, path = HOST_LAYOUT_PATH }) {
       try {
         const r = await request(path, { method: 'GET' })
         if (gone(r.status)) { supported = false; return null }
-        if (!r.ok || r.status === 204) return null
+        if (r.status === 204) return NONE
+        if (!r.ok) return null
         const d = await r.json()
         return d && d.v === HOST_LAYOUT_VERSION && d.layout && typeof d.layout === 'object' && Number.isFinite(d.at) ? d : null
       } catch { return null }
@@ -46,7 +49,9 @@ export function createHostLayoutStore({ request, path = HOST_LAYOUT_PATH }) {
 export function attachHostLayout({ layout, stacks = null, store, storageKey, storage = globalThis.localStorage, saveAfterMs = 700, pollMs = 30000 }) {
   const atKey = `foundation-ui.dash2.${storageKey}.at`
   const localAt = () => { try { return Number(storage?.getItem(atKey)) || 0 } catch { return 0 } }
-  const stamp = (t) => { try { storage?.setItem(atKey, String(t)) } catch { /* storage unavailable */ } }
+  // `shown` is the time of the change this page's memory reflects: another tab of the same host stamps the shared key, which says nothing about what THIS page shows
+  let shown = localAt()
+  const stamp = (t) => { shown = t; try { storage?.setItem(atKey, String(t)) } catch { /* storage unavailable */ } }
   const document_ = () => ({ v: HOST_LAYOUT_VERSION, at: localAt(), layout: layout.serialize(), ...(stacks ? { stacks: stacks.serialize() } : {}) })
   let applying = false
   let timer = 0
@@ -62,18 +67,19 @@ export function attachHostLayout({ layout, stacks = null, store, storageKey, sto
     try {
       const remote = await store.load()
       if (!store.supported) return
-      if (!remote) { if (localAt() || !layout.isDefault.value) { if (!localAt()) stamp(Date.now()); await push() } return }
-      if (remote.at > localAt()) {
+      if (!remote) return // not read: unknown, not empty; the next round asks again
+      if (remote.none) { if (localAt() || !layout.isDefault.value) { if (!localAt()) stamp(Date.now()); await push() } return }
+      if (remote.at > shown) {
         applying = true
         try { layout.apply(remote.layout); if (stacks && remote.stacks) stacks.apply(remote.stacks); stamp(remote.at) } finally { applying = false }
-      } else if (remote.at < localAt()) await push()
+      } else if (remote.at < shown) await push()
     } finally { busy = false }
   }
   sync()
   const poll = pollMs > 0 ? setInterval(sync, pollMs) : 0
   const onVisible = () => { if (globalThis.document?.visibilityState === 'visible') sync(); else flush() }
   globalThis.document?.addEventListener?.('visibilitychange', onVisible)
-  const off = () => { stop(); clearTimeout(timer); if (poll) clearInterval(poll); globalThis.document?.removeEventListener?.('visibilitychange', onVisible) }
+  const off = () => { stop(); if (timer) { clearTimeout(timer); push() } else clearTimeout(timer); if (poll) clearInterval(poll); globalThis.document?.removeEventListener?.('visibilitychange', onVisible) }
   try { onScopeDispose(off) } catch { /* not in a scope */ }
   return { off, sync, flush }
 }

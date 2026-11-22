@@ -48,3 +48,24 @@ test('the later change wins at the start, and a device that never changed anythi
   await settle(late)
   assert.equal(host.doc.layout.sizes.hero, 's', 'the newer one went to the host')
 })
+
+test('a host that could not be read is not a host without a document: nothing is written over it; 204 is the empty one', async () => {
+  const { NONE } = await import('../src/vue/hostLayout.js')
+  assert.equal(await createHostLayoutStore({ request: async () => respond(204) }).load(), NONE)
+  assert.equal(await createHostLayoutStore({ request: async () => respond(500) }).load(), null)
+  let puts = 0
+  const storage = memory(); storage.setItem('foundation-ui.dash2.k.at', '100')
+  const layout = useDashLayout('k', storage)
+  const sync = attachHostLayout({ layout, store: { supported: true, load: async () => null, save: async () => { puts++; return true } }, storageKey: 'k', storage, saveAfterMs: 0, pollMs: 0 })
+  await sync.sync(); assert.equal(puts, 0, 'a read that failed does not upload')
+  sync.off()
+})
+test('a change that waits for its rest is written when the page is left', async () => {
+  let puts = 0
+  const storage = memory(); const layout = useDashLayout('k2', storage)
+  const sync = attachHostLayout({ layout, store: { supported: true, load: async () => null, save: async () => { puts++; return true } }, storageKey: 'k2', storage, saveAfterMs: 60000, pollMs: 0 })
+  layout.setSize('hero', 'l')
+  assert.equal(puts, 0, 'it waits for its rest')
+  sync.off(); await new Promise((r) => setTimeout(r, 5))
+  assert.equal(puts, 1, 'leaving the page writes it')
+})

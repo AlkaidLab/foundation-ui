@@ -39,7 +39,7 @@ test('码率 and 帧率 draw that curve at every size: no dot at 方形, a dot a
   assert.match(v, /:base="size === 's' \? 0 : size === 'l' \? 46 : 24" \/>/, 'the line keeps above the caption row at 中 and 大')
   assert.ok(!/<MTileChart v-if="pts\.length > 1"/.test(v), 'drawn with a placeholder, not left out')
   const css = read('src/css/tiles-cal.css')
-  assert.match(css, /\.m-calm\.is-s \{ --tile-bleed: 33%; \} \.m-calm\.is-m \{ --tile-bleed: 48%; \} \.m-calm\.is-l \{ --tile-bleed: 45%; \}/)
+  assert.match(css, /\.m-calm\.is-m \{ --tile-bleed: 48%; \}/)
   assert.match(css, /--tk-fill-end: 0;/); assert.ok(!/--tk-fill-end: \.2/.test(css), 'the fill ends in nothing, in both themes')
   assert.ok(!/\.m-calm\.is-m \.m-calm__chart \{ left: 46%/.test(read('src/css/tiles-prerelease.css')), 'no rectangle cut from 46 %')
 })

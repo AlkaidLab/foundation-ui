@@ -197,7 +197,8 @@ html[data-motion='reduced'] .m-pairprompt-enter-active, html[data-motion='reduce
 .m-sprompt--star.is-bare .m-sprompt__later--icon { margin-inline-start: auto; }
 .m-sprompt--star.is-two { flex-wrap: wrap; row-gap: 8px; }
 .m-sprompt--star.is-two .m-sprompt__ico { order: 0; } .m-sprompt--star.is-two .m-sprompt__text { order: 1; } .m-sprompt--star.is-two .m-sprompt__later { order: 2; margin-inline-start: auto; }
-.m-sprompt--star.is-two .m-sprompt__btns { order: 3; flex: 1 1 100%; flex-wrap: wrap; }
+.m-sprompt--star.is-two .m-sprompt__btns { order: 3; flex: 1 1 100%; min-width: 0; max-width: 100%; flex-wrap: wrap; }
+.m-sprompt--star.is-two .m-sprompt__btn { max-width: 100%; min-width: 0; height: auto; min-height: 36px; white-space: normal; text-align: center; }
 @container (max-width: 900px) {
   .m-sprompt--star { gap: 10px; padding: 8px 8px 8px 12px; border-radius: 20px; }
   .m-sprompt--star .m-sprompt__ico { width: 32px; height: 32px; } .m-sprompt--star .m-sprompt__ico .m-icon { font-size: 20px; }

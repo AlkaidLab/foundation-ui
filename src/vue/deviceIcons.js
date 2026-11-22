@@ -20,10 +20,10 @@ export const NEUTRAL_DEVICE_ICON = 'devices'
 /** The kind of a device ('phone' | 'tablet' | 'computer' | 'mac' | 'handheld' | 'tv' | 'vr') from its reported system and its name; '' when neither says. */
 export function deviceKindFor(name, os = '') {
   const text = String(name ?? '')
-  const byName = DEVICE_RULES.find((rule) => rule.pattern.test(text))?.kind || ''
   const system = String(os ?? '').toLowerCase()
-  if (!OS_DEFAULT[system]) return byName
-  return OS_KINDS[system].includes(byName) ? byName : OS_DEFAULT[system]
+  if (!OS_DEFAULT[system]) return DEVICE_RULES.find((rule) => rule.pattern.test(text))?.kind || ''
+  // the first match of the name among the kinds the system has (an iPad named 客厅 iPad is a tablet, not the television the name also says)
+  return DEVICE_RULES.find((rule) => OS_KINDS[system].includes(rule.kind) && rule.pattern.test(text))?.kind || OS_DEFAULT[system]
 }
 
 export function deviceIconFor(name, os = '') {

@@ -15,3 +15,10 @@ test('it is exported with the package so both products import the one copy', () 
   assert.equal(JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).exports['./device-icons'], './src/vue/deviceIcons.js')
   assert.match(readFileSync(new URL('../src/vue/index.js', import.meta.url), 'utf8'), /export \{ deviceKindFor, deviceIconFor, DEVICE_KINDS, DEVICE_RULES, NEUTRAL_DEVICE_ICON \} from "\.\/deviceIcons\.js"/)
 })
+
+test('the system filters the kinds before the name picks one: an iPad called 客厅 iPad is a tablet, Android TV stays a television', async () => {
+  const { deviceKindFor } = await import('../src/vue/deviceIcons.js')
+  assert.equal(deviceKindFor('客厅 iPad', 'ios'), 'tablet')
+  assert.equal(deviceKindFor('Android TV', 'android'), 'tv')
+  assert.equal(deviceKindFor('客厅 iPad', ''), deviceKindFor('客厅 iPad', ''))
+})

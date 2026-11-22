@@ -128,17 +128,19 @@ const targetY = computed(() => (props.target != null && box.value.h ? yOf(props.
   <div ref="root" class="m-tchart" :class="`m-tchart--${kind}`" aria-hidden="true">
     <svg v-if="enough && (gridYs.length || targetY)" class="m-tchart__grid" :width="box.w" :height="box.h"><line v-for="y in gridYs" :key="y" x1="0" :x2="box.w" :y1="y" :y2="y" /><line v-if="targetY" class="m-tchart__target" x1="0" :x2="box.w" :y1="targetY" :y2="targetY" /></svg>
     <svg v-if="box.w && enough" ref="svg" class="m-tchart__svg" :width="svgW" :height="box.h" :viewBox="`0 0 ${svgW} ${box.h}`" :style="{ transform: rest }">
-      <defs v-if="kind === 'area'">
-        <linearGradient :id="gid" gradientUnits="userSpaceOnUse" x1="0" :y1="fillTop" x2="0" :y2="box.h">
+      <defs v-if="kind === 'area' || fadeStops">
+        <linearGradient v-if="kind === 'area'" :id="gid" gradientUnits="userSpaceOnUse" x1="0" :y1="fillTop" x2="0" :y2="box.h">
           <stop offset="0" class="m-tchart__stop0" />
           <stop offset="0.6" class="m-tchart__stop1" />
           <stop offset="1" class="m-tchart__stop2" />
         </linearGradient>
         <template v-if="fadeStops">
-          <linearGradient :id="`${gid}-f`" gradientUnits="userSpaceOnUse" x1="0" y1="0" :x2="fadeStops[2]" y2="0">
-            <stop offset="0" stop-color="#fff" stop-opacity="0.1" /><stop :offset="fadeStops[1] / fadeStops[2]" stop-color="#fff" stop-opacity="0.1" /><stop offset="1" stop-color="#fff" stop-opacity="1" />
-          </linearGradient>
-          <mask :id="`${gid}-m`" maskUnits="userSpaceOnUse" x="0" y="0" :width="svgW" :height="box.h"><rect x="0" y="0" :width="svgW" :height="box.h" :fill="`url(#${gid}-f)`" /></mask>
+          <template v-if="kind === 'area'">
+            <linearGradient :id="`${gid}-f`" gradientUnits="userSpaceOnUse" x1="0" y1="0" :x2="fadeStops[2]" y2="0">
+              <stop offset="0" stop-color="#fff" stop-opacity="0.1" /><stop :offset="fadeStops[1] / fadeStops[2]" stop-color="#fff" stop-opacity="0.1" /><stop offset="1" stop-color="#fff" stop-opacity="1" />
+            </linearGradient>
+            <mask :id="`${gid}-m`" maskUnits="userSpaceOnUse" x="0" y="0" :width="svgW" :height="box.h"><rect x="0" y="0" :width="svgW" :height="box.h" :fill="`url(#${gid}-f)`" /></mask>
+          </template>
           <linearGradient :id="`${gid}-l`" gradientUnits="userSpaceOnUse" x1="0" y1="0" :x2="fadeStops[2]" y2="0">
             <stop offset="0" stop-color="#fff" stop-opacity="0.4" /><stop :offset="fadeStops[1] / fadeStops[2]" stop-color="#fff" stop-opacity="0.4" /><stop offset="1" stop-color="#fff" stop-opacity="1" />
           </linearGradient>

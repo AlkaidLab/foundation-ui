@@ -97,7 +97,7 @@
 .m-trim { display: block; max-width: 100%; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .m-tnet__sub { display: flex; align-items: baseline; gap: 4px; }
 .m-tnet__subtext { flex: 0 1 auto; min-width: 0; overflow: hidden; } .m-tnet__subip { flex: none; white-space: nowrap; }
-:is(.m-dash__cell, .m-dock__cell) .m-tnet__ip, :is(.m-dash__cell, .m-dock__cell) .m-tnet__ip[data-fit-wrap] { white-space: nowrap !important; overflow-wrap: normal; }
+:is(.m-dash__cell, .m-dock__cell) .m-tnet__ip, :is(.m-dash__cell, .m-dock__cell) .m-tnet__ip[data-fit-wrap], :is(.m-dash__cell, .m-dock__cell) .m-tile.m-tnet .m-tnet__ip.m-dnum[data-fit-wrap] { white-space: nowrap !important; overflow-wrap: normal !important; }
 .m-tile__head > .m-tnet__chip { margin-left: auto; min-width: 0; max-width: 62%; flex: 0 1 auto; }
 .m-tnet__chip .m-mchip__btn { max-width: 100%; }
 .m-tnet__chip .m-mchip__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

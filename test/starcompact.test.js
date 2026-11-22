@@ -41,7 +41,7 @@ test('the star card styles only place the parts: one row with the asks beside th
   assert.match(css, /\.m-sprompt--star\.is-one \{ flex-wrap: nowrap; \}/)
   assert.match(css, /\.m-sprompt--star \.m-sprompt__text h3, \.m-sprompt--star \.m-sprompt__text p \{ white-space: nowrap; \}/, 'no wrapped, orphaned words')
   assert.match(css, /\.m-sprompt--star\.is-two \.m-sprompt__later \{ order: 2; margin-inline-start: auto; \}/)
-  assert.match(css, /\.m-sprompt--star\.is-two \.m-sprompt__btns \{ order: 3; flex: 1 1 100%; flex-wrap: wrap; \}/)
+  assert.match(css, /\.m-sprompt--star\.is-two \.m-sprompt__btns \{ order: 3; flex: 1 1 100%; min-width: 0; max-width: 100%; flex-wrap: wrap; \}/)
   assert.match(css, /\.m-sprompt__probe \{ position: absolute;[^}]*width: 0; height: 0; overflow: hidden; visibility: hidden; pointer-events: none;/, 'the probe takes no room and adds no scroll width')
   assert.ok(css.indexOf('.m-sprompt--star') < css.indexOf('.m-cprompt '), 'before the client prompt rules, which are for another card')
 })
