@@ -18,6 +18,7 @@ import MTileNumeral from '../MTileNumeral.vue'
 import MTileShape from '../MTileShape.vue'
 import MTileChip from '../MTileChip.vue'
 import MTileChart from '../MTileChart.vue'
+import MTrimWords from '../MTrimWords.vue'
 import MTileEmpty from '../MTileEmpty.vue'
 import { setNicChoice } from '../nicChoice.js'
 import { OPEN, designProps } from './tileData.js'
@@ -74,7 +75,7 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
         <div class="m-tnet__info">
           <div class="m-tnet__main">
             <MTileNumeral :value="speed.v || p.kind" :unit="speed.u" :size="size === 'xl' ? 'l' : 'm'" />
-            <b class="m-tnet__name" :title="p.description || p.name">{{ p.name }} <small v-if="sub">{{ sub }}</small></b>
+            <b class="m-tnet__name"><span class="m-tnet__nm" :title="p.description || p.name"><MTrimWords :text="p.label || p.name" /></span><small v-if="sub" class="m-tnet__kind"><MTrimWords :text="sub" sep=" · " /></small></b>
             <span class="m-tnet__ip m-dnum" data-redact="address">{{ p.ipv4 }}</span>
           </div>
           <template v-if="size === 'xl'">
@@ -101,14 +102,14 @@ const share = computed(() => (usage.value.ratio === null || usage.value.ratio ==
             <li>
               <button type="button" class="m-tnet__opt" role="radio" :aria-checked="!choice.manual" :tabindex="!choice.manual ? 0 : -1" :class="{ 'is-on': !choice.manual }" @click.stop="choose('')">
                 <MTileShape icon="sync" shape="circle" size="34px" :tone="choice.manual ? 'container' : 'solid'" />
-                <span class="m-tnet__txt"><b>{{ L.auto }}</b><small>{{ choice.auto || '–' }}</small></span>
+                <span class="m-tnet__txt"><b>{{ L.auto }}</b><small><MTrimWords :text="choice.autoLabel || choice.auto || '–'" /></small></span>
                 <MIcon :name="choice.manual ? 'radio_button_unchecked' : 'radio_button_checked'" />
               </button>
             </li>
             <li v-for="o in options" :key="o.id">
               <button type="button" class="m-tnet__opt" role="radio" :aria-checked="choice.manual && o.current" :tabindex="choice.manual && o.current ? 0 : -1" :class="{ 'is-on': choice.manual && o.current, 'is-down': !o.up }" @click.stop="choose(o.id)">
                 <MTileShape :icon="o.icon" shape="circle" size="34px" :tone="choice.manual && o.current ? 'solid' : 'container'" />
-                <span class="m-tnet__txt"><b>{{ o.title }}</b><small data-redact="address">{{ o.sub }}</small></span>
+                <span class="m-tnet__txt"><b :title="o.title"><MTrimWords :text="o.label || o.title" /></b><small class="m-tnet__sub" data-redact="address"><span class="m-tnet__subtext"><MTrimWords :text="o.subText ?? o.sub" sep=" · " /></span><span v-if="o.ip" class="m-tnet__subip m-dnum">{{ o.ip }}</span></small></span>
                 <MIcon :name="choice.manual && o.current ? 'radio_button_checked' : 'radio_button_unchecked'" />
               </button>
             </li>
