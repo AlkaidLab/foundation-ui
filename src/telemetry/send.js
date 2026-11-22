@@ -19,7 +19,8 @@ export const AUTO_FLUSH_GAP_MS = 30_000
 
 /** A stable 32-hex id for a document: the same content, the same id (two 64-bit FNV-1a lanes over the keys in order; not a secret, only a name). */
 export function reportIdOf(doc) {
-  const text = JSON.stringify(Object.keys(doc || {}).sort().map((k) => [k, doc[k]]))
+  // the reply key is made once for a report and is not part of what the report says: the same words are the same report
+  const text = JSON.stringify(Object.keys(doc || {}).filter((k) => k !== 'reply_key').sort().map((k) => [k, doc[k]]))
   let a = 0xcbf29ce484222325n, b = 0x84222325cbf29ce4n
   const M = 0xffffffffffffffffn
   for (let i = 0; i < text.length; i += 1) {
@@ -100,6 +101,8 @@ export function enqueueReport(doc, storage, now = Date.now(), { id = '', maybeAr
 }
 const dropShot = (doc) => { const { shot, ...rest } = doc; return rest }
 export const enqueue = (doc, storage, now, options) => enqueueReport(doc, storage, now, options).length
+/** The reply key a queued report already carries (its first press made it): a second press of the same report keeps it. */
+export const queuedReplyKey = (id, storage) => (id ? String(loadQueue(storage).find((e) => e.id === id)?.doc?.reply_key || '') : '')
 export const isQueued = (id, storage) => !!id && loadQueue(storage).some((e) => e.id === id)
 export const removeQueued = (id, storage) => { const queue = loadQueue(storage); const left = queue.filter((e) => e.id !== id); if (left.length !== queue.length) saveQueue(left, storage); return queue.length - left.length }
 const sentListeners = new Set()

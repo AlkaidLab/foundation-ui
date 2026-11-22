@@ -27,6 +27,8 @@ const ZH = {
   errorButton: '反馈这个问题', here: '反馈此处的问题',
   searchTitle: '反馈问题或建议', searchKeywords: '反馈 意见 建议 报告问题 吐槽 联系开发者 bug feedback report suggestion contact developers',
   rowHint: '私下发给开发者，附已脱敏的运行日志',
+  sentReply: '开发者回复后，会在「状态与通知」里提示你。',
+  replyOpen: '查看', replyTitle: '开发者的回复', replyAbout: '你的反馈', replyUntitled: '你提交的反馈', replyClose: '关闭', replyFixed: '已修复，将在 {version} 发布',
 }
 const EN = {
   title: 'Feedback', button: 'Feedback', lead: 'Sent privately to the developers. Nothing is public and no account is needed.',
@@ -55,6 +57,8 @@ const EN = {
   errorButton: 'Report this problem', here: 'Report a problem here',
   searchTitle: 'Send feedback', searchKeywords: 'feedback report suggestion contact developers bug 反馈 意见 建议',
   rowHint: 'Sent privately, with the run log (personal details removed)',
+  sentReply: 'When the developers reply, you will see it in Status and notices.',
+  replyOpen: 'View', replyTitle: 'Reply from the developers', replyAbout: 'Your feedback', replyUntitled: 'Feedback you sent', replyClose: 'Close', replyFixed: 'Fixed, coming in {version}',
 }
 const WORDS = { zh: ZH, en: EN }
 /** The words for a locale: Chinese for zh*, English for everything else. */
