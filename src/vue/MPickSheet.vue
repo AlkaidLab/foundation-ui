@@ -5,7 +5,8 @@ import MIcon from './MIcon.vue'
 
 // Picker for a long list of choices (languages, adapters, presets): a sheet with a search field and one row per
 // option; choosing a row applies it and closes the sheet. Replaces a native select. The trigger lives outside
-// (a row or a button) and opens the sheet through `v-model:open`.
+// (a row or a button) and opens the sheet through `v-model:open`. Extra attributes
+// (a class or a style, such as a caller's `--m-dialog-w`) land on the sheet itself.
 const model = defineModel({ type: [String, Number, Boolean], default: '' })
 const open = defineModel('open', { type: Boolean, default: false })
 const props = defineProps({
@@ -20,6 +21,7 @@ const props = defineProps({
   searchFrom: { type: Number, default: 7 },
 })
 const query = ref('')
+defineOptions({ inheritAttrs: false })
 const norm = (s) => String(s ?? '').toLowerCase()
 const shown = computed(() => {
   const q = norm(query.value).trim()
@@ -32,7 +34,7 @@ const choose = (option) => { if (option.disabled) return; model.value = option.v
 
 <template>
   <Teleport to="body">
-    <MSheet v-model="open" :title="title" side="center" :close-label="closeLabel">
+    <MSheet v-bind="$attrs" v-model="open" :title="title" side="center" :close-label="closeLabel">
       <p v-if="help" class="m-pick__help">{{ help }}</p>
       <label v-if="options.length > searchFrom" class="m-pick__search">
         <MIcon name="search" />

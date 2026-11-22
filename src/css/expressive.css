@@ -569,7 +569,7 @@ html[data-motion='reduced'] .m-update__badge-icon.is-spinning, html[data-motion=
 /* the update popup: a centred dialog (a bottom sheet under 600), its own scrolling under a fixed height */
 /* in the control panel's frame the dialog is centred in the whole window, not in the frame: the shell sends --m-frame-dx (from the middle of the frame to the middle of the window), the dialog moves by it
    and is as narrow as that needs (the frame is cut off at its own edge, so a dialog standing in the middle of the window may not be wider than twice the room from there to the nearer edge of the frame) */
-.m-sheet--center { --m-sheet-w: min(600px, calc(100vw - 32px), calc(100vw - 2 * max(var(--m-frame-dx), -1 * var(--m-frame-dx)) - 24px)); margin: auto; width: var(--m-sheet-w); max-height: calc(100dvh - 48px); height: fit-content; translate: var(--m-frame-dx) 0; }
+.m-sheet--center { --m-sheet-w: min(var(--m-dialog-w, 600px), calc(100vw - 32px), calc(100vw - 2 * max(var(--m-frame-dx), -1 * var(--m-frame-dx)) - 24px)); margin: auto; width: var(--m-sheet-w); max-height: calc(100dvh - 48px); height: fit-content; translate: var(--m-frame-dx) 0; }
 .m-sheet--center .m-sheet__panel { height: auto; max-height: calc(100dvh - 48px); border-radius: var(--md-sys-shape-corner-extra-large, 28px); background: var(--md-sys-color-surface-container-high); animation: m-dialog-in var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; box-shadow: 0 24px 64px color-mix(in srgb, var(--md-sys-color-shadow) 28%, transparent); }
 .m-sheet--center .m-sheet__body { min-height: 0; }
 .m-sheet--center .m-sheet__actions { flex-wrap: wrap; }
