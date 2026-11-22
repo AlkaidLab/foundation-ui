@@ -325,6 +325,7 @@ test('a switch square has the anatomy of the other squares: the label row, the s
   assert.match(v, /dropped\.value = e\.scrollWidth > e\.clientWidth \+ 1/)
   const c = css('tiles-b3.css')
   assert.match(c, /\.m-b3t\.is-on \.m-b3sw__track \{ background: var\(--tk\); box-shadow: none; \}/)
+  assert.match(c, /\.m-dash__cell \.m-b3t \.m-b3sw__note \{ white-space: nowrap !important;/, 'the fit rule that wraps notes does not make the hint two lines')
   assert.match(c, /\.m-b3sw__note\.is-dropped \{ height: 0; margin-top: -8px; visibility: hidden; \}/)
   assert.doesNotMatch(css('tilefit-real.css'), /m-b3t\[data-size='s'\]/, 'the old grid (glyph, state and a two-line name) is gone')
 })

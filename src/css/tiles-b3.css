@@ -38,6 +38,8 @@
 .m-b3sw__state { font: 600 20px/24px var(--m-font-display); letter-spacing: -.01em; white-space: nowrap; color: var(--on-tk-c); }
 .m-b3t.is-off .m-b3sw__state { color: var(--md-sys-color-on-surface); }
 .m-b3sw__note { display: block; min-width: 0; white-space: nowrap; overflow: hidden; }
+/* the late fit rule (tilefit.css) lets a note wrap anywhere; the hint of a switch is one line or none */
+.m-dash__cell .m-b3t .m-b3sw__note { white-space: nowrap !important; overflow: hidden !important; overflow-wrap: normal !important; text-wrap: nowrap; }
 .m-b3sw__note.is-dropped { height: 0; margin-top: -8px; visibility: hidden; }
 
 /* ---- a value square (编码器, 版本): the value in display type under the head; the whole tile opens the sheet through a transparent button over it (the root is
