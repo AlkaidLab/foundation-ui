@@ -207,9 +207,9 @@ html[data-motion='reduced'] .m-pairprompt-enter-active, html[data-motion='reduce
 /* a 390 pt phone: the asks give up a little padding so the three of them and the close icon share one row */
 @container (max-width: 420px) { .m-sprompt--star .m-sprompt__btn { padding: 0 10px 0 8px; gap: 5px; } .m-sprompt--star { padding: 8px 6px 8px 10px; } }
 /* the probe: the parts of the card in its own styles, out of the flow, never seen */
-.m-sprompt__probe { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 0 16px; width: max-content; visibility: hidden; pointer-events: none; white-space: nowrap; }
+.m-sprompt__probe { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 0 16px; width: 0; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; white-space: nowrap; } .m-sprompt__probe > * { flex: none; }
 .m-sprompt__probe h3, .m-sprompt__probe p { margin: 0; } .m-sprompt__pt { font: var(--m-title-medium-emphasized); } .m-sprompt__ps { font: var(--m-body-medium); }
-.m-sprompt__pl, .m-sprompt__ps2 { display: flex; gap: 8px; } .m-sprompt--star .m-sprompt__pl, .m-sprompt--star .m-sprompt__ps2 { gap: 8px; } @container (max-width: 900px) { .m-sprompt--star .m-sprompt__pl, .m-sprompt--star .m-sprompt__ps2 { gap: 6px; } }
+.m-sprompt__pl, .m-sprompt__ps2 { display: flex; gap: 8px; width: max-content; } .m-sprompt--star .m-sprompt__pl, .m-sprompt--star .m-sprompt__ps2 { gap: 8px; } @container (max-width: 900px) { .m-sprompt--star .m-sprompt__pl, .m-sprompt--star .m-sprompt__ps2 { gap: 6px; } }
 .m-sprompt__pg { flex: none; display: block; width: 18px; height: 18px; } @container (max-width: 900px) { .m-sprompt--star .m-sprompt__pg { width: 16px; height: 16px; } }
 .m-sprompt__probe .m-sprompt__later { visibility: hidden; }
 .m-cprompt { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent); }
