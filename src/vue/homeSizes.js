@@ -26,6 +26,20 @@ const DENSITY = { smaller: 0.875, standard: 1, larger: 1.125 }
 /** The side of the one square a small tile is drawn at: always UNIT_PX (the small views are drawn for 140 px and up). The dock draws every tile at this size and scales the whole square to its column, so a
  *  smaller density (a short window) makes the tile smaller, never re-flowed into a square it was not drawn for. */
 export const designUnitPx = () => UNIT_PX
+/** How much of a phone column's extra width the type of a tile takes (a phone's columns are up to 1.35 times the design square). The face was scaled by the whole factor, so a phone showed the panel's tile with 1.35 times its type
+ *  (a 38 px numeral at 51, a 20 px title at 27) inside a tile that is no larger than a WidgetKit systemSmall (iOS widgets set 13 to 15 pt labels and values up to 34 pt). The face now takes this share of the factor and is drawn in the room
+ *  that is left (a bigger layout square scaled by less): the same tile, with room for its content, at the type of the panel to a little over it. 0 would be the panel's own type. */
+export const PHONE_TYPE_SHARE = 0.4
+/** The scale of a tile face for a column of `unit` px, and the layout square the face is drawn in (the column over the scale): 1 and the column itself from 800 px on, so a desktop is not touched; a smaller density
+ *  (k under 1) scales the face by the whole factor, as before. */
+export function faceScaleOf(unit) {
+  if (!(unit > 0)) return { k: 1, box: 0 }
+  const k = unit / UNIT_PX
+  if (Math.abs(k - 1) < 0.002) return { k: 1, box: unit }
+  const kt = k > 1 ? 1 + (k - 1) * PHONE_TYPE_SHARE : k
+  const r = Math.round(kt * 10000) / 10000
+  return { k: Math.abs(r - 1) < 0.002 ? 1 : r, box: Math.round((unit / r) * 100) / 100 }
+}
 /** How many square columns a content width holds at a density, and the side of one: always the fixed unit (scaled by the density the person chose); only a pane narrower than two units and a gap
  *  (a phone) gets a smaller one, so two columns still fit. The grid is as wide as its columns and sits in the middle of the pane. */
 export function columnsOf(width, density = 'standard') {

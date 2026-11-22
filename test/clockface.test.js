@@ -15,8 +15,8 @@ test('a tile of the dock is not marked generic: the tiles/ designs and the small
 })
 
 test('every dock tile is the one design square, scaled as a whole to the column; the saved sizes are not read', () => {
-  assert.match(source, /const dockScale = computed\(\(\) => \{ const design = designUnitPx\(\); const k = dockGrid\.value\.unit \/ design;/)
-  assert.match(source, /class="m-dock__face" :style="\{ width: `\$\{dockScale\.design\}px`, height: `\$\{dockScale\.design\}px`, \.\.\.\(dockScale\.k !== 1 \? \{ transform: `scale\(\$\{dockScale\.k\}\)` \} : \{\}\) \}"/)
+  assert.match(source, /const dockScale = computed\(\(\) => \{ const f = faceScaleOf\(dockGrid\.value\.unit\); return \{ design: f\.box, k: f\.k \} \}\)/)
+  assert.match(source, /class="m-dock__face" :data-scaled="dockScale\.k !== 1 \? '' : undefined" :style="\{ width: `\$\{dockScale\.design\}px`, height: `\$\{dockScale\.design\}px`, \.\.\.\(dockScale\.k !== 1 \? \{ '--m-face-k': dockScale\.k, transform: `scale\(\$\{dockScale\.k\}\)` \} : \{\}\) \}"/)
   assert.match(read('src/css/dash.css'), /\.m-dock__face \{ display: flex; flex: none; transform-origin: 0 0; \}/)
   // the box of a dock tile never asks for the person's size: dockBox is chosen before drawnSize/sizeOf
   assert.match(source, /if \(dockLayout\.value\) return dockBox\(c, u\)\n\s+const key = drawnSize/)

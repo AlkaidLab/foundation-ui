@@ -124,7 +124,7 @@ watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush
         <p class="m-dock__status">{{ statusText }}</p>
       </header>
       <div class="m-dock__grid" :style="dockGridStyle" role="list">
-        <div v-for="c in dockCards" :key="c.id" class="m-dock__cell" role="listitem" :data-group="c.group" :data-card="c.id" :data-ctx="`tile:${c.id}`" :data-size="c.size"><div class="m-dock__face" :style="{ width: `${dockScale.design}px`, height: `${dockScale.design}px`, ...(dockScale.k !== 1 ? { transform: `scale(${dockScale.k})` } : {}) }"><div class="m-dash__body"><MDashCardView :card="c" :details="details" :texts="T" @act="onAct" /></div></div></div>
+        <div v-for="c in dockCards" :key="c.id" class="m-dock__cell" role="listitem" :data-group="c.group" :data-card="c.id" :data-ctx="`tile:${c.id}`" :data-size="c.size"><div class="m-dock__face" :data-scaled="dockScale.k !== 1 ? '' : undefined" :style="{ width: `${dockScale.design}px`, height: `${dockScale.design}px`, ...(dockScale.k !== 1 ? { '--m-face-k': dockScale.k, transform: `scale(${dockScale.k})` } : {}) }"><div class="m-dash__body"><MDashCardView :card="c" :details="details" :texts="T" @act="onAct" /></div></div></div>
       </div>
     </div>
     <div v-if="skeleton && skeletonTop" class="m-dskel__top" :style="{ height: `${skeletonTop}px` }" aria-hidden="true" />

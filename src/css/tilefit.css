@@ -20,7 +20,7 @@
 .m-dash__cell .m-calh__head:has(> .m-calh__act) { align-items: center; }
 
 /* 2. numerals: --tn-k (0.5 to 1) is set by MTileNumeral when its row is wider than the tile's room */
-.m-tnum__v { font-size: calc(var(--tn) * var(--tn-k, 1)); }
+.m-tnum__v { font-size: calc(var(--tn) * var(--tn-k, 1) * var(--m-nk, 1)); }
 
 /* 3. 快捷操作: pills of their own width in a row that scrolls; below 480 px the title keeps its glyph only */
 .m-calq { container: m-calq / inline-size; }

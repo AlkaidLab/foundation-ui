@@ -21,6 +21,7 @@ html[data-bs-theme='dark'] .m-calm, html[data-theme='dark'] .m-calm { --tk-fill-
 .m-calm__more > .m-icon { width: 20px; height: 20px; } .m-calm__more:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
 .m-calm__value { display: flex; align-items: baseline; gap: 4px; margin-top: 8px; min-width: 0; white-space: nowrap; }
 .m-calm__value b { font: 600 var(--cv, 60px)/.95 var(--m-font-display); letter-spacing: -.035em; font-feature-settings: 'tnum' 1; }
+.m-calm__value b { font-size: calc(var(--cv, 60px) * var(--m-nk, 1)); }
 .m-calm__value small { font: 500 13px/1 var(--m-font-display); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
 .m-calm.is-s { --cv: 48px; } .m-calm.is-l { --cv: 84px; }
 .m-calm__details { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; font: var(--m-tile-text-14-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }

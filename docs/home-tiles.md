@@ -236,7 +236,10 @@ of views; what differs is only the data each product hands in (`docs/parity.md`)
   without the route (404) keeps the layout on the device, as before. On the device stay the local copy (it draws the first frame), the usage counts the smart plan learns from, the appearance and the window.
 - **A size the person chose is theirs** (`userSized`): the smart plan arranges around it and the fill never promotes it. A phone has two columns, so it offers 方形, 中 and 大 (2 x 2); 特大 (four units) is
   drawn as 大 there. A tile with no data keeps its smallest size, as everywhere.
-- **A narrow pane scales, it does not re-flow.** From 800 px the unit is 148 px; below it the columns share the width (up to 200 px). A ladder tile is drawn at the 148 px design square (the same as the
-  panel) and the whole face is scaled to the column (`--m-face-k`), so the phone shows the panel's tile, larger.
+- **A narrow pane scales, it does not re-flow.** From 800 px the unit is 148 px; below it the columns share the width (up to 200 px). A ladder tile is drawn in the column over a face scale and the whole face is scaled to
+  the column (`--m-face-k`), so the phone shows the panel's tile with the room of its column. The scale takes 40 % of the column's extra width (`faceScaleOf`, `PHONE_TYPE_SHARE`): a 440 pt phone has a 200 px column
+  (1.35 times the design square) and its face scale is 1.14, not 1.35 (a 20 px title was painted at 27 pt, a 48 px numeral at 64 pt, the "fonts too big" of the owner's phone). The numerals of a scaled face are painted
+  at 92 % of the design numeral at most (`--m-nk`). A title that wraps breaks between its words (`MWords`, `tileWords.js`: a run of single characters belongs to the word before it); an address is never cut, a long
+  adapter name is shortened by a rule (`nicNames.js`) and cut at a word (`MTrimWords`).
 - **时钟模式 draws the same 方形.** The tiles under the clock are the overview's own 方形 (the same component and design), at the design square scaled to the column, whatever size the person gave the card in
   the overview.

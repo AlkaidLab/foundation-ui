@@ -3,7 +3,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { useDashLayout } from '../src/vue/useDashLayout.js'
-import { offeredOf, designUnitPx, columnsOf } from '../src/vue/homeSizes.js'
+import { offeredOf, designUnitPx, columnsOf, faceScaleOf, PHONE_TYPE_SHARE } from '../src/vue/homeSizes.js'
 import { CARD_META } from '../src/vue/homeCards.js'
 import { readDash } from './dashSource.js'
 
@@ -45,7 +45,17 @@ test('a narrow pane draws a tile at the design square and scales the whole face 
   // the factor: the column over the design square; 1 from 800 px on, so a desktop is not touched
   for (const w of [800, 1280, 1920]) assert.equal(columnsOf(w).unit / designUnitPx(), 1)
   for (const w of [360, 390, 430]) { const k = columnsOf(w).unit / designUnitPx(); assert.ok(k > 1 && k <= 1.36, `${w}: ${k}`) }
-  assert.match(readDash(), /const faceK = \(b\) => \{ if \(!b\?\.unit\) return 1; const k = b\.unit \/ designUnitPx\(\);/)
+  assert.match(readDash(), /const faceK = \(b\) => \(b\?\.unit \? faceScaleOf\(b\.unit\)\.k : 1\)/)
+  // the type of a phone tile takes a share of the extra width, not all of it: 1.35 times the panel's type was the "fonts too big" of the owner's phone; the face is laid out in the room that is left
+  for (const w of [360, 390, 430, 440]) {
+    const { unit } = columnsOf(w), f = faceScaleOf(unit), k = unit / designUnitPx()
+    assert.ok(f.k > 1 && f.k < k, `${w}: face ${f.k} is between 1 and the column factor ${k}`)
+    assert.ok(Math.abs(f.k - (1 + (k - 1) * PHONE_TYPE_SHARE)) < 0.0002, `${w}: face scale ${f.k}`)
+    assert.ok(Math.abs(f.box * f.k - unit) < 0.2, `${w}: the box ${f.box} scaled by ${f.k} fills the column ${unit}`)
+    assert.ok(f.k <= 1.15, `${w}: the type of a tile is at most 15 % over the panel's (it was 35 %)`)
+  }
+  for (const w of [800, 1280, 1920]) assert.deepEqual(faceScaleOf(columnsOf(w).unit), { k: 1, box: designUnitPx() })
+  assert.ok(Math.abs(faceScaleOf(columnsOf(1000, 'smaller').unit).k - columnsOf(1000, 'smaller').unit / designUnitPx()) < 0.0001, 'a smaller density still scales by the whole factor')
 })
 
 test('what a tile measures about itself is in layout px, not painted px: a scaled face would otherwise draw outside its tile', () => {
@@ -53,4 +63,14 @@ test('what a tile measures about itself is in layout px, not painted px: a scale
   assert.match(chart, /const read = \(\) => \{ const w = Math\.round\(root\.value\.offsetWidth\), h = Math\.round\(root\.value\.offsetHeight\);/)
   assert.ok(!/getBoundingClientRect/.test(chart), 'the chart reads no painted rect')
   assert.match(numeral, /const scale = tile\.offsetWidth > 0 && t\.width > 0 \? t\.width \/ tile\.offsetWidth : 1; const lim = \(t\.right - left\) \/ scale - /)
+})
+
+test('a scaled face sets its numerals at 92 % of the design numeral at most, so a phone numeral is not the panel numeral enlarged', () => {
+  const dash = read('src/css/dash.css'), fit = read('src/css/tilefit.css'), cal = read('src/css/tiles-cal.css'), fourtb = read('src/css/tilefit-4tb.css')
+  assert.match(dash, /\.m-dash__grid\[data-scaled\], \.m-dock__face\[data-scaled\] \{ --m-nk: min\(1, calc\(\.92 \/ var\(--m-face-k, 1\)\)\); \}/)
+  assert.match(fit, /\.m-tnum__v \{ font-size: calc\(var\(--tn\) \* var\(--tn-k, 1\) \* var\(--m-nk, 1\)\); \}/)
+  assert.match(cal, /\.m-calm__value b \{ font-size: calc\(var\(--cv, 60px\) \* var\(--m-nk, 1\)\); \}/)
+  assert.match(fourtb, /\.m-calm\.is-s \.m-calm__value b \{ font-size: calc\(min\(var\(--cv, 60px\), 33cqw\) \* var\(--m-nk, 1\)\); \}/)
+  // painted numeral = design numeral x face scale x the damping: at most 0.92 of the design on every phone width, and untouched where the face is not scaled (a desktop, a smaller density)
+  for (const w of [360, 390, 430, 440]) { const k = faceScaleOf(columnsOf(w).unit).k; assert.ok(k * Math.min(1, 0.92 / k) <= 0.9201, `${w}`) }
 })

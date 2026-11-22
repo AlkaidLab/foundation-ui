@@ -5,7 +5,7 @@ import { PURPOSES, fillOrder, purposeOf, sectionIndexOf, suggestions } from '../
 import { clientInUse, clientRecommendation, markClientRec, readClientRec } from '../clientPrompt.js'
 import { starClientInUse } from '../starCard.js'
 import { slotAhead, slotEnter, slotLeave } from '../promptSlot.js'
-import { UNIT_GAP, designUnitPx, gridWidthOf, hasNoData, missingInRow, sizesOf } from '../homeSizes.js'
+import { UNIT_GAP, faceScaleOf, gridWidthOf, hasNoData, missingInRow, sizesOf } from '../homeSizes.js'
 import { effectiveClockSize } from '../../appearance/appearance.js'
 
 /** dashDock: one part of the home overview's setup (MHomeDash.vue); D is the shared scope of the parts, in the order they are made. */
@@ -197,11 +197,11 @@ export function useDashDock(D) {
   // The tiles are the overview's standard squares (s: one unit), wrapped into the same columns as the grid, so they never form a row that scrolls: a row that does not fit goes below and the page scrolls.
   // The grid is as wide as its columns and sits in the middle of the pane, edge to edge in a narrow one (columnsOf), the same on every window.
   const dockGrid = computed(() => gridOf(width.value))
-  // every tile is drawn as the overview's 方形 at its one design square and the whole square is scaled to the column (a phone's columns are wider than the design unit, so the tile grows with its column; at 800 px and up k is 1)
-  const dockScale = computed(() => { const design = designUnitPx(); const k = dockGrid.value.unit / design; return { design, k: Math.abs(k - 1) < 0.002 ? 1 : Math.round(k * 10000) / 10000 } })
-  // The same for the overview grid: a narrow pane (a phone) stretches its columns up to 200 px (columnsOf), and a tile drawn at the stretched size reads as another tile than the panel's. A ladder tile is drawn at the
-  // design square and the whole face is scaled to the column, so the phone shows the tile of the panel, larger.
-  const faceK = (b) => { if (!b?.unit) return 1; const k = b.unit / designUnitPx(); return Math.abs(k - 1) < 0.002 ? 1 : Math.round(k * 10000) / 10000 }
+  // every tile is drawn as the overview's 方形 in one square and that square is scaled to the column: a phone's columns are wider than the design unit, so the square is the column over a scale that takes a share of the extra width (faceScaleOf, homeSizes.js); at 800 px and up k is 1
+  const dockScale = computed(() => { const f = faceScaleOf(dockGrid.value.unit); return { design: f.box, k: f.k } })
+  // The same for the overview grid: a narrow pane (a phone) stretches its columns up to 200 px (columnsOf). A ladder tile is drawn in the column over that scale and the face is scaled to the column: the tile of the panel with
+  // the room of the phone's column and the type of a phone widget (faceScaleOf), not the panel's tile enlarged by the whole factor.
+  const faceK = (b) => (b?.unit ? faceScaleOf(b.unit).k : 1)
   const dockGridStyle = computed(() => { const g = dockGrid.value; return { gridTemplateColumns: `repeat(${g.columns}, ${g.unit}px)`, gridAutoRows: `${g.unit}px`, width: `${gridWidthOf(g.columns, g.unit)}px` } })
   // The first screen of the dock: the title, the card above, the clock and ONE row of tiles; the clock block takes what is left above that row (measured: the card above is one line or three), so the clock keeps
   // its size however many rows of tiles follow below the fold. A window too short for it keeps the compact clock (the minimum below) and the row goes under it.
