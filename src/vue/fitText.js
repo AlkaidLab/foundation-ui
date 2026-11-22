@@ -2,7 +2,7 @@ import { onBeforeUnmount, onMounted } from 'vue'
 
 // Fit-to-room for the values of a tile (fs52-tiles-real-fit). A value that is wider than the room its tile gives it (`3840×2160`, `2160p`, `home.sky-hua.xyz`, `Moonlight macOS Enhanced`) is not cut with an
 // ellipsis: its font shrinks to fit, down to 60 %, and below that it wraps (`data-fit-wrap`, tilefit.css). The text of the person's host decides the width, so the tile reads it as it is drawn.
-export const FIT_SELECTOR = '.m-calm__title, .m-b2empty .m-b2__btn, .m-b2plate b, .m-b2item b, .m-calh__blocks b, .m-calh__now b, .m-dsmall__value > span, .m-b3v__value, .m-b3d__mode, .m-b2__name, .m-caln__name, .m-tnet__name, .m-daddr__value b, .m-tnet__ip, .m-calh__pairs dd, .m-calh__line, .m-caln__sub, .m-b2__line, .m-b2__cap'
+export const FIT_SELECTOR = '.m-empty-basic > b, .m-calm__title, .m-b2empty .m-b2__btn, .m-b2plate b, .m-b2item b, .m-calh__blocks b, .m-calh__now b, .m-dsmall__value > span, .m-b3v__value, .m-b3d__mode, .m-b2__name, .m-caln__name, .m-tnet__name, .m-daddr__value b, .m-tnet__ip, .m-calh__pairs dd, .m-calh__line, .m-caln__sub, .m-b2__line, .m-b2__cap'
 export const FIT_MIN = 0.6
 export const MIN_PX = 11
 

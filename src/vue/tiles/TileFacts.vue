@@ -17,6 +17,7 @@ import MTileShape from '../MTileShape.vue'
 import MTileChip from '../MTileChip.vue'
 import { firstNumber, OPEN, sizeOf, designProps } from './tileData.js'
 import MIcon from '../MIcon.vue'
+import MWords from '../MWords.vue'
 import { resNameOf } from './b2.js'
 
 const props = defineProps(designProps)
@@ -47,7 +48,7 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
   <section class="m-tile m-tfacts" :class="[`m-tfacts--${id}`, `is-${size}`]" :data-accent="accent" :data-size="size">
     <template v-if="empty || (id === 'session-heat' && !d.total)">
       <MTileHead :icon="empty?.icon || d.icon" :title="empty?.title || card.title" />
-      <div class="m-empty-basic"><b>{{ empty?.value || d.empty || '' }}</b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+      <div class="m-empty-basic"><MTileShape class="m-tile__corner m-empty-basic__hero" :icon="empty?.icon || d.icon" shape="cookie" size="60px" tone="tonal" /><b><MWords :text="empty?.value || d.empty || ''" /></b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
     </template>
     <template v-else-if="id === 'hdr' || id === 'stream-vdd'">
       <MTileHead :title="card.title" />

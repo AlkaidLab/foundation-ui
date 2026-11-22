@@ -55,7 +55,13 @@ button.m-b2item { cursor: pointer; } button.m-b2item:focus-visible { outline: 3p
 .m-b2empty { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 10px; min-height: 0; }
 .m-b2empty > b { font: 500 17px/22px var(--m-font-display); color: var(--md-sys-color-on-surface); }
 .m-empty-basic { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 8px; }
-.m-empty-basic > b { min-width: 0; max-width: 100%; overflow-wrap: anywhere; font: 500 15px/20px var(--m-font-display); color: var(--md-sys-color-on-surface); }
+.m-empty-basic > b { min-width: 0; max-width: 100%; overflow-wrap: normal; font: 500 15px/20px var(--m-font-display); color: var(--md-sys-color-on-surface); }
+/* the hero of an empty tile: its glyph in the one corner shape of every tile (.m-tile__corner, tiles-prerelease.css: 60 px in the free corner, the head keeps clear of it); the line and the action stay in front */
+.m-tile:has(> .m-empty-basic), .m-tile:has(> * > .m-empty-basic) { position: relative; overflow: hidden; }
+/* an empty square: the corner shape carries the glyph, so the head keeps the name only (two lines at its words if it must, never cut) */
+.m-tile:has(> .m-empty-basic > .m-tile__corner) > .m-calm__head > .m-icon { display: none; }
+.m-tile:has(> .m-empty-basic > .m-tile__corner) > .m-calm__head > .m-calm__title { white-space: normal; text-wrap: balance; overflow: visible; text-overflow: clip; line-height: 16px; }
+.m-tile > .m-empty-basic, .m-tile > * > .m-empty-basic { position: static !important; } .m-empty-basic > :not(.m-tile__corner) { position: relative; z-index: 1; }
 /* the action of an empty state is never wider than the tile: a long label (Start streaming) takes two lines instead of leaving the tile */
 .m-empty-basic .m-b2__btn { flex: 0 1 auto; min-width: 0; max-width: 100%; height: auto; min-height: 36px; padding-block: 4px; white-space: normal; text-align: center; line-height: 1.1; }
 .m-b2.is-m .m-b2empty { flex-direction: row; align-items: center; justify-content: flex-start; gap: 16px; } .m-b2.is-m .m-b2empty > b { flex: 1; min-width: 0; }

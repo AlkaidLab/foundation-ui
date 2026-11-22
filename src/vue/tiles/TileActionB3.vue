@@ -3,14 +3,15 @@ export const tileIds = ['act-apps', 'act-clients', 'act-community', 'act-diagnos
 </script>
 
 <script setup>
-// The action tiles in the calibrated language of 添加应用:
-// an Android 16 Quick Settings tile. The whole tile is the button: the tonal container, the glyph in a filled circle at the top left, the action's name at the bottom left.
+// The action tiles in the anatomy of the other squares: the label row, the action as the hero (its glyph in a large shape), the live state under it. The whole tile is the button.
 // An action with a live state says it in one bold line under the name (the paired count, the version, the 24 h errors, the session's clock), and a state that matters
 // takes the tile's colour (an update ready, errors in the log, a stream running). A link that leaves the app carries ↗. On press the circle squares a little on the
 // fast spatial spring (none under reduced motion).
 import { computed } from 'vue'
 import MIcon from '../MIcon.vue'
 import MWords from '../MWords.vue'
+import MTileShape from '../MTileShape.vue'
+import MTrimWords from '../MTrimWords.vue'
 import { registeredComponentStatus } from '../../status/controller.js'
 import { recommendForOs } from '../../clients/recommend.js'
 import { readOs } from '../../clients/osChoice.js'
@@ -36,7 +37,7 @@ const view = computed(() => {
   if (i === 'act-clients' || i === 'act-pair') return { state: n(x.count) ? fill(L.value.paired, { n: x.count }) : n(x.count) === 0 ? L.value.unpaired : '' }
   if (i === 'act-logs') return n(x.errors) ? { state: fill(L.value.errors24, { n: x.errors }), alert: true } : n(x.errors) === 0 ? { state: L.value.noErrors } : {}
   if (i === 'act-update') return x.update ? { state: fill(L.value.updateTo, { v: x.update }), accent: 'tertiary' } : x.version ? { state: `${L.value.current} · ${x.version}` } : {}
-  if (i === 'act-stop') return { state: [x.client, n(x.uptimeMs) !== null ? clock(x.uptimeMs) : ''].filter(Boolean).join(' · '), glyph: 'stop', alert: true, quiet: true }
+  if (i === 'act-stop') { const parts = [x.client, n(x.uptimeMs) !== null ? clock(x.uptimeMs) : ''].filter(Boolean); return { state: parts.join(' · '), parts, glyph: 'stop', alert: true, quiet: true } }
   if (i === 'act-diagnostics') { const c = checks(); return c ? { state: fill(L.value.ready, { a: c.ok, b: c.all }), alert: c.ok < c.all } : {} }
   if (i === 'act-settings') return { state: x.facts || '' }
   if (i === 'act-downloads') { try { return { state: String(recommendForOs(readOs())?.client?.name || '') } } catch { return {} } }
@@ -46,10 +47,12 @@ const go = () => { if (!props.preview) emit('act', { type: d.value.act, value: d
 </script>
 
 <template>
-  <button type="button" class="m-tile m-cal m-cala m-b3a" :class="{ 'has-state': !!view.state, 'is-alert': view.alert, 'is-quiet': card.quiet || view.quiet }" data-size="s" :data-accent="view.accent || 'secondary'" :data-act="id"
+  <!-- the anatomy of the other squares: the label row (glyph and name, one line), the action drawn as the hero (its glyph in a large shape), the live state in one line at the bottom. The whole tile is the button. -->
+  <button type="button" class="m-tile m-cal m-cala m-b3a m-b3ac" :class="{ 'has-state': !!view.state, 'is-alert': view.alert, 'is-quiet': card.quiet || view.quiet }" data-size="s" :data-accent="view.accent || 'secondary'" :data-act="id"
     :aria-label="[card.title, view.state].filter(Boolean).join(' · ')" @click="go">
-    <span class="m-cala__glyph"><MIcon :name="view.glyph || d.icon" :fill="(view.glyph || d.icon) === 'stop'" /></span>
-    <MIcon v-if="OUT.has(id)" class="m-b3a__out" name="open_in_new" />
-    <span class="m-b3a__text"><b class="m-cala__name"><MWords :text="card.title" /></b><small v-if="view.state" class="m-b3a__state m-dnum" data-redact="client"><MWords :text="view.state" /></small></span>
+    <header class="m-calm__head"><MIcon :name="view.glyph || d.icon" :fill="(view.glyph || d.icon) === 'stop'" /><span class="m-calm__title"><MWords :text="card.title" /></span><MIcon v-if="OUT.has(id)" class="m-b3a__out" name="open_in_new" /></header>
+    <MTileShape class="m-b3ac__hero" :icon="view.glyph || d.icon" shape="cookie" size="56px" :tone="view.alert ? 'solid' : 'tonal'" />
+    <small v-if="view.parts && view.parts.length > 1" class="m-b3a__state m-b3ac__state m-b3ac__state--two m-dnum" data-redact="client"><span class="m-b3ac__client"><MTrimWords :text="view.parts[0]" /></span><span class="m-b3ac__time">· {{ view.parts[1] }}</span></small>
+    <small v-else-if="view.state" class="m-b3a__state m-b3ac__state m-dnum" data-redact="client"><MWords :text="view.state" /></small>
   </button>
 </template>
