@@ -206,9 +206,14 @@ The smart tiles of the overview stay as they are. On top of them a **stack** hol
   in the calm scenarios (evening: games and the last session, morning: the host and the update). A member needs 30 (the plan's line for a tile worth showing) and a lead of 10 over the one shown. Zero is not relevant, as in WidgetKit.
 - **When it may change** (`stackRotation.js`): never while the page is in use. Only (1) when the page was away (hidden, window not focused, or another page of the app) for **15 minutes** and is shown again,
   then once, 1.2 s later when the host's signals are fresh; or (2) after **30 minutes without input**. 15 minutes is the short end of how often WidgetKit lets a viewed widget reload (40 to 70 refreshes a day,
-  "roughly every 15 to 60 minutes"); a stack also changes at most once in 15 minutes, a turn by hand counted. A stack under the pointer or the keyboard focus, in the edit mode, pinned, or with rotation off never changes.
-- **How it moves**: by hand a vertical swipe (spatial spring); by the host a 240 ms crossfade; with reduced motion no movement and no fade.
-- **By hand**: vertical swipe, the wheel after the pointer rested on it, the page dots (buttons, always shown, faint), the keys (arrows, Home, End). The **pin** keeps the card shown and turns rotation off for that stack
+  "roughly every 15 to 60 minutes"); a stack also changes at most once in 15 minutes, a turn by hand counted. A stack under the pointer, a finger or the keyboard focus, in the edit mode, pinned, or with rotation off never changes.
+- **How it moves**: by hand the page follows the finger (or the pointer) and the next member is drawn under it; past a third of the height, or on a quick flick, it snaps to that member on the spatial spring, else it springs back;
+  by the host a 240 ms crossfade; with reduced motion no movement and no fade.
+- **By hand** (`stackGesture.js`, tested in `test/stackgesture.test.js`): the first movement of a finger decides who has it. Vertical, and the stack has a member that way: the stack's (the browser's scroll is cancelled
+  for that finger only; the stack is `touch-action: pan-y` so the page scrolls until then). Sideways, or vertical past an end while the page can still scroll that way: the page's. Past an end with nothing left to scroll, the page follows
+  the finger a little (rubber band) and springs back. The wheel or a two-finger scroll over the stack steps **one member per gesture** (gaps under 140 ms are one gesture, so the momentum tail does nothing): only a gesture that began over the
+  stack after a quiet moment, and only towards a member it has; a pointer that slides under a scroll in progress, or a wheel past an end, is the page's. Apple documents no scroll gesture for the stacks of the Mac (source record
+  `m3e-apple-mac-widgets-guide-20261122`), so this is the platform's observed convention written as rules that keep the page's scroll. Also: the page dots (buttons, always shown, faint), the keys (arrows, Home, End). The **pin** keeps the card shown and turns rotation off for that stack
   (the same flag as the sheet's switch 智能轮换 and the menu's item). **轮换：开/关** in the edit panel is the one switch for all stacks.
 - **Edit mode**: drag a tile onto a tile of its size and hold, or 加入轮换组 in the size pill; 编辑轮换组 opens the sheet (reorder by the handle or the arrow keys, take out, add, dissolve).
 - **Saved** locally per interface, apart from the layout: `foundation-ui.stacks.<key>` = `{ stacks, next, rotate }`. On by default; `?stacks=0` or `foundation.smartstack` = 0 turns the feature off.
@@ -243,3 +248,12 @@ of views; what differs is only the data each product hands in (`docs/parity.md`)
   adapter name is shortened by a rule (`nicNames.js`) and cut at a word (`MTrimWords`).
 - **时钟模式 draws the same 方形.** The tiles under the clock are the overview's own 方形 (the same component and design), at the design square scaled to the column, whatever size the person gave the card in
   the overview.
+
+## Carrying a tile (edit mode, and out of the add gallery)
+
+A lifted tile is a translation of its body (`--dx`, `--dy`, written on its cell by `dashDrag.js lift`): the cell stays in its slot. Measured on the phone viewport with a finger held 520 ms and moved 380 px (build host, headless Chromium, per frame):
+before, the carried tile traded places with its neighbour 11 times in 3 s, the largest frame-to-frame jump of the tile away from the finger was 1850 px and it spent a quarter of a second gliding to the finger; after, 1 swap,
+8 px and none. Three causes: the lift was worked out once from the slot of the moment, so every swap (the slot moves, the layout is reflowed) and the arrival animation of a tile that is added (the cell scales from .94, which scales
+the translation of its body too) left the tile in the wrong place for as long as it took the next pointer event to come; the swap rule asked only whether the pointer was over another card's middle, so a reflow that put that card under the
+pointer again swapped back (`dragSwap.js`: not the same card again until the pointer has left it, and 24 px of travel between swaps); and each pointer move re-rendered the whole overview for two numbers. Now the lift is read from the slot
+every frame, the cards are looked at once per frame, and the offsets are written on the element.

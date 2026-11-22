@@ -21,24 +21,28 @@ const T = computed(() => props.texts)
 const byId = computed(() => new Map(props.cards.map((c) => [c.id, c])))
 const members = computed(() => (props.stack?.members || []).map((id) => byId.value.get(id) || { id, title: id }))
 const adding = ref(false)
-const candidates = computed(() => props.cards.filter((c) => c.available !== false && !(props.stack?.members || []).includes(c.id) && c.kind !== 'stack').map((c) => ({ card: c, ...canJoin(c, props.stack?.size || 's', props.windowClass, props.height) })))
+// the tiles that can join come first (the others stay below, grey, with the reason): a list that opens on a run of unusable tiles reads as empty on a phone
+const candidates = computed(() => props.cards.filter((c) => c.available !== false && !(props.stack?.members || []).includes(c.id) && c.kind !== 'stack').map((c) => ({ card: c, ...canJoin(c, props.stack?.size || 's', props.windowClass, props.height) })).sort((a, b) => Number(b.ok) - Number(a.ok)))
 const reason = (r) => (r === 'size' ? (T.value.stackNoSize || '这个磁贴没有这个大小') : (T.value.stackNoKind || '这个磁贴不能放进轮换组'))
 // reorder by dragging the handle: the row under the pointer is the place
 const list = ref(null)
 const dragFrom = ref(-1)
 const dragTo = ref(-1)
-const rowAt = (y) => { const rows = [...(list.value?.querySelectorAll('.m-stacksheet__row') || [])]; for (let i = 0; i < rows.length; i++) { const r = rows[i].getBoundingClientRect(); if (y < r.bottom) return i } return rows.length - 1 }
+const dragDy = ref(0) // the row follows the pointer
+let startY = 0
+// the row that is carried is moved by the pointer (a transform): the place it is over is read from where the rows stand without that move
+const rowAt = (y) => { const rows = [...(list.value?.querySelectorAll('.m-stacksheet__row') || [])]; for (let i = 0; i < rows.length; i++) { const r = rows[i].getBoundingClientRect(); if (y < r.bottom - (i === dragFrom.value ? dragDy.value : 0)) return i } return rows.length - 1 }
 // a handle taken out of the sheet's panel, to any side, puts the tile on the page, where it is let go
 const outside = ref(false)
 const outOfPanel = (x, y) => { const r = list.value?.closest('.m-sheet__panel')?.getBoundingClientRect(); return !!r && (x < r.left - 16 || x > r.right + 16 || y < r.top - 16 || y > r.bottom + 16) }
-const hdown = (e, i) => { if (e.button > 0) return; dragFrom.value = i; dragTo.value = i; outside.value = false; e.currentTarget.setPointerCapture(e.pointerId) }
-const hmove = (e) => { if (dragFrom.value < 0) return; outside.value = outOfPanel(e.clientX, e.clientY); dragTo.value = rowAt(e.clientY) }
+const hdown = (e, i) => { if (e.button > 0) return; dragFrom.value = i; dragTo.value = i; dragDy.value = 0; startY = e.clientY; outside.value = false; e.currentTarget.setPointerCapture(e.pointerId) }
+const hmove = (e) => { if (dragFrom.value < 0) return; outside.value = outOfPanel(e.clientX, e.clientY); dragTo.value = rowAt(e.clientY); dragDy.value = e.clientY - startY }
 const hup = (e) => {
   if (dragFrom.value >= 0) {
     if (outside.value && e.type === 'pointerup') emit('out', { id: members.value[dragFrom.value].id, x: e.clientX, y: e.clientY })
     else if (dragTo.value !== dragFrom.value && !outside.value) emit('reorder', { from: dragFrom.value, to: dragTo.value })
   }
-  dragFrom.value = -1; dragTo.value = -1; outside.value = false
+  dragFrom.value = -1; dragTo.value = -1; dragDy.value = 0; outside.value = false
 }
 const hkey = (e, i) => { if (e.key === 'ArrowUp' && i > 0) { e.preventDefault(); emit('reorder', { from: i, to: i - 1 }) } else if (e.key === 'ArrowDown' && i < members.value.length - 1) { e.preventDefault(); emit('reorder', { from: i, to: i + 1 }) } }
 </script>
@@ -48,7 +52,7 @@ const hkey = (e, i) => { if (e.key === 'ArrowUp' && i > 0) { e.preventDefault();
     <div v-if="stack" class="m-stacksheet__body">
       <p class="m-stacksheet__count" aria-live="off">{{ outside ? (T.stackDropOut || '松开，放到页面上') : (T.stackCount || '{n} / {max} 个磁贴').replace('{n}', members.length).replace('{max}', STACK_MAX) }}</p>
       <ol ref="list" class="m-stacksheet__list">
-        <li v-for="(m, i) in members" :key="m.id" class="m-stacksheet__row" :data-member="m.id" :class="{ 'is-drag': dragFrom === i, 'is-out': dragFrom === i && outside, 'is-over': dragFrom >= 0 && !outside && dragTo === i && dragFrom !== i }">
+        <li v-for="(m, i) in members" :key="m.id" class="m-stacksheet__row" :data-member="m.id" :class="{ 'is-drag': dragFrom === i, 'is-out': dragFrom === i && outside, 'is-over': dragFrom >= 0 && !outside && dragTo === i && dragFrom !== i }" :style="dragFrom === i ? { transform: `translateY(${dragDy}px) scale(1.02)`, transition: 'none' } : undefined">
           <button type="button" class="m-stacksheet__handle" :aria-label="`${T.stackReorder || '调整顺序'}: ${m.title}`" @pointerdown="hdown($event, i)" @pointermove="hmove" @pointerup="hup" @pointercancel="hup" @keydown="hkey($event, i)"><MIcon name="drag_indicator" /></button>
           <span class="m-stacksheet__name">{{ m.title }}</span>
           <button type="button" class="m-stacksheet__remove" :aria-label="`${T.stackRemove || '移出'}: ${m.title}`" @click="emit('remove', m.id)"><MIcon name="remove" /></button>

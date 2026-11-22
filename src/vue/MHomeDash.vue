@@ -146,7 +146,7 @@ watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush
           <span class="m-dash__gbtns"><button type="button" class="m-dpill m-dpill--fill" @click.stop="acceptGhost(c.id)"><MIcon name="add" />{{ T.suggestAdd }}</button>
           <button type="button" class="m-dash__ghostx" :aria-label="T.suggestHide" :data-tip="T.suggestHide" @click.stop="hideGhost(c.id)"><MIcon name="close" /></button></span></div>
         <!-- the delete badge sits in a layer that is moved, scaled and lifted exactly like the card's body, so it keeps its quarter inside the corner of the card while the card is dragged -->
-        <button v-if="edit && c.kind === 'stack'" type="button" class="m-dash__stackbtn" data-stack-edit @pointerdown.stop @click.stop="openStackSheet(c.id)">{{ T.stackEdit || '编辑轮换组' }}</button>
+        <button v-if="edit && c.kind === 'stack'" type="button" class="m-dash__stackbtn" data-stack-edit :aria-label="T.stackEdit || '编辑轮换组'" @pointerdown.stop @click.stop="openStackSheet(c.id)"><MIcon name="edit" /><span class="m-dash__stackbtn-t">{{ T.stackEdit || '编辑轮换组' }}</span></button>
         <div v-if="edit" class="m-dash__badge"><button type="button" class="m-dash__remove" :aria-label="`${T.hide}: ${c.title}`" :data-tip="T.hide" @pointerdown.stop @click.stop="removeCard(c.id)"><MIcon name="remove" /></button></div>
         <template v-if="edit && sel === c.id && !drag?.moved && (c.sizeKeys.length > 1 || (stacksOn && c.kind !== 'stack' && !c.ghost && joinTargetsOf(c).length))">
           <i v-if="c.sizeKeys.length > 1" class="m-dash__ring" aria-hidden="true" />
