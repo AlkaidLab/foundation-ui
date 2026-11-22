@@ -146,8 +146,8 @@ export const PROGRESS_GROUPS = Object.freeze([
  * @property {InstallerMaintenance|null} maintenance  null on a fresh install
  * @property {Record<ComponentId, boolean>} components  current selection (pre-filled from the installed copy)
  * @property {boolean} allSelected         every component is selected (the engine then uses its defaults)
- * @property {Partial<Record<ComponentId, string>>} unsupported  components this Windows cannot run, with the Windows 10
- *                                         version each needs ('1803', '1903'): shown disabled and unticked
+ * @property {Partial<Record<ComponentId, string>>} unsupported  components this Windows cannot run, with the minimum Windows
+ *                                         version each needs (for example, 'Windows 10 1803' or 'Windows 11'): shown disabled and unticked
  * @property {number} windowsBuild         the Windows build (0 = unknown)
  * @property {boolean} uacCancelled        the last attempt was cancelled at the UAC prompt (show a note on welcome/maintenance)
  * @property {InstallerLocation} installDir  where the program goes (first page and maintenance page)

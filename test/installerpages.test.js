@@ -296,16 +296,16 @@ test('a press answers at once and never silently: busy until the next snapshot, 
   for (const l of LOCALES) assert.ok(t(l, 'err.noAnswer') && t(l, 'err.notSent'))
 })
 
-test('a component this Windows cannot run is off, disabled and says which Windows 10 it needs', () => {
+test('a component this Windows cannot run is off, disabled and says which Windows version it needs', () => {
   for (const l of LOCALES) {
-    const v = { ...emptyView(), page: 'components', unsupported: { usbip: '1903', vdd: '1803' } }
+    const v = { ...emptyView(), page: 'components', unsupported: { usbip: 'Windows 10 1903', vdd: 'Windows 10 1803' } }
     const rows = componentSections(v, l).flatMap((s) => s.items)
     const usbip = rows.find((r) => r.id === 'usbip'), vdd = rows.find((r) => r.id === 'vdd'), pad = rows.find((r) => r.id === 'gamepad')
     assert.equal(usbip.disabled, true); assert.equal(usbip.on, false); assert.match(usbip.text, /1903/)
     assert.equal(vdd.disabled, true); assert.match(vdd.text, /1803/)
     assert.equal(pad.disabled, false); assert.equal(pad.on, true)
   }
-  assert.equal(t('zh', 'comp.needs', '1903'), '需要 Windows 10 1903 或更高')
+  assert.equal(t('zh', 'comp.needs', 'Windows 10 1903'), '需要 Windows 10 1903 或更高')
 })
 
 test('the overall bar counts the running step fraction, never jumps back, and creeps no further than the next step', () => {
