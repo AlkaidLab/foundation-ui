@@ -124,8 +124,8 @@ button.m-b2item { cursor: pointer; } button.m-b2item:focus-visible { outline: 3p
 .m-b2pair__action:focus-visible, .m-b2pair__retry:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -3px; }
 .m-b2pair__action:disabled { cursor: default; opacity: .6; }
 .m-b2pair__action .m-icon, .m-b2pair__state > .m-icon { width: 32px; height: 32px; }
-.m-b2pair__action .m-icon { color: var(--md-sys-color-primary); }
-.m-b2pair__retry { border: 0; background: transparent; color: var(--md-sys-color-primary); font: inherit; cursor: pointer; }
+.m-b2pair__action .m-icon { color: var(--md-sys-color-primary-text); }
+.m-b2pair__retry { border: 0; background: transparent; color: var(--md-sys-color-primary-text); font: inherit; cursor: pointer; }
 .m-b2pair__side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .m-b2pair__pin { width: 100%; }
 

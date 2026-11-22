@@ -234,7 +234,7 @@ defineExpose({ send, form, doc, plan, layout, takeFile })
 .fb-body { display: flex; flex-direction: column; gap: 14px; }
 .fb-lead { margin: 0; font: var(--m-body-medium); color: var(--md-sys-color-on-surface-variant); }
 .fb-ctx { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 10px; width: fit-content; max-width: 100%; border-radius: 18px; background: var(--md-sys-color-surface-container-high); font: var(--m-label-large); }
-.fb-ctx .m-icon { font-size: 18px; width: 18px; height: 18px; color: var(--md-sys-color-primary); flex: none; }
+.fb-ctx .m-icon { font-size: 18px; width: 18px; height: 18px; color: var(--md-sys-color-primary-text); flex: none; }
 .fb-ctx span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fb-ctx small { font: var(--m-label-small); color: var(--md-sys-color-on-surface-variant); margin-left: 4px; flex: none; }
 .fb-attach { display: flex; flex-direction: column; gap: 6px; }
