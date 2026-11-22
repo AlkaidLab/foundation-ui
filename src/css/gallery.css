@@ -15,7 +15,7 @@
 .m-gal__foot { display: flex; align-items: center; gap: 12px; min-height: 40px; }
 .m-gal__title { flex: 1; min-width: 0; } .m-gal__title b { display: block; font: var(--m-title-small); color: var(--md-sys-color-on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .m-gal__add { all: unset; box-sizing: border-box; flex: none; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 20px 0 16px; border-radius: 20px; cursor: pointer; background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font: var(--m-label-large); transition: transform var(--m-spring-fast-spatial-duration, 250ms) var(--m-spring-fast-spatial, ease); }
-.m-gal__add .m-icon { font-size: 20px; } .m-gal__add:hover { transform: scale(1.03); } .m-gal__add:active { transform: scale(.97); } .m-gal__add:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-gal__add .m-icon { font-size: 20px; } @media (hover: hover) { .m-gal__add:not(.is-added):hover { transform: scale(1.03); } } .m-gal__add:not(.is-added):active { transform: scale(.97); background: color-mix(in srgb, var(--md-sys-color-on-primary) 14%, var(--md-sys-color-primary)); } .m-gal__add:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
 .m-gal__add.is-added { background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); cursor: default; transform: none; }
 .m-gal__variants { display: flex; flex-wrap: wrap; gap: 6px; } .m-gal__variant { all: unset; box-sizing: border-box; height: 32px; padding: 0 14px; border-radius: 16px; cursor: pointer; background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface-variant); font: var(--m-label-medium); } .m-gal__variant.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
 .m-gal__empty { margin: 32px 0; text-align: center; color: var(--md-sys-color-on-surface-variant); font: var(--m-body-large); }
@@ -81,3 +81,25 @@ html:not([data-motion='full']) .m-dedit.is-away { transition-duration: 1ms; }
 .m-gal__pager .m-gal__arrow:disabled { opacity: .3 !important; pointer-events: none; }
 .m-gal__pager .m-gal__dots { width: auto; margin-top: 0; }
 .m-gal__card:hover .m-gal__pager .m-gal__arrow, .m-gal__card:focus-within .m-gal__pager .m-gal__arrow { opacity: 1; }
+
+/* touch: a finger scrolls this list, so a press on a control is not yet a choice. The press shows at once (touchPress.js sets [data-pressed], the :active rules above have their twins), a card that is rested on
+   lifts under the finger before its tile is taken up, and every control a finger meets is 44 px or more with room between them. A mouse keeps the sizes above. */
+.m-gal__add, .m-gal__arrow, .m-gal__dot, .m-gal__cat, .m-gal__variant { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.m-gal__card.is-holding { transform: scale(.98); background: var(--md-sys-color-surface-container-high); transition: transform 160ms var(--m-spring-fast-spatial, ease), background 160ms linear; }
+@media (pointer: coarse) {
+  .m-gal__pager { gap: 8px; }
+  .m-gal__dot { width: 44px; height: 44px; }
+  .m-gal__foot { gap: 16px; }
+  .m-gal__add { min-width: 96px; justify-content: center; }
+  .m-gal__variants { gap: 8px; }
+  .m-gal__variant { height: 44px; padding: 0 18px; border-radius: 22px; }
+  .m-dedit__head .m-dpill { min-height: 44px; }
+}
+
+/* a card in half a row (a 方形 on a phone: two to a row, as on the overview): less padding, the pager is the dots (a swipe or a tap turns the page), the title above a full-width 添加 */
+.m-gal__card.is-narrow { padding: 10px; gap: 8px; border-radius: 24px; }
+.m-gal__card.is-narrow .m-gal__arrow { display: none; }
+.m-gal__card.is-narrow .m-gal__pager { flex-wrap: wrap; margin-top: 0; }
+.m-gal__card.is-narrow .m-gal__foot { flex-direction: column; align-items: stretch; gap: 8px; }
+.m-gal__card.is-narrow .m-gal__title { text-align: center; }
+.m-gal__card.is-narrow .m-gal__add { width: 100%; justify-content: center; padding: 0 14px 0 12px; min-width: 0; }

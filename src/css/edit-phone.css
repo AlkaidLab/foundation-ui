@@ -59,7 +59,7 @@
   .m-dedit__close { width: 48px; height: 48px; border-radius: 24px; }
   .m-gal__cat { min-height: 48px; }
   .m-gal__arrow, .m-gal__pager .m-gal__arrow { width: 48px; height: 48px; }
-  .m-gal__variant { height: 40px; }
+  .m-gal__variant { height: 44px; }
 }
 
 /* The controls inside the tiles: a finger needs 40 px at least (48 where a tile has room for it). Where the tile's own fit leaves no room for taller controls the control keeps its size and a transparent

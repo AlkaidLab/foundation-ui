@@ -314,7 +314,14 @@ export function useDashDock(D) {
   const slack = computed(() => (sectioned.value && !edit.value ? Math.max(0, Math.round(availH.value - Math.max(0, ...blocks.value.map((b) => b.natural || 0)))) : 0))
   const shownIds = computed(() => shown.value.filter((c) => !c.ghost).map((c) => c.id))
   const placedOf = (id) => { for (const b of blocks.value) { const p = b.packed.placed.get(id); if (p) return p } return null }
-  const cellStyle = (b, id) => { const p = b.packed.placed.get(id); return p ? { gridRow: `${p.row + 1} / span ${p.rows}`, gridColumn: `${p.col + 1} / span ${p.span}` } : {} }
+  // A tile is its box and no more: one that spans rows keeps rows x unit + the gaps of the ladder, where edit mode widens the row gap (dash.css .is-edit .m-dash__grid, room for the size bar) it does not stretch across the wider gap
+  const cellStyle = (b, id) => {
+    const p = b.packed.placed.get(id)
+    if (!p) return {}
+    const st = { gridRow: `${p.row + 1} / span ${p.rows}`, gridColumn: `${p.col + 1} / span ${p.span}` }
+    if (p.rows > 1 && b.unit && (b.packed.rows || []).slice(p.row, p.row + p.rows).every((r) => r.cls === 'unit')) { st.alignSelf = 'start'; st.height = `${p.rows * b.unit + (p.rows - 1) * UNIT_GAP}px` }
+    return st
+  }
   watch([blocks, width, tall], async () => { await nextTick(); measureTop() }, { flush: 'post' })
   // the grid is as wide as its columns of the fixed unit and sits in the middle of the pane
   const blockStyle = (b) => (b.unit ? { flex: '0 1 auto', width: `${gridWidthOf(b.units, b.unit)}px`, maxWidth: '100%' } : b.width ? { width: `${b.width}px`, maxWidth: '100%' } : undefined)

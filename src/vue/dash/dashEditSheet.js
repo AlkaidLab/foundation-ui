@@ -45,7 +45,7 @@ export function useDashEditSheet(D) {
   const previewW = (c) => { const n = Math.min(units.value, sheetBox(c).span); return n * sheetUnit.value + (n - 1) * UNIT_GAP }
   const previewScale = (c) => previewW(c) / Math.max(1, prevBox(c).w)
   watch(stripEl, (el, _old, onCleanup) => { if (!el) return; const o = new ResizeObserver(() => { stripW.value = el.clientWidth }); o.observe(el); stripW.value = el.clientWidth; onCleanup(() => o.disconnect()) })
-  const prevBox = (c) => { if (dockLayout.value) return { w: 176, h: 176 }; const b = sheetBox(c); const g = gridOf(Math.max(480, width.value)); const px = ROW_PX.value(b.cls); return { w: Math.round(b.span * g.unit + (b.span - 1) * UNIT_GAP), h: Math.round(px * b.rows + (b.rows - 1) * UNIT_GAP) } }
+  const prevBox = (c) => { if (dockLayout.value) return { w: 176, h: 176 }; const b = sheetBox(c); const g = gridOf(width.value); const px = ROW_PX.value(b.cls); return { w: Math.round(b.span * g.unit + (b.span - 1) * UNIT_GAP), h: Math.round(px * b.rows + (b.rows - 1) * UNIT_GAP) } }
   // ---- the gallery: every tile the overview can show (those on it are marked 已添加), by category, each with its sizes
   const gallerySource = computed(() => {
     const all = allCards.value.filter((c) => c.available && !c.id.startsWith('pin:'))
@@ -74,10 +74,12 @@ export function useDashEditSheet(D) {
     pickerOpen.value = false; sheetAway.value = false
     landing.value = id; clearTimeout(landTimer); landTimer = setTimeout(() => { landing.value = '' }, 900)
     nextTick(() => { const el = grid.value?.querySelector(`[data-card="${CSS.escape(id)}"]`) || root.value?.querySelector(`[data-card="${CSS.escape(id)}"]`); el?.scrollIntoView?.({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }) })
-    notify.snack((T.value.galSnack || 'Added: {name}').replace('{name}', titleOf(id)), { action: T.value.galUndo || 'Undo', timeout: 6000, onAction: () => { layout.restore(before); say(`${titleOf(id)}: ${T.value.hide}`) } })
+    // one id: a second add replaces the message of the first instead of waiting behind it, and its 撤销 takes back the tile that was added last
+    notify.snack((T.value.galSnack || 'Added: {name}').replace('{name}', titleOf(id)), { id: 'tile-added', action: T.value.galUndo || 'Undo', timeout: 6000, onAction: () => { layout.restore(before); say(`${titleOf(id)}: ${T.value.hide}`) } })
   }
   // 添加: the tile takes the first free place of the arrangement (the packer fills the first hole it fits), the gallery slides away and the tile arrives on the spring
   function addFromGallery(id) {
+    if (sheetAway.value || shownIds.value.includes(id)) return // a second tap on the way out, or a tile that is already on the overview, adds nothing
     const before = layout.snapshot()
     addCard(id)
     sheetAway.value = true
