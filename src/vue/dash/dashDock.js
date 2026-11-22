@@ -189,10 +189,10 @@ export function useDashDock(D) {
   // stretched tile): no row ends with empty cells beside it while the catalogue has a tile to put there.
   const dockCards = computed(() => {
     if (!dockOn.value) return []
-    const list = visibleCards.value.map((c) => boxFor(c, 8))
+    const list = visibleCards.value.filter((c) => D.hasSquare(c)).map((c) => boxFor(c, 8))
     if (!smart.value) return list
     const need = missingInRow(list.length, dockGrid.value.columns)
-    return need ? [...list, ...fillCards.value.slice(0, need).map((c) => boxFor(c, 8))] : list
+    return need ? [...list, ...fillCards.value.filter((c) => D.hasSquare(c)).slice(0, need).map((c) => boxFor(c, 8))] : list
   })
   // The tiles are the overview's standard squares (s: one unit), wrapped into the same columns as the grid, so they never form a row that scrolls: a row that does not fit goes below and the page scrolls.
   // The grid is as wide as its columns and sits in the middle of the pane, edge to edge in a narrow one (columnsOf), the same on every window.

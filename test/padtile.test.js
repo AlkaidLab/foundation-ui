@@ -8,7 +8,7 @@ const vue = fs.readFileSync(new URL('../src/vue/tiles/TileDevices.vue', import.m
 const line = (sel) => { const l = real.split('\n').find((x) => x.startsWith(sel)); assert.ok(l, sel); return l }
 
 test('the art plate of the square pad tile covers the whole tile and no longer has its own 40 px height', () => {
-  const plate = line('.m-b2pad.is-s .m-b2plate, .m-dash__cell .m-b2pad.is-s .m-b2plate')
+  const plate = line('.m-b2pad.is-s .m-b2plate, :is(.m-dash__cell, .m-dock__cell) .m-b2pad.is-s .m-b2plate')
   assert.match(plate, /position: absolute; inset: 0;/)
   assert.match(plate, /z-index: 0;/)
   assert.match(plate, /clip-path: none/)

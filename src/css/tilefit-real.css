@@ -4,8 +4,8 @@
 .m-b2addr.is-s .m-b2plate { padding: 6px 8px; gap: 2px; margin-top: 4px; justify-content: flex-end; }
 .m-b2addr .m-b2plate .m-b2addr__text { min-width: 0; max-width: 100%; }
 /* a state or an address is read in full: it wraps (a long name or a state in words) and the plate grows to its text, nothing is cut */
-.m-dash__cell .m-b2addr .m-b2plate b, .m-b2addr .m-b2plate b { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere; line-height: 1.2; }
-.m-dash__cell .m-b2addr .m-b2plate small, .m-b2addr .m-b2plate small { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere; line-height: 1.25; }
+:is(.m-dash__cell, .m-dock__cell) .m-b2addr .m-b2plate b, .m-b2addr .m-b2plate b { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere; line-height: 1.2; }
+:is(.m-dash__cell, .m-dock__cell) .m-b2addr .m-b2plate small, .m-b2addr .m-b2plate small { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere; line-height: 1.25; }
 /* 编码器: the big shape sits at the corner, below the title's words */
 /* 日志 (and every empty state at 方形): the corner shape keeps its glyph inside the tile */
 .m-tempty--s .m-tempty__shape { translate: -4% 4%; }
@@ -46,15 +46,13 @@
 .m-b2last.has-art.is-s .m-calm__title { text-wrap: balance; }
 /* an icon base keeps its shape: 键盘输入 and the other action/toggle tiles drew their 48 px circle shrunk by the flex column to 48×39 (an oval) at 方形; the base does not shrink, the circle is 40 px at 方形 so the text under it keeps its room (gate: the browser check) */
 .m-cala__glyph { flex: none; aspect-ratio: 1 / 1; }
-.m-cala[data-size='s'] .m-cala__glyph { width: 40px; height: 40px; }
-.m-cala[data-size='s'] .m-cala__glyph .m-icon { width: 22px; height: 22px; }
 
 /* 手柄 (status) 方形: the drawn controller is the tile, not a 40 px plate under the text. The plate fills the tile behind the head, the name and the state; the controller is drawn large on it, and a scrim of the plate's own colour
    (left and bottom, where the text is) keeps the words readable. Name 16 px, state 12 px, head 13 px: nothing under 11 px. */
-.m-b2pad.is-s .m-b2plate, .m-dash__cell .m-b2pad.is-s .m-b2plate { position: absolute; inset: 0; z-index: 0; flex: none; min-height: 0; margin: 0; padding: 0; clip-path: none; border-radius: 0; align-items: center; justify-content: center; overflow: hidden; }
+.m-b2pad.is-s .m-b2plate, :is(.m-dash__cell, .m-dock__cell) .m-b2pad.is-s .m-b2plate { position: absolute; inset: 0; z-index: 0; flex: none; min-height: 0; margin: 0; padding: 0; clip-path: none; border-radius: 0; align-items: center; justify-content: center; overflow: hidden; }
 .m-b2pad.is-s .m-b2plate::after { content: ''; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(to top, var(--plate) 0, color-mix(in srgb, var(--plate) 88%, transparent) 34%, transparent 66%), linear-gradient(to right, color-mix(in srgb, var(--plate) 72%, transparent) 0, transparent 62%); }
-.m-b2pad.is-s .m-b2plate .m-ctl, .m-dash__cell .m-b2pad.is-s .m-b2plate .m-ctl { position: absolute; left: 22%; top: 26px; width: 100%; max-height: none; height: auto; }
+.m-b2pad.is-s .m-b2plate .m-ctl, :is(.m-dash__cell, .m-dock__cell) .m-b2pad.is-s .m-b2plate .m-ctl { position: absolute; left: 22%; top: 26px; width: 100%; max-height: none; height: auto; }
 .m-b2pad.is-s > .m-calm__head, .m-b2pad.is-s > .m-b2__name, .m-b2pad.is-s > .m-b2__cap { position: relative; z-index: 1; }
 .m-b2pad.is-s > .m-b2__name { margin-top: auto; }
 .m-b2pad.is-s .m-b2plate.is-on ~ .m-b2__name, .m-b2pad.is-s .m-b2plate.is-on ~ .m-b2__cap { color: var(--md-sys-color-on-primary-container); }
@@ -73,8 +71,6 @@
 @container (max-height: 39px) { .m-b2recent.is-m .m-b2recent__mini li { display: none; } }
 /* 上次串流 at 中: the stats that do not fit in the side are not shown (a row of whole stats) */
 /* 停止串流 and 音频 at 方形: the lines under the name take two lines of 12-13 px at most */
-.m-cala[data-size='s'] .m-cala__name { font-size: 20px; line-height: 24px; }
-.m-cala[data-size='s'] .m-b3a__state { font-size: 12px; line-height: 16px; }
 .m-b2name.is-s .m-b2glyph { --g: 36px; }
 .m-b2name.is-s .m-b2__name { font-size: 13px; line-height: 16px; margin-top: 4px; overflow-wrap: normal !important; }
 /* setting strips (帧率预设, 码率预设, 编码器) on a phone: the buttons keep their own width and the row scrolls sideways under an edge fade instead of drawing 6 buttons of 24 px over each other */
@@ -99,8 +95,8 @@
 /* 本主机 stat pills (「这个磁贴问题很大」): the pill's height comes from its content (tiles-cal.css), so nothing leaves it. The label is ONE line that ends in an ellipsis (the full text is the pill's title; the generic wrap rule of
    tilefit.css would make it two lines and the pill taller than its row), the value shrinks to its room (fitText.js) and, below the floor, ends in an ellipsis too instead of wrapping. A card too short for the rows loses whole pills (fitRows.js, data-fit-rows). */
 .m-calh__blocks .m-calh__short { display: none; } .m-calh__blocks small[data-fit-short] .m-calh__full { display: none; } .m-calh__blocks small[data-fit-short] .m-calh__short { display: inline; } /* the label's detail (版本 · 2026.1107.232322) goes before an ellipsis would cut it: fitText.js */
-.m-dash__cell .m-calh__blocks li > small { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; overflow-wrap: normal; min-width: 0; }
-.m-dash__cell .m-calh__blocks li > b, .m-dash__cell .m-calh__blocks li > b[data-fit-wrap] { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; overflow-wrap: normal; min-width: 0; }
+:is(.m-dash__cell, .m-dock__cell) .m-calh__blocks li > small { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; overflow-wrap: normal; min-width: 0; }
+:is(.m-dash__cell, .m-dock__cell) .m-calh__blocks li > b, :is(.m-dash__cell, .m-dock__cell) .m-calh__blocks li > b[data-fit-wrap] { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; overflow-wrap: normal; min-width: 0; }
 
 /* 最近玩过 and 应用 at 方形: the art is the tile. The cover fills the whole tile as its background (aspect-fill in the fixed frame of the tile, clipped by the tile's own radius, so a poster, a landscape key art and the
    wallpaper that is the desktop's art all fill it the same way), a soft scrim darkens the bottom and, lightly, the top where the words are, and the words sit on it in white: the name at the bottom left, the time under it

@@ -24,6 +24,10 @@ export function useDashGrid(D) {
   const rowPxIn = (unit) => (cls) => (cls === 'unit' ? unit : cls === 'strip' ? STRIP_PX : JOURNEY_PX)
   const trackTemplate = (rows, unit) => rows.map((r) => (r.cls === 'unit' ? `${unit}px` : r.cls === 'strip' ? `${STRIP_PX}px` : `minmax(${JOURNEY_PX}px, auto)`)).join(' ')
   const dockLayout = computed(() => appearance.state.overview === 'dock')
+  // A card with no 方形 (its sizes start at 中 or 大, or it is a strip) cannot be drawn in the clock's square: the clock does not show it (the saved layout is not touched; the grid shows it). The ones whose design
+  // has a square although the card's range does not say so are listed: 本次目标码率 (the slider in the square) and 快捷操作 (the 2 x 2 actions).
+  const DOCK_SQUARE_DESIGNS = new Set(['live-bitrate', 'quick'])
+  const hasSquare = (c) => c.kind === 'stack' || DOCK_SQUARE_DESIGNS.has(c.id) || !!sizesOf(c.id, c, windowClass.value, tall.value).sizes.s
   const dockBox = (c, u) => ({ ...c, ...boxIn(c, 's', u), size: 's', sizeKey: 's', sizeKeys: ['s'] })
   // The size drawn is effectiveSize of what is asked (the plan's in smart mode, the person's in manual). The smart fill may ask for the next offered size up to 大 where a row is short, but only from
   // the medium class up: a phone-sized window (under 600) draws the plan as it is, so crossing 600 changes a tile at most once whatever the number of columns does around it.
@@ -123,5 +127,5 @@ export function useDashGrid(D) {
     window.removeEventListener('blur', onAway); window.removeEventListener('focus', onBack)
     for (const e of INPUTS) window.removeEventListener(e, onInput)
   })
-  Object.assign(D, { boxFor, boxIn, dockBox, dockLayout, gridOf, tileDensity, onStackFlags, onStackHover, setStackRotate, onStackRotate, onStackSuggest, rowPxIn, sizeKeysOf, stackSizeFor, trackTemplate })
+  Object.assign(D, { boxFor, boxIn, dockBox, dockLayout, hasSquare, gridOf, tileDensity, onStackFlags, onStackHover, setStackRotate, onStackRotate, onStackSuggest, rowPxIn, sizeKeysOf, stackSizeFor, trackTemplate })
 }

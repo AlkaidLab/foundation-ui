@@ -29,3 +29,11 @@ test('the design square is always the standard unit (a denser or looser window s
   for (const w of [320, 360, 390, 430, 600, 799]) { const { unit } = columnsOf(w); assert.ok(unit / designUnitPx() <= 1.36 && unit / designUnitPx() >= 0.9, `${w}: k = ${unit / designUnitPx()}`) }
   for (const w of [800, 1280, 1920]) assert.equal(columnsOf(w).unit, designUnitPx(), `${w}: no scale at a desktop width`)
 })
+
+test('the clock draws only the tiles that have a square: a card whose sizes start at 中 or 大, or that is a strip, is not drawn there (the layout is kept; the grid shows it)', () => {
+  const g = read('src/vue/dash/dashGrid.js'), dock = read('src/vue/dash/dashDock.js')
+  assert.match(g, /const DOCK_SQUARE_DESIGNS = new Set\(\['live-bitrate', 'quick'\]\)/)
+  assert.match(g, /const hasSquare = \(c\) => c\.kind === 'stack' \|\| DOCK_SQUARE_DESIGNS\.has\(c\.id\) \|\| !!sizesOf\(c\.id, c, windowClass\.value, tall\.value\)\.sizes\.s/)
+  assert.match(dock, /visibleCards\.value\.filter\(\(c\) => D\.hasSquare\(c\)\)\.map\(\(c\) => boxFor\(c, 8\)\)/)
+  assert.match(dock, /fillCards\.value\.filter\(\(c\) => D\.hasSquare\(c\)\)\.slice\(0, need\)/)
+})
