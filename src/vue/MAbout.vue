@@ -207,10 +207,14 @@ const team = computed(() => TEAM.map((p) => ({ ...p, founder: p.login === FOUNDE
 
 <template>
   <MPage :title="T.title" class="m-about" :class="{ 'm-about--friends': friends }" :updated="update.checkedAt || 0" :refreshing="update.state === 'checking'" refreshable :locale="locale" @refresh="emit('check')">
+    <!-- the product's tiles (帮助与关于: 软件更新, 主机体检, 反馈问题, 客户端下载) come first; they carry the update action, so the top area has none then -->
+    <slot name="tiles" />
     <!-- the top area: one component, three looks (`variant`) -->
     <MProductHero v-if="look === 'a'" :slogan="T.slogan">
+      <template v-if="!$slots.tiles" #default>
       <MSplitButton v-if="updateChannel" :variant="update.state === 'available' ? 'filled' : 'tonal'" :icon="update.state === 'available' ? 'system_update_alt' : update.state === 'latest' ? 'check_circle' : 'refresh'" :busy="update.state === 'checking'" :label="updateLabel" :menu-label="T.updateChannel" :items="channelOptions.map((o) => ({ id: o.value, label: o.label, selected: o.value === updateChannel }))" @click="onUpdate" @select="(item) => emit('channel-change', item.id)" />
       <MButton v-else :variant="update.state === 'available' ? 'filled' : 'tonal'" :icon="update.state === 'available' ? 'system_update_alt' : update.state === 'latest' ? 'check_circle' : 'refresh'" :loading="update.state === 'checking'" @click="onUpdate">{{ updateLabel }}</MButton>
+      </template>
     </MProductHero>
     <section v-else class="m-about__top" :class="`m-about__top--${look}`" aria-label="Foundation Sunshine">
       <picture v-if="look === 'b'" class="m-about__banner">
@@ -222,7 +226,7 @@ const team = computed(() => TEAM.map((p) => ({ ...p, founder: p.login === FOUNDE
           <h2 class="m-about__name">{{ PRODUCT.name }}</h2>
           <p class="m-about__slogan">{{ T.slogan }}</p>
         </template>
-        <div class="m-about__actions">
+        <div v-if="!$slots.tiles" class="m-about__actions">
           <MSplitButton v-if="updateChannel" :variant="update.state === 'available' ? 'filled' : 'tonal'" :icon="update.state === 'available' ? 'system_update_alt' : update.state === 'latest' ? 'check_circle' : 'refresh'" :busy="update.state === 'checking'" :label="updateLabel" :menu-label="T.updateChannel" :items="channelOptions.map((o) => ({ id: o.value, label: o.label, selected: o.value === updateChannel }))" @click="onUpdate" @select="(item) => emit('channel-change', item.id)" />
           <MButton v-else :variant="update.state === 'available' ? 'filled' : 'tonal'" :icon="update.state === 'available' ? 'system_update_alt' : update.state === 'latest' ? 'check_circle' : 'refresh'" :loading="update.state === 'checking'" @click="onUpdate">{{ updateLabel }}</MButton>
         </div>
