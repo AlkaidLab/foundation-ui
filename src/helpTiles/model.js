@@ -32,7 +32,7 @@ export function updateTile(update = {}, T, ago = () => '') {
   const installed = shortVersion(update.installed)
   const next = shortVersion(update.next)
   const at = Number(update.checkedAt) > 0 ? Number(update.checkedAt) : 0
-  const tile = { id: 'update', icon: 'system_update_alt', label: T.update, state, accent: '', busy: false, value: installed || '–', unit: '', sub: '', aux: '', action: { kind: 'check', label: T.actCheck } }
+  const tile = { id: 'update', icon: 'system_update_alt', label: T.update, state, accent: '', busy: false, value: installed || '–', unit: '', sub: '', aux: '', hero: '', action: { kind: 'check', label: T.actCheck } }
   if (state === 'checking') return { ...tile, busy: true, sub: T.checking, action: { kind: 'none', label: '' } }
   if (state === 'available') return { ...tile, accent: 'tertiary', value: next || installed || '–', sub: T.available, action: { kind: 'open', label: T.actUpdate } }
   if (state === 'error') return { ...tile, accent: 'warn', sub: T.failed, action: { kind: 'check', label: T.actRetry } }
@@ -45,7 +45,7 @@ export function updateTile(update = {}, T, ago = () => '') {
  * (warnings and failures); a check that found nothing out is not a result. The time is the aux part.
  */
 export function doctorTile(doctor, T, ago = () => '') {
-  const tile = { id: 'doctor', icon: 'health_and_safety', label: T.doctor, state: 'none', accent: '', busy: false, value: T.doctorNone, unit: '', sub: '', aux: '', action: { kind: 'run', label: T.actStart } }
+  const tile = { id: 'doctor', icon: 'health_and_safety', label: T.doctor, state: 'none', accent: '', busy: false, value: T.doctorNone, unit: '', sub: '', aux: '', hero: '', action: { kind: 'run', label: T.actStart } }
   const c = doctor && !doctor.empty && doctor.counts ? doctor.counts : null
   if (!c || !(Number(doctor.at) > 0)) return tile
   const problems = (Number(c.warn) || 0) + (Number(c.fail) || 0)
@@ -55,26 +55,34 @@ export function doctorTile(doctor, T, ago = () => '') {
 }
 
 /**
- * 反馈问题. `feedback` = { unread, last }: the number of replies not read yet (the reply channel; absent where the product has none) and the last report this computer sent
- * ({ status: 'sent' | 'queued', ref }). Unread replies are the value; else the last report's state; else the plain fact that it is private.
+ * 反馈问题. `feedback` = what this window knows of its own reports (feedback/replies.js: the keys and titles it kept, the answers that came back):
+ *   { unread, newest, count, latest }   unread: answers not opened yet; newest: the title of the newest of them; count: reports kept; latest: { at, status: 'processing' | 'replied' | 'fixed' } of the newest report
+ * Unread answers are the hero (the accent, a press opens them); else the number of reports with the state of the newest one and its age; with no report the action is the hero: no line of copy.
  */
-export function feedbackTile(feedback = {}, T) {
-  const unread = Math.max(0, Math.floor(Number(feedback.unread) || 0))
-  const last = feedback.last && (feedback.last.status === 'sent' || feedback.last.status === 'queued') ? feedback.last : null
-  const tile = { id: 'feedback', icon: 'feedback', label: T.feedback, state: 'none', accent: '', busy: false, value: T.private, unit: '', sub: T.noAccount, aux: '', action: { kind: 'write', label: T.actWrite } }
-  if (unread) return { ...tile, state: 'unread', accent: 'primary', value: String(unread), unit: T.repliesUnit, sub: '', action: { kind: 'replies', label: T.actReplies } }
-  if (last) return { ...tile, state: last.status, value: last.status === 'sent' ? T.sent : T.queued, sub: last.ref ? `#${last.ref}` : '' }
-  return tile
+export function feedbackTile(feedback = {}, T, ago = () => '') {
+  const n = (v) => Math.max(0, Math.floor(Number(v) || 0))
+  const unread = n(feedback.unread)
+  const count = n(feedback.count)
+  const latest = feedback.latest && Number(feedback.latest.at) > 0 ? feedback.latest : null
+  const tile = { id: 'feedback', icon: 'feedback', label: T.feedback, state: 'none', accent: '', busy: false, value: T.actWrite, unit: '', sub: '', aux: '', hero: 'feedback', action: { kind: 'write', label: T.actWrite } }
+  if (unread) return { ...tile, state: 'unread', accent: 'primary', hero: '', value: String(unread), unit: T.repliesUnit, sub: text(feedback.newest), action: { kind: 'replies', label: T.actReplies } }
+  if (!count || !latest) return tile
+  const status = { processing: T.stProcessing, replied: T.stReplied, fixed: T.stFixed }[latest.status] || T.stProcessing
+  return { ...tile, state: latest.status === 'fixed' ? 'fixed' : latest.status === 'replied' ? 'replied' : 'processing', hero: '', value: String(count), unit: T.submitted, sub: status, aux: ago(Number(latest.at)), action: { kind: 'write', label: T.actWrite } }
 }
 
-/** 客户端下载. `downloads` = { os, client }: the system the person last chose for connecting a device (its short name) and the client recommended for it. */
+/**
+ * 客户端下载. `downloads` = { os, client }: only when the person chose a system for connecting a device (the choice is remembered, osChoice.js): its short name and the client recommended for it.
+ * Without a choice there is nothing to state: the action is the hero.
+ */
 export function downloadsTile(downloads = {}, T) {
-  return { id: 'downloads', icon: 'download', label: T.downloads, state: 'none', accent: '', busy: false, value: text(downloads.os) || '–', unit: '', sub: text(downloads.client), aux: '', action: { kind: 'open', label: T.actDownload } }
+  const tile = { id: 'downloads', icon: 'download', label: T.downloads, state: 'none', accent: '', busy: false, value: T.actDownload, unit: '', sub: '', aux: '', hero: 'download', action: { kind: 'open', label: T.actDownload } }
+  return text(downloads.os) ? { ...tile, state: 'chosen', hero: '', value: text(downloads.os), sub: text(downloads.client) } : tile
 }
 
 /** The four tiles, in the order of the row: 软件更新 first, so it is the first on a phone. */
 export function helpTiles({ update, doctor, feedback, downloads } = {}, T, ago) {
-  return [updateTile(update, T, ago), doctorTile(doctor, T, ago), feedbackTile(feedback, T), downloadsTile(downloads, T)]
+  return [updateTile(update, T, ago), doctorTile(doctor, T, ago), feedbackTile(feedback, T, ago), downloadsTile(downloads, T)]
 }
 
 /** What a screen reader hears: the name, the value with its unit, the state and the action. */

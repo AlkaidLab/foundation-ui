@@ -32,6 +32,9 @@
 .m-helptile__main:not(:empty) + .m-helptile__aux::before { content: '·'; margin-inline-end: 6px; }
 .m-helptile__aux { min-width: 0; font-weight: 400; }
 
+/* a tile with nothing to state: its action is the hero, a round glyph where the action's words would be (the whole tile is the button) */
+.m-helptile__hero { align-self: flex-start; margin-top: auto; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: color-mix(in srgb, var(--tk) 16%, transparent); color: color-mix(in srgb, var(--tk) 78%, var(--md-sys-color-on-surface)); }
+.m-helptile__hero > .m-icon { width: 24px; height: 24px; }
 /* the action: the corner of the tile that says what a press does; at the narrowest it is the arrow alone */
 .m-helptile__act { align-self: flex-start; margin-top: auto; max-width: 100%; overflow: hidden; height: 26px; }
 .m-helptile__act.m-tchip--accent { background: var(--tk); color: var(--on-tk); }

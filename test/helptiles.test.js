@@ -63,22 +63,39 @@ test("the doctor tile: a plain start line, or the result with its time as the pa
   assert.equal(doctorTile({ counts: { pass: 1, warn: 0, fail: 0 } }, ZH).state, "none", "a summary without a time is not ours")
 })
 
-test("the feedback tile: unread replies, else the last report, else the plain fact", () => {
-  assert.deepEqual([feedbackTile({}, ZH).value, feedbackTile({}, ZH).sub, feedbackTile({}, ZH).action.kind], ["私下发送", "无需账号", "write"])
-  const unread = feedbackTile({ unread: 3, last: { status: "sent", ref: "AB12" } }, ZH)
-  assert.deepEqual([unread.value, unread.unit, unread.action.kind, unread.accent], ["3", "条新回复", "replies", "primary"])
+test("the feedback tile: unread answers, else the reports with the state of the newest, else the action itself", () => {
+  const none = feedbackTile({}, ZH, ago)
+  assert.deepEqual([none.state, none.hero, none.value, none.unit, none.sub, none.aux], ["none", "feedback", "写反馈", "", "", ""], "no report: no line of copy, the action is the hero")
+  const unread = feedbackTile({ unread: 2, newest: "串流黑屏", count: 3, latest: { at: 9, status: "replied" } }, ZH, ago)
+  assert.deepEqual([unread.value, unread.unit, unread.sub, unread.action.kind, unread.accent, unread.hero], ["2", "条新回复", "串流黑屏", "replies", "primary", ""])
+  const processing = feedbackTile({ count: 3, latest: { at: 9, status: "processing" } }, ZH, ago)
+  assert.deepEqual([processing.value, processing.unit, processing.sub, processing.aux, processing.action.kind, processing.hero], ["3", "条已提交", "处理中", "ago:9", "write", ""])
+  assert.equal(feedbackTile({ count: 1, latest: { at: 9, status: "replied" } }, ZH, ago).sub, "已回复")
+  assert.equal(feedbackTile({ count: 1, latest: { at: 9, status: "fixed" } }, ZH, ago).sub, "已修复")
+  assert.equal(feedbackTile({ count: 1, latest: { at: 9, status: "fixed" } }, ZH, ago).state, "fixed")
   assert.equal(feedbackTile({ unread: "x" }, ZH).state, "none", "no invented data")
-  assert.equal(feedbackTile({ unread: -2 }, ZH).state, "none")
-  const sent = feedbackTile({ last: { status: "sent", ref: "AB12CD34" } }, ZH)
-  assert.deepEqual([sent.value, sent.sub], ["已发送", "#AB12CD34"])
-  assert.equal(feedbackTile({ last: { status: "queued", ref: "" } }, ZH).value, "待发送")
-  assert.equal(feedbackTile({ last: { status: "failed", ref: "X" } }, ZH).state, "none")
+  assert.equal(feedbackTile({ unread: -2, count: 0 }, ZH).state, "none")
+  assert.equal(feedbackTile({ count: 2 }, ZH).state, "none", "reports without a time are not a state")
 })
 
-test("the downloads tile names the system and the client recommended for it", () => {
+test("no tile has a line of copy: every value and every state line is state, an action is the hero where there is none", () => {
+  const all = [
+    ...["idle", "checking", "available", "latest", "error"].map((state) => updateTile({ state, installed: "1.0.0", next: "1.1.0", checkedAt: 5 }, T, ago)),
+    doctorTile(null, T), doctorTile({ at: 5, counts: { pass: 3, warn: 0, fail: 0 } }, T, ago), doctorTile({ at: 5, counts: { pass: 3, warn: 1, fail: 0 } }, T, ago),
+    feedbackTile({}, T), feedbackTile({ unread: 1, newest: "x" }, T), feedbackTile({ count: 1, latest: { at: 5, status: "processing" } }, T, ago),
+    downloadsTile({}, T), downloadsTile({ os: "Windows", client: "Moonlight V+" }, T),
+  ]
+  const copy = ["Private", "No account needed", "私下发送", "无需账号"]
+  for (const t of all) for (const key of ["value", "sub", "aux", "unit"]) assert.ok(!copy.includes(t[key]), `${t.id}.${key} is ${t[key]}`)
+  // a tile that states nothing says so by its hero (the action), and has no sub line
+  for (const t of all.filter((x) => x.hero)) assert.deepEqual([t.sub, t.aux, t.unit], ["", "", ""], t.id)
+})
+
+test("the downloads tile names the system and its client once the person chose a system; before that the action is the hero", () => {
   const t = downloadsTile({ os: "Android", client: "Moonlight V+" }, T)
-  assert.deepEqual([t.value, t.sub, t.action.kind], ["Android", "Moonlight V+", "open"])
-  assert.equal(downloadsTile({}, T).value, "–")
+  assert.deepEqual([t.state, t.value, t.sub, t.action.kind, t.hero], ["chosen", "Android", "Moonlight V+", "open", ""])
+  const none = downloadsTile({}, T)
+  assert.deepEqual([none.state, none.hero, none.value, none.sub], ["none", "download", "Download", ""])
 })
 
 test("the row: 软件更新 first, four tiles, each with an accessible name that carries its action", () => {
@@ -86,7 +103,7 @@ test("the row: 软件更新 first, four tiles, each with an accessible name that
   assert.deepEqual(tiles.map((t) => t.id), HELP_TILE_IDS)
   assert.equal(tiles[0].id, "update")
   assert.match(tileLabel(tiles[0]), /Software update · 1\.1\.0 · Update available · Update/)
-  assert.match(tileLabel(tiles[2]), /Report a problem/)
+  assert.match(tileLabel(tiles[2]), /Report a problem · Write/)
 })
 
 test("the dot: acting on an available update opens it; showing a state does not", () => {
@@ -116,7 +133,9 @@ test("every language has every word, and no word is too long for a tile or says 
     const X = helpTileTexts(code)
     for (const key of HELP_TILE_KEYS) assert.ok(typeof X[key] === "string" && X[key], `${code}.${key}`)
     // what is drawn as a value, a state line or an action is read in 112 px: a long word would clip
-    for (const key of ["doctorOk", "doctorNone", "private", "sent", "queued"]) assert.ok(em(X[key]) <= 5.5, `${code}.${key} is ${X[key]}: ${em(X[key]).toFixed(1)} em, the value line holds 5.6`)
+    for (const key of ["doctorOk", "doctorNone", "actWrite", "actDownload"]) assert.ok(em(X[key]) <= 5.5, `${code}.${key} is ${X[key]}: ${em(X[key]).toFixed(1)} em, the value line holds 5.6`)
+    // the state line of the feedback tile is 12 px type: 9.3 em in 112 px
+    for (const key of ["stProcessing", "stReplied", "stFixed"]) assert.ok(em(X[key]) <= 9, `${code}.${key} is ${X[key]}: ${em(X[key]).toFixed(1)} em`)
     for (const key of ["actCheck", "actUpdate", "actRetry", "actStart", "actRerun", "actWrite", "actReplies", "actDownload"]) assert.ok([...X[key]].length <= 16, `${code}.${key} is ${X[key]}`)
     for (const key of HELP_TILE_KEYS) assert.ok(!X[key].includes("遥测"), `${code}.${key}`)
   }
