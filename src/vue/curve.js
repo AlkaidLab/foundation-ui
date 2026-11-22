@@ -37,6 +37,26 @@ export function smoothPath(pts) {
   return d
 }
 
+/** SVG path of a smooth line through the points that never overshoots (monotone cubic, Fritsch-Carlson): between two samples the curve stays between their two values, a flat run stays flat. x must grow. */
+export function monotonePath(pts) {
+  const n = pts.length
+  if (n < 2) return ''
+  const dx = [], m = []
+  for (let i = 0; i < n - 1; i++) { dx.push(pts[i + 1].x - pts[i].x || 1e-9); m.push((pts[i + 1].y - pts[i].y) / dx[i]) }
+  const t = new Array(n)
+  t[0] = m[0]; t[n - 1] = m[n - 2]
+  for (let i = 1; i < n - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : (3 * (dx[i - 1] + dx[i])) / ((2 * dx[i] + dx[i - 1]) / m[i - 1] + (dx[i] + 2 * dx[i - 1]) / m[i])
+  // the end slopes and the slopes next to a flat run are limited so no segment overshoots
+  for (let i = 0; i < n - 1; i++) {
+    if (m[i] === 0) { t[i] = 0; t[i + 1] = 0; continue }
+    const a = t[i] / m[i], b = t[i + 1] / m[i], s = a * a + b * b
+    if (s > 9) { const k = 3 / Math.sqrt(s); t[i] = k * a * m[i]; t[i + 1] = k * b * m[i] }
+  }
+  let d = `M${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`
+  for (let i = 0; i < n - 1; i++) d += ` C${(pts[i].x + dx[i] / 3).toFixed(1)} ${(pts[i].y + (t[i] * dx[i]) / 3).toFixed(1)} ${(pts[i + 1].x - dx[i] / 3).toFixed(1)} ${(pts[i + 1].y - (t[i + 1] * dx[i]) / 3).toFixed(1)} ${pts[i + 1].x.toFixed(1)} ${pts[i + 1].y.toFixed(1)}`
+  return d
+}
+
 /** Line and filled area (closed along the bottom edge) for a series. */
 // A series that does not change (a capped bitrate, a locked frame rate, all zeros) is a flat line: without a fixed maximum it is drawn at the middle of the
 // height, and never with an area under it (a flat area is a solid slab that reads as a block, not as data). All zeros: the line lies on the baseline.

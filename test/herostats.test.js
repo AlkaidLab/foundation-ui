@@ -41,6 +41,6 @@ test('the pills take their height from their content and never squeeze below it'
   assert.match(c, /\.m-calh__blocks \{[^}]*grid-auto-rows: minmax\(min-content, 76px\)[^}]*overflow: clip/)
   assert.doesNotMatch(c, /\.m-calh__blocks \{[^}]*grid-auto-rows: minmax\(0, 1fr\)/)
   const r = fs.readFileSync(new URL('../src/css/tilefit-real.css', import.meta.url), 'utf8')
-  assert.match(r, /\.m-dash__cell \.m-calh__blocks li > small \{ white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important/)
+  assert.match(r, /:is\(\.m-dash__cell, \.m-dock__cell\) \.m-calh__blocks li > small \{ white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important/)
   assert.match(r, /\.m-calh__blocks li > b\[data-fit-wrap\] \{ white-space: nowrap !important/)
 })

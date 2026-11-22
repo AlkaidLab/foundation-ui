@@ -1,5 +1,6 @@
 // The tiles that read the host's system information (GET /api/system/info) and its public address: 网卡, 系统, 公网地址. Nothing is invented: a tile is `null` while its source is not there.
 // Sources are listed in docs/home-tiles.md.
+import { shortNicName } from './nicNames.js'
 import { endpointsOfConfig, rejectedEndpointsOfConfig, reachView, validateEndpoint } from '../settings/reachability.js'
 import { isLive, isVirtualNic, nicChoiceOf, orderedNics, resolveNic } from './nicChoice.js'
 
@@ -78,7 +79,8 @@ export function systemCatalogue(x, T) {
       const ordered = orderedNics(si.nics, ctx)
       const sub = (n) => [kindOf(T, n), speedText(n.link_speed_mbps), (n.ipv4 || [])[0]].filter(Boolean).join(' · ')
       const row = (n) => ({ icon: KIND_ICON[n.type] || 'lan', title: n.name, sub: sub(n), tone: n.up ? '' : 'warn', main: n === main })
-      const option = (n) => ({ id: n.name, title: n.name, sub: n.up ? sub(n) : [kindOf(T, n), T.nicDown].join(' · '), icon: KIND_ICON[n.type] || 'lan', up: !!n.up, virtual: isVirtualNic(n), current: n === main, auto: n === res.auto.nic })
+      const subText = (n) => (n.up ? [kindOf(T, n), speedText(n.link_speed_mbps)] : [kindOf(T, n), T.nicDown]).filter(Boolean).join(' · ')
+      const option = (n) => ({ id: n.name, title: n.name, label: shortNicName(n.name), sub: n.up ? sub(n) : [kindOf(T, n), T.nicDown].join(' · '), subText: subText(n), ip: n.up ? (n.ipv4 || [])[0] || '' : '', icon: KIND_ICON[n.type] || 'lan', up: !!n.up, virtual: isVirtualNic(n), current: n === main, auto: n === res.auto.nic })
       // the stream leaves by the adapter the rule finds (or the one the person chose when it is that one): only then does the host's measured bitrate belong to this tile
       const streamHere = !!x.session && (res.reason !== 'manual' || res.auto.nic === main)
       // the curve is the host's measured bitrate: a host that reports only the configured budget (no measured_bitrate_kbps) draws none
@@ -87,11 +89,11 @@ export function systemCatalogue(x, T) {
       const speed = Number.isFinite(main.link_speed_mbps) ? main.link_speed_mbps : 0
       d.net = {
         type: 'nics', icon: 'lan', title: T.c_net, empty: T.netNone,
-        primary: { icon: KIND_ICON[main.type] || 'lan', name: main.name, description: main.description && main.description !== main.name ? main.description : '', kind: kindOf(T, main), speed: speedText(main.link_speed_mbps), ipv4: (main.ipv4 || [])[0] || '', signal: main.wifi && Number.isFinite(main.wifi.signal) ? main.wifi.signal : null, ssid: main.wifi?.ssid_masked || '', isDefault: !!main.is_default_route, wifi: main.type === 'wifi', virtual: isVirtualNic(main), up: !!main.up },
+        primary: { icon: KIND_ICON[main.type] || 'lan', name: main.name, label: shortNicName(main.name), description: main.description && main.description !== main.name ? main.description : '', kind: kindOf(T, main), speed: speedText(main.link_speed_mbps), ipv4: (main.ipv4 || [])[0] || '', signal: main.wifi && Number.isFinite(main.wifi.signal) ? main.wifi.signal : null, ssid: main.wifi?.ssid_masked || '', isDefault: !!main.is_default_route, wifi: main.type === 'wifi', virtual: isVirtualNic(main), up: !!main.up },
         rows: ordered.filter((n) => n === main || isLive(n)).map(row),
         facts: [...(main.ipv6?.length ? [{ label: 'IPv6', value: main.ipv6[0] }] : []), ...(main.mac ? [{ label: T.nicMac, value: `${main.mac}:••:••:••` }] : []), { label: T.nicDefault, value: main.is_default_route ? T.yes : T.no }],
         labels: { signal: T.nicSignal, default: T.nicDefault, auto: T.nicAuto, adapter: T.nicAdapter, down: T.nicDown, sent: T.nicSent, others: T.nicOthers, headroom: T.nicHeadroom, mbps: T.mbps, why: T[`nicWhy_${res.reason}`] || '', gone: res.missing ? T.nicGone : '' },
-        choice: { host: hostKey, value: res.reason === 'manual' ? main.name : '', manual: res.reason === 'manual', reason: res.reason, auto: res.auto.nic?.name || '', missing: res.missing, options: ordered.map(option) },
+        choice: { host: hostKey, value: res.reason === 'manual' ? main.name : '', manual: res.reason === 'manual', reason: res.reason, auto: res.auto.nic?.name || '', autoLabel: shortNicName(res.auto.nic?.name || ''), missing: res.missing, options: ordered.map(option) },
         usage: { here: streamHere, series: sent, now: sent.length ? sent[sent.length - 1] : null, speed, ratio: sent.length && speed > 0 ? Math.min(1, sent[sent.length - 1] / speed) : null },
       }
     }

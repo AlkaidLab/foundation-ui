@@ -26,6 +26,6 @@ const designs = new Map()
 export function registerTile(ids, component) { for (const id of ids || []) designs.set(id, component) }
 /** The component that draws this card with its design, or null (designs off, no design, a card that is not available). */
 export function designOf(card) {
-  if (!boldOn.value || !card || card.available === false || card.forceGeneric) return null
+  if (!boldOn.value || !card || card.available === false) return null
   return designs.get(card.id) || designs.get(String(card.id).split(':')[0] + ':*') || null
 }

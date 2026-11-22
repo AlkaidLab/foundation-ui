@@ -204,7 +204,7 @@ test("integration round 2026-11-11: 上次串流 at 中 is compact with or witho
   const f = fs.readFileSync(new URL("../src/css/tilefit.css", import.meta.url), "utf8")
   const { FIT_SELECTOR } = await import("../src/vue/fitText.js")
   assert.ok(FIT_SELECTOR.includes(".m-b2empty .m-b2__btn"))
-  assert.equal(f.split(".m-dash__cell :is(.m-calm__title, .m-b2empty .m-b2__btn,").length - 1, 2, "nowrap and the wrap fallback both list it")
+  assert.equal(f.split(":is(.m-dash__cell, .m-dock__cell) :is(.m-empty-basic > b, .m-calm__title, .m-b2empty .m-b2__btn,").length - 1, 2, "nowrap and the wrap fallback both list it")
   assert.match(fs.readFileSync(new URL("../src/css/tiles-cal.css", import.meta.url), "utf8"), /\.m-calh--sq \.m-calh__name \{ font-size: min\(var\(--hn, 28px\), max\(20px, 17\.5cqw\)\); \}/)
 })
 test('every background shape of a tile is one rule, in the free corner: 60 px at one and two cells, 88 px at 大, never under a word', () => {
@@ -246,7 +246,7 @@ test('停止串流 is an error action on the calm card: the error role for the g
   assert.match(v, /'is-quiet': card\.quiet \|\| view\.quiet/)
   const c = css('tiles-prerelease.css')
   assert.match(c, /\.m-b3a\.is-alert\.is-quiet \{ background: color-mix\(in srgb, var\(--md-sys-color-error\) 9%, var\(--m-card\)\); \}/)
-  assert.match(css('tiles-b3.css'), /\.m-b3a\.is-alert \.m-cala__glyph \{ background: var\(--md-sys-color-error\); color: var\(--md-sys-color-on-error\); \}/)
+  assert.match(css('tiles-b3.css'), /\.m-b3ac\.is-alert \.m-b3ac__hero \{ background: var\(--md-sys-color-error\); color: var\(--md-sys-color-on-error\); \}/)
 })
 test('虚拟显示器 and 串流分辨率: the name of the resolution (4K, 2K, 1080p) is the hero in the type of the name of 编码器, on the tile\'s own surface', async () => {
   const { resNameOf } = await import('../src/vue/tiles/b2.js')
@@ -276,14 +276,16 @@ test('开关 and 使用虚拟显示器 at one cell: the word of the state and it
 })
 test('MTileHead breaks a Chinese title between its words, not inside one', () => {
   const v = fs.readFileSync(new URL('../src/vue/MTileHead.vue', import.meta.url), 'utf8')
-  assert.match(v, /Intl\.Segmenter/); assert.match(v, /class="m-tile__word"/)
+  assert.match(v, /<MWords :text="title" \/>/)
+  const w = fs.readFileSync(new URL('../src/vue/MWords.vue', import.meta.url), 'utf8'), words = fs.readFileSync(new URL('../src/vue/tileWords.js', import.meta.url), 'utf8')
+  assert.match(w, /class="m-tile__word"/); assert.match(words, /Intl\.Segmenter/)
   assert.match(css('tiles-prerelease.css'), /\.m-tile__word \{ white-space: nowrap; \}/)
   const parts = [...new Intl.Segmenter(undefined, { granularity: 'word' }).segment('使用基地虚拟显示器')].map((x) => x.segment)
   assert.ok(parts.length > 1 && parts.every((x) => x.length >= 1))
 })
 
 test('the note under a toggle tile balances its lines, so the last line is never a single character', () => {
-  assert.match(css('tilefit.css'), /\.m-dash__cell \.m-b3a__note \{ text-wrap: balance; \}/)
+  assert.match(css('tilefit.css'), /:is\(\.m-dash__cell, \.m-dock__cell\) \.m-b3a__note \{ text-wrap: balance; \}/)
 })
 
 test('a numeral whose unit does not shrink with it is stepped down again until its row fits the room', () => {
@@ -303,4 +305,61 @@ test('the client and the stream line of 正在玩 wrap with the other names of a
 test('the interface list of the network tile has one column that may shrink, so a long adapter name cannot make the list wider than the tile', () => {
   const m = css('tiles-metrics.css')
   assert.match(m, /\.m-tnet__list \{[^}]*grid-template-columns: minmax\(0, 1fr\);/)
+})
+
+test('a tile text that wraps breaks between its words, and a run of single characters belongs to the word before it', async () => {
+  const { wordsOf } = await import('../src/vue/tileWords.js')
+  for (const t of ['主机播放音频', '对正在进行的串流生效', '本次目标码率', '开源与免费声明', '主機播放音訊']) { const w = wordsOf(t); assert.ok(w && w.length > 1, t); assert.equal(w.join(''), t) }
+  assert.deepEqual(wordsOf('主机播放音频'), ['主机', '播放音频'], 'the dictionary cuts 音频 into two characters; they stay together')
+  for (const t of ['停止串流', '串流时长', '丢包率', 'Host audio', '']) assert.equal(wordsOf(t), null, `${t}: nothing to keep apart`)
+  const f = (n) => fs.readFileSync(new URL(`../src/vue/tiles/${n}`, import.meta.url), 'utf8')
+  assert.match(f('TileToggleB3.vue'), /<span class="m-calm__title"><MWords :text="card\.title" \/><\/span>/)
+  assert.match(f('TileActionB3.vue'), /<span class="m-calm__title"><MWords :text="card\.title" \/><\/span>/)
+})
+
+test('a switch square has the anatomy of the other squares: the label row, the state as the hero (a drawn switch and its word), one line of hint that is dropped where it does not fit', () => {
+  const v = fs.readFileSync(new URL('../src/vue/tiles/TileToggleB3.vue', import.meta.url), 'utf8')
+  assert.match(v, /<header class="m-calm__head"><MIcon :name="d\.icon" \/>/)
+  assert.match(v, /<span class="m-b3sw__hero"><span class="m-b3sw__track" aria-hidden="true"><i \/><\/span><b class="m-b3sw__state">\{\{ on \? L\.on : L\.off \}\}<\/b><\/span>/)
+  assert.match(v, /role="switch"[^>]*:aria-checked="on"/)
+  assert.match(v, /dropped\.value = e\.scrollWidth > e\.clientWidth \+ 1/)
+  const c = css('tiles-b3.css')
+  assert.match(c, /\.m-b3t\.is-on \.m-b3sw__track \{ background: var\(--tk\); box-shadow: none; \}/)
+  assert.match(c, /:is\(\.m-dash__cell, \.m-dock__cell\) \.m-b3t \.m-b3sw__note \{ white-space: nowrap !important;/, 'the fit rule that wraps notes does not make the hint two lines')
+  assert.match(c, /\.m-b3sw__note\.is-dropped \{ height: 0; margin-top: -8px; visibility: hidden; \}/)
+  assert.doesNotMatch(css('tilefit-real.css'), /m-b3t\[data-size='s'\]/, 'the old grid (glyph, state and a two-line name) is gone')
+})
+
+test('the target-bitrate tile keeps its note on the right of the value at 中 and draws none in a square (no letter left over)', () => {
+  const c = css('tiles-recent.css')
+  assert.match(c, /\.m-rc--live \.m-rc__mid \.m-rc__note \{ flex: 1 1 0; min-width: 0; text-align: end; white-space: nowrap; \}/)
+  assert.match(c, /\.m-rc--live \{ container-type: inline-size; \}/)
+  assert.match(c, /@container \(max-width: 240px\) \{ \.m-rc--live \.m-rc__mid \.m-rc__note \{ display: none; \} \}/)
+  assert.doesNotMatch(c, /data-scaled[^\n]*m-rc--live/, 'the phone does not get a layout of its own for this tile (the note went next to the value there)')
+})
+
+test('an action square has the anatomy of the other squares: the label row, the action as the hero shape, the state in one line; the quick-actions tile has a square of its own with the actions as a 2 x 2 grid', () => {
+  const a = fs.readFileSync(new URL('../src/vue/tiles/TileActionB3.vue', import.meta.url), 'utf8'), q = fs.readFileSync(new URL('../src/vue/tiles/cal/CalQuick.vue', import.meta.url), 'utf8')
+  assert.match(a, /<header class="m-calm__head"><MIcon :name="view\.glyph \|\| d\.icon"/)
+  assert.match(a, /<MTileShape class="m-b3ac__hero"/); assert.match(a, /<small v-else-if="view\.state" class="m-b3a__state m-b3ac__state m-dnum"/); assert.match(a, /<MTrimWords :text="view\.parts\[0\]" \/>/, 'the client of a stop is cut at a word, its time stays')
+  assert.match(q, /<section v-if="square" ref="sqRoot" class="m-tile m-cal m-calqs"/); assert.match(q, /const items = computed\(\(\) => \(d\.value\.items \|\| \[\]\)\.slice\(0, 4\)\)/)
+  assert.match(css('tiles-cal.css'), /\.m-calqs__grid \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/)
+  assert.match(css('tiles-cal.css'), /\.m-calqs\.is-icons \.m-calqs__grid button > span \{ display: none; \}/)
+})
+test('the empty line of a tile is whole words (MWords), shrinks to fit and has its glyph as a hero shape', () => {
+  for (const f of ['TileNow', 'TileRecent', 'TileClients', 'TileHost', 'TileLibrary', 'TileEncoder', 'TileFacts', 'TileInfoB3']) {
+    const v = fs.readFileSync(new URL(`../src/vue/tiles/${f}.vue`, import.meta.url), 'utf8')
+    assert.match(v, /<div class="m-empty-basic"><MTileShape class="m-tile__corner m-empty-basic__hero"[^>]*\/><b><MWords :text="/, f)
+  }
+  assert.match(fs.readFileSync(new URL('../src/vue/fitText.js', import.meta.url), 'utf8'), /FIT_SELECTOR = '\.m-empty-basic > b, /)
+  assert.match(css('tiles-b2.css'), /\.m-empty-basic > b \{[^}]*overflow-wrap: normal;/)
+})
+
+test('the quick-actions strip never cuts a button: a row that does not fit shares its width without scrolling, and a word that does not fit gives way to the glyph (names kept)', () => {
+  const q = fs.readFileSync(new URL('../src/vue/tiles/cal/CalQuick.vue', import.meta.url), 'utf8'), c = css('tiles-cal.css')
+  assert.match(q, /<section v-else ref="stripRoot" class="m-tile m-cal m-calq" :class="\{ 'is-tight': stage > 0, 'is-compact': stage === 2, 'is-icons': stage === 3 \}"/)
+  assert.match(q, /:aria-label="a\.label" :title="a\.label"/); assert.match(q, /<span class="m-calq__lab">\{\{ a\.label \}\}<\/span>/)
+  assert.match(q, /n === 0 \? r\.scrollWidth <= r\.clientWidth \+ 1 : !cut\(\) \|\| n === 3/, 'a row that fits is not touched; each stage is tried before the next')
+  assert.match(c, /\.m-calq\.is-tight \.m-calq__row \{ display: flex; overflow: visible;[^}]*mask-image: none;/)
+  assert.match(c, /\.m-calq\.is-icons \.m-calq__lab \{ display: none; \}/); assert.match(c, /\.m-calq\.is-compact \.m-calq__title \{ display: none; \}/)
 })

@@ -51,7 +51,7 @@
 
 /* 目标码率 (the metric tile) 方形: the numeral follows the width of the tile and its unit goes under it when the two do not fit one line */
 .m-calm.is-s .m-calm__value { container-type: inline-size; flex-wrap: wrap; row-gap: 2px; }
-.m-calm.is-s .m-calm__value b { font-size: min(var(--cv, 60px), 33cqw); }
+.m-calm.is-s .m-calm__value b { font-size: calc(min(var(--cv, 60px), 33cqw) * var(--m-nk, 1)); }
 
 /* 正在串流到 方形: the glyph of the client is the watermark of the plate; the name and the address have the plate */
 .m-b2sc.is-s .m-b2plate { position: relative; margin-top: 6px; padding: 8px 10px; justify-content: flex-end; }

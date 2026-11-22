@@ -39,10 +39,13 @@ test('DualSense tuning at 中: one slider, and the head opens the gamepad page w
   assert.match(rec, /more: T\.dsMore/)
 })
 
-test('a chart with fewer than two samples is not drawn; the art of a tile that is clipped by it is marked', () => {
+test('a chart with too few samples is not drawn as a curve (码率 and 帧率 draw a faint flat line instead); the art of a tile that is clipped by it is marked', () => {
   const metric = readFileSync(new URL('../src/vue/tiles/cal/CalMetric.vue', import.meta.url), 'utf8')
-  assert.match(metric, /<MTileChart v-if="pts\.length > 1"/)
+  // the metric tiles are never left without their chart: the chart draws its own placeholder (MTileChart `placeholder`) until it has the samples a curve needs
+  assert.match(metric, /<MTileChart class="m-tile__bleed m-calm__chart" :points="pts"[^>]* placeholder /)
   const stream = readFileSync(new URL('../src/vue/tiles/TileStream.vue', import.meta.url), 'utf8')
-  assert.match(stream, /<MTileChart v-if="pts\.length > 1"/)
+  // the bars of 丢包 and 丢帧 need two samples; the curves of 主机延迟 and 帧率 draw their own placeholder like the metric tiles
+  assert.match(stream, /<MTileChart v-if="isBars && pts\.length > 1"/)
+  assert.match(stream, /<MTileChart v-else-if="!isBars" [^>]* placeholder /)
   assert.match(readFileSync(new URL('../src/vue/tiles/TileInfoB3.vue', import.meta.url), 'utf8'), /class="m-b3vi__img" data-tile-art/)
 })

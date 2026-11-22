@@ -34,7 +34,7 @@ test('the dock keeps its clock: the head takes what is left above one row of til
   assert.match(source, /const measureDockHead = \(\) => \{/)
   assert.match(source, /:style="dockHeadMin \? \{ minHeight: `\$\{dockHeadMin\}px` \} : undefined"/)
   assert.match(source, /const need = missingInRow\(list\.length, dockGrid\.value\.columns\)/)
-  assert.match(source, /fillCards\.value\.slice\(0, need\)/)
+  assert.match(source, /fillCards\.value\.filter\(\(c\) => D\.hasSquare\(c\)\)\.slice\(0, need\)/)
   // a short window gives the clock block up to 84 px so that a whole row stays on the first screen, and the card that asks for a star goes under the tiles
   assert.match(source, /H < 480/)
   const css = readFileSync(new URL('../src/css/clock.css', import.meta.url), 'utf8')

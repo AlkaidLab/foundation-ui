@@ -11,6 +11,7 @@ export const tileIds = ['announcements', 'errors', 'logs', 'update', 'tip', 'spo
 //   小贴士, 赞助: strips with the quiet title at the start (快捷操作's language); 赞助's actions as pills.
 //   vivi: Vivi on a tonal ground with the greeting of the hour (Duolingo's widget).
 import { computed } from 'vue'
+import MWords from '../MWords.vue'
 import MIcon from '../MIcon.vue'
 import MTileHead from '../MTileHead.vue'
 import MTileShape from '../MTileShape.vue'
@@ -87,7 +88,7 @@ const part = hour < 5 ? 'night' : hour < 11 ? 'morning' : hour < 18 ? 'day' : 'e
   <!-- 日志 -->
   <section v-else-if="id === 'logs' && (empty || !lines.length)" class="m-tile m-cal" data-accent="secondary">
     <MTileHead icon="description" :title="card.title" />
-    <div class="m-empty-basic"><b>{{ empty?.value || d.empty || L.noLines }}</b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+    <div class="m-empty-basic"><MTileShape class="m-tile__corner m-empty-basic__hero" :icon="'description'" shape="cookie" size="60px" tone="tonal" /><b><MWords :text="empty?.value || d.empty || L.noLines" /></b><button v-if="empty?.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
   </section>
   <section v-else-if="id === 'logs'" class="m-tile m-cal m-calm m-b3l" :class="`is-${size}`" :data-size="size" :data-accent="lines.some((r) => r.tone === 'err') ? 'error' : 'secondary'">
     <header class="m-calm__head"><MIcon :name="d.icon" /><span class="m-calm__title">{{ card.title }}</span><span v-if="size === 'l'" class="m-calm__peak m-dnum">{{ lines.length }}</span><button type="button" class="m-calm__more" :aria-label="texts.more || card.title" @click.stop="act('open', 'diagnostics')"><MIcon name="chevron_right" /></button></header>
@@ -102,13 +103,13 @@ const part = hour < 5 ? 'night' : hour < 11 ? 'morning' : hour < 18 ? 'day' : 'e
   <!-- 公告 -->
   <section v-else-if="id === 'announcements' && (empty || !lead)" class="m-tile m-cal" data-accent="primary">
     <MTileHead icon="campaign" :title="card.title" />
-    <div class="m-empty-basic"><b>{{ empty?.value || d.empty }}</b><button v-if="empty?.action" type="button" class="m-b2__btn" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+    <div class="m-empty-basic"><MTileShape class="m-tile__corner m-empty-basic__hero" :icon="'campaign'" shape="cookie" size="60px" tone="tonal" /><b><MWords :text="empty?.value || d.empty" /></b><button v-if="empty?.action" type="button" class="m-b2__btn" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
   </section>
   <section v-else-if="id === 'announcements'" class="m-tile m-cal m-b3n" :class="[`is-${size}`, { 'has-banner': !!banner || !!gen }]" :data-size="size" data-accent="primary">
     <button type="button" class="m-b3n__lead" :aria-label="lead.title" @click="openPost(lead)">
       <img v-if="banner" class="m-b3n__pic" :src="banner" alt="" decoding="async">
       <span v-else-if="gen" class="m-b3n__pic m-b3n__gen m-b3n__plate" :class="{ 'is-tertiary': gen.tertiary }" aria-hidden="true"><MTileShape :icon="gen.icon" :shape="gen.shape" size="min(60cqmin, 132px)" tone="solid" /></span>
-      <span class="m-b3n__text"><small>{{ kindLabel(lead.category) || card.title }}<template v-if="lead.date"> · {{ lead.date }}</template></small><b>{{ lead.title }}</b></span>
+      <span class="m-b3n__text"><small>{{ kindLabel(lead.category) || card.title }}<template v-if="lead.date"> · {{ lead.date }}</template></small><b><MWords :text="lead.title" /></b></span>
     </button>
     <ol v-if="(size === 'l' || size === 'xl') && rest.length" class="m-b3n__rest"><li v-for="p in rest" :key="p.id"><button type="button" @click="openPost(p)"><span>{{ p.title }}</span><time class="m-dnum">{{ p.date }}</time></button></li></ol>
   </section>

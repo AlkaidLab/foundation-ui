@@ -26,7 +26,7 @@ test('home banner: 关注 B 站 next to the stars, in both languages, opening th
   assert.equal(starPromptTexts(homeTexts('zh')).bilibili, '关注 B 站')
   assert.ok(starPromptTexts(homeTexts('en')).bilibili)
   const prompt = read('../src/vue/MStarPrompt.vue')
-  assert.match(prompt, /data-star="bilibili"[^>]*@click="emit\('open', BILIBILI\.url\)"/)
+  assert.match(prompt, /key: 'bilibili'[^\n]*emit\('open', BILIBILI\.url\)/)
   assert.match(read('../src/vue/MHomeDash.vue'), /bilibili: T\.starBilibili/)
 })
 

@@ -23,6 +23,23 @@ export const MAX_COLUMNS = 12
 export const STRIP_PX = 56
 export const UNIT_GAP = 12
 const DENSITY = { smaller: 0.875, standard: 1, larger: 1.125 }
+/** The side of the one square a small tile is drawn at: always UNIT_PX (the small views are drawn for 140 px and up). The dock draws every tile at this size and scales the whole square to its column, so a
+ *  smaller density (a short window) makes the tile smaller, never re-flowed into a square it was not drawn for. */
+export const designUnitPx = () => UNIT_PX
+/** How much of a phone column's extra width the type of a tile takes (a phone's columns are up to 1.35 times the design square). The face was scaled by the whole factor, so a phone showed the panel's tile with 1.35 times its type
+ *  (a 38 px numeral at 51, a 20 px title at 27) inside a tile that is no larger than a WidgetKit systemSmall (iOS widgets set 13 to 15 pt labels and values up to 34 pt). The face now takes this share of the factor and is drawn in the room
+ *  that is left (a bigger layout square scaled by less): the same tile, with room for its content, at the type of the panel to a little over it. 0 would be the panel's own type. */
+export const PHONE_TYPE_SHARE = 0.4
+/** The scale of a tile face for a column of `unit` px, and the layout square the face is drawn in (the column over the scale): 1 and the column itself from 800 px on, so a desktop is not touched; a smaller density
+ *  (k under 1) scales the face by the whole factor, as before. */
+export function faceScaleOf(unit) {
+  if (!(unit > 0)) return { k: 1, box: 0 }
+  const k = unit / UNIT_PX
+  if (Math.abs(k - 1) < 0.002) return { k: 1, box: unit }
+  const kt = k > 1 ? 1 + (k - 1) * PHONE_TYPE_SHARE : k
+  const r = Math.round(kt * 10000) / 10000
+  return { k: Math.abs(r - 1) < 0.002 ? 1 : r, box: Math.round((unit / r) * 100) / 100 }
+}
 /** How many square columns a content width holds at a density, and the side of one: always the fixed unit (scaled by the density the person chose); only a pane narrower than two units and a gap
  *  (a phone) gets a smaller one, so two columns still fit. The grid is as wide as its columns and sits in the middle of the pane. */
 export function columnsOf(width, density = 'standard') {
@@ -58,10 +75,10 @@ const CLASS_FROM = { medium: 600, expanded: 840, large: 1200, extra: 1600 }
 export function windowClassOf(width) {
   return width >= CLASS_FROM.extra ? 'extra' : width >= CLASS_FROM.large ? 'large' : width >= CLASS_FROM.expanded ? 'expanded' : width >= CLASS_FROM.medium ? 'medium' : 'compact'
 }
-// The largest size of each class: a phone has two columns (a 大 or 特大 would fill the screen and hide everything else: 中, the width of the phone), a tablet four to six
+// The largest size of each class: a phone has two columns (a 特大 is four units wide and cannot stand there: it is 大, 2 x 2, the width of the phone; a size the person chose is kept as far as the columns allow), a tablet four to six
 // (特大 would be a whole row: 大 instead), a desktop all of them. A tile whose content needs more than its class's largest (its minimum is above it) keeps its minimum.
 // 特大竖 needs four units of height and the window chrome: from medium on, and only in a window that tall.
-const CLASS_TOP = { compact: 'm', medium: 'l', expanded: 'l', large: 'xl', extra: 'xl' }
+const CLASS_TOP = { compact: 'l', medium: 'l', expanded: 'l', large: 'xl', extra: 'xl' }
 export const XLP_MIN_HEIGHT = 4 * UNIT_PX + 3 * UNIT_GAP + 180
 
 // The box of each size in the grid the packer draws today (columns of eight, a row height per class), until it works in square units (SIZE_UNITS): one box per size name.

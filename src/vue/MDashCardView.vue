@@ -32,9 +32,9 @@ const props = defineProps({
 const emit = defineEmits(['act', 'rotate', 'hover', 'suggest', 'say', 'flags'])
 const act = (type, value) => emit('act', { card: props.card.id, type, value })
 const more = () => !!props.details?.[props.card.id]
-// 方形 (s) is ONE view for every tile, in the grid and in the dock: the square of homeSmall.js (MDashSmall). A larger size without a layout of its own draws the generic large one
-const generic = (key) => props.card.size === key && props.card.available !== false && (props.card.forceGeneric || !hasOwnLayout(props.card.id, CARD_META[props.card.id] || props.card, key) || (key === 's' && genericAtS(props.card)))
-const square = () => props.card.size === 's' || !!props.card.forceGeneric
+// 方形 (s) is ONE view for every tile, in the grid and in the 时钟 dock (the dock draws the same card at the same size S, scaled): the tile's own design (tiles/) or the square of homeSmall.js (MDashSmall). A larger size without a layout of its own draws the generic large one
+const generic = (key) => props.card.size === key && props.card.available !== false && (!hasOwnLayout(props.card.id, CARD_META[props.card.id] || props.card, key) || (key === 's' && genericAtS(props.card)))
+const square = () => props.card.size === 's'
 // the large size without a layout of its own shows the card and, beside it, the sections of its detail sheet (the charts, the heat strip, the rows) when it has one
 const inlineDetail = computed(() => { const d = props.details?.[props.card.id]; return d && !d.external && d.sections?.length ? d : null })
 // small, or an empty card at small and medium: the strip with the card's empty text as its value

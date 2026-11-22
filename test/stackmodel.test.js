@@ -43,12 +43,13 @@ test('reordering keeps the member that is shown; the active member follows remov
 
 test('membership by size and window class: only a size the tile offers there; the common sizes are what the stack can be', () => {
   assert.equal(canJoin(card('cpu'), 'l', 'large').ok, true)
-  assert.deepEqual(canJoin(card('cpu'), 'l', 'compact'), { ok: false, reason: 'size' }, 'a phone has no 大')
+  assert.equal(canJoin(card('cpu'), 'l', 'compact').ok, true, 'a phone has 大 (2 x 2, the width of the phone), not 特大')
+  assert.deepEqual(canJoin(card('cpu'), 'xl', 'compact'), { ok: false, reason: 'size' }, 'the cpu tile ends at 大')
   assert.deepEqual(canJoin(card('cpu'), 'xl', 'large'), { ok: false, reason: 'size' }, 'the cpu tile ends at 大')
   assert.deepEqual(canJoin(card('journey'), 's'), { ok: false, reason: 'kind' }); assert.equal(canJoin({ id: 'pin:setting:x' }, 's').reason, 'kind'); assert.equal(canJoin({ id: 'stack:1' }, 's').reason, 'kind')
   const sizes = commonSizes([card('cpu'), card('gpu')], 'large')
   assert.ok(sizes.includes('s') && sizes.includes('l'))
-  assert.deepEqual(commonSizes([card('cpu'), card('gpu')], 'compact'), ['s', 'm'])
+  assert.deepEqual(commonSizes([card('cpu'), card('gpu')], 'compact'), ['s', 'm', 'l'])
 })
 
 test('the saved stacks are read strictly: unknown tiles go, a stack under two members goes, a tile is in the first stack that names it', () => {

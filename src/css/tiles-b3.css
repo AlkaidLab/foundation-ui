@@ -23,6 +23,38 @@
 .m-b3t.is-off:hover { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent); }
 .m-b3t .m-b3a__state { font: var(--m-tile-text-16-strong); }
 
+/* ---- an action at 方形 (停止串流, 添加应用, 检查更新, ...): the anatomy of the other squares. The label row at the top (glyph and name, one line; the arrow of a link that leaves the app at its end), the action as the hero
+   (its glyph in a large shape: tonal, the error colour for a stop), the live state in one line at the bottom. The whole tile is the button; on press the shape squares a little on the fast spatial spring. ---- */
+.m-b3ac { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; gap: 6px; background: var(--m-card, var(--md-sys-color-surface-container-low)); color: var(--md-sys-color-on-surface); }
+.m-b3ac .m-calm__head { color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
+.m-b3ac .m-calm__head > .m-b3a__out { position: static; flex: none; width: 18px; height: 18px; opacity: .78; }
+.m-b3ac__hero { flex: none; align-self: flex-start; margin-block: auto; transition: border-radius var(--m-spring-fast-spatial-duration, 350ms) var(--m-spring-fast-spatial, ease), transform var(--m-spring-fast-spatial-duration, 350ms) var(--m-spring-fast-spatial, cubic-bezier(.2, 0, 0, 1)); }
+.m-b3ac:active .m-b3ac__hero { transform: scale(.92); }
+.m-b3ac.is-alert .m-b3ac__hero { background: var(--md-sys-color-error); color: var(--md-sys-color-on-error); }
+.m-b3ac__state { display: block; min-width: 0; font: var(--m-tile-text-13-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; overflow: hidden; }
+.m-b3ac__state--two { display: flex; gap: 4px; } .m-b3ac__client { flex: 0 1 auto; min-width: 0; overflow: hidden; } .m-b3ac__time { flex: none; }
+.m-b3ac.is-alert { background: color-mix(in srgb, var(--md-sys-color-error) 9%, var(--m-card)); color: var(--md-sys-color-on-surface); }
+.m-b3ac:hover { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent); }
+
+/* ---- 开关 at 方形 (串流音频, 控制器, 键盘, 鼠标, 光标): the anatomy of the other squares. The label row (icon and title, one line) at the top, the state as the hero in the middle (a switch that
+   shows it and the word beside it: the whole tile is the switch), one line of hint at the bottom that is dropped where it does not fit (TileToggleB3.vue). ---- */
+.m-b3t.m-b3sw { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; gap: 8px; }
+.m-b3sw .m-calm__head { color: inherit; opacity: .78; }
+.m-b3t.is-off.m-b3sw .m-calm__head { color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); opacity: 1; }
+.m-b3sw__hero { display: flex; align-items: center; gap: 12px; min-width: 0; margin-block: auto; }
+.m-b3sw__track { flex: none; position: relative; width: 68px; height: 40px; border-radius: 20px; background: var(--cal-inner); box-shadow: inset 0 0 0 2px var(--md-sys-color-outline); transition: background-color var(--m-spring-fast-effects-duration, 200ms) var(--m-spring-fast-effects, ease), box-shadow var(--m-spring-fast-effects-duration, 200ms) var(--m-spring-fast-effects, ease); }
+.m-b3sw__track i { position: absolute; top: 50%; left: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--md-sys-color-outline); transform: translateY(-50%); transition: left var(--m-spring-fast-spatial-duration, 350ms) var(--m-spring-fast-spatial, cubic-bezier(.2, 0, 0, 1)), width var(--m-spring-fast-spatial-duration, 350ms) var(--m-spring-fast-spatial, ease), height var(--m-spring-fast-spatial-duration, 350ms) var(--m-spring-fast-spatial, ease), background-color var(--m-spring-fast-effects-duration, 200ms) ease; }
+.m-b3t.is-on .m-b3sw__track { background: var(--tk); box-shadow: none; }
+.m-b3t.is-on .m-b3sw__track i { left: calc(100% - 34px); width: 28px; height: 28px; background: var(--on-tk); }
+.m-b3t:active .m-b3sw__track i { width: 32px; height: 32px; }
+.m-b3t.is-on:active .m-b3sw__track i { left: calc(100% - 38px); width: 32px; height: 32px; }
+.m-b3sw__state { font: 600 20px/24px var(--m-font-display); letter-spacing: -.01em; white-space: nowrap; color: var(--on-tk-c); }
+.m-b3t.is-off .m-b3sw__state { color: var(--md-sys-color-on-surface); }
+.m-b3sw__note { display: block; min-width: 0; white-space: nowrap; overflow: hidden; }
+/* the late fit rule (tilefit.css) lets a note wrap anywhere; the hint of a switch is one line or none */
+:is(.m-dash__cell, .m-dock__cell) .m-b3t .m-b3sw__note { white-space: nowrap !important; overflow: hidden !important; overflow-wrap: normal !important; text-wrap: nowrap; }
+.m-b3sw__note.is-dropped { height: 0; margin-top: -8px; visibility: hidden; }
+
 /* ---- a value square (编码器, 版本): the value in display type under the head; the whole tile opens the sheet through a transparent button over it (the root is
    not the button: these are values, not actions) ---- */
 .m-b3u > :not(.m-b3-hit), .m-b3v > :not(.m-b3-hit) { position: relative; z-index: 1; pointer-events: none; } /* the words sit over the hit area, not under it */
@@ -126,6 +158,12 @@
 .m-b3n.is-m .m-b3n__pic { position: static; flex: none; width: 50%; height: 100%; } .m-b3n.is-m .m-b3n__lead::after { display: none; } .m-b3n.is-m .m-b3n__text { flex: 1; justify-content: center; padding: 14px 18px; color: inherit !important; }
 .m-b3n.is-m .m-b3n__text small { color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)) !important; }
 .m-b3n.is-l .m-b3n__lead { flex: 0 0 56%; }
+/* on a phone the 中 announcement keeps its plate and its big badge but is balanced: the plate is a little under half, the kind is at the top of the text and the title at the bottom (the anatomy of the other tiles), so the text is not a small island in the middle of a wide card */
+.m-dash__grid[data-scaled] .m-b3n.is-m .m-b3n__gen { width: 42%; }
+.m-dash__grid[data-scaled] .m-b3n.is-m:has(.m-b3n__gen) .m-b3n__text { justify-content: space-between; padding: 16px 18px; }
+.m-dash__grid[data-scaled] .m-b3n.is-m:has(.m-b3n__gen) .m-b3n__text b { font-size: 22px; line-height: 28px; }
+/* the phone's 本主机 中: the rows share the room the larger layout square gives them, the chips sit at the bottom edge */
+.m-dash__grid[data-scaled] .m-calh.is-m .m-calh__main { justify-content: space-between; }
 .m-b3n__rest { list-style: none; margin: 0; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
 .m-b3n__rest button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border: 0; border-radius: 14px; background: var(--cal-inner); color: inherit; font: var(--m-tile-text-13-strong); text-align: left; cursor: pointer; }
 .m-b3n__rest time { flex: none; font: var(--m-tile-text-12); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }

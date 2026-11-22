@@ -169,6 +169,6 @@ test('the 网卡 tile draws the stream curve only when the host reports the meas
   const measured = netOf({ sysinfo: si([eth]), session: { client_address: '192.0.2.40', bitrate: 40000, measured_bitrate_kbps: 38000 }, history: hist })
   assert.deepEqual(measured.usage.series, [30, 40])
   const v = fs.readFileSync(new URL('../src/vue/tiles/TileNet.vue', import.meta.url), 'utf8')
-  assert.match(v, /<small data-redact="address">\{\{ o\.sub \}\}<\/small>/)
+  assert.match(v, /<small class="m-tnet__sub" data-redact="address">/)
   assert.match(v, /role="radiogroup"[^>]*@keydown="onKey"/)
 })
