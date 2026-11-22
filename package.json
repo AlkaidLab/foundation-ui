@@ -53,7 +53,8 @@
   "scripts": {
     "build:tokens": "node --import ./scripts/register.mjs scripts/build-tokens.mjs",
     "build:icons": "node scripts/build-icons.mjs",
-    "test": "node --import ./scripts/register.mjs --import ./scripts/no-network.mjs --test \"test/*.test.js\""
+    "test": "node --import ./scripts/register.mjs --import ./scripts/no-network.mjs --test \"test/*.test.js\"",
+    "test:shard": "node --import ./scripts/register.mjs --import ./scripts/no-network.mjs --test"
   },
   "dependencies": {
     "@material/material-color-utilities": "^0.4.0",
