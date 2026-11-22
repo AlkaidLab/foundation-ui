@@ -52,3 +52,6 @@ html.m-has-wallpaper :is(.m-rc__text small, .m-rc__note, .m-rc__client) { color:
 .m-rc--live .m-rc__mid { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
 .m-rc--live .m-rc__mid .m-rc__note { flex: 1 1 0; min-width: 0; text-align: end; white-space: nowrap; }
 .m-rc--live .m-rc__big { flex: none; margin: 0; }
+/* a square (the clock mode, a 140 to 200 px tile) has no room for the note beside the value: it is not drawn there (at the design square the flex row clipped it to nothing, and a column a few pixels wider left one letter of it and an ellipsis) */
+.m-rc--live { container-type: inline-size; }
+@container (max-width: 240px) { .m-rc--live .m-rc__mid .m-rc__note { display: none; } }

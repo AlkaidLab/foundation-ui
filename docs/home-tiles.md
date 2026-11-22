@@ -225,3 +225,21 @@ The smart tiles of the overview stay as they are. On top of them a **stack** hol
   Portrait and tall windows fit one or two sections across, the rest wrap below with the same caps.
 - Checked by `tile-width-check.mjs` at 1440x900, 1920x1080, 2560x1440, 3440x1440, 3840x2160 (100 % and 150 %) and 5120x1440: no tile over its cap, no row more than 25 % empty, no text row over 900 px.
   A phone-width window keeps small tiles in pairs (about 160 px each): the 200 px minimum applies from 420 px.
+
+## One overview on every device of a host
+
+The control panel and the Web UI (a phone included) of one host draw the same cards, in the same order, at the same sizes, in the same look. One definition (`buildCards`, `buildCatalogue`) and one set
+of views; what differs is only the data each product hands in (`docs/parity.md`).
+
+- **The layout lives on the host.** `hostLayout.js`: `GET`/`PUT /api/ui/home-layout` carries one document `{ v: 1, at, layout, stacks }` (the cards that are shown, their order, the sizes, which sizes
+  the person chose, the pins, the stacks). The later change (`at`) wins; a device that never changed anything takes the host's; the host is read again every 30 s and when the page comes back. A host
+  without the route (404) keeps the layout on the device, as before. On the device stay the local copy (it draws the first frame), the usage counts the smart plan learns from, the appearance and the window.
+- **A size the person chose is theirs** (`userSized`): the smart plan arranges around it and the fill never promotes it. A phone has two columns, so it offers 方形, 中 and 大 (2 x 2); 特大 (four units) is
+  drawn as 大 there. A tile with no data keeps its smallest size, as everywhere.
+- **A narrow pane scales, it does not re-flow.** From 800 px the unit is 148 px; below it the columns share the width (up to 200 px). A ladder tile is drawn in the column over a face scale and the whole face is scaled to
+  the column (`--m-face-k`), so the phone shows the panel's tile with the room of its column. The scale takes 40 % of the column's extra width (`faceScaleOf`, `PHONE_TYPE_SHARE`): a 440 pt phone has a 200 px column
+  (1.35 times the design square) and its face scale is 1.14, not 1.35 (a 20 px title was painted at 27 pt, a 48 px numeral at 64 pt, the "fonts too big" of the owner's phone). The numerals of a scaled face are painted
+  at 92 % of the design numeral at most (`--m-nk`). A title that wraps breaks between its words (`MWords`, `tileWords.js`: a run of single characters belongs to the word before it); an address is never cut, a long
+  adapter name is shortened by a rule (`nicNames.js`) and cut at a word (`MTrimWords`).
+- **时钟模式 draws the same 方形.** The tiles under the clock are the overview's own 方形 (the same component and design), at the design square scaled to the column, whatever size the person gave the card in
+  the overview.

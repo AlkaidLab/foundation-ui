@@ -10,6 +10,7 @@ export const tileIds = ['encoder', 'codecs', 'host-adapter']
 //   GPU 适配器 (the Batteries widget's device glyph): the adapter's glyph in a large shape, its name; 中 adds the output.
 import { computed } from 'vue'
 import MTileHead from '../MTileHead.vue'
+import MWords from '../MWords.vue'
 import MTileNumeral from '../MTileNumeral.vue'
 import MTileShape from '../MTileShape.vue'
 import MTileRing from '../MTileRing.vue'
@@ -34,7 +35,7 @@ const rows = computed(() => d.value.rows || [])
   <section class="m-tile m-tenc" :class="[`m-tenc--${id}`, `is-${size}`]" :data-accent="id === 'codecs' ? 'secondary' : 'primary'" :data-size="size">
     <template v-if="empty">
       <MTileHead :icon="empty.icon || d.icon" :title="empty.title || card.title" />
-      <div class="m-empty-basic"><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+      <div class="m-empty-basic"><MTileShape class="m-tile__corner m-empty-basic__hero" :icon="empty.icon || d.icon" shape="cookie" size="60px" tone="tonal" /><b><MWords :text="empty.value" /></b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
     </template>
     <template v-else-if="id === 'codecs'">
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron" @open="emit('act', OPEN)" />

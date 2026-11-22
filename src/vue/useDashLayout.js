@@ -27,6 +27,8 @@ const cleanPin = (id, d) => {
   const n = (v, fallback) => (Number.isFinite(Number(v)) ? Number(v) : fallback)
   return { ...out, def: n(d.def, 0), min: n(d.min, 0), max: n(d.max, 100), step: n(d.step, 1), unit: String(d.unit || ''), scale: n(d.scale, 1) || 1, zeroText: String(d.zeroText || '') }
 }
+/** `userSized` is stored only when the person chose a size (a layout nobody sized keeps the shape it had). */
+const userSizedOf = (s) => (s.userSized && Object.keys(s.userSized).length ? { userSized: s.userSized } : {})
 export function useDashLayout(storageKey, storage = globalThis.localStorage) {
   const key = `foundation-ui.dash2.${storageKey}`
   const read = () => {
@@ -51,20 +53,26 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
         const mode = (v.v || 0) >= 7 ? (v.mode === 'manual' ? 'manual' : 'smart') : touched ? 'manual' : 'smart'
         const strings = (x) => (Array.isArray(x) ? x.filter((i) => typeof i === 'string').slice(0, 64) : [])
         const sectionOf = Object.fromEntries(Object.entries(v.sectionOf || {}).filter(([id, n]) => known(id) && Number.isInteger(n) && n >= 0 && n < 8))
-        const loaded = { order, overrides, sizes, pins, mode, accepted: strings(v.accepted), hiddenSuggest: strings(v.hiddenSuggest), sectionOf, sectionCount: Number.isInteger(v.sectionCount) && v.sectionCount >= 0 && v.sectionCount <= 8 ? v.sectionCount : 0 }
+        // the sizes the person chose themselves (the others are what the smart plan showed when the layout was frozen, and the plan may change them again)
+        const userSized = Object.fromEntries(Object.entries(v.userSized || {}).filter(([id, x]) => x === true && known(id) && sizes[id]))
+        const loaded = { order, overrides, sizes, userSized, pins, mode, accepted: strings(v.accepted), hiddenSuggest: strings(v.hiddenSuggest), sectionOf, sectionCount: Number.isInteger(v.sectionCount) && v.sectionCount >= 0 && v.sectionCount <= 8 ? v.sectionCount : 0 }
         // a size a tile no longer has is read as its replacement only after the legacy migration has seen what the person saved (a saved 方形 is a choice of theirs, not the default)
         const { state: legacy, migrated: changed } = migrateLayout(loaded, v.v)
         const migrated = { ...legacy, sizes: Object.fromEntries(Object.entries(legacy.sizes || {}).map(([id, k]) => [id, RETIRED_SIZES[id]?.[k] || k])) }
-        if (changed) { try { storage?.setItem(key, JSON.stringify({ v: LAYOUT_VERSION, order: migrated.order, overrides: migrated.overrides, sizes: migrated.sizes, pins: migrated.pins, mode: migrated.mode, accepted: migrated.accepted, hiddenSuggest: migrated.hiddenSuggest, sectionOf: migrated.sectionOf, sectionCount: migrated.sectionCount })) } catch { /* storage unavailable */ } }
+        if (changed) { try { storage?.setItem(key, JSON.stringify({ v: LAYOUT_VERSION, order: migrated.order, overrides: migrated.overrides, sizes: migrated.sizes, ...userSizedOf(migrated), pins: migrated.pins, mode: migrated.mode, accepted: migrated.accepted, hiddenSuggest: migrated.hiddenSuggest, sectionOf: migrated.sectionOf, sectionCount: migrated.sectionCount })) } catch { /* storage unavailable */ } }
         return migrated
       }
     } catch { /* corrupted: defaults */ }
-    return { order: [...DEFAULT_ORDER], overrides: {}, sizes: {}, pins: {}, mode: 'smart', accepted: [], hiddenSuggest: [], sectionOf: {}, sectionCount: 0 }
+    return { order: [...DEFAULT_ORDER], overrides: {}, sizes: {}, userSized: {}, pins: {}, mode: 'smart', accepted: [], hiddenSuggest: [], sectionOf: {}, sectionCount: 0 }
   }
   const state = reactive(read())
   /** Read the saved layout again (another part of the page changed it). */
   const reload = () => { Object.assign(state, read()) }
-  watch(state, () => { try { storage?.setItem(key, JSON.stringify({ v: LAYOUT_VERSION, order: state.order, overrides: state.overrides, sizes: state.sizes, pins: state.pins, mode: state.mode, accepted: state.accepted, hiddenSuggest: state.hiddenSuggest, sectionOf: state.sectionOf, sectionCount: state.sectionCount })) } catch { /* storage unavailable */ } }, { deep: true, flush: 'sync' })
+  /** The persisted shape (what the host keeps for the overview: hostLayout.js). */
+  const serialize = () => JSON.parse(JSON.stringify({ order: state.order, overrides: state.overrides, sizes: state.sizes, ...userSizedOf(state), pins: state.pins, mode: state.mode, accepted: state.accepted, hiddenSuggest: state.hiddenSuggest, sectionOf: state.sectionOf, sectionCount: state.sectionCount }))
+  /** Take a layout of that shape (from the host): through the same reading as the saved one, so what it holds is checked the same way. */
+  const apply = (raw) => { try { storage?.setItem(key, JSON.stringify({ v: LAYOUT_VERSION, ...raw })) } catch { /* storage unavailable */ } Object.assign(state, read()) }
+  watch(state, () => { try { storage?.setItem(key, JSON.stringify({ v: LAYOUT_VERSION, order: state.order, overrides: state.overrides, sizes: state.sizes, ...userSizedOf(state), pins: state.pins, mode: state.mode, accepted: state.accepted, hiddenSuggest: state.hiddenSuggest, sectionOf: state.sectionOf, sectionCount: state.sectionCount })) } catch { /* storage unavailable */ } }, { deep: true, flush: 'sync' })
 
   const isVisible = (card, ctx) => card.available && (state.overrides[card.id] ?? defaultVisible(card.def, ctx))
   const sorted = (cards) => [...cards].sort((a, b) => state.order.indexOf(a.id) - state.order.indexOf(b.id))
@@ -86,14 +94,16 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
     state.order = list
   }
   return {
-    state, reload, visible, addable, isVisible, moveTo,
+    state, reload, serialize, apply, visible, addable, isVisible, moveTo,
     /** One step earlier or later among the visible cards (the keyboard). */
     step(id, delta, visibleIds) {
       const i = visibleIds.indexOf(id)
       const target = visibleIds[i + delta]
       if (i >= 0 && target) moveTo(id, target)
     },
-    setSize(id, size) { if (valid(id) && ALL_SIZE_KEYS.includes(size)) state.sizes = { ...state.sizes, [id]: size } },
+    /** A size the person chose is theirs: the smart plan arranges around it and never changes it (`user: false` for a size that only says where a tile starts). */
+    setSize(id, size, { user = true } = {}) { if (valid(id) && ALL_SIZE_KEYS.includes(size)) { state.sizes = { ...state.sizes, [id]: size }; if (user) state.userSized = { ...state.userSized, [id]: true } } },
+    isUserSized: (id) => state.userSized?.[id] === true && !!state.sizes[id],
     setVisible(id, on) { if (valid(id)) state.overrides = { ...state.overrides, [id]: !!on } },
     /** Pin a setting (a tile with its control, or a link to its page): shown, after the last card that is shown. false when the layout is full or the spec is not a pin. */
     addPin(spec) {
@@ -114,11 +124,12 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
       const { [id]: _gone, ...pins } = state.pins
       const { [id]: _o, ...overrides } = state.overrides
       const { [id]: _s, ...sizes } = state.sizes
-      state.pins = pins; state.overrides = overrides; state.sizes = sizes; state.order = state.order.filter((x) => x !== id)
+      const { [id]: _u, ...userSized } = state.userSized || {}
+      state.pins = pins; state.overrides = overrides; state.sizes = sizes; state.userSized = userSized; state.order = state.order.filter((x) => x !== id)
       return true
     },
     isPinned: (id) => id in state.pins,
-    reset() { state.order = [...DEFAULT_ORDER]; state.overrides = {}; state.sizes = {}; state.pins = {}; state.mode = 'smart'; state.accepted = []; state.hiddenSuggest = []; state.sectionOf = {}; state.sectionCount = 0 },
+    reset() { state.order = [...DEFAULT_ORDER]; state.overrides = {}; state.sizes = {}; state.userSized = {}; state.pins = {}; state.mode = 'smart'; state.accepted = []; state.hiddenSuggest = []; state.sectionOf = {}; state.sectionCount = 0 },
     /** Smart or manual. Editing the layout is manual: `freeze` copies what the smart plan shows into the saved layout first, so nothing jumps; `smart` gives the plan back (the pins stay). */
     setMode(mode) { state.mode = mode === 'manual' ? 'manual' : 'smart' },
     freeze(plan) {
@@ -137,8 +148,8 @@ export function useDashLayout(storageKey, storage = globalThis.localStorage) {
     /** Sections (a very wide window): the section a tile is in, and how many sections there are (0: the default of the window). */
     setSection(id, n) { if (valid(id) && Number.isInteger(n) && n >= 0 && n < 8) state.sectionOf = { ...state.sectionOf, [id]: n } },
     setSectionCount(n) { state.sectionCount = Math.max(0, Math.min(8, Math.round(n))); state.sectionOf = Object.fromEntries(Object.entries(state.sectionOf).map(([id, s]) => [id, Math.min(s, Math.max(0, state.sectionCount - 1))])) },
-    snapshot: () => JSON.stringify({ order: state.order, overrides: state.overrides, sizes: state.sizes, pins: state.pins, sectionOf: state.sectionOf }),
-    restore(snap) { const v = JSON.parse(snap); state.order = v.order; state.overrides = v.overrides; state.sizes = v.sizes || {}; state.pins = v.pins || {}; state.sectionOf = v.sectionOf || {} },
+    snapshot: () => JSON.stringify({ order: state.order, overrides: state.overrides, sizes: state.sizes, userSized: state.userSized, pins: state.pins, sectionOf: state.sectionOf }),
+    restore(snap) { const v = JSON.parse(snap); state.order = v.order; state.overrides = v.overrides; state.sizes = v.sizes || {}; state.userSized = v.userSized || {}; state.pins = v.pins || {}; state.sectionOf = v.sectionOf || {} },
     isDefault: computed(() => state.mode === 'smart' && state.order.every((id, i) => id === DEFAULT_ORDER[i]) && !Object.keys(state.overrides).length && !Object.keys(state.sizes).length && !Object.keys(state.pins).length),
   }
 }

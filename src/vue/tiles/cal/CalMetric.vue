@@ -44,7 +44,8 @@ const accent = computed(() => ({ gpu: 'tertiary', memory: 'secondary' }[id.value
     </header>
     <div class="m-calm__value"><b class="m-dnum"><MRoll :text="d.value || '–'" /></b><small v-if="unit && d.value">{{ unit }}</small></div>
     <ul v-if="detailRow.length" class="m-calm__details"><li v-for="x in detailRow" :key="x">{{ x }}</li></ul>
-    <MTileChart v-if="pts.length > 1" class="m-tile__bleed m-calm__chart" :points="pts" :max="max" :target="size === 'l' ? target : null" kind="area" dot :window="{ s: 24, m: 40, l: 48 }[size]" :pad="0.08" :base="size === 's' ? 0 : size === 'l' ? 48 : 30" />
+    <!-- one curve at every size: along the bottom of the tile, the whole width, monotone, the fill fading to nothing at the edge and out on the left under the text; 方形 has no dot, 中 and 大 end in one, 大 adds the target; a faint flat line while there are too few samples. The fill runs to the bottom edge; the line itself keeps above the caption row (base), so a low value (a frame rate far under its target) does not run through the caption -->
+    <MTileChart class="m-tile__bleed m-calm__chart" :points="pts" :max="max" :target="size === 'l' ? target : null" kind="area" :dot="size !== 's'" monotone placeholder :fade="1" :window="{ s: 24, m: 40, l: 48 }[size]" :pad="{ s: 0.08, m: 0.12, l: 0.24 }[size]" :base="size === 's' ? 0 : size === 'l' ? 46 : 24" />
     <div v-if="size !== 's' && (caption || stats.length)" class="m-calm__foot">
       <span class="m-calm__cap">{{ caption }}</span>
       <span v-if="size === 'l' && stats.length" class="m-calm__stats m-dnum"><template v-for="(x, i) in stats" :key="x.k"><i v-if="i"> · </i>{{ label(x.k) }} {{ x.value }}</template></span>

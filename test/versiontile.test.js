@@ -15,9 +15,9 @@ test('the 版本 tile has one status line (a label is never put in the sentence 
   assert.match(css, /\.m-b3u__hero \{[^}]*--vh: clamp\(13px, min\(calc\(100cqw \/ \(var\(--chars, 5\) \* 0\.6\)\)/, 'the hero follows the width of its widest line and the height left')
 })
 
-test('the chart of a tile spans the box from the first samples on, and from 8 samples on only', () => {
+test('the chart of a tile spans the box from the first samples on, and from 3 samples on only', () => {
   const c = read('vue/MTileChart.vue')
-  assert.match(c, /const MIN_SAMPLES = 8/); assert.match(c, /const win = computed\(\(\) => \(props\.kind === 'bars' \? props\.window : Math\.max\(2, Math\.min\(props\.window, finite\.value\.length\)\)\)\)/)
+  assert.match(c, /const MIN_SAMPLES = 3/); assert.match(c, /const win = computed\(\(\) => \(props\.kind === 'bars' \? props\.window : Math\.max\(2, Math\.min\(props\.window, finite\.value\.length\)\)\)\)/)
   assert.match(c, /v-if="box\.w && enough"/); assert.match(c, /enough && dot/)
   assert.match(read('css/tilekit.css'), /\.m-tchart__dot \{[^}]*width: 8px; height: 8px;[^}]*box-shadow: 0 0 0 2px/, 'a small dot, not a ringed handle')
 })

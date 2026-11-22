@@ -8,6 +8,7 @@ export const tileIds = ['recent-actions']
 // with no control of that kind, a risky one, or one whose value is not known is a row that opens its page. Saving goes through the one saving path (the `setting` action).
 import { computed, reactive, watch } from 'vue'
 import MIcon from '../MIcon.vue'
+import MWords from '../MWords.vue'
 import MSwitch from '../MSwitch.vue'
 import MSlider from '../MSlider.vue'
 import MTileShape from '../MTileShape.vue'
@@ -44,7 +45,7 @@ const valueText = (r) => (r.control === 'switch' ? (on(r) ? props.texts.on : pro
   <!-- nothing used yet: the same compact header and bottom action as the other empty tiles -->
   <section v-if="empty" class="m-tile m-cal m-rc is-empty" :class="`is-${size}`" :data-size="size" data-accent="primary">
     <header class="m-calm__head"><MIcon name="history" /><span class="m-calm__title">{{ card.title }}</span></header>
-    <div class="m-empty-basic"><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+    <div class="m-empty-basic"><MTileShape class="m-tile__corner m-empty-basic__hero" :icon="'history'" shape="cookie" size="60px" tone="tonal" /><b><MWords :text="empty.value" /></b><button v-if="empty.action" type="button" class="m-b2__btn" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
   </section>
   <!-- 方形: the last setting is the hero: its glyph in a shape, its name, when it applies, and its control -->
   <section v-else-if="size === 's' && rows.length" class="m-tile m-cal m-rc is-s is-hero" data-size="s" data-accent="primary">

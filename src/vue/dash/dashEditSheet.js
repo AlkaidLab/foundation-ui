@@ -91,7 +91,7 @@ export function useDashEditSheet(D) {
   function addCard(id) {
     layout.setVisible(id, true)
     const card = allCards.value.find((c) => c.id === id)
-    if (card) layout.setSize(id, sheetKeyOf(card))
+    if (card) layout.setSize(id, sheetKeyOf(card), { user: !!sheetSize.value[id] })
     const last = shownIds.value[shownIds.value.length - 1]
     if (last && last !== id) layout.moveTo(id, last)
     say(`${T.value.addCard}: ${titleOf(id)}`)

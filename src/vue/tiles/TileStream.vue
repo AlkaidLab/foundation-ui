@@ -37,6 +37,7 @@ const chartWindow = computed(() => {
   return isFps.value ? Math.max(2, Math.min(w, pts.value.length)) : w
 })
 const isFps = computed(() => id.value === 'fps' || id.value === 'stream-fps')
+const isBars = computed(() => (id.value === 'bitrate' && props.variant === 2) || ['loss', 'dropped'].includes(id.value))
 const target = computed(() => (id.value === 'fps' ? firstNumber(d.value.caption) : id.value === 'stream-fps' ? num(d.value.target) : null))
 // 丢包, 丢帧: none is fine, some is a warning, a lot an error
 const issueTone = computed(() => { const v = num(d.value.value) ?? 0; return v <= 0 ? 'primary' : (id.value === 'loss' ? v >= 2 : v >= 10) ? 'error' : 'warn' })
@@ -69,7 +70,7 @@ const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTon
       <span v-if="size === 's' && id === 'stream-bitrate' && capText" class="m-tstream__foot">{{ capText }}</span>
       <!-- 中: the lowest, mean and highest of the session in a row, and its curve under the gauge -->
       <dl v-if="id === 'stream-bitrate' && size === 'm' && pts.length > 1 && stats.length" class="m-tstream__stats m-tstream__stats--row"><div v-for="x in stats" :key="x.k"><dt>{{ label(x.k) }}</dt><dd class="m-dnum">{{ x.value }}</dd></div></dl>
-      <MTileChart v-if="id === 'stream-bitrate' && size === 'm' && pts.length > 1" class="m-tile__bleed m-tstream__spark m-tstream__spark--bitrate" :points="pts" kind="area" :dot="true" :window="36" :pad="0.12" :target="cap" />
+      <MTileChart v-if="id === 'stream-bitrate' && size === 'm'" class="m-tile__bleed m-tstream__spark m-tstream__spark--bitrate" :points="pts" kind="area" :dot="true" monotone placeholder :fade="1" :window="36" :pad="0.12" :target="cap" />
     </template>
 
     <template v-else>
@@ -78,9 +79,10 @@ const accent = computed(() => (['loss', 'dropped'].includes(id.value) ? issueTon
         <MTileNumeral :value="d.value" :unit="d.unit" :size="size === 'l' ? 'xl' : size" :caption="size !== 's' ? d.caption : ''" />
         <dl v-if="(size === 'l' || (size === 'm' && ['loss', 'dropped'].includes(id))) && stats.length" class="m-tstream__stats"><div v-for="x in stats" :key="x.k"><dt>{{ label(x.k) }}</dt><dd class="m-dnum">{{ x.value }}</dd></div></dl>
       </div>
-      <MTileChart v-if="pts.length > 1" class="m-tile__bleed" :points="pts" :max="isFps && target ? target * 1.1 : null" :target="isFps ? target : null"
-        :kind="(id === 'bitrate' && variant === 2) || ['loss', 'dropped'].includes(id) ? 'bars' : 'area'" :dot="!(id === 'bitrate' && variant === 2) && !['loss', 'dropped'].includes(id)" :grid="size === 'l'"
-        :window="chartWindow" />
+      <!-- one pill per sample for 丢包 and 丢帧; the others (主机延迟, 帧率 of the session) draw the one curve of the metric tiles (tiles-cal.css, CalMetric.vue): the whole width along the bottom, monotone, the fill fading out at the edge and on the left under the text,
+           a dot at the end from 中 on, the target as a faint dashed line, a faint flat line while there are too few samples -->
+      <MTileChart v-if="isBars && pts.length > 1" class="m-tile__bleed" :points="pts" kind="bars" :dot="false" :window="chartWindow" />
+      <MTileChart v-else-if="!isBars" class="m-tile__bleed m-calm__chart" :points="pts" :max="isFps && target ? target * 1.1 : null" :target="isFps ? target : null" kind="area" :dot="size !== 's'" monotone placeholder :fade="1" :window="chartWindow" :pad="{ s: 0.08, m: 0.12, l: 0.24 }[size]" :base="size === 's' ? 0 : size === 'l' ? 46 : 28" />
     </template>
   </section>
 </template>

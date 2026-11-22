@@ -40,7 +40,7 @@ test('the overview sinks the empty tiles of a layout nobody arranged and default
   assert.match(d, /const sinkEmpty = \(list\) => \[\.\.\.list\.filter\(\(c\) => !hasNoData\(c\.data\)\), \.\.\.list\.filter\(\(c\) => hasNoData\(c\.data\)\)\]/)
   assert.match(d, /layout\.isDefault\.value \? sinkEmpty\(layout\.visible\(allCards\.value, props\.ctx\)\) : layout\.visible\(allCards\.value, props\.ctx\)/)
   // an empty tile is drawn at its smallest by effectiveSize (its data fills nothing), not by a rule of the packer
-  assert.match(d, /const sizeOf = \(id\) => \(smart\.value \? plan\.value\.sizes\[id\] : layout\.state\.sizes\[id\]\)/)
+  assert.match(d, /const sizeOf = \(id\) => \(smart\.value && !layout\.isUserSized\(id\) \? plan\.value\.sizes\[id\] : layout\.state\.sizes\[id\]\)/)
   assert.doesNotMatch(d, /shownSizeKey|sizeShift|viewKeyOf|sizeClassOf/)
   assert.match(d, /empty: hasNoData\(c\.data\)/)
 })

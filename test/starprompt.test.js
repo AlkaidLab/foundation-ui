@@ -52,7 +52,8 @@ test('T7: the client of the second button is the one the person uses: the system
 
 test('T7: the prompt has the GitHub mark on its buttons and a 以后再说, and the overview shows it only while the star is due', () => {
   const prompt = read('../src/vue/MStarPrompt.vue')
-  assert.equal((prompt.match(/<MGithubMark \/>/g) || []).length, 3, 'the host star (while streaming and idle) and the star of the client')
+  assert.match(prompt, /<MGithubMark v-if="a\.glyph === 'gh'" \/>/, 'the GitHub mark on the asks that star a project (the host, the client in use)')
+  assert.match(prompt, /glyph: 'gh'/)
   assert.match(prompt, /emit\('later'\)/)
   assert.match(readDash(), /<MStarPrompt v-else-if="ctx\.star && !edit && !pending"/)
 })
@@ -72,7 +73,7 @@ test('T7: 关于 has a star row per project, each once, with the GitHub mark', a
 
 test('the star card per stream: the star of the client in use while streaming, the host star and the sponsor entry otherwise, 以后再说 until the next stream; the slot opens and closes in height', () => {
   const p = read('../src/vue/MStarPrompt.vue'), d = readDash(), dock = read('../src/vue/dash/dashDock.js'), slot = read('../src/vue/promptSlot.js'), card = read('../src/vue/starCard.js')
-  assert.match(p, /<template v-if="streaming">/); assert.match(p, /<button v-if="client" type="button" class="m-sprompt__btn" data-star="client"/); assert.match(p, /m-sprompt__btn--fill" data-star="host"/); assert.match(p, /data-star="sponsor" @click="emit\('sponsor'\)"/)
+  assert.match(p, /if \(props\.streaming\) \{\n\s+if \(props\.client\) out\.push\(\{ key: 'client'/); assert.match(p, /key: 'host', fill: true/); assert.match(p, /key: 'sponsor', glyph: 'heart'[^\n]*emit\('sponsor'\)/)
   assert.match(dock, /starStreaming = computed\(\(\) => !!props\.ctx\.live\)/); assert.match(dock, /starClientInUse\(\{ clients: props\.ctx\.clientList/)
   assert.match(dock, /emit\('action', \{ card: 'star', type: 'sponsor', value: '' \}\)/, 'the sponsor entry is the one of 关于: the product opens its sponsor sheet')
   assert.match(d, /<Transition :css="false" mode="out-in" @enter="onSlotEnter" @leave="slotOut">/); assert.match(dock, /slotEnter\(el, done\)/, 'a card that comes later opens in height; one drawn in the first frame does not')
@@ -83,8 +84,8 @@ test('the star card per stream: the star of the client in use while streaming, t
 
 test('the asks are real buttons: one height and shape, the filled heart and the Bilibili mark at the size of the GitHub mark, a state layer and the spring, 以后再说 quiet at the far right', () => {
   const prompt = read('../src/vue/MStarPrompt.vue'), css = read('../src/css/connect.css'), mark = read('../src/vue/MBilibiliMark.vue')
-  assert.match(prompt, /<MBilibiliMark \/>\{\{ texts\.bilibili \}\}/, 'the brand mark, not a Material Symbols stand-in')
-  assert.match(prompt, /<MIcon name="favorite" fill \/>\{\{ texts\.sponsor \}\}/)
+  assert.match(prompt, /<MBilibiliMark v-else \/>\{\{ label\(a\) \}\}/, 'the brand mark, not a Material Symbols stand-in (its words are the short ones where the long ones do not fit)')
+  assert.match(prompt, /<MIcon v-else-if="a\.glyph === 'heart'" name="favorite" fill \/>/)
   assert.match(mark, /viewBox="0 0 24 24"/); assert.match(mark, /fill="currentColor"/); assert.match(mark, /Apache-2\.0/); assert.match(mark, /Richard9394\/MingCute/)
   const rule = (sel) => css.split('\n').filter((l) => l.startsWith(sel)).join('\n')
   const btn = rule('.m-sprompt__btn {')

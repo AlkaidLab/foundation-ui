@@ -47,6 +47,8 @@ const props = defineProps({
   /** the host's configuration (the pinned setting tiles show and write its keys) and the language of the tiles the person pinned */
   config: { type: Object, default: null },
   locale: { type: String, default: 'en' },
+  /** where the host keeps the layout (createHostLayoutStore, hostLayout.js): the panel and the Web UI of one host then draw the same cards, order and sizes; null keeps the layout on this device only */
+  layoutStore: { type: Object, default: null },
 })
 const emit = defineEmits(['action'])
 // ctx.pending: the product does not know yet what decides the page (the session, the clients): the skeleton stands and the card at the top is not drawn, so nothing is drawn idle and redrawn
@@ -71,6 +73,9 @@ const tall = ref(typeof window !== 'undefined' ? window.innerHeight : 900)
 const wide = ref(typeof window !== 'undefined' ? window.innerWidth : 1440)
 // the window's class (Material 3), read from the window's width: the size a tile is drawn at is its preference clamped to the class (homeSizes.js effectiveSize), nothing else decides it
 const windowClass = computed(() => windowClassOf(wide.value))
+// the star card is a small one on a phone: the window is under 600 wide, or under 480 high (on its side); its short words (主机端 Star) are for the languages that have them (zh, en)
+const starCompact = computed(() => wide.value < 600 || tall.value < 480)
+const starShort = computed(() => /^(zh|en)/i.test(String(props.locale)))
 D.ro = null
 
 Object.assign(D, { T, edit, emit, grid, props, root, tall, tileRadius, wide, width, windowClass })
@@ -99,7 +104,7 @@ const clearOfBottom = () => {
 }
 onMounted(() => window.addEventListener('resize', clearOfBottom))
 onBeforeUnmount(() => { window.removeEventListener('resize', clearOfBottom); document.body.style.removeProperty('--m-dedit-clear') })
-const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, clockLocale, clockSizeDrawn, dateText, statusText, dockCards,  setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockGridStyle, dockHeadMin, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
+const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, dockScale, faceK, clockLocale, clockSizeDrawn, dateText, statusText, dockCards, setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockGridStyle, dockHeadMin, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
 const selCard = computed(() => (sel.value ? blocks.value.flatMap((b) => b.boxed).find((c) => c.id === sel.value && !c.ghost) : null))
 watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush: 'post' })
 </script>
@@ -109,7 +114,7 @@ watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush
     <!-- the card at the top: the recommendation of a client when it is due for the device in use, else the star card; it opens and closes in height so what is under it does not jump -->
     <Transition :css="false" mode="out-in" @enter="onSlotEnter" @leave="slotOut">
       <MClientPrompt v-if="clientRec && !edit && !pending" key="client" :texts="{ title: T.crTitle, line: T.crLine, lineAny: T.crLineAny, download: T.crDownload, later: T.crLater }" :rec="clientRec" @open="recOpen" @later="recLater" />
-      <MStarPrompt v-else-if="ctx.star && !edit && !pending" key="star" :texts="{ title: T.starTitle, sub: T.starSub, action: T.starPromptAction, later: T.starLater, sponsor: T.sponsorAction, bilibili: T.starBilibili }" :host="STAR_HOST" :client="starClient" :streaming="starStreaming" @open="starOpen" @later="starLater" @sponsor="starSponsor" />
+      <MStarPrompt v-else-if="ctx.star && !edit && !pending" key="star" :compact="starCompact" :texts="{ title: T.starTitle, sub: T.starSub, action: T.starPromptAction, later: T.starLater, sponsor: T.sponsorAction, bilibili: T.starBilibili, ...(starShort ? { hostShort: T.starHostShort, clientShort: T.starClientShort, bilibiliShort: T.starBilibiliShort } : {}) }" :host="STAR_HOST" :client="starClient" :streaming="starStreaming" @open="starOpen" @later="starLater" @sponsor="starSponsor" />
     </Transition>
     <!-- the smart arrangement is the default and has no label; only a manual one says so, with the way back -->
     <div v-if="dockOn" class="m-dock">
@@ -119,7 +124,7 @@ watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush
         <p class="m-dock__status">{{ statusText }}</p>
       </header>
       <div class="m-dock__grid" :style="dockGridStyle" role="list">
-        <div v-for="c in dockCards" :key="c.id" class="m-dock__cell" role="listitem" :data-group="c.group" :data-card="c.id" :data-ctx="`tile:${c.id}`" :data-size="c.size"><div class="m-dash__body"><MDashCardView :card="c" :details="details" :texts="T" @act="onAct" /></div></div>
+        <div v-for="c in dockCards" :key="c.id" class="m-dock__cell" role="listitem" :data-group="c.group" :data-card="c.id" :data-ctx="`tile:${c.id}`" :data-size="c.size"><div class="m-dock__face" :data-scaled="dockScale.k !== 1 ? '' : undefined" :style="{ width: `${dockScale.design}px`, height: `${dockScale.design}px`, ...(dockScale.k !== 1 ? { '--m-face-k': dockScale.k, transform: `scale(${dockScale.k})` } : {}) }"><div class="m-dash__body"><MDashCardView :card="c" :details="details" :texts="T" @act="onAct" /></div></div></div>
       </div>
     </div>
     <div v-if="skeleton && skeletonTop" class="m-dskel__top" :style="{ height: `${skeletonTop}px` }" aria-hidden="true" />
@@ -127,11 +132,11 @@ watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush
     <div v-if="!dockOn && !skeleton" class="m-dash__blocks" :style="slack > 40 ? { marginTop: `${Math.round(slack / 2)}px` } : undefined">
     <section v-for="b in blocks" :key="b.key" class="m-dash__block" :data-natural="b.natural" :style="blockStyle(b)">
     <h2 v-if="sectioned" class="m-dash__sec">{{ b.title }}</h2>
-    <div class="m-dash__grid" :style="{ '--m-dash-gap': `${UNIT_GAP}px`, gridTemplateColumns: `repeat(${b.units}, minmax(0, 1fr))`, gridTemplateRows: b.template }">
+    <div class="m-dash__grid" :data-scaled="faceK(b) !== 1 ? '' : undefined" :style="{ '--m-face-k': faceK(b), '--m-dash-gap': `${UNIT_GAP}px`, gridTemplateColumns: `repeat(${b.units}, minmax(0, 1fr))`, gridTemplateRows: b.template }">
       <div
         v-for="c in b.boxed" :key="c.id" :ref="(el) => { if (el && !grid) grid = el.parentElement }" class="m-dash__cell" :data-group="c.group" :data-ctx="`tile:${c.id}`"
         :data-section="b.section"
-        :data-merge-label="drag?.merge === c.id ? (T.stackMergeLabel || '合并为轮换组') : undefined" :class="{ 'is-merge-target': drag?.merge === c.id, 'is-merging': drag?.id === c.id && !!drag?.mergeCand, 'is-landing': landing === c.id, 'is-ghost': c.ghost, 'is-dragging': drag?.id === c.id, 'is-over-sheet': drag?.id === c.id && drag.over, 'is-picked': picked === c.id, 'is-settling': settling === c.id, 'is-selected': sel === c.id, 'is-sizing': sizing === c.id }" :data-card="c.id" :data-size="c.size" :style="[cellStyle(b, c.id), dragVars(c.id)]"
+        :data-merge-label="drag?.merge === c.id ? (T.stackMergeLabel || '合并为轮换组') : undefined" :class="{ 'is-merge-target': drag?.merge === c.id, 'is-merging': drag?.id === c.id && !!drag?.mergeCand, 'is-landing': landing === c.id, 'is-ghost': c.ghost, 'is-dragging': drag?.id === c.id, 'is-over-sheet': drag?.id === c.id && drag.over, 'is-picked': picked === c.id, 'is-settling': settling === c.id, 'is-selected': sel === c.id, 'is-sizing': sizing === c.id }" :data-card="c.id" :data-size="c.size" :data-face="c.cls === 'unit' ? '' : undefined" :style="[cellStyle(b, c.id), dragVars(c.id)]"
         :tabindex="edit ? 0 : undefined" :role="edit ? 'button' : undefined" :aria-label="edit ? `${T.drag}: ${c.title}` : undefined" :aria-pressed="edit ? picked === c.id : undefined"
         @pointerdown="down($event, c.id)" @keydown="key($event, c.id)"
       >

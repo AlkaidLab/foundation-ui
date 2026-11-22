@@ -10,6 +10,8 @@ export const tileIds = ['clients-paired', 'pair']
 //   配对: a button requests a code on demand; the code replaces it until it expires, beside the PIN field.
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import MIcon from '../MIcon.vue'
+import MTileShape from '../MTileShape.vue'
+import MWords from '../MWords.vue'
 import MTileChip from '../MTileChip.vue'
 import MTileNumeral from '../MTileNumeral.vue'
 import { OPEN, designProps } from './tileData.js'
@@ -43,7 +45,7 @@ onBeforeUnmount(() => { if (qrShown.value) emit('act', { type: 'pair-qr-stop' })
   <section class="m-tile m-cal m-b2" :class="[`m-b2--${id}`, `is-${size}`, id === 'pair' ? 'm-b2pair' : 'm-b2paired']" :data-size="size" data-accent="primary">
     <template v-if="empty">
       <header class="m-calm__head"><MIcon :name="empty.icon || d.icon || 'devices'" /><span class="m-calm__title">{{ empty.title || card.title }}</span></header>
-      <div class="m-empty-basic"><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+      <div class="m-empty-basic"><MTileShape class="m-tile__corner m-empty-basic__hero" :icon="empty.icon || d.icon || 'devices'" shape="cookie" size="60px" tone="tonal" /><b><MWords :text="empty.value" /></b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
     </template>
 
     <!-- 已配对客户端 -->

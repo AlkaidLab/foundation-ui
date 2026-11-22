@@ -12,6 +12,8 @@ export const tileIds = ['host-name', 'audio-out', 'host-ports', 'host-encryption
 //   address is never drawn as one, and the text wraps instead of being cut. Not set: the globe in a quiet circle, 未设置 and one action (detail).
 import { computed } from 'vue'
 import MIcon from '../MIcon.vue'
+import MTileShape from '../MTileShape.vue'
+import MWords from '../MWords.vue'
 import MBreakText from '../MBreakText.vue'
 import { OPEN, designProps } from './tileData.js'
 import { sizeB2 } from './b2.js'
@@ -51,7 +53,7 @@ const kind = computed(() => ({ 'host-name': 'm-b2name', 'audio-out': 'm-b2name',
   <section class="m-tile m-cal m-b2" :class="[`m-b2--${id}`, `is-${size}`, kind]" :data-size="size" data-accent="primary">
     <template v-if="empty">
       <header class="m-calm__head"><MIcon :name="empty.icon || d.icon" /><span class="m-calm__title">{{ empty.title || card.title }}</span></header>
-      <div class="m-empty-basic"><b>{{ empty.value }}</b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
+      <div class="m-empty-basic"><MTileShape class="m-tile__corner m-empty-basic__hero" :icon="empty.icon || d.icon" shape="cookie" size="60px" tone="tonal" /><b><MWords :text="empty.value" /></b><button v-if="empty.action" type="button" class="m-b2__btn is-tonal" @click.stop="emit('act', empty.action)">{{ empty.action.label }}</button></div>
     </template>
 
     <template v-else-if="(id === 'host-name' || id === 'audio-out') && size === 's'">

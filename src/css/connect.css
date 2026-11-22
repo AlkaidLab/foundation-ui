@@ -185,6 +185,37 @@ html[data-motion='reduced'] .m-pairprompt-enter-active, html[data-motion='reduce
 
 /* the recommendation of a client is the one card of the overview in the accent: its surface is the primary container (the star card and the tiles are neutral surfaces), the text is on-primary-container
    (a pair of the scheme that keeps its contrast in 清亮, 经典 and 素雅, light, dark and 纯黑), the download button is the primary itself, the strongest accent on it */
+/* the star card (MStarPrompt.vue): ONE rule at every width. [star and title (the line under it only when it fits on one line)] [the asks] [the close icon at the trailing edge], vertically centred, one row when it fits
+   (is-one); when it does not, two rows (is-two): the star, the title and the close icon, the asks under them. The component measures what fits (it hides a probe of the parts in these styles), the styles only place. */
+.m-sprompt--star { position: relative; gap: 12px; padding: 12px 12px 12px 16px; }
+.m-sprompt--star.is-one { flex-wrap: nowrap; }
+.m-sprompt--star .m-sprompt__text { flex: 1 1 0; min-width: 0; } .m-sprompt--star .m-sprompt__text h3, .m-sprompt--star .m-sprompt__text p { white-space: nowrap; }
+.m-sprompt--star .m-sprompt__btns { flex: none; max-width: none; margin: 0; justify-content: flex-start; flex-wrap: nowrap; }
+.m-sprompt--star.is-bare .m-sprompt__btns { flex: 1 1 auto; min-width: 0; }
+.m-sprompt--star .m-sprompt__later--icon { flex: none; width: 40px; height: 40px; padding: 0; margin: 0; display: grid; place-items: center; border-radius: 50%; color: var(--md-sys-color-on-surface-variant); }
+.m-sprompt--star .m-sprompt__later--icon .m-icon { width: 22px; height: 22px; font-size: 22px; }
+.m-sprompt--star.is-bare .m-sprompt__later--icon { margin-inline-start: auto; }
+.m-sprompt--star.is-two { flex-wrap: wrap; row-gap: 8px; }
+.m-sprompt--star.is-two .m-sprompt__ico { order: 0; } .m-sprompt--star.is-two .m-sprompt__text { order: 1; } .m-sprompt--star.is-two .m-sprompt__later { order: 2; margin-inline-start: auto; }
+.m-sprompt--star.is-two .m-sprompt__btns { order: 3; flex: 1 1 100%; min-width: 0; max-width: 100%; flex-wrap: wrap; }
+.m-sprompt--star.is-two .m-sprompt__btn { max-width: 100%; min-width: 0; height: auto; min-height: 36px; white-space: normal; text-align: center; }
+@container (max-width: 900px) {
+  .m-sprompt--star { gap: 10px; padding: 8px 8px 8px 12px; border-radius: 20px; }
+  .m-sprompt--star .m-sprompt__ico { width: 32px; height: 32px; } .m-sprompt--star .m-sprompt__ico .m-icon { font-size: 20px; }
+  .m-sprompt--star .m-sprompt__text p { display: block; }
+  .m-sprompt--star .m-sprompt__btn { height: 36px; border-radius: 18px; gap: 6px; padding: 0 12px 0 10px; font-size: 13px; }
+  .m-sprompt--star .m-sprompt__btn .m-icon, .m-sprompt--star .m-sprompt__btn .m-ghmark, .m-sprompt--star .m-sprompt__btn .m-bmark { width: 16px; height: 16px; font-size: 16px; }
+  .m-sprompt--star .m-sprompt__btns { gap: 6px; }
+  .m-sprompt--star .m-sprompt__later--icon { width: 36px; height: 36px; }
+}
+/* a 390 pt phone: the asks give up a little padding so the three of them and the close icon share one row */
+@container (max-width: 420px) { .m-sprompt--star .m-sprompt__btn { padding: 0 10px 0 8px; gap: 5px; } .m-sprompt--star { padding: 8px 6px 8px 10px; } }
+/* the probe: the parts of the card in its own styles, out of the flow, never seen */
+.m-sprompt__probe { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 0 16px; width: 0; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; white-space: nowrap; } .m-sprompt__probe > * { flex: none; }
+.m-sprompt__probe h3, .m-sprompt__probe p { margin: 0; } .m-sprompt__pt { font: var(--m-title-medium-emphasized); } .m-sprompt__ps { font: var(--m-body-medium); }
+.m-sprompt__pl, .m-sprompt__ps2 { display: flex; gap: 8px; width: max-content; } .m-sprompt--star .m-sprompt__pl, .m-sprompt--star .m-sprompt__ps2 { gap: 8px; } @container (max-width: 900px) { .m-sprompt--star .m-sprompt__pl, .m-sprompt--star .m-sprompt__ps2 { gap: 6px; } }
+.m-sprompt__pg { flex: none; display: block; width: 18px; height: 18px; } @container (max-width: 900px) { .m-sprompt--star .m-sprompt__pg { width: 16px; height: 16px; } }
+.m-sprompt__probe .m-sprompt__later { visibility: hidden; }
 .m-cprompt { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent); }
 .m-cprompt .m-sprompt__text h3, .m-cprompt .m-sprompt__text p { color: var(--md-sys-color-on-primary-container); }
 .m-cprompt__ico { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }

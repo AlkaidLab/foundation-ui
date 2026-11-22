@@ -154,7 +154,7 @@ export function guideCardData(T, steps, visible) {
   return { steps: steps.map((s) => ({ ...s, icon: STEP_ICON[s.id], go: T[STEP_GO[s.id]] })), texts: { title: T.guideTitle, go: T.stepGo, skip: T.skip } }
 }
 /** The words of the star prompt (MStarPrompt). */
-export const starPromptTexts = (T) => ({ title: T.starTitle, sub: T.starSub, action: T.starPromptAction, later: T.starLater, bilibili: T.starBilibili })
+export const starPromptTexts = (T) => ({ title: T.starTitle, sub: T.starSub, action: T.starPromptAction, later: T.starLater, bilibili: T.starBilibili, hostShort: T.starHostShort, clientShort: T.starClientShort, bilibiliShort: T.starBilibiliShort })
 export const downloadCardData = (T, extra = {}) => ({ texts: { title: T.downloadTitle, openDownloads: T.openDownloads }, ...extra })
 /** `targets`: [{ id, label }] of the product's sponsor list (the card shows one row each and the star); without them the card has one sponsor button. */
 export const sponsorCardData = (T, targets = []) => ({ texts: { title: T.sponsorTitle, line: T.sponsorLine, sponsor: T.sponsorAction, star: T.star }, targets: targets.map((x) => ({ id: x.id, label: x.label })) })

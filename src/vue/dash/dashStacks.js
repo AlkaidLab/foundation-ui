@@ -1,4 +1,5 @@
 import { computed } from 'vue'
+import { attachHostLayout } from '../hostLayout.js'
 import { effectiveSize } from '../homeSizes.js'
 import { useStacks, stacksEnabled } from '../useStacks.js'
 import { DEFAULT_ORDER } from '../homeCards.js'
@@ -9,6 +10,8 @@ export function useDashStacks(D) {
   // ---- smart stacks (behind a flag: stackModel.js, useStacks.js): tiles of one size in one place, the member shown turning by hand and by what the host is doing
   const stacksOn = stacksEnabled()
   const stacks = useStacks(props.storageKey, { known: (id) => DEFAULT_ORDER.includes(id) })
+  // the product may keep the layout on the host (hostLayout.js), so the panel and the Web UI of one host share it
+  if (props.layoutStore) attachHostLayout({ layout, stacks, store: props.layoutStore, storageKey: props.storageKey })
   // the overview shows a stack where its first member stands; the others are inside it. A stack with fewer than two members on the page is its tile again (the other is hidden or gone).
   const withStacks = (list) => {
     if (!stacksOn || D.dockLayout.value) return list
@@ -39,6 +42,7 @@ export function useDashStacks(D) {
   const visibleCardsRaw = computed(() => (smart.value ? byName(plan.value.visible.map((id) => { const c = cardById.value.get(id); return c && plan.value.reasons[id]?.key === 'rCurated' ? { ...c, quiet: true } : c }).filter(Boolean)) : layout.isDefault.value ? sinkEmpty(layout.visible(allCards.value, props.ctx)) : layout.visible(allCards.value, props.ctx)))
   const visibleCards = computed(() => withStacks(visibleCardsRaw.value))
   // the size asked for: the plan's (smart) or the person's (manual); the size drawn is effectiveSize of it
-  const sizeOf = (id) => (smart.value ? plan.value.sizes[id] : layout.state.sizes[id])
+  // The smart plan arranges the tiles and sizes the ones the person did not size; a size the person chose is theirs in smart mode too (and on a phone, as far as the window has room: homeSizes.js)
+  const sizeOf = (id) => (smart.value && !layout.isUserSized(id) ? plan.value.sizes[id] : layout.state.sizes[id])
   Object.assign(D, { sizeOf, stacks, stacksOn, visibleCards, visibleCardsRaw })
 }

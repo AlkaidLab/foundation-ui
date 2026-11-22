@@ -29,10 +29,10 @@ test('every tile declares a range whose bounds are ladder sizes in order, or a s
 
 test('effectiveSize: the preference clamped to the tile and the class; the preference itself is never lost (a wider window brings it back)', () => {
   const cpu = tile('cpu')
-  assert.deepEqual(WINDOW_CLASSES.map((c) => effectiveSize(tile('clients-paired'), 'xl', c)), ['m', 'l', 'l', 'xl', 'xl'])
+  assert.deepEqual(WINDOW_CLASSES.map((c) => effectiveSize(tile('clients-paired'), 'xl', c)), ['l', 'l', 'l', 'xl', 'xl'])
   // a tile whose content needs a square of its own keeps it on a phone
   assert.deepEqual(WINDOW_CLASSES.map((c) => effectiveSize(tile('ctl-vdd'), undefined, c)), ['l', 'l', 'l', 'l', 'l'])
-  assert.deepEqual(WINDOW_CLASSES.map((c) => effectiveSize(cpu, 'xl', c)), ['m', 'l', 'l', 'l', 'l'], 'no 特大 for the CPU: the host reports no load per core')
+  assert.deepEqual(WINDOW_CLASSES.map((c) => effectiveSize(cpu, 'xl', c)), ['l', 'l', 'l', 'l', 'l'], 'no 特大 for the CPU: the host reports no load per core')
   assert.deepEqual(WINDOW_CLASSES.map((c) => effectiveSize(cpu, 's', c)), ['s', 's', 's', 's', 's'])
   // 本主机 has a square since round 31 (the name, the state, one fact): a saved 方形 draws 方形 everywhere; its default stays 中
   assert.deepEqual(WINDOW_CLASSES.map((c) => effectiveSize(tile('hero'), 's', c)), ['s', 's', 's', 's', 's'])
