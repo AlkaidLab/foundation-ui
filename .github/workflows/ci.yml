@@ -43,7 +43,9 @@ jobs:
           npm run test:shard -- --test-shard=${{ matrix.shard }}/4 --test-reporter=spec "test/*.test.js" 2>&1 | tee "$RUNNER_TEMP/tests.log"
       - name: Name the failing tests in the job summary
         if: failure()
-        run: node scripts/ci/test-summary.mjs "$RUNNER_TEMP/tests.log" "Tests (shard ${{ matrix.shard }}/4)"
+        run: |
+          node scripts/ci/test-summary.mjs "$RUNNER_TEMP/tests.log" "Tests (shard ${{ matrix.shard }}/4)"
+          cat "$GITHUB_STEP_SUMMARY"
 
   build:
     name: Gallery build
