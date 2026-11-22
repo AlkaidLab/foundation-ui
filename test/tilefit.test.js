@@ -276,7 +276,9 @@ test('开关 and 使用虚拟显示器 at one cell: the word of the state and it
 })
 test('MTileHead breaks a Chinese title between its words, not inside one', () => {
   const v = fs.readFileSync(new URL('../src/vue/MTileHead.vue', import.meta.url), 'utf8')
-  assert.match(v, /Intl\.Segmenter/); assert.match(v, /class="m-tile__word"/)
+  assert.match(v, /<MWords :text="title" \/>/)
+  const w = fs.readFileSync(new URL('../src/vue/MWords.vue', import.meta.url), 'utf8'), words = fs.readFileSync(new URL('../src/vue/tileWords.js', import.meta.url), 'utf8')
+  assert.match(w, /class="m-tile__word"/); assert.match(words, /Intl\.Segmenter/)
   assert.match(css('tiles-prerelease.css'), /\.m-tile__word \{ white-space: nowrap; \}/)
   const parts = [...new Intl.Segmenter(undefined, { granularity: 'word' }).segment('使用基地虚拟显示器')].map((x) => x.segment)
   assert.ok(parts.length > 1 && parts.every((x) => x.length >= 1))
@@ -303,4 +305,14 @@ test('the client and the stream line of 正在玩 wrap with the other names of a
 test('the interface list of the network tile has one column that may shrink, so a long adapter name cannot make the list wider than the tile', () => {
   const m = css('tiles-metrics.css')
   assert.match(m, /\.m-tnet__list \{[^}]*grid-template-columns: minmax\(0, 1fr\);/)
+})
+
+test('a tile text that wraps breaks between its words, and a run of single characters belongs to the word before it', async () => {
+  const { wordsOf } = await import('../src/vue/tileWords.js')
+  for (const t of ['主机播放音频', '对正在进行的串流生效', '本次目标码率', '开源与免费声明', '主機播放音訊']) { const w = wordsOf(t); assert.ok(w && w.length > 1, t); assert.equal(w.join(''), t) }
+  assert.deepEqual(wordsOf('主机播放音频'), ['主机', '播放音频'], 'the dictionary cuts 音频 into two characters; they stay together')
+  for (const t of ['停止串流', '串流时长', '丢包率', 'Host audio', '']) assert.equal(wordsOf(t), null, `${t}: nothing to keep apart`)
+  const f = (n) => fs.readFileSync(new URL(`../src/vue/tiles/${n}`, import.meta.url), 'utf8')
+  assert.match(f('TileToggleB3.vue'), /<b class="m-cala__name"><MWords :text="card\.title" \/><\/b>/)
+  assert.match(f('TileActionB3.vue'), /<b class="m-cala__name"><MWords :text="card\.title" \/><\/b>/)
 })

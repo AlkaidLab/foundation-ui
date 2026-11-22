@@ -8,6 +8,7 @@ export const tileIds = ['ctl-audio', 'ctl-controller', 'ctl-cursor', 'ctl-keyboa
 // word under it in bold, always written (never colour alone, Apple HIG). What the person chose shows until the host's value comes back.
 import { computed, ref, watch } from 'vue'
 import MIcon from '../MIcon.vue'
+import MWords from '../MWords.vue'
 import { b3Texts } from './b3Texts.js'
 import { designProps } from './tileData.js'
 
@@ -32,6 +33,6 @@ function flip() {
 <template>
   <button type="button" role="switch" class="m-tile m-cal m-cala m-b3t" :class="on ? 'is-on' : 'is-off'" data-size="s" data-accent="primary" :aria-checked="on" :aria-label="card.title" @click="flip">
     <span class="m-cala__glyph"><MIcon :name="d.icon" /></span>
-    <span class="m-b3a__text"><b class="m-cala__name">{{ card.title }}</b><small class="m-b3a__state">{{ on ? L.on : L.off }}</small><small class="m-b3a__note">{{ d.runtime ? L.liveNote : L.restartNote }}</small></span>
+    <span class="m-b3a__text"><b class="m-cala__name"><MWords :text="card.title" /></b><small class="m-b3a__state">{{ on ? L.on : L.off }}</small><small class="m-b3a__note"><MWords :text="d.runtime ? L.liveNote : L.restartNote" /></small></span>
   </button>
 </template>

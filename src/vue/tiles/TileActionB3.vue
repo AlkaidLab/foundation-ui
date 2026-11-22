@@ -10,6 +10,7 @@ export const tileIds = ['act-apps', 'act-clients', 'act-community', 'act-diagnos
 // fast spatial spring (none under reduced motion).
 import { computed } from 'vue'
 import MIcon from '../MIcon.vue'
+import MWords from '../MWords.vue'
 import { registeredComponentStatus } from '../../status/controller.js'
 import { recommendForOs } from '../../clients/recommend.js'
 import { readOs } from '../../clients/osChoice.js'
@@ -49,6 +50,6 @@ const go = () => { if (!props.preview) emit('act', { type: d.value.act, value: d
     :aria-label="[card.title, view.state].filter(Boolean).join(' · ')" @click="go">
     <span class="m-cala__glyph"><MIcon :name="view.glyph || d.icon" :fill="(view.glyph || d.icon) === 'stop'" /></span>
     <MIcon v-if="OUT.has(id)" class="m-b3a__out" name="open_in_new" />
-    <span class="m-b3a__text"><b class="m-cala__name">{{ card.title }}</b><small v-if="view.state" class="m-b3a__state m-dnum" data-redact="client">{{ view.state }}</small></span>
+    <span class="m-b3a__text"><b class="m-cala__name"><MWords :text="card.title" /></b><small v-if="view.state" class="m-b3a__state m-dnum" data-redact="client"><MWords :text="view.state" /></small></span>
   </button>
 </template>
