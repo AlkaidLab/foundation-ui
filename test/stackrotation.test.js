@@ -102,7 +102,7 @@ test('the stack: the dots are buttons, the pin turns rotation off, the keys, the
   assert.match(v, /data-stack-pin :aria-pressed="pinned"/); assert.match(v, /emit\('flags', \{ id: props\.card\.id, patch: \{ smartRotate: !on \} \}\)/)
   assert.match(v, /@focusin="focusIn" @focusout="focusOut"/)
   assert.match(v, /e\.key === 'ArrowRight'/); assert.match(v, /e\.key === 'ArrowLeft'/); assert.match(v, /e\.key === 'Home'/)
-  assert.match(v, /:name="fade \? 'm-dstack-fade'/); assert.match(v, /fade\.value = !byHand/)
+  assert.match(v, /fade \? 'm-dstack-fade'/); assert.match(v, /fade\.value = !byHand/)
   assert.match(css, /\.m-dstack-fade-enter-active \{ transition: opacity 240ms linear/)
   assert.match(css, /prefers-reduced-motion: reduce\) \{[^\n]*m-dstack-fade-leave-active\) \{ transition: none; \}/); assert.match(css, /html\[data-motion='reduced'\] \.m-dstack-fade-enter-active[^\n]*\{ transition: none; \}/)
   assert.doesNotMatch(css, /transition: opacity 120ms linear/, 'no fade left for reduced motion')

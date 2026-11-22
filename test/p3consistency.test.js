@@ -56,9 +56,10 @@ test('the product icon is the cloudless vector of SunshineQ, with its source on 
   assert.equal(existsSync(new URL('../src/assets/app/app-icon-256.png', import.meta.url)), false, 'the cloud PNG set is gone')
 })
 
-test('no wheel trap: a stack turns only for a sideways wheel, the dock has no row to take the wheel, the update notes size to their content', () => {
+test('no wheel trap: a stack steps for a wheel gesture that began over it and never takes a scroll the page began or a wheel past its end, the dock has no row to take the wheel, the update notes size to their content', () => {
   const stack = read('../src/vue/MDashStack.vue')
-  assert.match(stack, /const stackWheelTurn = \(e\) => \(Math\.abs\(e\.deltaX\) >= 6 && Math\.abs\(e\.deltaX\) > Math\.abs\(e\.deltaY\)/)
+  assert.match(stack, /const wheelGesture = createWheelGesture\(\)/); assert.match(stack, /if \(r\.own && e\.cancelable\) e\.preventDefault\(\)/)
+  assert.match(stack, /const seeWheel = \(e\) => \{ anyWheelPrev = anyWheelLast; anyWheelLast = e\.timeStamp \}/, 'the wheel events of the whole page are seen, so a scroll that is already running is known')
   assert.doesNotMatch(stack, /turn\(e\.deltaY/)
   const dock = read('../src/vue/dash/dashDock.js')
   assert.ok(!/onDockWheel|scrollLeft/.test(dock), 'the dock is not a row that scrolls: the wheel is the page\'s')
