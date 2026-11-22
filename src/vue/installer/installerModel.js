@@ -146,7 +146,7 @@ export function componentSections(view, locale) {
   return COMPONENT_SECTIONS.map((s) => ({
     id: s.id,
     title: t(locale, `comp.${s.id}`),
-    // a component this Windows cannot run (view.unsupported: the Windows 10 version it needs) is off, disabled, and its line says why
+    // a component this Windows cannot run (view.unsupported: the minimum Windows version it needs) is off, disabled, and its line says why
     items: s.ids.map((id) => {
       const needs = view.unsupported?.[id]
       return { id, icon: COMPONENT_ICONS[id], title: t(locale, `comp.${id}`), text: needs ? t(locale, 'comp.needs', needs) : t(locale, `comp.${id}.text`), on: !needs && !!view.components[id], disabled: !!needs }
