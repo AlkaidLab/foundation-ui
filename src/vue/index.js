@@ -196,6 +196,8 @@ export { default as MFeedbackCard } from "./feedback/MFeedbackCard.vue"
 export { default as MFeedbackButton } from "./feedback/MFeedbackButton.vue"
 export { default as MFeedbackDecision } from "./feedback/MFeedbackDecision.vue"
 export { default as MFeedbackPanel } from "./feedback/MFeedbackPanel.vue"
+export { default as MFeedbackReplySheet } from "./feedback/MFeedbackReplySheet.vue"
+export { useFeedbackReplies, replySheet } from "./feedback/useFeedbackReplies.js"
 export { default as MDoctor } from "./MDoctor.vue"
 export { default as MDriverGuardNotice } from './MDriverGuardNotice.vue'
 export { DOCTOR_GROUPS, LOCAL_GROUPS as DOCTOR_LOCAL_GROUPS, FIX_LEVEL as DOCTOR_FIX_LEVEL, hostSource as doctorHostSource, STATUS_LOOK as DOCTOR_STATUS_LOOK, createDoctor, doctorSnapshot, doctorText, doctorTexts, normalizeReport as normalizeDoctorReport, sortItems as sortDoctorItems, MOCK_DOCTOR, MOCK_DOCTOR_LOCAL, MOCK_DOCTOR_LOCAL_DOWN, mockDoctorRequest, mockLocalSource } from "../doctor/index.js"

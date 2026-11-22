@@ -39,4 +39,8 @@ export const NAMES = [
   'text_decrease', 'text_increase', 'photo_size_select_small', 'photo_size_select_large', 'signal_cellular_alt_1_bar', 'signal_cellular_alt_2_bar', 'signal_cellular_alt', 'volume_down', 'mic_off', 'mobile_off', 'hourglass_empty', 'hourglass_bottom', 'mobile_sensor_lo', 'mobile_sensor_hi',
   // the state marks of the developer-mode pages (src/vue/devmode), chosen by a function and so not found by the scan
   'adjust', 'call_split', 'merge', 'draft', 'cancel', 'pending', 'schedule', 'edit_note',
+  // the RTSS page of the panel beside this package asks for the stream-monitoring switch
+  'monitoring',
+  // named by data in the panel (the exported JSON and the live-session switches), so the scan cannot see them
+  'data_object', 'enable',
 ]

@@ -332,9 +332,14 @@ async function enter(stepId) {
   }
 }
 watch(pageId, (value) => { if (value) void enter(value) }, { immediate: true })
-// a page of the sub-flow (and the way back) opens at its top
 watch(id, (value) => { if (value) funnel.enter(value) }, { immediate: true })
-watch(sub, () => { void nextTick(() => { const el = document.querySelector('.m-guide__main'); if (el) el.scrollTop = 0 }) })
+const mainPane = ref(null)
+watch(pageId, () => {
+  const pane = mainPane.value
+  if (!pane) return
+  if (pane.closest('.m-onboard')) pane.scrollTop = 0
+  else pane.closest('.m-guide')?.scrollIntoView({ block: 'start', behavior: 'instant' })
+}, { flush: 'post' })
 onBeforeUnmount(() => { stopPoll(); qrPair?.stop(); clearTimeout(copiedTimer) })
 // no pairing window stays open behind a hidden window
 const onVisible = () => { if (id.value !== 'pair' || pairedClient.value || !qrShown.value) return; if (document.hidden) qrPair.stop(); else void qrPair.begin() }
@@ -450,7 +455,7 @@ onBeforeUnmount(() => { edgeObserver?.disconnect(); footObserver?.disconnect() }
       <p class="m-guide__stepof" aria-live="polite">{{ stepLine }}</p>
     </nav>
 
-    <main class="m-guide__main">
+    <main ref="mainPane" class="m-guide__main">
       <div ref="topSentinel" class="m-guide__sentinel" aria-hidden="true" />
       <section :key="id" class="m-guide__content">
         <header v-if="pageId !== 'intro'" class="m-guide__head">

@@ -45,12 +45,14 @@ export function buildIndex(docs) {
     const aliasList = (Array.isArray(doc.aliases) ? doc.aliases : String(doc.aliases ?? '').split(/[,，;；]+/)).map((x) => norm(x).trim()).filter(Boolean)
     const al = aliasList.join(' ')
     const alt = norm(doc.alt)
-    const groups = groupsOfText(`${t} ${kw} ${alt} ${al}`)
     const units = hasHan(title) ? pinyinUnits(title) : null
     // what the doc is also called, in pinyin (shengyin finds a setting whose alias is 声音)
     const aliasHan = hanOf(`${al} ${kw}`).replace(/\s+/g, ' ').trim()
     const aunits = aliasHan ? pinyinUnits(aliasHan) : null
     const k = doc.key ? keyForm(doc.key) : ''
+    // the synonym groups are for the words people type: the technical key (restore_log) and its spaced words do not put a doc into a group (default settings finds the reset, not every setting whose key says restore)
+    const kwForGroups = k ? kw.split(k).join(' ').split(k.replace(/_/g, ' ')).join(' ') : kw
+    const groups = groupsOfText(`${t} ${kwForGroups} ${alt} ${al}`)
     const pool = new Set([...tokensOf(t), ...tokensOf(k.replace(/_/g, ' ')), ...tokensOf(kw), ...tokensOf(al), ...tokensOf(alt)])
     for (const gi of groups) for (const term of SYNONYM_GROUPS[gi].terms) if (/^[a-z0-9]{3,}$/.test(term)) pool.add(term)
     return {
