@@ -354,3 +354,12 @@ test('the empty line of a tile is whole words (MWords), shrinks to fit and has i
   assert.match(fs.readFileSync(new URL('../src/vue/fitText.js', import.meta.url), 'utf8'), /FIT_SELECTOR = '\.m-empty-basic > b, /)
   assert.match(css('tiles-b2.css'), /\.m-empty-basic > b \{[^}]*overflow-wrap: normal;/)
 })
+
+test('the quick-actions strip never cuts a button: a row that does not fit shares its width without scrolling, and a word that does not fit gives way to the glyph (names kept)', () => {
+  const q = fs.readFileSync(new URL('../src/vue/tiles/cal/CalQuick.vue', import.meta.url), 'utf8'), c = css('tiles-cal.css')
+  assert.match(q, /<section v-else ref="stripRoot" class="m-tile m-cal m-calq" :class="\{ 'is-tight': stage > 0, 'is-compact': stage === 2, 'is-icons': stage === 3 \}"/)
+  assert.match(q, /:aria-label="a\.label" :title="a\.label"/); assert.match(q, /<span class="m-calq__lab">\{\{ a\.label \}\}<\/span>/)
+  assert.match(q, /n === 0 \? r\.scrollWidth <= r\.clientWidth \+ 1 : !cut\(\) \|\| n === 3/, 'a row that fits is not touched; each stage is tried before the next')
+  assert.match(c, /\.m-calq\.is-tight \.m-calq__row \{ display: flex; overflow: visible;[^}]*mask-image: none;/)
+  assert.match(c, /\.m-calq\.is-icons \.m-calq__lab \{ display: none; \}/); assert.match(c, /\.m-calq\.is-compact \.m-calq__title \{ display: none; \}/)
+})
