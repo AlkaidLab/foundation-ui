@@ -72,6 +72,16 @@ test('wheel: tiny first events are held until the gesture carries enough, a mous
   assert.deepEqual(wheelPx(wheel(1, 0, 2), 700), { x: 0, y: 700 })
 })
 
+test('wheel: a sideways gesture is the page\'s, and past an end even a tiny first event is the page\'s', () => {
+  const g = createWheelGesture()
+  assert.deepEqual(g.handle(wheel(0, 40), 1000, -1000, () => true), { own: false, step: 0 }, 'deltaX only: not a vertical turn')
+  assert.deepEqual(g.handle(wheel(60, 0), 1016, 1000, () => true), { own: false, step: 0 }, 'and the rest of that gesture stays with the page')
+  const end = createWheelGesture()
+  assert.deepEqual(end.handle(wheel(2), 5000, -1000, (d) => d < 0), { own: false, step: 0 }, 'last member, a first event of 2 px down: the page scrolls, nothing is held back')
+  const mid = createWheelGesture()
+  assert.deepEqual(mid.handle(wheel(2), 9000, -1000, () => true), { own: true, step: 0 }, 'where it can turn, a small first event is held')
+})
+
 test('wheel: a gesture that was already running when the pointer came onto the stack belongs to the page, and so does one the stack cannot step', () => {
   const g = createWheelGesture()
   assert.deepEqual(g.handle(wheel(40), 1000, 990, () => true), { own: false, step: 0 }, 'wheel events came 10 ms earlier elsewhere: page scroll in progress')

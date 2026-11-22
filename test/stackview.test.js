@@ -16,6 +16,7 @@ test('the stack is a group a person can turn: swipe, wheel, the dots, keys; only
   assert.match(v, /swipeIntent\(dx, dy, \{ canTurn, pageCanScroll, touch \}\)/, 'the first movement of a finger decides who has it')
   assert.match(v, /@touchmove="touchMove"/); assert.match(v, /lock === 'swipe' && e\.cancelable\) e\.preventDefault\(\)/, 'the page is stopped only for a finger the stack has')
   assert.match(v, /e\.key === 'ArrowDown'/)
+  assert.match(v, /commit\(pos\.value === from \? verdict : 0\)/, 'a member chosen while a swipe settles stands')
   assert.match(v, /<Transition :name="skipAnim \? 'm-dstack-none' : fade \? 'm-dstack-fade' : dir > 0 \? 'm-dstack-up' : 'm-dstack-down'">/)
   assert.doesNotMatch(v, /aria-live="assertive"/)
   // a turn by hand is told in the page's polite live region (one region for the page), a turn by the host is not

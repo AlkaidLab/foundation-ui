@@ -86,7 +86,7 @@ export function useDashDrag(D) {
     // the lift is a translation of the card's body: the cell stays in its slot (the cells are in one grid, or in the grids of several sections), so the offset is the pointer less the grab point less the slot
     lift()
     d.over = !d.fromGallery && inside(sheetEl.value, x, y) // a tile that came out of the gallery is never dropped back on it
-    if (d.over) return
+    if (d.over) { gate.over(''); return } // over the gallery the pointer is in no card's middle: the card swapped last is let go
     // behind the flag: the centre of a tile of the same size, held for a moment, is a stack; while over it the cards do not shuffle
     if (stacksOn && !d.fromGallery && !isStackId(d.id)) {
       d.size = cell.dataset.size
@@ -97,6 +97,7 @@ export function useDashDrag(D) {
         if (x >= r.left + mx && x <= r.right - mx && y >= r.top + my && y <= r.bottom - my && mergeable(d.id, id)) { cand = id; break }
       }
       if (cand) {
+        gate.over(cand) // the middle of a card to join is inside its swap zone
         if (d.mergeCand !== cand) { clearMerge(); d.mergeCand = cand; D.mergeTimer = setTimeout(() => { if (drag.value && drag.value.mergeCand === cand) drag.value.merge = cand }, MERGE_HOLD_MS) }
         return
       }
@@ -121,6 +122,7 @@ export function useDashDrag(D) {
           if (d.swapCand !== id) { clearSwap(); d.swapCand = id; D.swapTimer = setTimeout(() => { const ok = drag.value && drag.value.swapCand === id && !drag.value.mergeCand; clearSwap(); if (ok) take() }, SWAP_DWELL_MS) }
           break
         }
+        clearSwap() // a swap that was waiting for another card's middle is not made later, over this one
         take(); break
       }
     }
@@ -141,6 +143,8 @@ export function useDashDrag(D) {
     const d = drag.value
     if (!d || e.pointerId !== d.pid) return
     clearTimeout(D.swapTimer); D.swapTimer = 0
+    // the lift and the places of the last pointer move are made before the card is let go (the next frame, where they were to be made, does not come)
+    if (d.moved && pending && e.type === 'pointerup') { lastX = e.clientX; lastY = e.clientY; track(lastX, lastY) }
     drag.value = null
     stopLoop(); unlift(d.id)
     clearTimeout(pressTimer)

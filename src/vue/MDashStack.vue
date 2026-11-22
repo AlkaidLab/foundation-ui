@@ -129,7 +129,9 @@ const up = (e) => {
   if (isReduced()) { commit(verdict); return }
   drag.value = { on: true, y: verdict ? (verdict > 0 ? -H : H) : 0, settling: true }
   clearTimeout(settleTimer)
-  settleTimer = setTimeout(() => commit(verdict), 300)
+  const from = pos.value
+  // a member chosen meanwhile (a dot, a key) stands: the swipe that was settling does not turn it on from there
+  settleTimer = setTimeout(() => commit(pos.value === from ? verdict : 0), 300)
 }
 const key = (e) => {
   if (e.target !== e.currentTarget && e.target.closest('button')) return

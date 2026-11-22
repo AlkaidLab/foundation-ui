@@ -33,10 +33,13 @@ export function createWheelGesture({ gap = WHEEL_GAP_MS, minPx = WHEEL_MIN_PX } 
       if (phase === 'page' || phase === 'idle') return { own: false, step: 0 }
       if (phase === 'stack') return { own: true, step: 0 }
       const d = wheelPx(e, height)
-      acc += Math.abs(d.x) > Math.abs(d.y) ? d.x : d.y
+      // a stack turns up and down: a sideways gesture is the page's (the browser's own horizontal scroll or its back and forward swipe)
+      if (Math.abs(d.x) > Math.abs(d.y)) { phase = 'page'; return { own: false, step: 0 } }
+      acc += d.y
+      // the way it goes is known from the first event: past an end the page scrolls, even before the gesture has carried enough to count as a step
+      if (acc !== 0 && !canStep(acc > 0 ? 1 : -1)) { phase = 'page'; return { own: false, step: 0 } }
       if (Math.abs(acc) < minPx) return { own: true, step: 0 }
       const dir = acc > 0 ? 1 : -1
-      if (!canStep(dir)) { phase = 'page'; return { own: false, step: 0 } }
       phase = 'stack'
       return { own: true, step: dir }
     },
