@@ -128,6 +128,13 @@ html[data-bs-theme='dark'] .m-caln.is-s .m-caln__text, html[data-theme='dark'] .
 .m-cala__glyph { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--tk); color: var(--on-tk); } .m-cala__glyph .m-icon { width: 26px; height: 26px; }
 .m-cala__name { font: 500 22px/28px var(--m-font-display); letter-spacing: -.01em; }
 
+/* 快捷操作 at 方形 (the clock mode): the label row, then the actions as a 2 x 2 grid, each a glyph in a rounded square over its word (11 px); a word that does not fit its cell gives way to the glyph alone */
+.m-calqs__grid { flex: 1 1 0; min-height: 0; margin-top: 4px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 6px; align-content: stretch; }
+.m-calqs__grid button { min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px; border: 0; border-radius: 16px; background: var(--cal-inner); color: var(--md-sys-color-on-surface); cursor: pointer; }
+.m-calqs__grid button:hover { background: var(--md-sys-color-surface-container-highest); } .m-calqs__grid button:focus-visible { outline: 2px solid var(--tk); outline-offset: 1px; }
+.m-calqs__grid i { flex: none; display: grid; place-items: center; width: 20px; height: 20px; color: var(--tk); } .m-calqs__grid i .m-icon { width: 20px; height: 20px; }
+.m-calqs__grid button > span { max-width: 100%; font: 500 11px/12px var(--m-font-display); white-space: nowrap; overflow: hidden; }
+.m-calqs.is-icons .m-calqs__grid button > span { display: none; } .m-calqs.is-icons .m-calqs__grid i { width: 28px; height: 28px; } .m-calqs.is-icons .m-calqs__grid i .m-icon { width: 24px; height: 24px; }
 /* 快捷操作: one row of Quick Settings pills */
 .m-calq { flex-direction: row; align-items: center; gap: 14px; --tile-pad: 8px 8px 8px 18px; }
 .m-calq__title { flex: none; display: flex; align-items: center; gap: 8px; font: var(--m-tile-text-13-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); } .m-calq__title .m-icon { width: 18px; height: 18px; }
