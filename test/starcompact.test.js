@@ -32,3 +32,12 @@ test('the compact card is one or two rows of small buttons, and the client promp
   assert.match(css, /\.m-sprompt--compact \.m-sprompt__btns \{ flex: 1 1 0; min-width: 0; margin-inline-start: 0; justify-content: flex-start; gap: 6px; \}/)
   assert.ok(css.indexOf('.m-sprompt--compact') < css.indexOf('.m-cprompt '), 'before the client prompt rules, which are for another card')
 })
+
+test('on a phone the dismissal is a close icon on the row of the buttons (its name is the words), so the card is one row; the wide card keeps the words', () => {
+  const c = read('../src/vue/MStarPrompt.vue'), css = read('../src/css/connect.css')
+  assert.match(c, /<button v-if="compact" type="button" class="m-sprompt__later m-sprompt__later--icon" :aria-label="texts\.later" :title="texts\.later" @click="emit\('later'\)"><MIcon name="close" \/><\/button>/)
+  assert.match(c, /<button v-else type="button" class="m-sprompt__later" @click="emit\('later'\)">\{\{ texts\.later \}\}<\/button>/)
+  assert.match(css, /\.m-sprompt--compact \{ flex-wrap: nowrap; align-items: center; \}/)
+  assert.match(css, /\.m-sprompt--compact \.m-sprompt__btns \{ flex-wrap: nowrap; \}/)
+  assert.match(css, /\.m-sprompt--compact \.m-sprompt__later--icon \{ flex: none; width: 36px;/)
+})

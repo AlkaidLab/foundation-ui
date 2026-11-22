@@ -190,6 +190,13 @@ html[data-motion='reduced'] .m-pairprompt-enter-active, html[data-motion='reduce
 .m-sprompt--compact .m-sprompt__btn, .m-sprompt--compact .m-sprompt__later { height: 36px; border-radius: 18px; }
 .m-sprompt--compact .m-sprompt__btn { gap: 6px; padding: 0 12px 0 10px; font-size: 13px; white-space: nowrap; } .m-sprompt--compact .m-sprompt__btn .m-icon, .m-sprompt--compact .m-sprompt__btn .m-ghmark, .m-sprompt--compact .m-sprompt__btn .m-bmark { width: 16px; height: 16px; font-size: 16px; }
 .m-sprompt--compact .m-sprompt__later { padding: 0 8px; white-space: nowrap; }
+/* one row on a phone: the buttons keep their words, the dismissal is a round close icon at the end of the row, and the badge goes where the row would not hold it (a 390 pt phone) */
+.m-sprompt--compact { flex-wrap: nowrap; align-items: center; }
+.m-sprompt--compact .m-sprompt__ico { align-self: center; margin-top: 0; }
+.m-sprompt--compact .m-sprompt__btns { flex-wrap: nowrap; }
+.m-sprompt--compact .m-sprompt__btn { flex: 0 1 auto; min-width: 0; padding: 0 12px 0 10px; }
+.m-sprompt--compact .m-sprompt__later--icon { flex: none; width: 36px; padding: 0; margin-left: auto; display: grid; place-items: center; color: var(--md-sys-color-on-surface-variant); } .m-sprompt--compact .m-sprompt__later--icon .m-icon { width: 20px; height: 20px; font-size: 20px; }
+@container (max-width: 399px) { .m-sprompt--compact .m-sprompt__ico { display: none; } .m-sprompt--compact .m-sprompt__btn { padding: 0 10px 0 8px; gap: 5px; } }
 .m-cprompt { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent); }
 .m-cprompt .m-sprompt__text h3, .m-cprompt .m-sprompt__text p { color: var(--md-sys-color-on-primary-container); }
 .m-cprompt__ico { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }

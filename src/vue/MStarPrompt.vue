@@ -12,8 +12,8 @@ import { BILIBILI } from '../about/data.js'
 //   Both end with 关注 B 站 (the channel, the same address in every language). Every ask is a real button of one height and shape: the star of the host filled, the others filled-tonal
 //   (secondary container, with the Bilibili mark and the filled heart at the size of the GitHub mark), 以后再说 a quiet text button at the far right.
 //   texts: { title, sub, action: 'Star {name}', later, sponsor, bilibili, hostShort, clientShort, bilibiliShort }     host, client: { name, url }     streaming: boolean
-//   compact (a phone: the window is under 600 wide or under 480 high): the title and the line are gone (the region still has its name), the buttons are one or two short rows, and the stars are named by
-//   the side they are for (主机端 Star, 客户端 Star, B 站) when the texts have those words.
+//   compact (a phone: the window is under 600 wide or under 480 high): the title and the line are gone (the region still has its name), the buttons are one short row with 以后再说 as a close icon at its end (the words are
+//   its accessible name), and the stars are named by the side they are for (主机端 Star, 客户端 Star, B 站) when the texts have those words.
 defineProps({
   compact: { type: Boolean, default: false },
   texts: { type: Object, default: () => ({}) },
@@ -38,7 +38,9 @@ const emit = defineEmits(['open', 'later', 'sponsor'])
         <button type="button" class="m-sprompt__btn" data-star="sponsor" @click="emit('sponsor')"><MIcon name="favorite" fill />{{ texts.sponsor }}</button>
       </template>
       <button v-if="texts.bilibili" type="button" class="m-sprompt__btn" data-star="bilibili" @click="emit('open', BILIBILI.url)"><MBilibiliMark />{{ compact && texts.bilibiliShort ? texts.bilibiliShort : texts.bilibili }}</button>
-      <button type="button" class="m-sprompt__later" @click="emit('later')">{{ texts.later }}</button>
+      <!-- compact (a phone): the dismissal is a close icon on the row of the buttons (the words are its name), so the card is one row, not two -->
+      <button v-if="compact" type="button" class="m-sprompt__later m-sprompt__later--icon" :aria-label="texts.later" :title="texts.later" @click="emit('later')"><MIcon name="close" /></button>
+      <button v-else type="button" class="m-sprompt__later" @click="emit('later')">{{ texts.later }}</button>
     </div>
   </section>
 </template>
