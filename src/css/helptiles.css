@@ -1,0 +1,48 @@
+/* The four tiles at the top of 帮助与关于 (MHelpTiles, docs/help-tiles.md). The small tile of the overview (.m-tile .m-cal .m-calm, its header and its type roles), never stretched:
+   four in a row at the standard unit when they fit, else two by two at the phone's size (at most 196 px). The tile is a square, so its size never depends on its state. */
+.m-helptiles { container: helptiles / inline-size; }
+/* on the About page of the Web UI the row is the first thing in the column of the page (the control panel puts it in a section): the room under it is its own */
+.m-about .m-helptiles { margin-bottom: 14px; }
+.m-helptiles__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 196px)); justify-content: start; }
+@container helptiles (min-width: 628px) { .m-helptiles__grid { grid-template-columns: repeat(4, 148px); } }
+.m-helptiles__cell { min-width: 0; container: helptile / inline-size; }
+
+.m-helptile { all: unset; box-sizing: border-box; position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; width: 100%; aspect-ratio: 1 / 1; min-width: 0; padding: 16px 18px 14px; border-radius: var(--m-dash-radius, 28px); background: var(--m-card); color: var(--md-sys-color-on-surface); cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--m-spring-default-effects-duration, 200ms) var(--m-spring-default-effects, ease), color var(--m-spring-default-effects-duration, 200ms) var(--m-spring-default-effects, ease); }
+.m-helptile.m-tile--tonal { background: var(--tk-c); color: var(--on-tk-c); }
+.m-helptile:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-helptile:hover { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--md-sys-color-on-surface) 5%, transparent); }
+.m-helptile:active { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--md-sys-color-on-surface) 9%, transparent); }
+.m-helptile.is-busy { cursor: progress; }
+
+/* the header: the name breaks between words, at most two lines, in a head that is two lines high for every tile (so the value never moves with the language); a word is never cut */
+.m-helptile .m-calm__head { min-height: 32px; align-items: center; }
+.m-helptile .m-calm__title { flex: 1; min-width: 0; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; word-break: keep-all; overflow-wrap: normal; text-wrap: balance; line-height: 16px; }
+
+/* the value: the version, the result, the number; one line, a word never breaks, the size follows the tile down to a floor */
+.m-helptile__value { display: flex; align-items: baseline; gap: 4px; min-width: 0; margin-top: 8px; white-space: nowrap; }
+.m-helptile__value b { min-width: 0; overflow: hidden; text-overflow: ellipsis; font: 600 clamp(20px, 13.5cqw, 32px) / 1.15 var(--m-font-display); letter-spacing: -.02em; font-feature-settings: 'tnum' 1; }
+.m-helptile__value b.has-accent { color: color-mix(in srgb, var(--tk) 72%, var(--md-sys-color-on-surface)); }
+.m-helptile__value small { flex: none; font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }
+
+/* the state line: the main part, then a second part (a time) that leaves first: when both do not fit the second wraps off the one line that shows */
+.m-helptile__sub { display: flex; flex-wrap: wrap; column-gap: 6px; height: 16px; min-height: 16px; margin: 4px 0 6px; overflow: hidden; font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); white-space: nowrap; }
+.m-helptile__main { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.m-helptile__main:empty { display: none; }
+.m-helptile__main:not(:empty) + .m-helptile__aux::before { content: '·'; margin-inline-end: 6px; }
+.m-helptile__aux { min-width: 0; font-weight: 400; }
+
+/* a tile with nothing to state: its action is the hero, a round glyph where the action's words would be (the whole tile is the button) */
+.m-helptile__hero { align-self: flex-start; margin-top: auto; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: color-mix(in srgb, var(--tk) 16%, transparent); color: color-mix(in srgb, var(--tk) 78%, var(--md-sys-color-on-surface)); }
+.m-helptile__hero > .m-icon { width: 24px; height: 24px; }
+/* the action: the corner of the tile that says what a press does; at the narrowest it is the arrow alone */
+.m-helptile__act { align-self: flex-start; margin-top: auto; max-width: 100%; overflow: hidden; height: 26px; }
+.m-helptile__act.m-tchip--accent { background: var(--tk); color: var(--on-tk); }
+.m-helptile__act.is-none { background: transparent; }
+.m-helptile__act-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.m-helptile__act-go { display: none; }
+.m-helptile__spin { animation: m-update-spin 1.6s linear infinite; } /* the keyframes of the update badge (expressive.css); reduced motion stops it in motion.css */
+@container helptile (max-width: 134px) { .m-helptile__act-label { display: none; } .m-helptile__act-go { display: inline-block; } }
+
+/* the mark on an icon button (MIconButton badge): the update dot on the 关于 button of the rail, the same red dot as the other items of the rail */
+.m-icon-btn__badge { position: absolute; top: 9px; right: 9px; pointer-events: none; }

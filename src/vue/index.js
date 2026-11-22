@@ -168,7 +168,6 @@ export { default as MEventStrip } from "./MEventStrip.vue"
 export { default as MHeatStrip } from "./MHeatStrip.vue"
 export { monotonePath, histogram, domainOf } from "../charts/chartMath.js"
 export { default as MAbout } from "./MAbout.vue"
-export { MASCOT } from "../about/mascot.js"
 export { aboutTexts } from "../about/texts.js"
 export { default as MPickSheet } from './MPickSheet.vue'
 export { default as MChoiceCards } from './MChoiceCards.vue'
@@ -192,6 +191,7 @@ export { default as MResetEntry } from "./MResetEntry.vue"
 export { useCountdown } from "./useCountdown.js"
 export { RESET_KEYWORDS, RESET_SECONDS, backupTime, countdownLabel, createCountdown, createResetClient, failureText, latestBackup, resetTexts } from "../reset/index.js"
 export { default as MFeedbackRow } from "./MFeedbackRow.vue"
+export { default as MHelpTiles } from "./MHelpTiles.vue"
 export { default as MFeedbackCard } from "./feedback/MFeedbackCard.vue"
 export { default as MFeedbackButton } from "./feedback/MFeedbackButton.vue"
 export { default as MFeedbackDecision } from "./feedback/MFeedbackDecision.vue"
@@ -223,7 +223,7 @@ export { modeListTexts, MODE_LIST_TEXTS } from '../settings/modeListTexts.js'
 export * as modeList from '../settings/modeList.js'
 export { default as MStatusPills } from './MStatusPills.vue'
 export { default as MMascot } from "./MMascot.vue"
-export { VIVI, viviImage, viviClip } from "../about/mascot.js"
+export { MASCOT, VIVI, viviImage, viviClip } from "../about/mascot.js"
 export { WALLPAPERS, autoPick, wallpaperBox, freeGaps } from "../appearance/wallpaper.js"
 export { relayoutWallpaper } from "../appearance/apply.js"
 export { default as MUnifiedSearch } from "./MUnifiedSearch.vue"

@@ -1,5 +1,6 @@
 <script setup>
 import MIcon from './MIcon.vue'
+import MBadge from './MBadge.vue'
 
 const props = defineProps({
   icon: { type: String, required: true },
@@ -18,6 +19,8 @@ const props = defineProps({
   variant: { type: String, default: 'standard' },
   /** a toggle button when given: aria-pressed, round and square swap when selected; v-model:selected */
   selected: { type: Boolean, default: undefined },
+  /** a mark in the corner: 'dot' or a count; empty: none (the update dot on the 关于 button of the rail) */
+  badge: { type: [String, Number], default: '' },
 })
 const emit = defineEmits(['update:selected'])
 const toggle = () => { if (props.selected !== undefined) emit('update:selected', !props.selected) }
@@ -36,5 +39,6 @@ const toggle = () => { if (props.selected !== undefined) emit('update:selected',
     @click="toggle"
   >
     <MIcon :name="icon" />
+    <MBadge v-if="badge" class="m-icon-btn__badge" :value="badge === 'dot' ? null : badge" />
   </button>
 </template>
