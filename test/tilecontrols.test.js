@@ -47,10 +47,11 @@ test("the labels of the growth tiles wrap instead of ending in an ellipsis", () 
   }
 })
 
-test("a switch at 方形 has the state beside the glyph and the note under the name", () => {
-  const css = read("css/tilefit-real.css")
-  assert.match(css, /\.m-b3t\[data-size='s'\] \{[^}]*display: grid/)
-  assert.match(css, /\.m-b3t\[data-size='s'\] \.m-b3a__text \{ display: contents; \}/)
+test("a switch at 方形 has the label row, the state as the hero (a drawn switch and its word) and one line of hint", () => {
+  const css = read("css/tiles-b3.css")
+  assert.match(css, /\.m-b3t\.m-b3sw \{ display: flex; flex-direction: column;[^}]*justify-content: space-between;/)
+  assert.match(css, /\.m-b3sw__hero \{ display: flex; align-items: center;/)
+  assert.doesNotMatch(read("css/tilefit-real.css"), /\.m-b3t\[data-size='s'\]/)
 })
 
 test("the three sub-tiles of the 设备 tile at 中 keep their names on one line", () => {

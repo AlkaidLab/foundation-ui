@@ -47,6 +47,8 @@ button.m-statuspill[data-pressed] { border-radius: 16px; }
 .m-cards__card[data-pressed] { border-radius: 16px; transform: scale(.98); }
 .m-chipset__chip[data-pressed] { border-radius: 18px; }
 .m-cala[data-pressed] .m-cala__glyph { transform: scale(.9); border-radius: 30%; }
+.m-b3t[data-pressed] .m-b3sw__track i { width: 32px; height: 32px; }
+.m-b3t.is-on[data-pressed] .m-b3sw__track i { left: calc(100% - 38px); width: 32px; height: 32px; }
 .m-b3s__row button[data-pressed] { border-radius: 12px; }
 .m-b3d__modes button[data-pressed] { border-radius: 14px; }
 .m-calh__act[data-pressed] { border-radius: 12px; transform: scale(.97); }
