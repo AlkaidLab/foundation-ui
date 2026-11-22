@@ -126,6 +126,12 @@
 .m-b3n.is-m .m-b3n__pic { position: static; flex: none; width: 50%; height: 100%; } .m-b3n.is-m .m-b3n__lead::after { display: none; } .m-b3n.is-m .m-b3n__text { flex: 1; justify-content: center; padding: 14px 18px; color: inherit !important; }
 .m-b3n.is-m .m-b3n__text small { color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)) !important; }
 .m-b3n.is-l .m-b3n__lead { flex: 0 0 56%; }
+/* on a phone the 中 announcement keeps its plate and its big badge but is balanced: the plate is a little under half, the kind is at the top of the text and the title at the bottom (the anatomy of the other tiles), so the text is not a small island in the middle of a wide card */
+.m-dash__grid[data-scaled] .m-b3n.is-m .m-b3n__gen { width: 42%; }
+.m-dash__grid[data-scaled] .m-b3n.is-m:has(.m-b3n__gen) .m-b3n__text { justify-content: space-between; padding: 16px 18px; }
+.m-dash__grid[data-scaled] .m-b3n.is-m:has(.m-b3n__gen) .m-b3n__text b { font-size: 22px; line-height: 28px; }
+/* the phone's 本主机 中: the rows share the room the larger layout square gives them, the chips sit at the bottom edge */
+.m-dash__grid[data-scaled] .m-calh.is-m .m-calh__main { justify-content: space-between; }
 .m-b3n__rest { list-style: none; margin: 0; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
 .m-b3n__rest button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border: 0; border-radius: 14px; background: var(--cal-inner); color: inherit; font: var(--m-tile-text-13-strong); text-align: left; cursor: pointer; }
 .m-b3n__rest time { flex: none; font: var(--m-tile-text-12); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); }

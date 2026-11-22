@@ -11,6 +11,7 @@ export const tileIds = ['announcements', 'errors', 'logs', 'update', 'tip', 'spo
 //   小贴士, 赞助: strips with the quiet title at the start (快捷操作's language); 赞助's actions as pills.
 //   vivi: Vivi on a tonal ground with the greeting of the hour (Duolingo's widget).
 import { computed } from 'vue'
+import MWords from '../MWords.vue'
 import MIcon from '../MIcon.vue'
 import MTileHead from '../MTileHead.vue'
 import MTileShape from '../MTileShape.vue'
@@ -108,7 +109,7 @@ const part = hour < 5 ? 'night' : hour < 11 ? 'morning' : hour < 18 ? 'day' : 'e
     <button type="button" class="m-b3n__lead" :aria-label="lead.title" @click="openPost(lead)">
       <img v-if="banner" class="m-b3n__pic" :src="banner" alt="" decoding="async">
       <span v-else-if="gen" class="m-b3n__pic m-b3n__gen m-b3n__plate" :class="{ 'is-tertiary': gen.tertiary }" aria-hidden="true"><MTileShape :icon="gen.icon" :shape="gen.shape" size="min(60cqmin, 132px)" tone="solid" /></span>
-      <span class="m-b3n__text"><small>{{ kindLabel(lead.category) || card.title }}<template v-if="lead.date"> · {{ lead.date }}</template></small><b>{{ lead.title }}</b></span>
+      <span class="m-b3n__text"><small>{{ kindLabel(lead.category) || card.title }}<template v-if="lead.date"> · {{ lead.date }}</template></small><b><MWords :text="lead.title" /></b></span>
     </button>
     <ol v-if="(size === 'l' || size === 'xl') && rest.length" class="m-b3n__rest"><li v-for="p in rest" :key="p.id"><button type="button" @click="openPost(p)"><span>{{ p.title }}</span><time class="m-dnum">{{ p.date }}</time></button></li></ol>
   </section>
