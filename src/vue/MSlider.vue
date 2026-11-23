@@ -100,6 +100,8 @@ watch(() => props.disabled, (disabled) => {
   if (!disabled) return
   if (keyTimer) { clearTimeout(keyTimer); keyTimer = 0 }
   active.value = -1
+  pressing.value = false
+  pend = null
 })
 const nearHandle = (f) => values.value.some((v) => Math.abs(frac(v) - f) * trackW.value < 14)
 
