@@ -461,9 +461,9 @@ test('touch: the menu decides its density once, the first pointer corrects only 
   for (const k of ['.m-tray.is-touch .m-tray__tile { height: 64px; }', '.m-tray.is-touch { --tray-row: 56px; }', '.m-tray.is-touch .m-tray__ibtn { min-width: 48px; height: 48px;']) assert.ok(css.includes(k), k)
 })
 
-test('touch: a move of more than 10 px is no press, a tap is a press, the hold, the edge back and the swipe down are a finger\'s and not a mouse\'s', () => {
+test('touch: a move of more than 8 px is no press, a tap is a press, the hold, the edge back and the swipe down are a finger\'s and not a mouse\'s', () => {
   const ptr = src('../src/tray/trayPointer.js')
-  assert.match(ptr, /const MOVE_SLOP = 10/); assert.match(ptr, /g\.touchy && !g\.moved && dist > MOVE_SLOP/); assert.match(ptr, /d\.touchy && d\.moved/)
+  assert.match(ptr, /const MOVE_SLOP = 8/); assert.match(ptr, /PAGE_TRIGGER_FRACTION = 0.2/); assert.match(ptr, /PAGE_TRIGGER_MAX_PX = 72/); assert.match(ptr, /g\.touchy && !g\.moved && dist > MOVE_SLOP/); assert.match(ptr, /d\.touchy && d\.moved/)
   assert.match(ptr, /HOLD_MS = 600/); assert.match(ptr, /if \(touchy && tile && isPager\.value && canEdit\.value && !editing\.value\) startHold/)
   assert.match(ptr, /g\.touchy && !g\.edge && closable\.value/); assert.match(ptr, /edge: touchy && !isPager\.value && nav\.canBack/)
   assert.match(ptr, /CLOSE_PX = 56, CLOSE_FLICK = 0\.5/); assert.match(ptr, /navigator\.vibrate/)

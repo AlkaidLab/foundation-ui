@@ -9,16 +9,18 @@ export function useTrayPointer(c) {
   // One sequence per pointer, from press to release, and what it turns into:
   //   a press on a button      the state layer is there on the frame of the press (CSS :active, no transition for a finger) and a ripple spreads from the contact point (a finger or a pen; a mouse is as it was)
   //   a move of more than 10 px  the press is cancelled and is no click (a finger); it is a swipe, a scroll or nothing, never a tile
-  //   horizontal (pager)       the track follows the finger, a rubber band at the ends, a flick or 28 % turns the page (touch, pen or mouse, as before)
+  //   horizontal (pager)       the track follows the finger, a rubber band at the ends, a flick or a short swipe turns the page
   //   horizontal from the left edge (stack, a finger)  the page follows and goes back
   //   vertical toward the taskbar (a finger)  the card follows and a swipe of 56 px or a flick closes the menu (bottom or top taskbar; left or right: a swipe outward on a stack page)
   //   a hold of 600 ms on a tile (a finger)  edit mode, with a ring that fills in the meantime
   // A slider's own drag and the layout editor are not ours. The root is touch-action: none, so nothing is taken by the browser; the editor's list is the one thing that scrolls (pan-y).
   let g = null // the sequence now
   let last = null // the sequence before (its click is still to come)
-  const MOVE_SLOP = 10 // px: more than this and a press is a gesture
+  const MOVE_SLOP = 8 // px: more than this and a press is a gesture
   const EDGE = 24 // px from the card's left edge where an edge swipe starts
-  const FLICK = 0.45 // px per ms: a flick this fast turns the page whatever the distance
+  const PAGE_TRIGGER_FRACTION = 0.2
+  const PAGE_TRIGGER_MAX_PX = 72
+  const FLICK = 0.35 // px per ms: a flick this fast turns the page whatever the distance
   const CLOSE_PX = 56, CLOSE_FLICK = 0.5, HOLD_MS = 600
   const PRESSABLE = '.m-tray__row, .m-tray__btn, .m-tray__tile-main, .m-tray__tile-drill, .m-tray__ibtn, .m-tray__back, .m-tray__update, .m-tray__line, .m-tray__segb, .m-tray__supchip, .m-tray__dot, .m-trayed__btn, .m-trayed__chip, .m-trayed__text'
   const band = (over, size) => (1 - 1 / ((Math.abs(over) * 0.55) / size + 1)) * size * Math.sign(over) // the iOS rubber band: it gives, and gives less
@@ -137,7 +139,7 @@ export function useTrayPointer(c) {
     if (!d.touchy && !d.exempt && isPager.value && Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) go(nav.index + (dx < 0 ? 1 : -1)) // the mouse swipe of the original: 48 px, mostly along
     if (d.mode === 'page') {
       let to = nav.index
-      if (Math.abs(d.vx) > FLICK || Math.abs(dx) > w * 0.28) to = nav.index + (((Math.abs(d.vx) > FLICK ? d.vx : dx) < 0) ? 1 : -1)
+      if (Math.abs(d.vx) > FLICK || Math.abs(dx) > Math.min(w * PAGE_TRIGGER_FRACTION, PAGE_TRIGGER_MAX_PX)) to = nav.index + (((Math.abs(d.vx) > FLICK ? d.vx : dx) < 0) ? 1 : -1)
       to = Math.max(0, Math.min(props.model.order.length - 1, to))
       track.value.classList.remove('is-drag')
       if (to !== nav.index) go(to) // the index moves, and the watch puts the track there: from where the finger let go, on the spring
