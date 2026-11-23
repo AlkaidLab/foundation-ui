@@ -20,7 +20,9 @@ export function useTrayPointer(c) {
   const EDGE = 24 // px from the card's left edge where an edge swipe starts
   const PAGE_TRIGGER_FRACTION = 0.2
   const PAGE_TRIGGER_MAX_PX = 72
-  const FLICK = 0.35 // px per ms: a flick this fast turns the page whatever the distance
+  const FLICK = 0.45 // px per ms: a flick this fast goes back a stack page whatever the distance
+  const PAGE_FLICK = 0.35 // px per ms: a flick this fast turns the pager page whatever the distance
+  const SETTLE_MS = 200 // ms: a finger still this long before release carries no flick speed
   const CLOSE_PX = 56, CLOSE_FLICK = 0.5, HOLD_MS = 600
   const PRESSABLE = '.m-tray__row, .m-tray__btn, .m-tray__tile-main, .m-tray__tile-drill, .m-tray__ibtn, .m-tray__back, .m-tray__update, .m-tray__line, .m-tray__segb, .m-tray__supchip, .m-tray__dot, .m-trayed__btn, .m-trayed__chip, .m-trayed__text'
   const band = (over, size) => (1 - 1 / ((Math.abs(over) * 0.55) / size + 1)) * size * Math.sign(over) // the iOS rubber band: it gives, and gives less
@@ -138,8 +140,9 @@ export function useTrayPointer(c) {
     const w = viewportW()
     if (!d.touchy && !d.exempt && isPager.value && Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) go(nav.index + (dx < 0 ? 1 : -1)) // the mouse swipe of the original: 48 px, mostly along
     if (d.mode === 'page') {
+      const vx = e.timeStamp - d.lt > SETTLE_MS ? 0 : d.vx // a finger that paused before release has no flick left; distance alone decides
       let to = nav.index
-      if (Math.abs(d.vx) > FLICK || Math.abs(dx) > Math.min(w * PAGE_TRIGGER_FRACTION, PAGE_TRIGGER_MAX_PX)) to = nav.index + (((Math.abs(d.vx) > FLICK ? d.vx : dx) < 0) ? 1 : -1)
+      if (Math.abs(vx) > PAGE_FLICK || Math.abs(dx) > Math.min(w * PAGE_TRIGGER_FRACTION, PAGE_TRIGGER_MAX_PX)) to = nav.index + (((Math.abs(vx) > PAGE_FLICK ? vx : dx) < 0) ? 1 : -1)
       to = Math.max(0, Math.min(props.model.order.length - 1, to))
       track.value.classList.remove('is-drag')
       if (to !== nav.index) go(to) // the index moves, and the watch puts the track there: from where the finger let go, on the spring
