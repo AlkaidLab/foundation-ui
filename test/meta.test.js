@@ -52,3 +52,8 @@ test('isChanged compares as text and treats the unset key as the default', () =>
   assert.equal(tierOf('gamepad'), 1)
   assert.equal(tierOf('nope'), 0)
 })
+
+test('the generated cover style is a normal setting with its own picker, tonal until the person chooses', () => {
+  assert.deepEqual(SETTING_META.generated_cover_style, { tier: 2, control: 'custom', def: 'tonal' })
+  assert.equal(tierOf('generated_cover_style'), 2)
+})

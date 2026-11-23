@@ -32,6 +32,7 @@ export const SETTING_META = Object.freeze({
   max_log_size_mb: F(3, 50), // MB; 0 keeps one log without rotation
   restore_log: S(3, false),
   fs_host_icon: F(3, null), // the icon token of the host for the specialised fullscreen client; empty lets the client choose
+  generated_cover_style: { tier: 2, control: 'custom', def: 'tonal' }, // the style of the cover the host draws for an application without a picture: a picker of the six styles
   clipboard_sync: S(3, true), // on in the host; the switch only force-disables it for every client
   sleep_mode: G(1, '0', { icons: true }),
   notify_pre_releases: S(2, false),
