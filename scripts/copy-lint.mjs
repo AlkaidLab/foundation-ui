@@ -90,7 +90,9 @@ export function scanFile(file, { allow = () => [], allowText = () => false } = {
 
 export function listFiles(root, exts = ['.js', '.mjs', '.vue', '.json'], skip = /(^|\/)(node_modules|\.git|dist|target|tests?|__tests__|gallery|docs)(\/|$)|\.test\.(m?js)$|\.spec\./) {
   const out = []
-  const visit = (p) => {
+  const visit = (raw) => {
+    // forward slashes on every platform: the skip and the exemptions above match paths written with '/'
+    const p = raw.split(path.sep).join('/')
     const st = fs.statSync(p)
     if (st.isDirectory()) { for (const n of fs.readdirSync(p)) if (!skip.test(path.join(p, n))) visit(path.join(p, n)) }
     else if (exts.some((e) => p.endsWith(e)) && !skip.test(p)) out.push(p)

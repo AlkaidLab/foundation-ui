@@ -6,6 +6,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { selectedRings, selectedRingsIn } from '../scripts/selected-ring.mjs'
+import { fileURLToPath } from 'node:url'
 
 const src = (p) => new URL(`../src/${p}`, import.meta.url)
 const read = (p) => readFileSync(src(p), 'utf8')
@@ -34,7 +35,7 @@ test('the scanner leaves alone what is not a selected ring', () => {
 })
 
 test('no selected-state rule of the package draws a ring wider than 1 px', () => {
-  const found = selectedRingsIn(new URL('../src/', import.meta.url).pathname)
+  const found = selectedRingsIn(fileURLToPath(new URL('../src/', import.meta.url)))
   assert.deepEqual(found.map((f) => `${f.file.split('/src/')[1]}:${f.line} ${f.selector} { ${f.rings.join('; ')} }`), [])
 })
 

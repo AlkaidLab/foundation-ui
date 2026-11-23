@@ -1,10 +1,11 @@
 // The scrollbar rule (css/scrollbar.css): thin, wider under the pointer, pill shaped, Material colour roles, persistent, no layout shift, touch and forced colours left alone.
 import test from 'node:test'
+import { fileURLToPath } from 'node:url'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { SCROLLBAR_RULES, SCROLLBAR_SHEET, adoptScrollbar } from '../src/css/scrollbarRules.js'
 
-const here = new URL('.', import.meta.url).pathname
+const here = fileURLToPath(new URL('.', import.meta.url))
 const read = (p) => fs.readFileSync(here + '../src/' + p, 'utf8')
 const css = read('css/scrollbar.css')
 

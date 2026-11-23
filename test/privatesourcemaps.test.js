@@ -3,12 +3,13 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { privateSourcemaps, moveMaps } from '../src/build/privateSourcemaps.js'
 import { loadMap, mapFrames } from '../src/build/sourcemap.js'
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'fui-psm-'))
-const files = (dir) => fs.readdirSync(dir, { recursive: true }).map(String).sort()
+const files = (dir) => fs.readdirSync(dir, { recursive: true }).map(String).map((f) => f.split(path.sep).join('/')).sort()
 
 function project() {
   const root = tmp()
@@ -89,7 +90,7 @@ test('the command line maps the frames of a report with the private maps and lea
   const before = bundle.slice(0, bundle.indexOf('boom-marker')).split('\n')
   const frame = `${bundleName}:${before.length}:${before.at(-1).length + 1}`
   const report = { component: 'web', fingerprint: 'a1b2c3d4e5f60718', frames: [frame, 'sunshine.exe+0x10'] }
-  const out = JSON.parse(execFileSync(process.execPath, [new URL('../tools/map-stack.mjs', import.meta.url).pathname, '--maps', priv, '--report', '-'], { input: JSON.stringify(report), encoding: 'utf8' }))
+  const out = JSON.parse(execFileSync(process.execPath, [fileURLToPath(new URL('../tools/map-stack.mjs', import.meta.url)), '--maps', priv, '--report', '-'], { input: JSON.stringify(report), encoding: 'utf8' }))
   assert.deepEqual(out.frames, ['src/util.js:4', 'sunshine.exe+0x10'])
   assert.equal(out.mapped, 1)
   assert.equal(out.fingerprint, report.fingerprint)
