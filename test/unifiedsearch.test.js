@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { fileURLToPath } from 'node:url'
 import { buildIndex, highlight, search } from '../src/search/index.js'
 import { initialsOf } from '../src/search/pinyin.js'
 import { settingDocs, tileDocs, clientDocs, appDocs } from '../src/search/docs.js'
@@ -188,7 +189,7 @@ test('the old search is gone: no MSearch, no search field in a list pane, no sea
   const { join } = await import('node:path')
   assert.equal(existsSync(new URL('../src/vue/MSearch.vue', import.meta.url)), false)
   const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]))
-  const files = walk(new URL('../src', import.meta.url).pathname).filter((f) => /\.(vue|js|css)$/.test(f))
+  const files = walk(fileURLToPath(new URL('../src', import.meta.url))).filter((f) => /\.(vue|js|css)$/.test(f))
   for (const f of files) {
     const text = readFileSync(f, 'utf8')
     assert.ok(!/MSearch\.vue|from '\.\/MSearch'|\.m-search__(results|icon|text)|class="m-search"/.test(text), `${f} still uses the old search`)

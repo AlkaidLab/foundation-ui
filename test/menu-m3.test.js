@@ -3,8 +3,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
-const here = new URL('.', import.meta.url).pathname
+const here = fileURLToPath(new URL('.', import.meta.url))
 const src = (p) => fs.readFileSync(here + '../src/' + p, 'utf8')
 const css = src('css/controls.css')
 const block = css.slice(css.indexOf('md-menu, .m-menu {'), css.indexOf('/* ---- Tooltip'))

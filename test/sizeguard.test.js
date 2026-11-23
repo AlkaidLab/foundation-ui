@@ -10,7 +10,7 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const LIMIT = 400, WARN = 300
 const GRANDFATHERED = { 'src/vue/MGuideFlow.vue': 650 } // may shrink, never grow; remove the line when it is under the limit
 
-const walk = (dir) => fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : /\.(vue|js)$/.test(e.name) ? [path.join(dir, e.name)] : []))
+const walk = (dir) => fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : /\.(vue|js)$/.test(e.name) ? [path.join(dir, e.name).split(path.sep).join('/')] : []))
 const lines = (f) => fs.readFileSync(path.join(root, f), 'utf8').replace(/\n$/, '').split('\n').length
 
 test(`no .vue or .js in src/vue is over ${LIMIT} lines (a grandfathered one does not grow)`, () => {
