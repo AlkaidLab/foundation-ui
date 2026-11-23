@@ -38,6 +38,7 @@ function onInput(v, pos) {
   failure[v.key] = ''
 }
 async function commit(v, pos) {
+  if (v.enabled === false) return
   live[v.key] = pos
   if (pos === v.pos && v.textAt(pos) === v.text) return
   busy[v.key] = true

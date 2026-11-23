@@ -200,7 +200,7 @@ test('the settings component shows every choice with a preview, in three languag
 })
 
 // ---- the content round (2026-11-09): the first page by real use, and the sliders ----
-import { bitrateFromProgress, bitrateSegmentMarks } from '../src/settings/bitrate.js'
+import { bitrateFromProgress, bitrateSliderProgress } from '../src/settings/bitrate.js'
 
 test('V3 first page: status strip, the tiles of the person\'s layout, the sliders of the person\'s layout; the first level of V1 is the default', () => {
   const rows = V3.pages.quick.rows
@@ -299,7 +299,7 @@ test('sliders: a list slider snaps to the modes of the display (and keeps the mo
   assert.equal(sliderView('resolution', { ...MOCK_BUSY, sliders: { resolution: { options: [], value: '' } } }), null, 'no mode, no slider')
 })
 
-test('sliders: the scale offers the steps the host sends, the ones Windows lets the display take without a sign-out; the bitrate cap uses the shared 0..33 segmented scale, 0 = 自动', () => {
+test('sliders: the scale offers the steps the host sends; the current bitrate uses the shared 1..800 Mbps scale and preset marks', () => {
   const d = sliderView('dpi', MOCK_BUSY)
   assert.deepEqual([d.min, d.max, d.step, d.pos, d.text, d.valueAt(4), d.textAt(7)], [0, 7, 1, 2, '150%', 200, '300%'], 'a slider over the positions of the host\'s list (there is no 275)')
   // a phone-sized stream display: Windows stops at 200 %, so does the slider
@@ -310,14 +310,15 @@ test('sliders: the scale offers the steps the host sends, the ones Windows lets 
   const odd = sliderView('dpi', { ...MOCK_BUSY, sliders: { dpi: { value: 137, options: [100, 125, 150] } } })
   assert.deepEqual([odd.text, odd.textAt(odd.pos)], ['137%', '137%'], 'a scale off the list is still the one in use: shown as it is and on the slider')
   const b = sliderView('bitrate', MOCK_BUSY)
-  assert.deepEqual([b.min, b.max, b.step, b.pos, b.text], [0, 33, 1, 23, '80 Mbps'])
-  assert.equal(b.valueAt(65), bitrateFromProgress(65)); assert.equal(b.valueAt(0), 0)
-  const auto = sliderView('bitrate', MOCK_IDLE)
-  assert.deepEqual([auto.pos, auto.text, auto.textAt(0)], [0, '自动', '自动']); assert.equal(sliderView('bitrate', { ...MOCK_IDLE, sliders: { bitrate: { kbps: '65432' } } }).text, '65.4 Mbps')
-  assert.equal(sliderView('bitrate', { ...MOCK_IDLE, locale: 'en' }).textAt(0), 'Auto')
+  assert.deepEqual([b.min, b.max, b.step, b.pos, b.text], [bitrateSliderProgress(1000), 33, 1, 23, '80 Mbps'])
+  assert.equal(b.valueAt(65), bitrateFromProgress(65)); assert.equal(b.valueAt(0), 1000)
+  const idle = sliderView('bitrate', MOCK_IDLE)
+  assert.deepEqual([idle.pos, idle.text, idle.offText, idle.enabled], [bitrateSliderProgress(1000), '未串流', '未串流', false]); assert.equal(idle.textAt(idle.min), '1 Mbps')
+  assert.equal(sliderView('bitrate', { ...MOCK_IDLE, sliders: { bitrate: { kbps: '65432' } } }).text, '65.4 Mbps')
+  assert.equal(sliderView('bitrate', { ...MOCK_IDLE, locale: 'en' }).text, 'No stream')
 })
 
-test('sliders: the scale and the bitrate cap are the desktop\'s and the host\'s and need no target display; the mode sliders need one, and the line says which', () => {
+test('sliders: the scale and the current bitrate need no display target; the mode sliders need one, and the line says which', () => {
   const all = { t: 'sliders', keys: SLIDER_KEYS }
   assert.deepEqual(sliderViews(all, MOCK_IDLE).map((v) => v.key), ['resolution', 'refresh', 'dpi', 'bitrate'], 'idle: the target is the primary display (or the virtual one), the scale follows the same display')
   assert.deepEqual(sliderViews(all, MOCK_BUSY).map((v) => v.key), ['resolution', 'refresh', 'dpi', 'bitrate'])
@@ -327,7 +328,7 @@ test('sliders: the scale and the bitrate cap are the desktop\'s and the host\'s 
   const mine = V3.pages.quick.rows[2]
   assert.deepEqual(sliderViews(mine, MOCK_BUSY).map((v) => v.key), ['bitrate', 'dpi'], 'by default the bitrate cap and the scale')
   assert.deepEqual(sliderViews(mine, { ...MOCK_BUSY, layout: { sliders: ['bitrate', 'refresh'] } }).map((v) => v.key), ['bitrate', 'refresh'], 'the person\'s order')
-  assert.deepEqual(sliderViews(mine, MOCK_IDLE).map((v) => v.key), ['bitrate', 'dpi'], 'idle with no stream and no virtual display: both are there')
+  assert.deepEqual(sliderViews(mine, MOCK_IDLE).map((v) => v.key), ['bitrate', 'dpi'], 'idle with no stream: the disabled bitrate and scale are still shown')
   assert.deepEqual(sliderViews(mine, MOCK_VDD).map((v) => v.key), ['bitrate', 'dpi'], 'the virtual display exists, nothing streams: both are there')
   assert.equal(needsDisplay(mine, MOCK_BUSY), false, 'the default pair (cap and scale) has no line about a display'); assert.equal(sliderRowShown(mine, MOCK_IDLE), true)
   assert.equal(needsDisplay({ source: 'layout' }, { layout: { sliders: ['bitrate', 'dpi'] } }), false); assert.equal(needsDisplay({ source: 'layout' }, { layout: { sliders: ['dpi', 'refresh'] } }), true, 'a mode slider names its display')
@@ -347,7 +348,7 @@ test('the slider component is the product\'s slider item (size m, an icon at eac
   assert.match(sl, /<MSliderItem/); assert.match(sl, /size="m"/); assert.match(sl, /:off-text="v\.offText"/, 'the lowest position of the cap is named in its empty track'); assert.match(sl, /:icon-start="ENDS\[v\.key\]\[0\]" :icon-end="ENDS\[v\.key\]\[1\]"/)
   assert.doesNotMatch(sl, /type="range"|m-tray__sl-input|m-tray__sl-fill/, 'no pill of its own any more')
   assert.match(sl, /@commit="\(pos\) => commit\(v, pos\)"/, 'the shared slider commits a press on release and a key 450 ms after the last one')
-  assert.match(sl, /t\.value\.applying/); assert.match(sl, /role="alert"/); assert.match(sl, /:disabled="!!busy\[v\.key\]"/); assert.match(sl, /:readout-text="textOf\(v\)"/)
+  assert.match(sl, /t\.value\.applying/); assert.match(sl, /role="alert"/); assert.match(sl, /:disabled="v\.enabled === false \|\| !!busy\[v\.key\]"/); assert.match(sl, /:readout-text="textOf\(v\)"/)
   assert.doesNotMatch(sl, /invoke\(|fetch\(|window\.__TAURI/)
   assert.doesNotMatch(sl, /@update:model-value="[^"]*apply/, 'moving the slider only changes the value on screen')
   assert.match(src('../src/tray/trayPointer.js'), /e\.target\.closest\?\.\('\.m-tray__sl, \.m-trayed'\)/)
@@ -366,13 +367,13 @@ test('the sliders are written in three languages with the same keys', () => {
 function SLIDERS_ICON(k) { return { resolution: 'aspect_ratio', refresh: 'slow_motion_video', dpi: 'format_size', bitrate: 'network_check' }[k] }
 
 
-test('stepped or continuous: resolution, refresh and the scale snap to their stops; the bitrate cap exposes its segment marks', () => {
+test('stepped or continuous: resolution, refresh and the scale snap to their stops; the current bitrate exposes preset marks', () => {
   const res = sliderView('resolution', MOCK_BUSY), hz = sliderView('refresh', MOCK_BUSY), dpi = sliderView('dpi', MOCK_BUSY), br = sliderView('bitrate', MOCK_BUSY)
-  assert.deepEqual([res.ticks.length, hz.ticks.length, dpi.ticks.length, br.ticks.length], [4, 4, 8, bitrateSegmentMarks.length])
+  assert.deepEqual([res.ticks.length, hz.ticks.length, dpi.ticks.length, br.ticks.length], [4, 4, 8, 6])
   assert.deepEqual(dpi.ticks.slice(0, 3), [0, 1 / 7, 2 / 7]); assert.equal(dpi.ticks[7], 1)
   assert.equal(res.step, 1); assert.equal(hz.step, 1); assert.equal(dpi.step, 1); assert.equal(br.step, 1)
   assert.deepEqual(tickMarks(1), []); assert.deepEqual(tickMarks(17), [], 'too many stops would run into one line'); assert.equal(tickMarks(16).length, 16)
-  // the stops are the shared slider's: it draws one per step up to 24, so the stepped sliders show theirs and the bitrate cap (33 steps) none
+  // the stops are the shared slider's: it draws one per step up to 24, so the stepped sliders show theirs and the bitrate (33 positions) has no generated stops
   const sl = src('../src/vue/MTraySliders.vue')
   assert.match(sl, /:min="v\.min" :max="v\.max" :step="v\.step"/)
 })
@@ -473,7 +474,8 @@ test('touch: a move of more than 8 px is no press, a tap is a press, the hold, t
 test('the shared slider: a finger does not move the value on the press (tap jumps, horizontal drags, vertical is left alone), a bigger bubble that says the readout, pan-y', () => {
   const sl = src('../src/vue/MSlider.vue'), css = src('../src/css/expressive.css'), item = src('../src/vue/MSliderItem.vue')
   assert.match(sl, /touchy\.value = event\.pointerType === 'touch' \|\| event\.pointerType === 'pen'/); assert.match(sl, /const SLOP = 6/); assert.match(sl, /emit\('commit', setAt\(index, p\.v\)\)/, 'a tap commits the value it set, not the model that has not caught up yet')
-  assert.match(sl, /begin\(event\)\n\}/, 'a mouse begins at once'); assert.match(item, /:bubble-text="readoutText"/)
+  assert.match(sl, /if \(props\.disabled\) return/, 'a disabled slider ignores keyboard input'); assert.match(src('../src/vue/MTraySliders.vue'), /if \(v\.enabled === false\) return/, 'a disabled tray slider cannot commit')
+  assert.match(sl, /\n  begin\(event\)/, 'a mouse begins at once'); assert.match(item, /:bubble-text="readoutText"/)
   assert.match(css, /\.m-slider \{[^}]*touch-action: pan-y/); assert.match(css, /\.m-slider--touch \.m-slider__bubble \{[^}]*bottom: calc\(100% \+ 18px\)/)
 })
 
@@ -557,13 +559,13 @@ test('the grid and its group sheets are drawn by one tile component, shared with
   assert.doesNotMatch(row + tile, /invoke\(|fetch\(|window\.__TAURI/)
 })
 
-test('the slider track is visible on the tile surface and the lowest position of the cap is named in it (自动)', () => {
+test('the slider track is visible on the tile surface and the idle bitrate is named in it', () => {
   const css = src('../src/css/expressive.css'), item = src('../src/vue/MSliderItem.vue')
   // the tint is the shared slider's own track now (every slider of the product has it), the tray only sits it on a tile
   assert.match(css, /--s-bg: color-mix\(in srgb, var\(--md-sys-color-on-surface\) \d+%, transparent\)/)
   assert.doesNotMatch(src('../src/css/tray.css'), /\.m-tray__sl \.m-slider \{ --s-bg/)
   assert.match(item, /offText: \{ type: String/); assert.match(item, /:off-text="offText"/)
-  assert.equal(sliderView('bitrate', MOCK_IDLE).offText, '自动'); assert.equal(sliderView('bitrate', { ...MOCK_IDLE, locale: 'en' }).offText, 'Auto'); assert.equal(sliderView('dpi', MOCK_IDLE).offText, undefined)
+  assert.equal(sliderView('bitrate', MOCK_IDLE).offText, '未串流'); assert.equal(sliderView('bitrate', { ...MOCK_IDLE, locale: 'en' }).offText, 'No stream'); assert.equal(sliderView('dpi', MOCK_IDLE).offText, undefined)
 })
 
 test('a page is measured rounded up and a page that scrolls scrolls to its own end', () => {

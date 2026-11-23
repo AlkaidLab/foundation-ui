@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MIcon from './MIcon.vue'
 
 /**
@@ -96,6 +96,11 @@ const trackW = ref(300)
 let ro = null
 onMounted(() => { if (typeof ResizeObserver === 'undefined') { trackW.value = root.value?.clientWidth || 300; return } ro = new ResizeObserver(() => { trackW.value = root.value?.clientWidth || 300 }); ro.observe(root.value) })
 onBeforeUnmount(() => { ro?.disconnect(); flushKeys() })
+watch(() => props.disabled, (disabled) => {
+  if (!disabled) return
+  if (keyTimer) { clearTimeout(keyTimer); keyTimer = 0 }
+  active.value = -1
+})
 const nearHandle = (f) => values.value.some((v) => Math.abs(frac(v) - f) * trackW.value < 14)
 
 function fromEvent(event) {
@@ -172,6 +177,7 @@ const up = (event) => {
   if (active.value >= 0) { active.value = -1; emit('commit', model.value) }
 }
 function key(event, index) {
+  if (props.disabled) return
   const unit = props.step > 0 ? props.step : span.value / 100
   const map = { ArrowRight: unit, ArrowUp: unit, ArrowLeft: -unit, ArrowDown: -unit, PageUp: unit * 10, PageDown: -unit * 10 }
   let v = values.value[index]

@@ -470,7 +470,7 @@ export function sliderView(key, state) {
   const min = bitrateSliderProgress(1000)
   const pos = enabled ? Math.max(min, bitrateSliderProgress(current)) : min
   const textAt = (p) => { const kbps = bitrateFromProgress(p); return `${Math.round(kbps / 100) / 10} Mbps` }
-  return { ...base, enabled, ticks: bitrateChipMarks([5, 10, 20, 50, 100, 200], 1000, 800000), min, max: BITRATE_SLIDER_MAX_PROGRESS, step: 1, pos, text: enabled ? bitrateText(current, t.auto) : t.inactive, textAt, valueAt: (p) => Math.max(1000, bitrateFromProgress(p)), offText: t.inactive }
+  return { ...base, enabled, ticks: bitrateChipMarks([5, 10, 20, 50, 100, 200], 1000, 800000), min, max: BITRATE_SLIDER_MAX_PROGRESS, step: 1, pos, text: enabled ? bitrateText(current, t.auto) : t.inactive, textAt, valueAt: (p) => Math.max(1000, bitrateFromProgress(p)), offText: enabled ? '' : t.inactive }
 }
 /** The sliders a row asks for that the state can draw, in the row's order: the row's own `keys`, or (source: 'layout') the ones the person chose. */
 export const sliderKeysOf = (row, state) => (row.source === 'layout' ? layoutOf(state).sliders : row.keys || [])
