@@ -38,6 +38,7 @@ export const SETTING_META = Object.freeze({
   system_tray: S(2, true),
   stop_on_last_video_session: S(2, false),
   launch_splash: S(2, true),
+  pin_prompt: G(2, 'fullscreen'), // where a pairing request asks for its PIN: the control panel's full-screen entry or its pairing page
   global_prep_cmd: { tier: 3, control: 'list', def: [], risk: 'high' },
   // 输入
   controller: S(1, true),
