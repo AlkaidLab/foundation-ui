@@ -1,5 +1,5 @@
 import { trayTexts } from './trayTexts.js'
-import { BITRATE_SLIDER_MAX_PROGRESS, bitrateFromProgress, bitrateKbps, bitrateSliderProgress, bitrateText, bitrateSegmentMarks } from '../settings/bitrate.js'
+import { BITRATE_SLIDER_MAX_PROGRESS, bitrateChipMarks, bitrateFromProgress, bitrateKbps, bitrateSliderProgress, bitrateText } from '../settings/bitrate.js'
 
 // The tray menu, as data: today's items (src-tauri/src/tray/menu.rs of the Panel) laid out three ways. A layout is a model { variant, kind, root | order, pages }; a component draws a model for a state,
 // and the Panel's popup window (docs/context-menu-window.md) takes the same model across the window. No function lives in a model: an item is its id, and the id is what the host runs.
@@ -127,7 +127,7 @@ export const TILES = Object.freeze({
 export const TILE_IDS = Object.freeze(Object.keys(TILES))
 /** What the quick page shows until the person edits it: the first level of V1 (主面板, 大屏, 配对, 客户端, 基地显示器, 开机自启, 更新). */
 export const DEFAULT_TILES = Object.freeze(['open_main_panel', 'open_desktop', 'connect_device', 'download_client', 'vdd', 'auto_start', 'check_update'])
-/** The sliders every menu shows until the person chooses (V1, V2 and V3 read the same list, `layout.sliders`): the bitrate cap and the scale. */
+/** The sliders every menu shows until the person chooses (V1, V2 and V3 read the same list, `layout.sliders`): the current stream bitrate and the scale. */
 export const DEFAULT_SLIDERS = Object.freeze(['bitrate', 'dpi'])
 
 /**
@@ -231,7 +231,7 @@ export const V2 = Object.freeze({
 })
 
 /**
- * V3 「快捷面板」: the first page is the first level of V1 as a grid of pills (what the person picks and orders, `tiles`), then the sliders the person picks (`sliders`, the bitrate cap and the scale by default,
+ * V3 「快捷面板」: the first page is the first level of V1 as a grid of pills (what the person picks and orders, `tiles`), then the sliders the person picks (`sliders`, the current stream bitrate and the scale by default,
  * the same list V1 and V2 show); the rest is a swipe or a dot away. Three pages, each as full as the card (the card is as high as the tallest, see MTrayMenu): 快捷, 显示 (the display, its own sliders, what
  * is drawn on screen: 桌宠, 主机性能, RTSS) and 设置与帮助 (settings, the tools that are not on screen, help and the support line).
  */
@@ -323,7 +323,7 @@ export const MOCK_BUSY = Object.freeze({
   vdd: { active: true, cooldown: false, name: '基地虚拟显示器', mode: '2560×1440@120', short: '1440p@120' },
   toggles: { auto_start: true, prevent_sleep: false, vdd_toggle_keep_enabled: true, vdd_toggle_headless_create: false, restart_user_mode: false, show_toolbar: false },
   locale: 'zh', update: { version: '2026.1109.2', current: '2026.1108.4' }, ds5: true, notification: null,
-  // what the sliders can change: the display that is streamed (here the virtual one), its modes, its scale, the bitrate cap (0 = 自动)
+  // what the sliders can change: the display that is streamed (here the virtual one), its modes, its scale, and the current stream bitrate
   sliders: {
     target: { kind: 'stream', name: 'DELL U2723QE', mode: '2560×1440@120' },
     resolution: { options: ['1280x720', '1920x1080', '2560x1440', '3840x2160'], value: '2560x1440' },
@@ -334,7 +334,7 @@ export const MOCK_BUSY = Object.freeze({
 })
 export const MOCK_IDLE = Object.freeze({
   ...MOCK_BUSY, host: 'idle', sessions: [], vdd: { active: false, cooldown: false, name: '基地虚拟显示器', mode: '', short: '' }, update: null, ds5: false,
-  // nothing is streamed and no virtual display exists: the desktop is the primary display, its modes and its scale; the bitrate cap needs no display
+  // nothing is streamed and no virtual display exists: the desktop is the primary display, its modes and its scale; the current stream bitrate is disabled
   sliders: {
     target: { kind: 'desktop', name: 'DELL U2723QE', mode: '2560×1440@144' },
     resolution: { options: ['1920x1080', '2560x1440', '3840x2160'], value: '2560x1440' },
@@ -422,7 +422,7 @@ export function textOf(row, state) {
 
 /**
  * A stepped slider (a list of modes, the scale steps the display allows) marks its stops: Material 3 sliders with discrete values show tick marks at the stops (m3.material.io/components/sliders, "Discrete"). The fraction of each
- * stop along the track; none for a continuous slider (the bitrate cap) and none above 16 stops, where the marks would run into one line.
+ * stop along the track; the current bitrate uses the shared preset marks and the mode sliders have none above 16 stops, where the marks would run into one line.
  */
 export const MAX_TICKS = 16
 export const tickMarks = (n) => (n >= 2 && n <= MAX_TICKS ? Array.from({ length: n }, (_, i) => i / (n - 1)) : [])
@@ -437,8 +437,8 @@ function withCurrent(options, value, order) {
 
 /**
  * One slider of the quick page for a state, or null when the host gave it nothing (no target display, no modes): { key, icon, label, min, max, step, pos, text, textAt(pos), valueAt(pos) }.
- * A slider over a list (resolution, refresh) is a slider over the list's positions, so it snaps to the modes the display really has; the scale is the list of steps the host reads from Windows for the target display (`state.sliders.dpi.options`; a phone-sized display stops at 200 %, a step beyond needs a sign-out); the bitrate cap
- * is 0-300 Mbps in steps of 5 (shared rules: src/settings/bitrate.js), 0 = 自动 (the client decides). `valueAt(pos)` is what the host is asked to set.
+ * A slider over a list (resolution, refresh) is a slider over the list's positions, so it snaps to the modes the display really has; the scale is the list of steps the host reads from Windows for the target display (`state.sliders.dpi.options`; a phone-sized display stops at 200 %, a step beyond needs a sign-out); the current bitrate
+ * is 1-800 Mbps on the shared logarithmic scale and is disabled without a RUNNING session. `valueAt(pos)` is what the host is asked to set.
  */
 export function sliderView(key, state) {
   const sl = state?.sliders?.[key]
@@ -464,10 +464,15 @@ export function sliderView(key, state) {
     if (!v || !(sl.options || []).length) return null
     return { ...base, min: 0, max: list.length - 1, step: 1, pos: list.indexOf(v), ticks: tickMarks(list.length), text: `${v}%`, textAt: (p) => `${list[p]}%`, valueAt: (p) => list[p] }
   }
-  // bitrate: kbps from the host (a number or a numeric string); the position is whole Mbps rounded to the step
-  const pos = bitrateSliderProgress(sl.kbps)
-  const textAt = (p) => { const kbps = bitrateFromProgress(p); return p === 0 ? t.auto : `${Math.round(kbps / 100) / 10} Mbps` }
-  return { ...base, ticks: bitrateSegmentMarks, min: 0, max: BITRATE_SLIDER_MAX_PROGRESS, step: 1, pos, text: bitrateText(bitrateKbps(sl.kbps), t.auto), textAt, valueAt: (p) => bitrateFromProgress(p), offText: t.auto }
+  // bitrate: the current RUNNING session target in Kbps. The runtime endpoint requires at least 1 Mbps.
+  const current = bitrateKbps(sl.kbps)
+  const enabled = sl.enabled !== false && current >= 1000
+  const unknown = sl.unknown === true
+  const min = bitrateSliderProgress(1000)
+  const pos = enabled ? Math.max(min, bitrateSliderProgress(current)) : min
+  const textAt = (p) => { const kbps = bitrateFromProgress(p); return `${Math.round(kbps / 100) / 10} Mbps` }
+  const idleText = unknown ? t.unknown : t.inactive
+  return { ...base, enabled, ticks: bitrateChipMarks([5, 10, 20, 50, 100, 200], 1000, 800000), min, max: BITRATE_SLIDER_MAX_PROGRESS, step: 1, pos, text: enabled ? bitrateText(current, t.auto) : idleText, textAt, valueAt: (p) => Math.max(1000, bitrateFromProgress(p)), offText: enabled ? '' : idleText }
 }
 /** The sliders a row asks for that the state can draw, in the row's order: the row's own `keys`, or (source: 'layout') the ones the person chose. */
 export const sliderKeysOf = (row, state) => (row.source === 'layout' ? layoutOf(state).sliders : row.keys || [])
@@ -476,7 +481,7 @@ export const sliderViews = (row, state) => sliderKeysOf(row, state).map((k) => s
 export const sliderRowShown = (row, state) => needsDisplay(row, state) || sliderViews(row, state).length > 0
 /**
  * whether any slider the row asks for changes the mode of a display (resolution, refresh rate): the line above them says which display. The scale follows the same display but is offered whenever the host
- * can read its steps, and the bitrate cap is the host's, so neither needs a target line of its own.
+ * can read its steps, and the current bitrate belongs to the selected stream, so neither needs a display target line of its own.
  */
 export const needsDisplay = (row, state) => sliderKeysOf(row, state).some((k) => k === 'resolution' || k === 'refresh')
 /** The line above the sliders: which display they change, or why the mode sliders are not there. `row`, when given, says whether the scale is among them (its note is only said then). */

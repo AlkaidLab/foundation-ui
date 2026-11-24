@@ -38,6 +38,7 @@ function onInput(v, pos) {
   failure[v.key] = ''
 }
 async function commit(v, pos) {
+  if (v.enabled === false) return
   live[v.key] = pos
   if (pos === v.pos && v.textAt(pos) === v.text) return
   busy[v.key] = true
@@ -67,7 +68,7 @@ async function commit(v, pos) {
       <div class="m-tray__sl" :class="{ 'is-busy': busy[v.key], 'is-err': failure[v.key] }">
         <MSliderItem
           :model-value="posOf(v)" :title="v.label" :icon="v.icon" :min="v.min" :max="v.max" :step="v.step" :decimals="0" size="m"
-          :icon-start="ENDS[v.key][0]" :icon-end="ENDS[v.key][1]" :readout-text="textOf(v)" :off-text="v.offText" :disabled="!!busy[v.key]"
+          :icon-start="ENDS[v.key][0]" :icon-end="ENDS[v.key][1]" :readout-text="textOf(v)" :off-text="v.offText" :disabled="v.enabled === false || !!busy[v.key]"
           @update:model-value="(pos) => onInput(v, pos)" @commit="(pos) => commit(v, pos)"
         />
       </div>
