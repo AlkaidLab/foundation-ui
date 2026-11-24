@@ -24,7 +24,8 @@
 /* the sheet that holds it: tall, the search and the buttons above; it slides away when a tile is dragged out of it */
 .m-dedit.m-dedit--gallery { height: min(80vh, 760px); max-width: 1240px; transition: transform var(--m-spring-default-spatial-duration, 400ms) var(--m-spring-default-spatial, ease), opacity 200ms linear; }
 .m-dedit.is-away { transform: translateY(calc(100% + 48px)); opacity: 0; pointer-events: none; }
-.m-dedit__dim.is-away { opacity: 0; transition: opacity 240ms linear; }
+.m-dedit.is-away::backdrop { animation: none; opacity: 0; transition: opacity 240ms linear; }
+.m-dedit.m-dedit--gallery, .m-dedit.m-dedit--gallery * { overscroll-behavior: contain; } /* a wheel at the end of a list inside the sheet does not scroll the page behind it */
 html:not([data-motion='full']) .m-dedit.is-away { transition-duration: 1ms; }
 /* a tile that was just placed arrives on the spring, from a little lower and smaller */
 .m-dash__cell.is-landing { z-index: 6; animation: m-land 600ms var(--m-spring-fast-spatial, ease) both; }
@@ -61,7 +62,9 @@ html:not([data-motion='full']) .m-dedit.is-away { transition-duration: 1ms; }
 .m-dedit .m-dsize.m-dedit__layout > button { all: unset; box-sizing: border-box; min-height: 40px; min-width: 40px; padding: 0 16px; display: inline-grid; place-items: center; cursor: pointer; font: var(--m-label-large); color: var(--md-sys-color-on-surface); white-space: nowrap; transition: background-color 160ms linear; }
 .m-dedit .m-dsize.m-dedit__layout > button + button { border-inline-start: 1px solid var(--md-sys-color-outline); }
 .m-dedit .m-dsize.m-dedit__layout > button:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent); }
-.m-dedit .m-dsize.m-dedit__layout > button.is-on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+/* the chosen segment is the one selected container of the package (--m-sel-fill, --m-sel-ink; layout.css): the sheet's surface (surface-container-high) has the tone of secondary-container in the light schemes, so a secondary-container fill showed nothing */
+.m-dedit .m-dsize.m-dedit__layout > button.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); }
+.m-dedit .m-dsize.m-dedit__layout > button.is-on:hover { background: color-mix(in srgb, var(--m-sel-ink) 8%, var(--m-sel-fill)); }
 .m-dedit .m-dsize.m-dedit__layout > button:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: -2px; }
 
 

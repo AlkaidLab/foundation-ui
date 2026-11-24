@@ -14,7 +14,8 @@
 // the platform's own menu (copy, paste, spell-check), a list inside a dialog scrolls.
 
 /** The parts of a modal that take part in it: the panel of a dialog, the window of the first run. A press outside every surface (the backdrop, the scrim) is "outside". */
-export const MODAL_SURFACE = '.m-dialog__panel, .m-sheet__panel, .m-onboard__window, .m-coach__card, .m-usearch__full, [data-modal-surface]'
+// The sheet that edits the overview is its own panel (a press on its backdrop targets the dialog itself), so its surface is what is inside it: `.m-dedit--gallery > *`.
+export const MODAL_SURFACE = '.m-dialog__panel, .m-sheet__panel, .m-onboard__window, .m-coach__card, .m-usearch__full, .m-dedit--gallery > *, [data-modal-surface]'
 /** What makes a document "modal": an open dialog, an element that says aria-modal, or a shell that is told its frame has a modal open. */
 export const MODAL_OPEN = 'dialog[open], [aria-modal="true"], [data-modal-frame]'
 const EDITABLE = 'input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="range"]), textarea, [contenteditable=""], [contenteditable="true"]'

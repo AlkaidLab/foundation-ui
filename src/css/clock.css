@@ -141,16 +141,23 @@ html[data-motion='reduced'] .m-clock *, html[data-motion='reduced'] .m-clock, ht
    48 px at most), steplessly; the clock's ink, not its box, sits on it (see [data-ink]). The date and the status line keep the same inset. */
 .m-dock { display: grid; grid-template-rows: minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); } /* a grid, not a flex column: the header's height is a track the dock resolves before its content, so the container units below are right in the first layout */
 .m-dock__head { container: m-clock-head / size; min-height: min(calc(164px + 4vh), max(112px, 38vh)); --m-clock-inset: clamp(16px, calc(2vw + 8px), 48px); padding-inline: var(--m-clock-inset); overflow-x: clip; } /* clip: a wide tabular 1's empty advance may reach past the edge; the ink never does */
-.m-dock__head[data-align='left'] { align-items: flex-start; text-align: left; }
-.m-dock__head[data-align='center'] { align-items: center; text-align: center; }
-.m-dock__head[data-align='right'] { align-items: flex-end; text-align: right; }
+/* the header is a grid of one column, not a flex column: in a flex column a size container's cqh is 0 (the clock then fell to its 28 px floor at 小, 中 and 大; only 特大, a grid, was sized) */
+.m-dock > .m-dock__head { display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; row-gap: 4px; }
+.m-dock__head[data-align='left'] { justify-items: start; text-align: left; }
+.m-dock__head[data-align='center'] { justify-items: center; text-align: center; }
+.m-dock__head[data-align='right'] { justify-items: end; text-align: right; }
 /* a face's lines are tighter than its glyphs' content boxes (line-height .86 on a 1.17 em content area): the inline boxes reach past the clock's box by up to .13 em above and below, empty space the digits never fill, but the header counts it as content that scrolls (15 px at 特大 in a 720 x 480 window, 36 px at 1440 x 900). The box is clipped above and below; the ink is inside it (clock-fit.mjs checks it by pixels) */
 .m-dock__head > .m-clock { overflow-y: clip; max-width: 100%; --clock-text-h: 68px; --clock-text-w: 0px; --clock-fit: min(calc((100cqh - var(--clock-text-h)) / var(--hf-now)), calc((100cqw - var(--clock-text-w)) / var(--wf-now))); }
-/* 小 中 大: steps of the window's height, never more than fits; 特大: as large as fits, up to about half the window's height */
-.m-dock__head > .m-clock.is-s { --clock-size: max(28px, min(clamp(44px, 9vh, 104px), var(--clock-fit))); }
-.m-dock__head > .m-clock.is-m { --clock-size: max(28px, min(clamp(72px, 14vh, 168px), var(--clock-fit))); }
-.m-dock__head > .m-clock.is-l { --clock-size: max(28px, min(clamp(96px, 22vh, 280px), var(--clock-fit))); }
+/* The four sizes are four heights of the clock's box, a third, a half, three quarters and the whole of what 特大 takes (48 vh less 24 px; 360 px of a 800 px window), each never above what the header leaves it (--clock-fit).
+   中 is therefore half of 特大 (180 px at 800 px) and 大 three quarters (270 px). */
+.m-dock__head > .m-clock.is-s { --clock-size: max(28px, min(calc((16vh - 8px) / var(--hf-now)), var(--clock-fit))); }
+.m-dock__head > .m-clock.is-m { --clock-size: max(28px, min(calc((24vh - 12px) / var(--hf-now)), var(--clock-fit))); }
+.m-dock__head > .m-clock.is-l { --clock-size: max(28px, min(calc((36vh - 18px) / var(--hf-now)), var(--clock-fit))); }
 .m-dock__head > .m-clock.is-xl { --clock-size: max(28px, min(calc((48vh - 24px) / var(--hf-now)), var(--clock-fit))); }
+/* where 特大 is offered, a smaller size is never larger than 特大 is: at the left or the right 特大 gives 300 px of the width to the date, so a wide face (the dot matrix, 极简) is wider at 大 than at 特大 unless 大 is held to the same width */
+@media (min-width: 840px) {
+  .m-dock__head:not([data-align='center']) > .m-clock:not(.is-xl) { --clock-fit: min(calc((100cqh - var(--clock-text-h)) / var(--hf-now)), calc((100cqw - var(--clock-text-w)) / var(--wf-now)), calc(100cqh / var(--hf-now)), calc((100cqw - 300px) / var(--wf-now))); }
+}
 /* 特大 at the left or the right: the date and the status line stand beside the clock, centred on it, so the clock has the header's full height */
 .m-dock__head:not([data-align='center']):has(> .m-clock.is-xl) { display: grid; grid-template-rows: 1fr auto auto 1fr; column-gap: 32px; row-gap: 4px; align-items: center; padding-block: 1vh; }
 .m-dock__head:not([data-align='center']) > .m-clock.is-xl { --clock-text-h: 0px; --clock-text-w: 300px; grid-row: 1 / -1; }
@@ -186,3 +193,37 @@ html[data-motion='reduced'] .m-clock *, html[data-motion='reduced'] .m-clock, ht
 .m-ap__face.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); }
 .m-ap__facepreview { height: 76px; width: 100%; display: grid; place-items: center; overflow: hidden; }
 .m-ap__facename { font: var(--m-label-medium); }
+
+/* the clock of the clock mode, set in the edit sheet (MDockClockBar.vue): a section of its own under the sheet's tools, in two bands. The faces are one strip that scrolls sideways (each drawn live, 132 px wide);
+   under it the size and the place, each a group of its label and its segments, side by side and wrapping when the sheet is narrow. A phone stacks the two groups, the segments as wide as the sheet. */
+.m-dclock { display: flex; flex-direction: column; gap: 12px; flex: none; min-width: 0; max-height: 52%; overflow-y: auto; scrollbar-width: none; padding: 14px 16px 16px; border-radius: 24px; background: var(--md-sys-color-surface-container-low); }
+.m-dclock::-webkit-scrollbar { display: none; }
+.m-dclock__block { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.m-dclock__label { flex: none; font: var(--m-label-large); color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
+.m-dclock__faces { position: relative; display: flex; gap: 8px; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin-inline: -16px; padding: 2px 16px; scroll-padding-inline: 16px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 28px), transparent); }
+.m-dclock__faces::-webkit-scrollbar { display: none; }
+.m-dclock__face { all: unset; box-sizing: border-box; flex: none; width: 132px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px 10px; border-radius: 20px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface-variant); cursor: pointer; transition: background var(--m-spring-fast-effects-duration, 200ms); touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.m-dclock__face:hover { background: var(--md-sys-color-surface-container-highest); }
+.m-dclock__face:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-dclock__face.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); }
+.m-dclock__preview { height: 68px; width: 100%; display: grid; place-items: center; overflow: hidden; pointer-events: none; }
+.m-dclock__preview .m-clock.is-preview { --clock-size: min(calc(64px / var(--hf-now)), calc(112px / var(--wf-now))); }
+.m-dclock__name { font: var(--m-label-medium); white-space: nowrap; }
+.m-dclock__row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; min-width: 0; }
+.m-dclock__group { display: flex; align-items: center; gap: 12px; min-width: 0; }
+@media (max-width: 599.98px), (max-height: 519.98px) {
+  .m-dclock { gap: 10px; padding: 12px; border-radius: 20px; }
+  .m-dclock__faces { margin-inline: -12px; padding-inline: 12px; scroll-padding-inline: 12px; }
+  .m-dclock__face { width: 104px; padding: 6px 4px 8px; border-radius: 18px; }
+  .m-dclock__preview { height: 56px; }
+  .m-dclock__preview .m-clock.is-preview { --clock-size: min(calc(52px / var(--hf-now)), calc(92px / var(--wf-now))); }
+  .m-dclock__row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .m-dclock__group { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); gap: 8px; }
+  .m-dedit .m-dclock .m-dsize.m-dedit__layout { display: flex; }
+  .m-dedit .m-dclock .m-dsize.m-dedit__layout > button { flex: 1 1 0; min-height: 44px; padding: 0 8px; }
+}
+/* a phone on its side: the faces on the left and the size and the place on the right, so the section is as high as the strip and the tiles under it keep their room */
+@media (max-height: 519.98px) {
+  .m-dclock { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); align-items: center; column-gap: 16px; max-height: none; flex: none; }
+  .m-dclock__row { justify-content: center; }
+}

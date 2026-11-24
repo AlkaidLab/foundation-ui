@@ -124,6 +124,8 @@
 /* 已配对客户端 at 方形 with more than three clients: two avatars of 30 px and the +N, so the row stays inside the 150 px tile (the +28 pill left it by 5 px over 31 paired clients) */
 .m-b2paired.is-s .m-calo__rings { gap: 2px; } .m-b2paired.is-s .m-calo__rings li { width: 30px; height: 30px; }
 .m-b2paired.is-s .m-calo__rings:has(.is-more) li:nth-child(3) { display: none; }
+/* 方形: the head, the count and the row of circles are 23 + 51 + 30 px under 32 px of padding, which is more than the 148 px (144 px scaled in the editor) and put the circles on the tile's lower edge: the count is a size smaller */
+.m-b2paired.is-s .m-b2paired__count { --tn: 46px; margin-top: 4px; }
 /* 内存变化 at 中: the chart takes the tile below the numeral and its caption, never more (60 % of a 148 px tile put the line of a 39 % memory through 「39 %」) */
 .m-tmem--trend.is-m { --tile-bleed: min(60%, calc(100% - 108px)); }
 /* 设备 at 中 (Gamepad, Microphone, USB beside each other): three columns of 84 px hold the English names on one line and the state under them inside the tile; the names broke in the middle of the word and the state was cut */

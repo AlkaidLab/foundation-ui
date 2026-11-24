@@ -139,7 +139,7 @@ test('the dock header takes the position; 个性化 offers face, size, position 
   const dash = readDash()
   assert.match(dash, /<header class="m-dock__head" :data-align="appearance\.state\.clockAlign" :style="dockHeadMin \? \{ minHeight: `\$\{dockHeadMin\}px` \} : undefined">/)
   assert.match(dash, /<MDockClock class="m-dock__time" :face="appearance\.state\.clockFace"/)
-  assert.match(dash, /appearance\.set\(\{ clockAlign: a \}\)/)
+  assert.match(read('src/vue/MDockClockBar.vue'), /appearance\.set\(\{ clockAlign: a \}\)/, 'the position is set in the edit sheet\'s clock bar')
   const ap = read('src/vue/MAppearance.vue')
   assert.match(ap, /const FACES = CLOCK_FACES/)
   for (const k of ['clockFace: f', 'clockAlign: v', 'clockSize: v', 'clockSeconds: v']) assert.ok(ap.includes(`ap.set({ ${k} })`), k)
