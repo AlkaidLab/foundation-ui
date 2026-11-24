@@ -15,6 +15,8 @@ export const SEND_TIMEOUT_MS = 8000
 export const REPORT_TIMEOUT_MS = 45_000
 
 export const SENT_IDS_KEY = 'foundation-ui.errors.sentids'
+export const DROPPED_KEY = 'foundation-ui.errors.dropped'
+export const DROPPED_MAX = 50
 export const SENT_IDS_MAX = 50
 export const AUTO_FLUSH_GAP_MS = 30_000
 
@@ -86,6 +88,7 @@ export const QUEUE_SHOTS_MAX = 3
 export function enqueueReport(doc, storage, now = Date.now(), { id = '', maybeArrived = false, explicit = false } = {}) {
   const queue = loadQueue(storage)
   const at = id ? queue.findIndex((e) => e.id === id) : -1
+  if (id) forgetDropped(id, storage)
   const entry = { doc, attempts: 0, at: now, ...(id ? { id } : {}), ...(maybeArrived ? { maybeArrived: true } : {}), ...(explicit ? { explicit: true } : {}) }
   if (at >= 0) queue[at] = { ...queue[at], doc, ...(maybeArrived ? { maybeArrived: true } : {}), ...(explicit ? { explicit: true } : {}) }
   else queue.push(entry)
@@ -110,7 +113,29 @@ export const removeQueued = (id, storage) => { const queue = loadQueue(storage);
 const sentListeners = new Set()
 /** Called (with the id) when a report was sent from this computer, also by the automatic flush: the history of the person's own reports follows it. Returns the function that stops listening. */
 export const onReportSent = (fn) => { sentListeners.add(fn); return () => sentListeners.delete(fn) }
-const rememberSent = (id, storage) => { if (!id) return; for (const fn of sentListeners) { try { fn(id) } catch { /* a listener never breaks a send */ } } const ids = (readJson(storage, SENT_IDS_KEY) || []).filter((x) => typeof x === 'string' && x !== id); ids.push(id); writeJson(storage, SENT_IDS_KEY, ids.slice(-SENT_IDS_MAX)) }
+const rememberSent = (id, storage) => { if (!id) return; forgetDropped(id, storage); for (const fn of sentListeners) { try { fn(id) } catch { /* a listener never breaks a send */ } } const ids = (readJson(storage, SENT_IDS_KEY) || []).filter((x) => typeof x === 'string' && x !== id); ids.push(id); writeJson(storage, SENT_IDS_KEY, ids.slice(-SENT_IDS_MAX)) }
+const droppedListeners = new Set()
+/**
+ * Called when a kept report was given up on and left the queue for good, the counterpart of onReportSent. `info` = { id, reason, status, by }: `reason` is `rejected` (the host refused it; `status` is the HTTP status, 0 when it answered
+ * `accepted: 0` without one) or `attempts` (QUEUE_MAX_ATTEMPTS tries without an answer); `by` is `flush` (the automatic or bulk retry, nobody was looking) or `submit` (the person pressed send again and is told by the panel itself).
+ * Returns the function that stops listening.
+ */
+export const onReportDropped = (fn) => { droppedListeners.add(fn); return () => droppedListeners.delete(fn) }
+const droppedMap = (storage) => { const v = readJson(storage, DROPPED_KEY); return v && typeof v === 'object' && !Array.isArray(v) ? v : {} }
+/** What became of a report that was given up on: { reason, status, at }, or null when it was not (or has been sent since). */
+export const droppedOf = (id, storage) => { const v = id ? droppedMap(storage)[id] : null; return v && typeof v === 'object' ? { reason: String(v.reason || ''), status: Number(v.status) || 0, at: Number(v.at) || 0 } : null }
+function forgetDropped(id, storage) { const map = droppedMap(storage); if (id in map) { delete map[id]; writeJson(storage, DROPPED_KEY, map) } }
+const rememberDropped = (id, info, storage, now = Date.now()) => {
+  if (!id) return
+  const map = droppedMap(storage)
+  delete map[id]
+  map[id] = { reason: info.reason, status: info.status || 0, at: now }
+  const keep = Object.keys(map).slice(-DROPPED_MAX)
+  writeJson(storage, DROPPED_KEY, Object.fromEntries(keep.map((k) => [k, map[k]])))
+  for (const fn of droppedListeners) { try { fn({ id, reason: info.reason, status: info.status || 0, by: info.by || 'flush' }) } catch { /* a listener never breaks a send */ } }
+}
+// the HTTP status of a refusal ("http-413" -> 413); the refusals that carry none (the host answered `accepted: 0`) are 0
+const statusOf = (reason) => { const m = /^http-(\d{3})$/.exec(String(reason || '')); return m ? Number(m[1]) : 0 }
 /** Was this report (by id) sent from this computer already? A second press then says so without sending a second one. */
 export const wasSent = (id, storage) => !!id && (readJson(storage, SENT_IDS_KEY) || []).includes(id)
 // one request per report at a time, whoever asks (the person's press or the automatic flush): the second asker gets the answer of the first
@@ -130,7 +155,8 @@ async function sendEntry(entry, options) {
 }
 const keyOf = (e) => e.id || `at:${e.at}`
 /**
- * Try every queued report once. A sent or rejected report leaves the queue; one that is offline stays (up to QUEUE_MAX_ATTEMPTS tries). Returns { sent, rejected, left }.
+ * Try every queued report once. A sent or rejected report leaves the queue; one that is offline stays (up to QUEUE_MAX_ATTEMPTS tries, then it is given up on). A report that is given up on (rejected or out of tries) is announced to onReportDropped listeners.
+ * Returns { sent, rejected, left }.
  * A report that is on its way already (the person pressed Retry) is not sent a second time, and what was added to the queue while this ran is kept.
  */
 export async function flushQueue(options = {}) {
@@ -138,14 +164,18 @@ export async function flushQueue(options = {}) {
   const snapshot = loadQueue(storage).filter((e) => !options.only || options.only(e))
   const result = new Map()
   let sent = 0, rejected = 0
+  const dropped = []
   for (const entry of snapshot) {
     const answer = entry.id ? await guarded(entry.id, () => sendEntry(entry, options)) : await sendEntry(entry, options)
     if (answer.state === 'sent') { sent += 1; result.set(keyOf(entry), null) }
-    else if (answer.state === 'rejected') { rejected += 1; result.set(keyOf(entry), null) }
-    else result.set(keyOf(entry), entry.attempts + 1 < QUEUE_MAX_ATTEMPTS ? { attempts: entry.attempts + 1, ...(answer.maybeArrived ? { maybeArrived: true } : {}) } : null)
+    else if (answer.state === 'rejected') { rejected += 1; result.set(keyOf(entry), null); dropped.push({ entry, reason: 'rejected', status: statusOf(answer.reason) }) }
+    else if (entry.attempts + 1 < QUEUE_MAX_ATTEMPTS) result.set(keyOf(entry), { attempts: entry.attempts + 1, ...(answer.maybeArrived ? { maybeArrived: true } : {}) })
+    else { result.set(keyOf(entry), null); dropped.push({ entry, reason: 'attempts', status: 0 }) }
   }
   const now = loadQueue(storage).flatMap((e) => { if (!result.has(keyOf(e))) return [e]; const r = result.get(keyOf(e)); return r ? [{ ...e, ...r }] : [] })
   saveQueue(now, storage)
+  // told after the queue is saved: a report that left the queue is never left without a word (its id, why, and for a refusal the status; the host log gets the same line)
+  for (const d of dropped) rememberDropped(d.entry.id, { ...d, by: 'flush' }, storage)
   return { sent, rejected, left: now.length }
 }
 
@@ -197,7 +227,7 @@ async function submitOnce(doc, id, options) {
     const kept = queued ? { shotLost: false } : enqueueReport(doc, storage, options.now, { id, maybeArrived: !!answer.maybeArrived, explicit: !!options.explicit })
     return { state: 'queued', id, reason: answer.reason, ...(kept.shotLost ? { shotLost: true } : {}) }
   }
-  if (queued) removeQueued(id, storage)
+  if (queued) { removeQueued(id, storage); rememberDropped(id, { reason: 'rejected', status: statusOf(answer.reason), by: 'submit' }, storage, options.now) }
   return { ...answer, id }
 }
 

@@ -9,6 +9,7 @@ import { sharedGithubClient, ago } from '../../devmode/github.js'
 import { DEV_REPOS, repoOf, repoSlug, visibleRepos, DEFAULT_REPO } from '../../devmode/repos.js'
 import { listMine } from '../../devmode/mine.js'
 import { devmodeTexts, fillText } from '../../devmode/texts.js'
+import { droppedWhy, feedbackTexts } from '../../feedback/texts.js'
 import { useDevAccount } from './useDevAccount.js'
 import { useDevActivity } from './useDevActivity.js'
 import { usePageStamp } from '../usePageStamp.js'
@@ -43,7 +44,8 @@ const rows = ref([])
 const status = ref({ state: 'ok', resetAt: 0, resetKnown: false, at: 0, stale: false, fromCache: false, status: 0 })
 const loading = ref(false)
 const selected = ref('')
-const mine = ref(listMine())
+// the list follows the history (mineState): a report that is given up on or sent later changes its row without reopening the tab
+const mine = computed(() => listMine())
 // the time of the last read is drawn once, at the trailing end of the page header (MPage); clicking it reads again
 usePageStamp({ at: () => status.value.at, refreshing: loading, refresh: () => load(true), locale: () => props.locale })
 
@@ -65,7 +67,7 @@ onBeforeUnmount(() => { observer?.disconnect(); activity.markSeen(); if (scene?.
 
 let token = 0
 async function load(force) {
-  if (tab.value === 'mine') { mine.value = listMine(); return }
+  if (tab.value === 'mine') return
   const mark = ++token
   loading.value = true
   const kind = tab.value === 'pr' ? 'pr' : 'issue'
@@ -150,8 +152,9 @@ const emptyText = computed(() => ({ rate: T.value.rateTitle, offline: T.value.em
 const onNote = () => { if (note.value?.connect) connect(); else load(true) }
 
 const open = (url) => { if (props.openUrl) props.openUrl(url); else if (typeof window !== 'undefined') window.open(url, '_blank', 'noopener') }
-const mineIcon = (m) => ({ published: 'check_circle', saved: 'download', queued: 'schedule' }[m.status] || 'edit_note')
-const mineText = (m) => (m.status === 'published' ? fillText(T.value.mineSent, { n: m.n }) : m.status === 'saved' ? T.value.mineSaved : T.value.mineQueued)
+const FB = computed(() => feedbackTexts(props.locale))
+const mineIcon = (m) => ({ published: 'check_circle', sent: 'check_circle', saved: 'download', queued: 'schedule', dropped: 'error' }[m.status] || 'edit_note')
+const mineText = (m) => (m.status === 'published' ? fillText(T.value.mineSent, { n: m.n }) : m.status === 'sent' ? FB.value.cardLastSent : m.status === 'dropped' ? fillText(FB.value.droppedRow, { why: droppedWhy(FB.value, { reason: m.reason, status: m.httpStatus }) }) : m.status === 'saved' ? T.value.mineSaved : m.ref ? FB.value.queuedTitleLater : T.value.mineQueued)
 defineExpose({ load, rows, status })
 </script>
 
@@ -199,7 +202,7 @@ defineExpose({ load, rows, status })
         </template>
         <template v-else>
           <button v-for="m in mine" :key="m.id" type="button" class="dm-lrow" @click="m.url && open(m.url)">
-            <span class="dm-state" :class="m.status === 'published' ? '' : 'dm-state--draft'"><MIcon :name="mineIcon(m)" /></span>
+            <span class="dm-state" :class="m.status === 'published' || m.status === 'sent' ? '' : 'dm-state--draft'"><MIcon :name="mineIcon(m)" /></span>
             <span class="dm-lrow__main"><span class="dm-lrow__t">{{ m.title }}</span><span class="dm-meta"><span>{{ repoSlug(m.repo) }}</span><span>{{ mineText(m) }}</span><span>{{ when(m.at) }}</span></span></span>
           </button>
           <p v-if="!mine.length" class="dm-empty">{{ T.emptyMine }}</p>

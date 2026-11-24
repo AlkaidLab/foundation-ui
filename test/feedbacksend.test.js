@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { QUEUE_MAX_ATTEMPTS, buildReport, enqueue, flushQueue, flushQueueAuto, isQueued, loadQueue, referenceOf, removeQueued, reportIdOf, reportToDocument, reportToEvent, resetAutoFlush, sendDocument, submitReport, wasSent, writeConsent } from '../src/telemetry/index.js'
+import { QUEUE_MAX_ATTEMPTS, buildReport, droppedOf, onReportDropped, enqueue, flushQueue, flushQueueAuto, isQueued, loadQueue, referenceOf, removeQueued, reportIdOf, reportToDocument, reportToEvent, resetAutoFlush, sendDocument, submitReport, wasSent, writeConsent } from '../src/telemetry/index.js'
 import { dismissError, hostMounted, reportError, reportFeedback, setErrorContext, useErrors } from '../src/vue/useErrors.js'
 import { errorTexts } from '../src/vue/errorTexts.js'
 
@@ -151,4 +151,72 @@ test('a report waits for the host long enough for the uploads of its log and scr
   const first = await submitReport(docOf('slow host'), { storage: s, transport: hang, timeoutMs: 10 })
   assert.equal(first.state, 'queued')
   assert.equal(first.reason, 'timeout')
+})
+
+// a kept report that is given up on is told: the listener (the counterpart of onReportSent), the history record and the words
+const watchDropped = () => { const seen = []; const stop = onReportDropped((info) => seen.push(info)); return { seen, stop } }
+
+test('a kept report the host refuses is dropped with its id, the status and a record: listener once, queue empty, history says dropped', async () => {
+  const { addMine, listMine, mineState } = await import('../src/devmode/mine.js')
+  const s = memory(); const { seen, stop } = watchDropped()
+  const doc = docOf('too big'); const id = reportIdOf(doc)
+  enqueue(doc, s, Date.now(), { id, explicit: true })
+  addMine({ id, title: 'too big', status: 'queued', ref: referenceOf(id) }, s)
+  assert.equal(listMine(s)[0].status, 'queued')
+  const before = mineState.v
+  assert.deepEqual(await flushQueue({ storage: s, transport: answer(413) }), { sent: 0, rejected: 1, left: 0 })
+  stop()
+  assert.deepEqual(seen, [{ id, reason: 'rejected', status: 413, by: 'flush' }])
+  assert.equal(isQueued(id, s), false); assert.equal(loadQueue(s).length, 0)
+  assert.equal(droppedOf(id, s).status, 413)
+  assert.ok(mineState.v > before, 'the history is told')
+  const row = listMine(s)[0]
+  assert.equal(row.status, 'dropped'); assert.equal(row.reason, 'rejected'); assert.equal(row.httpStatus, 413); assert.equal(row.ref, referenceOf(id))
+  // `accepted: 0` carries no status
+  const none = memory(); const w = watchDropped(); const d2 = docOf('refused'); const id2 = reportIdOf(d2)
+  enqueue(d2, none, Date.now(), { id: id2 })
+  await flushQueue({ storage: none, transport: async () => ({ ok: true, status: 200, json: async () => ({ accepted: 0 }) }) })
+  w.stop()
+  assert.deepEqual(w.seen, [{ id: id2, reason: 'rejected', status: 0, by: 'flush' }])
+})
+
+test('a kept report that got no answer for QUEUE_MAX_ATTEMPTS tries is dropped on the last one, not before', async () => {
+  const s = memory(); const { seen, stop } = watchDropped()
+  const doc = docOf('never answered'); const id = reportIdOf(doc)
+  enqueue(doc, s, Date.now(), { id })
+  const down = async () => { throw new TypeError('network') }
+  for (let i = 0; i < QUEUE_MAX_ATTEMPTS - 1; i += 1) await flushQueue({ storage: s, transport: down })
+  assert.equal(seen.length, 0); assert.equal(isQueued(id, s), true)
+  await flushQueue({ storage: s, transport: down })
+  stop()
+  assert.deepEqual(seen, [{ id, reason: 'attempts', status: 0, by: 'flush' }])
+  assert.equal(isQueued(id, s), false); assert.equal(droppedOf(id, s).reason, 'attempts')
+})
+
+test('a press that is refused is a drop of the queued report too (the panel tells the person; no notice), and a later send or keep clears the drop', async () => {
+  const s = memory(); const { seen, stop } = watchDropped()
+  const doc = docOf('pressed'); const id = reportIdOf(doc)
+  enqueue(doc, s, Date.now(), { id })
+  assert.equal((await submitReport(doc, { storage: s, online: true, transport: answer(400), id })).state, 'rejected')
+  stop()
+  assert.deepEqual(seen, [{ id, reason: 'rejected', status: 400, by: 'submit' }])
+  // a report refused on its very first press was never kept: nothing to announce
+  const w = watchDropped()
+  await submitReport(docOf('first press'), { storage: memory(), online: true, transport: answer(413) })
+  w.stop(); assert.equal(w.seen.length, 0)
+  // kept again: no longer dropped; sent: gone from the record too
+  enqueue(doc, s, Date.now(), { id }); assert.equal(droppedOf(id, s), null)
+  await flushQueue({ storage: s, transport: answer(413) }); assert.equal(droppedOf(id, s).status, 413)
+  assert.equal((await submitReport(doc, { storage: s, online: true, transport: answer(200), id })).state, 'sent'); assert.equal(droppedOf(id, s), null)
+})
+
+test('the words: the reason of a drop in Chinese and English, and the fallback languages read English', async () => {
+  const { feedbackTexts, droppedWhy } = await import('../src/feedback/texts.js')
+  const zh = feedbackTexts('zh'); const en = feedbackTexts('de')
+  assert.equal(droppedWhy(zh, { reason: 'rejected', status: 413 }), '主机拒收（错误 413）')
+  assert.equal(droppedWhy(zh, { reason: 'rejected', status: 0 }), '主机拒收')
+  assert.equal(droppedWhy(zh, { reason: 'attempts' }), '重试多次仍没有送达')
+  assert.equal(droppedWhy(en, { reason: 'rejected', status: 413 }), 'Refused by the host (error 413)')
+  assert.match(en.attached, /: $/, 'a space after the colon before the list')
+  for (const k of ['droppedTitle', 'droppedStatus', 'droppedRefused', 'droppedAttempts', 'droppedAction', 'droppedRow', 'cardLastDropped']) { assert.ok(zh[k] && en[k], k); assert.ok(!/\u9065\u6d4b/.test(zh[k])) }
 })

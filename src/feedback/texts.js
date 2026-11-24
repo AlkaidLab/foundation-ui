@@ -23,11 +23,12 @@ const ZH = {
   queuedTextTimeout: '主机没有在 {n} 秒内答复（可能还在上传日志和截图）。反馈暂存在这台电脑上，之后会自动再发。',
   queuedTextHost: '没有连上主机，反馈暂存在这台电脑上，主机可以访问后会自动再发。',
   queuedTextStatus: '主机返回了错误 {status}。反馈暂存在这台电脑上，之后会自动再发。',
+  droppedTitle: '反馈没有发出', droppedStatus: '主机拒收（错误 {status}）', droppedRefused: '主机拒收', droppedAttempts: '重试多次仍没有送达', droppedAction: '重新反馈', droppedRow: '没有发出：{why}',
   attached: '本次随反馈发送：', attachedText: '文字', attachedLogs: '日志', attachedShot: '截图', attachedContact: '联系方式',
   limited: '发送过于频繁，稍后再试。', rejected: '发送没有被接受，可以先保存诊断包。',
   zipSaved: '诊断包已保存', errorLead: '错误信息会一起带上。',
   decisionCrashTitle: '刚才出现了问题', decisionCrashText: '要把这次的情况告诉开发者吗？', decisionSend: '发送反馈', decisionSkip: '忽略',
-  card: '反馈问题或建议', cardText: '私下发给开发者，不需要账号', cardButton: '发送反馈', cardLast: '最近一次：{state} #{ref}', cardLastSent: '已发送', cardLastQueued: '已保存，等待网络',
+  card: '反馈问题或建议', cardText: '私下发给开发者，不需要账号', cardButton: '发送反馈', cardLast: '最近一次：{state} #{ref}', cardLastSent: '已发送', cardLastQueued: '已保存，等待网络', cardLastDropped: '没有发出',
   errorButton: '反馈这个问题', here: '反馈此处的问题',
   searchTitle: '反馈问题或建议', searchKeywords: '反馈 意见 建议 报告问题 吐槽 联系开发者 bug feedback report suggestion contact developers',
   rowHint: '私下发给开发者，附已脱敏的运行日志',
@@ -56,12 +57,13 @@ const EN = {
   queuedTitleLater: 'Saved, sends again later',
   queuedTextTimeout: 'The host did not answer within {n} seconds (it may still be uploading the log and the screenshot). The feedback is kept on this computer and sent again by itself.',
   queuedTextHost: 'The host could not be reached. The feedback is kept on this computer and sent again by itself once the host answers.',
-  queuedTextStatus: 'The host answered with error {status}. The feedback is kept on this computer and sent again by itself.',
-  attached: 'Sent with this feedback:', attachedText: 'text', attachedLogs: 'log', attachedShot: 'screenshot', attachedContact: 'contact',
+  queuedTextStatus: 'Error {status} from the host. The feedback is kept on this computer and sent again by itself.',
+  droppedTitle: 'Feedback not sent', droppedStatus: 'Refused by the host (error {status})', droppedRefused: 'Refused by the host', droppedAttempts: 'Still not delivered after several tries', droppedAction: 'Send again', droppedRow: 'Not sent: {why}',
+  attached: 'Sent with this feedback: ', attachedText: 'text', attachedLogs: 'log', attachedShot: 'screenshot', attachedContact: 'contact',
   limited: 'Too many reports in a short time. Try again later.', rejected: 'The feedback was not accepted. You can save a diagnostic zip instead.',
   zipSaved: 'Diagnostic zip saved', errorLead: 'The error details are included.',
   decisionCrashTitle: 'Something went wrong a moment ago', decisionCrashText: 'Do you want to tell the developers what happened?', decisionSend: 'Send feedback', decisionSkip: 'Ignore',
-  card: 'Send feedback', cardText: 'Sent privately to the developers, no account needed', cardButton: 'Send feedback', cardLast: 'Last one: {state} #{ref}', cardLastSent: 'sent', cardLastQueued: 'saved, waiting for the network',
+  card: 'Send feedback', cardText: 'Sent privately to the developers, no account needed', cardButton: 'Send feedback', cardLast: 'Last one: {state} #{ref}', cardLastSent: 'sent', cardLastQueued: 'saved, waiting for the network', cardLastDropped: 'not sent',
   errorButton: 'Report this problem', here: 'Report a problem here',
   searchTitle: 'Send feedback', searchKeywords: 'feedback report suggestion contact developers bug 反馈 意见 建议',
   rowHint: 'Sent privately, with the run log (personal details removed)',
@@ -72,4 +74,6 @@ const WORDS = { zh: ZH, en: EN }
 /** The words for a locale: Chinese for zh*, English for everything else. */
 export function feedbackTexts(locale = 'en') { return /^zh/i.test(String(locale)) ? ZH : EN }
 export const FEEDBACK_LOCALES = Object.freeze(Object.keys(WORDS))
+/** Why a report was given up on, in words: `info` = { reason: 'rejected' | 'attempts', status } (the record of telemetry/send.js droppedOf, or the event onReportDropped delivers). */
+export const droppedWhy = (F, info) => (info?.reason === 'attempts' ? F.droppedAttempts : info?.status ? F.droppedStatus.replace('{status}', String(info.status)) : F.droppedRefused)
 export const fillText = (text, values) => String(text).replace(/\{(\w+)\}/g, (_, k) => (values[k] ?? ''))
