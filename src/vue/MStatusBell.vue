@@ -28,7 +28,9 @@ async function toggle() {
   if (el.matches(':popover-open')) { el.hidePopover(); return }
   const r = anchor.value.getBoundingClientRect()
   el.style.top = `${r.bottom + 8}px`
-  el.style.right = `${Math.max(8, window.innerWidth - r.right)}px`
+  // the panel keeps inside the window: in a narrow one the bell is far from the right edge and its own width would run off the left
+  const room = window.innerWidth - Math.min(400, window.innerWidth - 16) - 8
+  el.style.right = `${Math.max(8, Math.min(window.innerWidth - r.right, room))}px`
   el.showPopover()
   open.value = true
   await nextTick()

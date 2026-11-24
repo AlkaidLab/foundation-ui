@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { DRAWER_MIN_WIDTH, contextLine, feedbackPlan, layoutFor, phaseOf, titleOf } from '../src/feedback/model.js'
+import { DRAWER_MIN_WIDTH, contextLine, feedbackPlan, layoutFor, phaseOf, queuedWhy, titleOf } from '../src/feedback/model.js'
 import { FEEDBACK_LOCALES, feedbackTexts, fillText } from '../src/feedback/texts.js'
 import { CONTACT_MAX, buildReport, cleanContact, reportToDocument, reportToEvent } from '../src/telemetry/index.js'
 import { enqueue, flushQueueAuto, loadQueue, resetAutoFlush, submitReport } from '../src/telemetry/send.js'
@@ -45,6 +45,15 @@ test('an answer to a send is a phase: sent and queued are done, limited stays, a
   assert.deepEqual(phaseOf({ state: 'limited' }), { phase: 'edit', problem: 'limited' })
   assert.deepEqual(phaseOf({ state: 'rejected' }, { errorsOn: true }), { phase: 'edit', problem: 'rejected' })
   for (const reason of ['not-accepted', 'http-401', 'http-400', undefined]) assert.deepEqual(phaseOf({ state: 'rejected', reason }), { phase: 'edit', problem: 'rejected' }, `${reason}: one refusal, the panel does not guess a cause`)
+})
+
+test('a kept report says why it was kept: only a computer without network says "when online"', () => {
+  assert.deepEqual(phaseOf({ state: 'queued', reason: 'timeout' }), { phase: 'done', kind: 'queued', reason: 'timeout' })
+  assert.deepEqual(queuedWhy('offline'), { why: 'offline' })
+  assert.deepEqual(queuedWhy('timeout'), { why: 'timeout' })
+  assert.deepEqual(queuedWhy('http-503'), { why: 'status', status: 503 })
+  assert.deepEqual(queuedWhy('http-429'), { why: 'status', status: 429 })
+  for (const r of ['network', 'no-transport', '', undefined]) assert.deepEqual(queuedWhy(r), { why: 'host' }, `${r}: the host did not answer`)
 })
 
 test('the words: Chinese and English have the same keys, 反馈 is the one word, and nothing says the log is optional or names a vendor', () => {

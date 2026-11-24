@@ -13,8 +13,8 @@ const { state, reportFeedback } = useErrors()
 const T = computed(() => feedbackTexts(props.locale))
 const available = computed(() => state.hosted > 0)
 // the last report this computer sent: its reference, and whether it went or waits for the network
-const last = computed(() => listMine().find((r) => r.ref && (r.status === 'sent' || r.status === 'queued')) || null)
-const text = computed(() => (last.value ? fillText(T.value.cardLast, { state: last.value.status === 'sent' ? T.value.cardLastSent : T.value.cardLastQueued, ref: last.value.ref }) : T.value.rowHint))
+const last = computed(() => listMine().find((r) => r.ref && (r.status === 'sent' || r.status === 'queued' || r.status === 'dropped')) || null)
+const text = computed(() => (last.value ? fillText(T.value.cardLast, { state: last.value.status === 'sent' ? T.value.cardLastSent : last.value.status === 'dropped' ? T.value.cardLastDropped : T.value.cardLastQueued, ref: last.value.ref }) : T.value.rowHint))
 defineExpose({ open: () => reportFeedback({ logs: props.logs }) })
 </script>
 

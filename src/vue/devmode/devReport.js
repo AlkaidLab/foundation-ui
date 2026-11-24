@@ -11,6 +11,7 @@ import { SHOT_LIMITS, canvasCodec, checkShotFile, compressShot } from '../../fee
 //   The person adds boxes by hand on top of shotBase (`shotManual`); `shot` is always the exact image that will be sent. An automatic box cannot be removed.
 //   providers: { mask(png, cssRects, view) and paint(png, rects) replace the canvas work (tests); codec() replaces the picture codec (tests); capture() -> Uint8Array | null (PNG), logs() -> string, env() -> string, hostNames() -> string[], save(name, bytes, mime), openUrl(url), anon(report) -> 'sent' | 'queued' | 'rejected' | 'limited',
 //     replies: true when the product shows the developers' answers (useFeedbackReplies) and its host passes the report's reply key on: the panel then tells the person where an answer will show,
+//     log(line) writes one line to the host's own log when a kept report was given up on (the reference and the reason, never the text of the report; MErrorHost calls it),
 //     shots: true when the host takes a screenshot with a feedback report (the feedback panel then has its screenshot row: the window capture where capture() exists, a picture chosen, pasted or dropped everywhere) }
 const providers = {}
 export const devReport = reactive({ open: false, kind: 'feedback', error: null, context: { page: '', place: '', element: '' }, decision: '', repo: '', shot: null, shotBase: null, shotAuto: [], shotManual: [], shotSize: null, shotFailed: false, shotMaskFailed: false, shotSource: '', shotError: '', hidden: false, logs: '', env: '', loading: false, signIn: false, token: 0, draft: { title: '', description: '' } })
@@ -70,6 +71,11 @@ function loadContext(carriedLogs, carriedLabel) {
 }
 /** Resolves when the log and the environment of the open report are in (the zip waits for it; the preview shows them when they arrive). */
 export const devReportReady = () => contextLoading
+
+// DevReportHost draws the panel; a host that does not mount it has nothing that opens, so what leads to the panel (the notice of a report that was not sent) is only offered where it is mounted.
+const hosts = reactive({ n: 0 })
+export const devReportHosted = () => hosts.n > 0
+export const registerDevReportHost = () => { hosts.n += 1; return () => { hosts.n = Math.max(0, hosts.n - 1) } }
 
 let opening = false
 /**

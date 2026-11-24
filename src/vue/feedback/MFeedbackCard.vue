@@ -11,8 +11,8 @@ import { feedbackTexts, fillText } from '../../feedback/texts.js'
 // 反馈 in 帮助与关于: one card that opens the one feedback panel, with the last report this computer sent (its reference and whether it went or waits for the network).
 const props = defineProps({ locale: { type: String, default: 'zh' }, title: { type: String, default: '' } })
 const F = computed(() => feedbackTexts(props.locale))
-const last = computed(() => listMine().find((r) => r.ref && (r.status === 'sent' || r.status === 'queued')) || null)
-const lastText = computed(() => (last.value ? fillText(F.value.cardLast, { state: last.value.status === 'sent' ? F.value.cardLastSent : F.value.cardLastQueued, ref: last.value.ref }) : ''))
+const last = computed(() => listMine().find((r) => r.ref && (r.status === 'sent' || r.status === 'queued' || r.status === 'dropped')) || null)
+const lastText = computed(() => (last.value ? fillText(F.value.cardLast, { state: last.value.status === 'sent' ? F.value.cardLastSent : last.value.status === 'dropped' ? F.value.cardLastDropped : F.value.cardLastQueued, ref: last.value.ref }) : ''))
 const open = () => openDevReport({ kind: 'feedback' })
 </script>
 

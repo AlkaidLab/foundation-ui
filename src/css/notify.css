@@ -121,7 +121,7 @@ html[data-motion='reduced'] .m-pbar, html[data-motion='reduced'] .m-snackbar, ht
 .m-plistpop .m-vchip { max-width: 120px; }
 
 /* ---- Status panel of the caption bar: a list like the settings lists ---- */
-.m-statuspanel { position: fixed; inset: auto; margin: 0; padding: 8px 8px 12px; width: min(400px, calc(100vw - 16px)); max-height: min(72dvh, 560px); overflow-y: auto; border: 0; border-radius: 24px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); box-shadow: 0 8px 24px color-mix(in srgb, var(--md-sys-color-shadow) 24%, transparent), 0 0 0 1px color-mix(in srgb, var(--md-sys-color-outline-variant) 60%, transparent); }
+.m-statuspanel { position: fixed; box-sizing: border-box; inset: auto; margin: 0; padding: 8px 8px 12px; width: min(400px, calc(100vw - 16px)); max-height: min(72dvh, 560px); overflow-y: auto; border: 0; border-radius: 24px; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); box-shadow: 0 8px 24px color-mix(in srgb, var(--md-sys-color-shadow) 24%, transparent), 0 0 0 1px color-mix(in srgb, var(--md-sys-color-outline-variant) 60%, transparent); }
 .m-statuspanel:popover-open { animation: m-sheet-end var(--m-spring-default-spatial-duration) var(--m-spring-default-spatial) both; }
 .m-statuspanel__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 4px 4px 16px; min-height: 48px; }
 .m-statuspanel__head h2 { margin: 0; font: var(--m-title-medium); }
