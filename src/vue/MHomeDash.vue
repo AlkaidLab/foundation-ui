@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import MDashCardView from './MDashCardView.vue'
 import MDockClock from './MDockClock.vue'
+import MDockClockBar from './MDockClockBar.vue'
 import MDashSections from './MDashSections.vue'
 import MDashSkeleton from './MDashSkeleton.vue'
 import MSheet from './MSheet.vue'
@@ -24,6 +25,8 @@ import { useDashDrag } from './dash/dashDrag.js'
 import { useDashContext } from './dash/dashContext.js'
 import { useDashSkeleton } from './dash/dashSkeletonUse.js'
 import { useFitText } from './fitText.js'
+import { vModalOpen } from '../a11y/modalLayer.js'
+import { useModalBridge } from './useModalBridge.js'
 import { useFitRows } from './fitRows.js'
 
 // the parts of the setup (src/vue/dash/) share one scope, D, and are made in order after this core
@@ -106,6 +109,12 @@ onMounted(() => window.addEventListener('resize', clearOfBottom))
 onBeforeUnmount(() => { window.removeEventListener('resize', clearOfBottom); document.body.style.removeProperty('--m-dedit-clear') })
 const { resizing, mode, units, compact, xl, layout, allCards, appearance, smart, onHover, stacksOn, stacks, dockLayout, onStackRotate, onStackSuggest, onStackHover, onStackFlags, setStackRotate, stackSheetId, stackSheetOpen, stackSheetStack, openStackSheet, joinFor, joinTargetsOf, joinIcon, joinMe, joinTargets, joinOpen, joinTitle, joinInto, sheetReorder, sheetRemove, sheetAdd, sheetOut, ghostIconOf, sectioned, sectionCount, dockOn, dockScale, faceK, clockLocale, clockSizeDrawn, dateText, statusText, dockCards, setOverview, starClient, clientRec, recOpen, recLater, starOpen, starLater, dockGridStyle, dockHeadMin, blocks, slack, placedOf, cellStyle, blockStyle, whyRows, whyOpen, restoreSmart, acceptGhost, hideGhost, addable, detailId, detail, onAct, group, sheetEl, query, pickerOpen, compChoice, sheetSize, GALLERY_FIT, galleryEntries, galleryGroups, galleryVariants, sheetAway, landing, addFromGallery, live, say, addCard, setCardSize, removeCard, drag, sel, settling, dragVars, down, inside, sizing, handleDown, galleryPick, picked, key, slotIn, slotOut, starSponsor, starStreaming, skeleton, skeletonSlack, skeletonTop } = D
 const selCard = computed(() => (sel.value ? blocks.value.flatMap((b) => b.boxed).find((c) => c.id === sel.value && !c.ghost) : null))
+// The sheet that edits the overview is a modal <dialog> shown with showModal() (v-modal-open, a11y/modalLayer.js): the platform makes the page behind it inert (no pointer, no focus, no key) and the window's
+// guard takes the right click and the wheel off the backdrop. A frame that holds the page is told, so the shell dims the rest of the window (useModalBridge.js). While a tile is dragged out of the sheet
+// (sheetAway) the pointer is held by the press that started the drag, and the page is laid out by the drag itself, so nothing behind the sheet needs to be reached.
+const sheetModal = computed(() => pickerOpen.value && !sheetAway.value)
+const closeSheet = () => { pickerOpen.value = false }
+useModalBridge(sheetModal, closeSheet)
 watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush: 'post' })
 </script>
 
@@ -186,26 +195,25 @@ watch([edit, sel, pickerOpen, fabBottom], () => nextTick(clearOfBottom), { flush
       </div>
       <button v-if="!pickerOpen" type="button" class="m-dedit__fab" :style="fabStyle" @click="pickerOpen = true"><MIcon name="add" />{{ T.addCard }}</button>
       <template v-else>
-        <div class="m-dedit__dim" :class="{ 'is-away': sheetAway }" aria-hidden="true" />
-        <section ref="sheetEl" class="m-dedit m-dedit--gallery" :class="{ 'is-drop': drag?.over, 'is-away': sheetAway }" role="dialog" :aria-label="T.editTitle">
+                <dialog ref="sheetEl" v-modal-open class="m-dedit m-dedit--gallery" :class="{ 'is-drop': drag?.over, 'is-away': sheetAway }" @cancel.prevent="closeSheet" :aria-label="T.editTitle">
           <header class="m-dedit__head">
             <label class="m-dedit__search"><MIcon name="search" /><input v-model="query" type="search" :placeholder="T.search" :aria-label="T.search"></label>
-            <button type="button" class="m-dedit__close" :aria-label="T.close" @click="pickerOpen = false"><MIcon name="close" /></button>
+            <button type="button" class="m-dedit__close" autofocus :aria-label="T.close" @click="pickerOpen = false"><MIcon name="close" /></button>
             <!-- the tools: in line with the search on a wide window; on a phone one row of their own that scrolls sideways (edit-phone.css) -->
             <div class="m-dedit__tools">
               <button type="button" class="m-dpill" :aria-label="T.reset" :data-tip="T.reset" :disabled="layout.isDefault.value" @click="layout.reset()"><MIcon name="restart_alt" /><span class="m-dpill__t">{{ T.reset }}</span></button>
               <button type="button" class="m-dpill" :aria-label="T.restoreSmart" :data-tip="T.restoreSmart" @click="restoreSmart"><MIcon name="wand_stars" /><span class="m-dpill__t">{{ T.restoreSmart }}</span></button>
               <button v-if="stacksOn" type="button" class="m-dpill" data-stack-rotate :aria-pressed="stacks.state.rotate" :class="{ 'is-on': stacks.state.rotate }" @click="setStackRotate(!stacks.state.rotate)"><MIcon name="sync" /><span class="m-dpill__t">{{ stacks.state.rotate ? (T.stackRotateOn || '轮换：开') : (T.stackRotateOff || '轮换：关') }}</span></button>
               <button type="button" class="m-dpill" :aria-label="T.whyTitle" :data-tip="T.whyTitle" @click="whyOpen = true"><MIcon name="help" /><span class="m-dpill__t">{{ T.whyTitle }}</span></button>
-              <span v-if="dockLayout" class="m-dsize m-dedit__layout m-dedit__align" role="radiogroup" :aria-label="T.clockPos"><button v-for="a in ['left', 'center', 'right']" :key="a" type="button" role="radio" :aria-checked="appearance.state.clockAlign === a" :class="{ 'is-on': appearance.state.clockAlign === a }" @click="appearance.set({ clockAlign: a })">{{ T['align' + a[0].toUpperCase() + a.slice(1)] }}</button></span>
               <span class="m-dedit__layoutlabel">{{ T.layoutLabel }}</span><span class="m-dsize m-dedit__layout" role="radiogroup" :aria-label="T.overviewGrid + ' / ' + T.overviewDock"><button type="button" role="radio" :aria-checked="appearance.state.overview !== 'dock'" :class="{ 'is-on': appearance.state.overview !== 'dock' }" @click="setOverview('grid')">{{ T.overviewGrid }}</button><button type="button" role="radio" :aria-checked="appearance.state.overview === 'dock'" :class="{ 'is-on': appearance.state.overview === 'dock' }" @click="setOverview('dock')">{{ T.overviewDock }}</button></span>
             </div>
           </header>
+          <MDockClockBar v-if="dockLayout" :appearance="appearance" :locale="props.locale" :width="wide" />
           <MTileGallery v-model:group="group" :fit="GALLERY_FIT" :entries="galleryEntries" :groups="galleryGroups" :texts="T" :variants="galleryVariants" :empty="addable.length ? T.noMatch : T.nothing" @add="addFromGallery" @size="(id, k) => (sheetSize = { ...sheetSize, [id]: k })" @variant="(id) => (compChoice = id)" @pick="galleryPick">
             <template #preview="{ entry }"><div class="m-dash m-gal__dash" :class="{ 'm-dash--compact': compact, 'm-dash--xl': xl }"><div class="m-dash__cell m-gal__tile" :data-group="entry.group" :data-size="entry.card.size"><div class="m-dash__body"><MDashCardView :card="entry.card" :details="details" :texts="T" preview /></div></div></div></template>
           </MTileGallery>
           <p class="m-dedit__drop" aria-hidden="true"><MIcon name="remove" />{{ T.dropRemove }}</p>
-        </section>
+        </dialog>
       </template>
     </Teleport>
 

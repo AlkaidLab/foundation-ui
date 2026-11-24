@@ -48,8 +48,9 @@ export const effectiveClockSize = (size, width) => { const offered = clockSizesO
 /** Motion: follow the system (default), full, or reduced. */
 export const MOTIONS = Object.freeze(['system', 'full', 'reduced'])
 export const MOTION_RULE = 2 // 2: the default is full motion; 'system' is an opt-in
+export const CLOCK_SIZE_RULE = 2 // 2: the default clock is 特大 (xl; a window under 840 px draws 大); a record before it that says 中 only kept the old default
 export const CLOCK_ALIGNS = Object.freeze(['left', 'center', 'right'])
-export const DEFAULTS = Object.freeze({ cardCorner: 28, textSize: 14, listStyle: 'merged', motion: 'full', clockFace: 'default', clockAlign: 'right', clockSize: 'm', clockSeconds: false, background: 'wallpaper', source: 'auto', url: '', color: 'wallpaper', preset: 'blue', custom: '#4a9eff', mode: 'system', dark: 'tinted', colorStyle: DEFAULT_STYLE, seedIndex: 0, overview: 'grid', smartTiles: true, fade: true, tileDensity: 'standard', heroStyle: 'soft', heroArt: true, homeSame: false, home: FROST_DEFAULTS.home, other: FROST_DEFAULTS.other })
+export const DEFAULTS = Object.freeze({ cardCorner: 28, textSize: 14, listStyle: 'merged', motion: 'full', clockFace: 'default', clockAlign: 'right', clockSize: 'xl', clockSeconds: false, background: 'wallpaper', source: 'auto', url: '', color: 'wallpaper', preset: 'blue', custom: '#4a9eff', mode: 'system', dark: 'tinted', colorStyle: DEFAULT_STYLE, seedIndex: 0, overview: 'grid', smartTiles: true, fade: true, tileDensity: 'standard', heroStyle: 'soft', heroArt: true, homeSame: false, home: FROST_DEFAULTS.home, other: FROST_DEFAULTS.other })
 
 const oneOf = (v, list, d) => (list.includes(v) ? v : d)
 const clamp = (v, lo, hi, d) => (Number.isFinite(Number(v)) ? Math.min(hi, Math.max(lo, Number(v))) : d)
@@ -73,7 +74,8 @@ export function normalize(raw) {
     motionRule: MOTION_RULE,
     clockFace: oneOf(r.clockFace, CLOCK_FACES, DEFAULTS.clockFace), // the face of the dock clock
     clockAlign: oneOf(r.clockAlign, CLOCK_ALIGNS, DEFAULTS.clockAlign), // left, centre or right (the default)
-    clockSize: oneOf(r.clockSize, CLOCK_SIZES, DEFAULTS.clockSize), // 小 中 (the default) 大 特大
+    clockSize: r.clockSize === 'm' && r.clockSizeRule !== CLOCK_SIZE_RULE ? DEFAULTS.clockSize : oneOf(r.clockSize, CLOCK_SIZES, DEFAULTS.clockSize), // 小 中 大 特大 (the default; 中 was the default before rule 2)
+    clockSizeRule: CLOCK_SIZE_RULE,
     clockSeconds: r.clockSeconds === true, // seconds on the clock: off by default
     overview: oneOf(r.overview, ['grid', 'dock'], DEFAULTS.overview), // the layout of the overview: the full-screen tiles (default) or the clock mode: a clock above, every tile in one row at the bottom
     smartTiles: r.smartTiles !== false, // independent of the layout: the tiles follow what the host is doing (homeSmart.js). On by default, also for everyone who had the smart grid or the dock; off: the person's own tiles, sizes and order

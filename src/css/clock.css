@@ -186,3 +186,23 @@ html[data-motion='reduced'] .m-clock *, html[data-motion='reduced'] .m-clock, ht
 .m-ap__face.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); }
 .m-ap__facepreview { height: 76px; width: 100%; display: grid; place-items: center; overflow: hidden; }
 .m-ap__facename { font: var(--m-label-medium); }
+
+/* the clock of the clock mode, set in the edit sheet (MDockClockBar.vue): the faces in a strip that scrolls sideways, the size and the place beside it (a column; under the strip on a phone) */
+.m-dclock { display: flex; align-items: center; gap: 16px; flex: none; min-width: 0; padding: 2px 0; }
+.m-dclock__faces { position: relative; display: flex; gap: 8px; flex: 1 1 auto; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; padding: 2px; }
+.m-dclock__face { all: unset; box-sizing: border-box; flex: none; width: 148px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 6px 8px; border-radius: 18px; background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface-variant); cursor: pointer; transition: background var(--m-spring-fast-effects-duration, 200ms); }
+.m-dclock__face:hover { background: var(--md-sys-color-surface-container-highest); }
+.m-dclock__face:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+.m-dclock__face.is-on { background: var(--m-sel-fill); color: var(--m-sel-ink); }
+.m-dclock__preview { height: 60px; width: 100%; display: grid; place-items: center; overflow: hidden; pointer-events: none; }
+.m-dclock__name { font: var(--m-label-medium); white-space: nowrap; }
+.m-dclock__side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.m-dclock__group { display: flex; align-items: center; gap: 8px; }
+.m-dclock__group .m-dedit__layoutlabel { margin: 0; }
+@media (max-width: 599.98px), (max-height: 519.98px) {
+  .m-dclock { flex-direction: column; align-items: stretch; gap: 4px; }
+  .m-dclock__side { flex-direction: row; align-items: center; gap: 12px; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; }
+  .m-dclock__group { flex: none; }
+  .m-dclock .m-dedit__layoutlabel { display: inline; }
+  .m-dclock__face { width: 96px; }
+}
