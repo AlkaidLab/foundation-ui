@@ -93,6 +93,7 @@ test('the four clock sizes are a third, a half, three quarters and the whole of 
   const k = Object.fromEntries(['s', 'm', 'l', 'xl'].map((z) => { const m = new RegExp(`\\.m-dock__head > \\.m-clock\\.is-${z} \\{ --clock-size: max\\(28px, min\\(calc\\(\\((\\d+)vh - (\\d+)px\\) / var\\(--hf-now\\)\\)`).exec(css); assert.ok(m, z); return [z, { vh: +m[1], px: +m[2] }] }))
   assert.deepEqual(k.xl, { vh: 48, px: 24 })
   for (const [z, f] of [['s', 1 / 3], ['m', 1 / 2], ['l', 3 / 4]]) { assert.equal(k[z].vh, 48 * f, z); assert.equal(k[z].px, 24 * f, z) }
+  assert.match(css, /@media \(min-width: 840px\) \{\s*\.m-dock__head:not\(\[data-align='center'\]\) > \.m-clock:not\(\.is-xl\) \{ --clock-fit: min\([^;]*calc\(\(100cqw - 300px\) \/ var\(--wf-now\)\)\);/, 'a smaller size is held to the width 特大 has beside the date, so it is never the larger clock')
   assert.match(css, /\.m-dock > \.m-dock__head \{ display: grid; grid-template-columns: minmax\(0, 1fr\);/)
   assert.doesNotMatch(css, /\.m-dock__head\[data-align='(left|center|right)'\] \{ align-items:/, 'the places are justify-items of the grid')
 })

@@ -154,6 +154,10 @@ html[data-motion='reduced'] .m-clock *, html[data-motion='reduced'] .m-clock, ht
 .m-dock__head > .m-clock.is-m { --clock-size: max(28px, min(calc((24vh - 12px) / var(--hf-now)), var(--clock-fit))); }
 .m-dock__head > .m-clock.is-l { --clock-size: max(28px, min(calc((36vh - 18px) / var(--hf-now)), var(--clock-fit))); }
 .m-dock__head > .m-clock.is-xl { --clock-size: max(28px, min(calc((48vh - 24px) / var(--hf-now)), var(--clock-fit))); }
+/* where 特大 is offered, a smaller size is never larger than 特大 is: at the left or the right 特大 gives 300 px of the width to the date, so a wide face (the dot matrix, 极简) is wider at 大 than at 特大 unless 大 is held to the same width */
+@media (min-width: 840px) {
+  .m-dock__head:not([data-align='center']) > .m-clock:not(.is-xl) { --clock-fit: min(calc((100cqh - var(--clock-text-h)) / var(--hf-now)), calc((100cqw - var(--clock-text-w)) / var(--wf-now)), calc(100cqh / var(--hf-now)), calc((100cqw - 300px) / var(--wf-now))); }
+}
 /* 特大 at the left or the right: the date and the status line stand beside the clock, centred on it, so the clock has the header's full height */
 .m-dock__head:not([data-align='center']):has(> .m-clock.is-xl) { display: grid; grid-template-rows: 1fr auto auto 1fr; column-gap: 32px; row-gap: 4px; align-items: center; padding-block: 1vh; }
 .m-dock__head:not([data-align='center']) > .m-clock.is-xl { --clock-text-h: 0px; --clock-text-w: 300px; grid-row: 1 / -1; }
