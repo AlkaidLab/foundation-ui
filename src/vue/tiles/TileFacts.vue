@@ -79,7 +79,8 @@ const accent = computed(() => ({ hdr: hdrOn.value ? 'primary' : 'secondary', 'st
       <MTileShape class="m-tile__corner" shape="squircle" :size="size === 's' ? '164px' : '180px'" tone="tonal" />
       <MTileHead :icon="d.icon" :title="card.title" :chevron="chevron && size !== 's'" @open="emit('act', OPEN)" />
       <div class="m-tfacts__foot">
-        <b class="m-tfacts__os">{{ d.big }}</b>
+        <b class="m-tfacts__os" :title="d.big">{{ d.family || d.big }}</b>
+        <small v-if="d.edition" class="m-tfacts__ed" :title="d.big">{{ d.edition }}</small>
         <dl v-if="size !== 's'" class="m-tfacts__rows"><div v-for="r in d.rows || []" :key="r.title"><dt>{{ r.title }}</dt><dd class="m-dnum">{{ r.value }}</dd></div></dl>
         <span v-else-if="d.rows?.[0]" class="m-tfacts__cap m-dnum">{{ d.rows[0].value }}<template v-if="d.rows[1]"> · {{ d.rows[1].value }}</template></span>
       </div>

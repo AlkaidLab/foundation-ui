@@ -65,6 +65,18 @@ export function addressView(x, T, { saved, rejected, path }) {
   return { state: 'unset', value: '', word: '', tone: 'quiet', address: false }
 }
 
+/**
+ * The name of the system split where the long part starts: the family up to the first word that has a digit (Windows 11, Windows Server 2022, Ubuntu 24.04), the rest as the edition
+ * (IoT Enterprise LTSC 2024, Pro, LTS). A tile draws the family large and the edition small, so a long name (Windows 11 IoT Enterprise LTSC 2024) is not wrapped to four lines at one size.
+ */
+export function osParts(name) {
+  const text = String(name || '').trim().replace(/\s+/g, ' ')
+  const words = text.split(' ')
+  const at = words.findIndex((w) => /\d/.test(w))
+  if (at < 0 || at >= words.length - 1) return { family: text, edition: '' }
+  return { family: words.slice(0, at + 1).join(' '), edition: words.slice(at + 1).join(' ') }
+}
+
 export function systemCatalogue(x, T) {
   const d = { net: null, sys: null, 'public-address': null }
   const si = x.sysinfo
@@ -98,7 +110,7 @@ export function systemCatalogue(x, T) {
       }
     }
   }
-  if (si && si.os) d.sys = { type: 'rows', icon: 'computer', title: T.c_sys, big: si.os.name || '', rows: [{ icon: 'info', title: T.sysVersion, value: si.os.version || '–' }, { icon: 'tag', title: T.sysBuild, value: si.os.build || '–' }, { icon: 'dns', title: T.sysHost, value: si.host?.name || '–' }] }
+  if (si && si.os) d.sys = { type: 'rows', icon: 'computer', title: T.c_sys, big: si.os.name || '', ...osParts(si.os.name), rows: [{ icon: 'info', title: T.sysVersion, value: si.os.version || '–' }, { icon: 'tag', title: T.sysBuild, value: si.os.build || '–' }, { icon: 'dns', title: T.sysHost, value: si.host?.name || '–' }] }
   const view = x.reach ? reachView(x.reach, T.__locale || 'en') : null
   if (view || x.config) {
     const path = view?.paths.find((p) => p.id === 'public') || null

@@ -184,6 +184,12 @@
 .m-tfacts__cap { margin-top: 12px; font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .m-tfacts__os { text-wrap: balance; font: 600 22px/26px var(--m-font-display); letter-spacing: -.015em; }
 .m-tfacts.is-m .m-tfacts__os { font-size: 30px; line-height: 34px; }
+/* the edition of the system (IoT Enterprise LTSC 2024) under its name: small, two lines at 方形, one at 中; the foot closes its gaps so the name, the edition and the facts fit the height of the tile */
+.m-tfacts__ed { font: var(--m-tile-text-12-strong); line-height: 15px; color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); min-width: 0; max-width: 100%; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-wrap: balance; }
+.m-tfacts.is-m .m-tfacts__ed { font-size: 13px; line-height: 16px; -webkit-line-clamp: 1; }
+.m-tfacts.is-m:has(.m-tfacts__ed) .m-tfacts__os { font-size: 27px; line-height: 30px; }
+.m-tfacts--sys.is-m:has(.m-tfacts__ed) .m-tfacts__foot { gap: 2px; }
+.m-tfacts--sys .m-tfacts__foot { gap: 4px; }
 .m-tfacts__rows { display: flex; gap: 20px; } .m-tfacts__rows div { display: flex; flex-direction: column; } .m-tfacts__rows dt { font: var(--m-tile-text-12-strong); color: var(--tile-text-2, var(--md-sys-color-on-surface-variant)); } .m-tfacts__rows dd { margin: 0; font: var(--m-tile-text-14-strong); line-height: 18px; }
 .m-tfacts.is-s .m-tfacts__cap { margin-top: 0; text-align: left; }
 .m-tfacts__heatrow { margin-top: 6px; }
