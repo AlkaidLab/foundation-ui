@@ -78,13 +78,37 @@ test('the sheet shows the clock bar only in the clock mode, the position moved f
   const bar = read('src/vue/MDockClockBar.vue')
   for (const patch of ['clockFace: f', 'clockSize: k', 'clockAlign: a']) assert.ok(bar.includes(`appearance.set({ ${patch} })`), patch)
 })
-test('the clock of the clock mode is 特大 by default; a record that only kept the old default (中, no rule) reads as the new default, a choice made after it is kept', () => {
-  assert.equal(DEFAULTS.clockSize, 'xl')
-  assert.equal(normalize({}).clockSize, 'xl')
-  assert.equal(normalize({ clockSize: 'm' }).clockSize, 'xl', 'written before the rule: the old default')
-  const saved = normalize({ clockSize: 'm' }); assert.equal(saved.clockSizeRule, 2)
-  assert.equal(normalize({ ...saved, clockSize: 'm' }).clockSize, 'm', 'chosen after the rule')
-  assert.equal(normalize({ clockSize: 's' }).clockSize, 's'); assert.equal(normalize({ clockSize: 'l' }).clockSize, 'l')
+test('the clock of the clock mode is 中 by default; the 特大 that only kept rule 2\'s default reads as 中, a choice of any other size or of 特大 before that rule is kept', () => {
+  assert.equal(DEFAULTS.clockSize, 'm')
+  assert.equal(normalize({}).clockSize, 'm')
+  assert.equal(normalize({ clockSize: 'xl', clockSizeRule: 2 }).clockSize, 'm', 'the default of rule 2')
+  const saved = normalize({ clockSize: 'xl', clockSizeRule: 2 }); assert.equal(saved.clockSizeRule, 3)
+  assert.equal(normalize({ ...saved, clockSize: 'xl' }).clockSize, 'xl', 'chosen after the rule')
+  assert.equal(normalize({ clockSize: 'xl' }).clockSize, 'xl', 'chosen before rule 2 (no rule): kept')
+  assert.equal(normalize({ clockSize: 'm' }).clockSize, 'm')
+  for (const z of ['s', 'l']) { assert.equal(normalize({ clockSize: z }).clockSize, z); assert.equal(normalize({ clockSize: z, clockSizeRule: 2 }).clockSize, z) }
+})
+test('the four clock sizes are a third, a half, three quarters and the whole of 特大\'s height, and the header that holds them is a grid (cqh is 0 in a flex column)', () => {
+  const css = read('src/css/clock.css')
+  const k = Object.fromEntries(['s', 'm', 'l', 'xl'].map((z) => { const m = new RegExp(`\\.m-dock__head > \\.m-clock\\.is-${z} \\{ --clock-size: max\\(28px, min\\(calc\\(\\((\\d+)vh - (\\d+)px\\) / var\\(--hf-now\\)\\)`).exec(css); assert.ok(m, z); return [z, { vh: +m[1], px: +m[2] }] }))
+  assert.deepEqual(k.xl, { vh: 48, px: 24 })
+  for (const [z, f] of [['s', 1 / 3], ['m', 1 / 2], ['l', 3 / 4]]) { assert.equal(k[z].vh, 48 * f, z); assert.equal(k[z].px, 24 * f, z) }
+  assert.match(css, /\.m-dock > \.m-dock__head \{ display: grid; grid-template-columns: minmax\(0, 1fr\);/)
+  assert.doesNotMatch(css, /\.m-dock__head\[data-align='(left|center|right)'\] \{ align-items:/, 'the places are justify-items of the grid')
+})
+test('the clock bar is one section: the faces in a strip of their own, the size and the place together in a row under it, each group with its label', async () => {
+  const wide = await html({ appearance: store({ clockFace: 'default', clockSize: 'm', clockAlign: 'right', clockSeconds: false }), locale: 'zh', width: 1280 })
+  assert.match(wide, /^<section class="m-dclock" data-clock-bar>/)
+  assert.equal((wide.match(/class="m-dclock__block"/g) || []).length, 1)
+  assert.equal((wide.match(/class="m-dclock__row"/g) || []).length, 1)
+  assert.equal((wide.match(/class="m-dclock__group"/g) || []).length, 2)
+  const row = wide.slice(wide.indexOf('m-dclock__row'))
+  assert.ok(row.includes('data-clock-size="s"') && row.includes('data-clock-align="left"'), 'size and place are both in the row')
+  assert.ok(!wide.slice(0, wide.indexOf('m-dclock__row')).includes('data-clock-size'), 'not in the strip')
+  assert.equal((wide.match(/role="radiogroup" aria-labelledby="/g) || []).length, 3, 'every group is named by its visible label')
+  const css = read('src/css/clock.css')
+  assert.match(css, /\.m-dclock__face \{[^}]*width: 132px/); assert.match(css, /\.m-dclock__preview \{ height: 68px/)
+  assert.match(css, /\.m-dedit \.m-dclock \.m-dsize\.m-dedit__layout > button \{ flex: 1 1 0; min-height: 44px/, 'a phone: segments as wide as the sheet, 44 px high')
 })
 
 // ---- the layout editing starts from ----

@@ -13,13 +13,13 @@ test('the dock clock: fifteen faces, four sizes, seconds off; defaults Default, 
   assert.deepEqual([...CLOCK_FACES], ['default', 'metro', 'calligraphy', 'inflate', 'growth', 'handwritten', 'numoverlap', 'analog', 'minimal', ...NEW])
   assert.deepEqual([...CLOCK_ALIGNS], ['left', 'center', 'right'])
   assert.deepEqual([...CLOCK_SIZES], ['s', 'm', 'l', 'xl'])
-  assert.deepEqual([DEFAULTS.clockFace, DEFAULTS.clockAlign, DEFAULTS.clockSize, DEFAULTS.clockSeconds], ['default', 'right', 'xl', false])
+  assert.deepEqual([DEFAULTS.clockFace, DEFAULTS.clockAlign, DEFAULTS.clockSize, DEFAULTS.clockSeconds], ['default', 'right', 'm', false])
   const d = normalize(null)
-  assert.deepEqual([d.clockFace, d.clockAlign, d.clockSize, d.clockSeconds], ['default', 'right', 'xl', false])
+  assert.deepEqual([d.clockFace, d.clockAlign, d.clockSize, d.clockSeconds], ['default', 'right', 'm', false])
   const v = normalize({ clockFace: 'flip', clockAlign: 'left', clockSize: 'xl', clockSeconds: true })
   assert.deepEqual([v.clockFace, v.clockAlign, v.clockSize, v.clockSeconds], ['flip', 'left', 'xl', true])
   const x = normalize({ clockFace: 'nope', clockAlign: 'up', clockSize: 'huge', clockSeconds: 'yes' })
-  assert.deepEqual([x.clockFace, x.clockAlign, x.clockSize, x.clockSeconds], ['default', 'right', 'xl', false])
+  assert.deepEqual([x.clockFace, x.clockAlign, x.clockSize, x.clockSeconds], ['default', 'right', 'm', false])
 })
 
 test('文字: the time in Chinese words, 24 hours, two o\'clock is 两点, a full hour is 整, and only characters the font holds', () => {
