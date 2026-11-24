@@ -142,3 +142,13 @@ test('the connection coming back and the person pressing Retry at the same momen
   assert.equal(calls.length, 1, 'one request'); assert.equal(f.sent, 1); assert.deepEqual([p.state, p.id], ['sent', id])
   assert.deepEqual(loadQueue(s).map((e) => e.id), [reportIdOf(docOf('added while sending'))], 'the new entry stays, the sent one is gone')
 })
+
+test('a report waits for the host long enough for the uploads of its log and screenshot, and a wait that ends says timeout, not offline', async () => {
+  const { REPORT_TIMEOUT_MS, SEND_TIMEOUT_MS } = await import('../src/telemetry/send.js')
+  assert.ok(REPORT_TIMEOUT_MS >= 30_000 && REPORT_TIMEOUT_MS > SEND_TIMEOUT_MS)
+  const s = memory()
+  const hang = () => new Promise(() => {})
+  const first = await submitReport(docOf('slow host'), { storage: s, transport: hang, timeoutMs: 10 })
+  assert.equal(first.state, 'queued')
+  assert.equal(first.reason, 'timeout')
+})

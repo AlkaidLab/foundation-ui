@@ -14,12 +14,12 @@ import { addMine } from '../../devmode/mine.js'
 import { devmodeTexts } from '../../devmode/texts.js'
 import { userReportDocument } from '../../devmode/userReport.js'
 import { referenceOf, reportIdOf, scrubText, submitReport, reportMessage } from '../../telemetry/index.js'
-import { queuedReplyKey } from '../../telemetry/send.js'
+import { REPORT_TIMEOUT_MS, queuedReplyKey } from '../../telemetry/send.js'
 import { newReplyKey, rememberReport } from '../../feedback/replies.js'
 import { SHOT_LIMITS, SHOT_TYPES, bytesToBase64, canvasCodec, compressShot, sizeText } from '../../feedback/shotImage.js'
 import { REPO_ISSUES_URL } from '../../telemetry/report.js'
 import { feedbackTexts, fillText } from '../../feedback/texts.js'
-import { FEEDBACK_TYPES, contextLine, feedbackPlan, layoutFor, phaseOf, titleOf } from '../../feedback/model.js'
+import { FEEDBACK_TYPES, contextLine, feedbackPlan, layoutFor, phaseOf, queuedWhy, titleOf } from '../../feedback/model.js'
 
 // The ONE feedback panel. Every way in (the caption bar, the context menu, the error dialog, 帮助与关于, the tray, a recovered crash) opens it, and it has one way to send: directly and privately to the developers.
 // It is a drawer from the right edge (the page stays in sight, scrollable, while the person writes) and a full-width panel from the bottom in a narrow window.
@@ -52,6 +52,14 @@ const canShot = computed(() => devProviders().shots === true)
 const canCapture = computed(() => typeof devProviders().capture === 'function')
 const plan = computed(() => feedbackPlan({ offline: !online.value, hasShot: !!devReport.shot, canSendShot: canShot.value }))
 const layout = computed(() => layoutFor(width.value))
+// why a kept report was not sent: only a computer without network says "when online"; a host that did not answer, or answered with an error, says that
+const queuedText = computed(() => {
+  const w = result.value?.why || { why: 'host' }
+  if (w.why === 'offline') return F.value.queuedText
+  if (w.why === 'timeout') return F.value.queuedTextTimeout.replace('{n}', String(Math.round(REPORT_TIMEOUT_MS / 1000)))
+  if (w.why === 'status') return F.value.queuedTextStatus.replace('{status}', String(w.status))
+  return F.value.queuedTextHost
+})
 const ctx = computed(() => contextLine({ page: devReport.context.page, element: devReport.context.element, error: isError.value ? devReport.error : null, texts: F.value }))
 const typeOptions = computed(() => FEEDBACK_TYPES.map((value) => ({ value, label: F.value[{ bug: 'typeBug', suggestion: 'typeSuggestion', performance: 'typeImprove', other: 'typeOther' }[value]] })))
 const productName = () => devProviders().product || (globalThis.isTauri ? 'panel' : 'web')
@@ -126,7 +134,7 @@ async function send() {
   problem.value = next.problem || ''
   if (next.phase === 'done') {
     const sentShot = !!d.shot
-    result.value = { kind: next.kind, ref: referenceOf(id).toUpperCase(), shot: sentShot && !next.shotLost && (next.kind === 'queued' || next.shot === 'uploaded'), shotNotSent: sentShot && next.kind === 'sent' && next.shot !== 'uploaded', shotLost: !!next.shotLost, contact: !!d.contact }
+    result.value = { kind: next.kind, why: queuedWhy(next.reason), ref: referenceOf(id).toUpperCase(), shot: sentShot && !next.shotLost && (next.kind === 'queued' || next.shot === 'uploaded'), shotNotSent: sentShot && next.kind === 'sent' && next.shot !== 'uploaded', shotLost: !!next.shotLost, contact: !!d.contact }
     addMine({ id, title: titleOf(form.text), status: next.kind === 'sent' ? 'sent' : 'queued', ref: result.value.ref })
     // a report that was already sent says `again` without a request: its key was remembered the first time
     if (d.reply_key && !answer.again) rememberReport({ key: d.reply_key, title: titleOf(form.text), product: d.product })
@@ -153,9 +161,9 @@ defineExpose({ send, form, doc, plan, layout, takeFile })
   <MSheet :model-value="devReport.open" :title="F.title" side="end" :close-label="F.close" :persistent="phase === 'sending'" class="fb-panel" :class="[`fb-panel--${layout}`, { 'fb-panel--hidden': devReport.hidden }]" @update:model-value="(v) => { if (!v) close() }">
     <div v-if="phase === 'done'" class="fb-done" data-fb="done">
       <span class="fb-done__ico" :class="{ 'fb-done__ico--wait': result.kind === 'queued' }"><MIcon :name="result.kind === 'queued' ? 'schedule' : 'check'" /></span>
-      <h3>{{ result.kind === 'queued' ? F.queuedTitle : F.sentTitle }}</h3>
+      <h3>{{ result.kind === 'queued' ? (result.why.why === 'offline' ? F.queuedTitle : F.queuedTitleLater) : F.sentTitle }}</h3>
       <p class="fb-done__ref">{{ F.refLabel }} <b data-fb="ref">#{{ result.ref }}</b></p>
-      <p class="fb-done__text">{{ result.kind === 'queued' ? F.queuedText : F.sentText }}</p>
+      <p class="fb-done__text">{{ result.kind === 'queued' ? queuedText : F.sentText }}</p>
       <p v-if="result.reply" class="fb-done__attached" data-fb="reply-note">{{ F.sentReply }}</p>
       <p class="fb-done__attached">{{ F.attached }}{{ [F.attachedText, F.attachedLogs, result.shot ? F.attachedShot : '', result.contact ? F.attachedContact : ''].filter(Boolean).join(' · ') }}</p>
       <p v-if="result.shotNotSent || result.shotLost" class="fb-done__attached" data-fb="shot-note">{{ result.shotLost ? F.shotLost : F.shotNotSent }}</p>

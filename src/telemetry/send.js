@@ -11,6 +11,8 @@ export const QUEUE_MAX = 20
 export const QUEUE_MAX_ATTEMPTS = 8
 export const RATE = Object.freeze({ perHour: 6 })
 export const SEND_TIMEOUT_MS = 8000
+/** The host uploads the log and the screenshot of a report to the developers before it answers (each can take up to 20 s there), so a report waits longer than a counter does; a wait that ends is `timeout`, not "offline". */
+export const REPORT_TIMEOUT_MS = 45_000
 
 export const SENT_IDS_KEY = 'foundation-ui.errors.sentids'
 export const SENT_IDS_MAX = 50
@@ -64,7 +66,7 @@ async function request(events, { transport: use = transport, timeoutMs = SEND_TI
  * One report. The answer is one of: `sent` (with the `id` when it was given); `offline` (no answer, a timeout, a server error: worth trying again; `maybeArrived` when the request may have been handled before the answer was
  * lost); `rejected` (the host refused it: trying again changes nothing).
  */
-export async function sendDocument(doc, { transport: use, timeoutMs = SEND_TIMEOUT_MS, id = '' } = {}) {
+export async function sendDocument(doc, { transport: use, timeoutMs = REPORT_TIMEOUT_MS, id = '' } = {}) {
   const answer = await request([reportToEvent(doc)], { transport: use, timeoutMs })
   return answer.state === 'sent' && id ? { ...answer, id } : answer
 }

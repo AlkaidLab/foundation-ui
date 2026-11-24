@@ -39,7 +39,20 @@ export function phaseOf(answer) {
   const state = answer?.state
   // `shot`: what the host did with the screenshot it was given ('uploaded', or why it was left out); '' when the host did not say (an older host): the panel then does not claim the picture went
   if (state === 'sent') return { phase: 'done', kind: 'sent', again: !!answer.again, shot: typeof answer.shot === 'string' ? answer.shot : '' }
-  if (state === 'queued') return { phase: 'done', kind: 'queued', ...(answer.shotLost ? { shotLost: true } : {}) }
+  if (state === 'queued') return { phase: 'done', kind: 'queued', ...(answer.reason ? { reason: String(answer.reason) } : {}), ...(answer.shotLost ? { shotLost: true } : {}) }
   if (state === 'limited') return { phase: 'edit', problem: 'limited' }
   return { phase: 'edit', problem: 'rejected' }
+}
+
+/**
+ * Why a report was kept and not sent, in the four things the person can act on: `offline` (this computer has no network), `timeout` (the host did not answer in time: it may still be uploading the log), `host` (nothing answered
+ * from the host: the host is not running or not reachable from this window), `status` (the host answered with an error; `status` is the number). The reasons come from send.js: offline, timeout, network, no-transport, http-NNN.
+ */
+export function queuedWhy(reason) {
+  const r = String(reason || '')
+  if (r === 'offline') return { why: 'offline' }
+  if (r === 'timeout') return { why: 'timeout' }
+  const http = /^http-(\d{3})$/.exec(r)
+  if (http) return { why: 'status', status: Number(http[1]) }
+  return { why: 'host' }
 }
