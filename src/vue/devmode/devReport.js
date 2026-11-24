@@ -72,6 +72,11 @@ function loadContext(carriedLogs, carriedLabel) {
 /** Resolves when the log and the environment of the open report are in (the zip waits for it; the preview shows them when they arrive). */
 export const devReportReady = () => contextLoading
 
+// DevReportHost draws the panel; a host that does not mount it has nothing that opens, so what leads to the panel (the notice of a report that was not sent) is only offered where it is mounted.
+const hosts = reactive({ n: 0 })
+export const devReportHosted = () => hosts.n > 0
+export const registerDevReportHost = () => { hosts.n += 1; return () => { hosts.n = Math.max(0, hosts.n - 1) } }
+
 let opening = false
 /**
  * Opens the report. The screenshot is taken and redacted now, before the sheet is drawn, so it shows the window as it was when it failed and nothing of the sheet is in it; the log and the environment

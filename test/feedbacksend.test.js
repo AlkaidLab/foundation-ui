@@ -220,3 +220,85 @@ test('the words: the reason of a drop in Chinese and English, and the fallback l
   assert.match(en.attached, /: $/, 'a space after the colon before the list')
   for (const k of ['droppedTitle', 'droppedStatus', 'droppedRefused', 'droppedAttempts', 'droppedAction', 'droppedRow', 'cardLastDropped']) { assert.ok(zh[k] && en[k], k); assert.ok(!/\u9065\u6d4b/.test(zh[k])) }
 })
+
+// review of #83: what is stored is never a reading of the history, a flush that waited does not tell what the person changed meanwhile, the notice only offers what exists
+test('a report given up on stays right when another is added: kept again it reads queued, sent it reads sent, until then it keeps its reason', async () => {
+  const { addMine, listMine, MINE_KEY } = await import('../src/devmode/mine.js')
+  const s = memory()
+  const a = docOf('A'); const idA = reportIdOf(a); const b = docOf('B'); const idB = reportIdOf(b)
+  enqueue(a, s, Date.now(), { id: idA, explicit: true })
+  addMine({ id: idA, title: 'A', status: 'queued', ref: referenceOf(idA) }, s)
+  await flushQueue({ storage: s, transport: answer(413) })
+  assert.equal(listMine(s)[0].status, 'dropped')
+  // B is added while A is given up on: A must not be written back as dropped
+  addMine({ id: idB, title: 'B', status: 'queued', ref: referenceOf(idB) }, s)
+  assert.ok(JSON.parse(s.getItem(MINE_KEY)).every((r) => r.status === 'queued'), 'nothing derived is stored')
+  const mine = () => Object.fromEntries(listMine(s).map((r) => [r.id, r]))
+  assert.equal(mine()[idA].status, 'dropped'); assert.equal(mine()[idA].reason, 'rejected'); assert.equal(mine()[idA].httpStatus, 413)
+  // kept again: queued, without the old reason
+  enqueue(a, s, Date.now(), { id: idA, explicit: true })
+  assert.equal(mine()[idA].status, 'queued'); assert.ok(!('reason' in mine()[idA]) && !('httpStatus' in mine()[idA]))
+  // sent: sent
+  assert.equal((await submitReport(a, { storage: s, online: true, transport: answer(200), id: idA })).state, 'sent')
+  assert.equal(mine()[idA].status, 'sent'); assert.equal(mine()[idB].status, 'queued')
+  // a row stored as dropped (written by an earlier reading) is read again too
+  s.setItem(MINE_KEY, JSON.stringify([{ id: idA, title: 'A', status: 'dropped', reason: 'rejected', httpStatus: 413, ref: referenceOf(idA), n: 0, url: '', at: '' }]))
+  assert.equal(mine()[idA].status, 'sent')
+  const c = docOf('C'); const idC = reportIdOf(c)
+  s.setItem(MINE_KEY, JSON.stringify([{ id: idC, title: 'C', status: 'dropped', reason: 'attempts', ref: referenceOf(idC), n: 0, url: '', at: '' }]))
+  assert.equal(mine()[idC].status, 'dropped'); assert.equal(mine()[idC].reason, 'attempts', 'not retried yet: the reason stays')
+  enqueue(c, s, Date.now(), { id: idC })
+  assert.equal(mine()[idC].status, 'queued')
+})
+
+test('a flush that waited on later reports does not give up on one the person sent or kept again meanwhile', async () => {
+  const a = docOf('A'); const idA = reportIdOf(a); const b = docOf('B'); const idB = reportIdOf(b)
+  const run = async (meanwhile) => {
+    const s = memory(); const { seen, stop } = watchDropped()
+    enqueue(a, s, Date.now(), { id: idA, explicit: true }); enqueue(b, s, Date.now(), { id: idB })
+    let release; const gate = new Promise((r) => { release = r })
+    const send = async (doc) => { if (doc === a || doc.title === 'A') return { state: 'rejected', reason: 'http-413' }; await gate; return { state: 'sent' } }
+    const flushing = flushQueue({ storage: s, send })
+    await new Promise((r) => setTimeout(r, 5))
+    await meanwhile(s)
+    release()
+    const res = await flushing
+    stop()
+    return { s, seen, res }
+  }
+  // sent while B was awaited: nothing is told, no record
+  let r = await run((s) => submitReport(a, { storage: s, online: true, transport: answer(200), id: idA }))
+  assert.deepEqual(r.seen, []); assert.equal(droppedOf(idA, r.s), null); assert.equal(wasSent(idA, r.s), true); assert.equal(isQueued(idA, r.s), false)
+  // kept again (the host did not answer): it stays queued, nothing is told
+  r = await run((s) => submitReport(a, { storage: s, online: true, transport: async () => { throw new TypeError('network') }, id: idA }))
+  assert.deepEqual(r.seen, []); assert.equal(droppedOf(idA, r.s), null); assert.equal(isQueued(idA, r.s), true, 'the kept report is not deleted by the older verdict')
+  // refused again by the press: told once, by the press
+  r = await run((s) => submitReport(a, { storage: s, online: true, transport: answer(400), id: idA }))
+  assert.deepEqual(r.seen, [{ id: idA, reason: 'rejected', status: 400, by: 'submit' }]); assert.equal(isQueued(idA, r.s), false)
+  // nothing happened meanwhile: the plain refusal is told once
+  r = await run(async () => {})
+  assert.deepEqual(r.seen, [{ id: idA, reason: 'rejected', status: 413, by: 'flush' }]); assert.equal(droppedOf(idA, r.s).status, 413); assert.equal(isQueued(idA, r.s), false)
+})
+
+test('the notice of a report that was not sent offers 重新反馈 only where the feedback panel is mounted', async () => {
+  const { droppedNotice } = await import('../src/feedback/droppedNotice.js')
+  const { devReportHosted, registerDevReportHost } = await import('../src/vue/devmode/devReport.js')
+  const { feedbackTexts } = await import('../src/feedback/texts.js')
+  const W = feedbackTexts('zh'); const info = { id: 'ab12cd34ef56', reason: 'rejected', status: 413, by: 'flush' }
+  assert.equal(devReportHosted(), false)
+  const bare = droppedNotice(info, 'AB12CD34', W, { hosted: devReportHosted() })
+  assert.equal(bare.title, '反馈没有发出 #AB12CD34'); assert.equal(bare.text, '主机拒收（错误 413）'); assert.ok(!('actions' in bare), 'no button that leads nowhere')
+  let opened = 0
+  const off = registerDevReportHost(); assert.equal(devReportHosted(), true)
+  const full = droppedNotice(info, 'AB12CD34', W, { hosted: devReportHosted(), again: () => { opened += 1 } })
+  assert.equal(full.actions.length, 1); assert.equal(full.actions[0].label, W.droppedAction); full.actions[0].onClick(); assert.equal(opened, 1)
+  off(); assert.equal(devReportHosted(), false)
+  const vue = fs.readFileSync(new URL('../src/vue/MErrorHost.vue', import.meta.url), 'utf8'); const host = fs.readFileSync(new URL('../src/vue/devmode/DevReportHost.vue', import.meta.url), 'utf8')
+  assert.match(vue, /hosted: devReportHosted\(\)/); assert.match(host, /registerDevReportHost\(\)/)
+})
+
+test('the status panel counts its own padding in its width: border-box also outside .m-app, so a narrow window cannot cut its left edge', () => {
+  const css = fs.readFileSync(new URL('../src/css/notify.css', import.meta.url), 'utf8')
+  const rule = css.split('\n').find((l) => l.startsWith('.m-statuspanel {'))
+  assert.match(rule, /box-sizing: border-box/); assert.match(rule, /width: min\(400px, calc\(100vw - 16px\)\)/)
+})

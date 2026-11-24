@@ -10,10 +10,11 @@ import { errorTexts } from './errorTexts.js'
 import { dismissError, hideError, hostMounted, showError, useErrors } from './useErrors.js'
 import { bundleArchive, bundleRows, canUploadCrash, crashText, flushQueueAuto, latestCrashBundle, onReportDropped, readErrors, referenceOf, removeQueued, reportIdOf, reportProblems, reportToDocument, reportToEvent, reportToFile, reportToText, submitReport, uploadCrash } from '../telemetry/index.js'
 import { currentFingerprint } from './useAutoReport.js'
-import { devProviders, devReport, openDevReport } from './devmode/devReport.js'
+import { devProviders, devReport, devReportHosted, openDevReport } from './devmode/devReport.js'
 import { devmodeTexts } from '../devmode/texts.js'
 import { errorDraft } from '../devmode/feedback.js'
-import { droppedWhy, feedbackTexts } from '../feedback/texts.js'
+import { droppedNotice } from '../feedback/droppedNotice.js'
+import { feedbackTexts } from '../feedback/texts.js'
 
 // The error surface of both products. A blocking error is a dialog with the way out first: 返回上一页, then 重启 Sunshine, then 复制 / 下载 / 报告给开发者. A non-blocking one is a snackbar with
 // a way to the same details. 报告给开发者 is a form (title and description are required) that shows exactly what is sent, and sends it as an error event named report through the host; where the host or the server cannot be reached the
@@ -202,12 +203,7 @@ function onDropped(info) {
   if (!ref) return
   try { devProviders().log?.(`feedback ${ref} not sent: ${info.reason === 'attempts' ? 'no answer after the tries' : info.status ? `refused with status ${info.status}` : 'refused'}`) } catch { /* the notice does not depend on the log */ }
   if (info.by !== 'flush') return
-  const W = F.value
-  notify.system(`feedback-dropped:${info.id}`, {
-    tone: 'warn', icon: 'error', dismissible: true, revision: info.id,
-    title: `${W.droppedTitle} #${ref}`, text: droppedWhy(W, info),
-    actions: [{ id: 'again', label: W.droppedAction, onClick: () => { void openDevReport({ kind: 'feedback' }) } }],
-  })
+  notify.system(`feedback-dropped:${info.id}`, droppedNotice(info, ref, F.value, { hosted: devReportHosted(), again: () => { void openDevReport({ kind: 'feedback' }) } }))
 }
 let stopDropped = null
 let flushTimer = 0
