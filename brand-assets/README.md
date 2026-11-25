@@ -6,7 +6,7 @@ The brand artwork of AlkaidLab that the Foundation products show: 薇薇 (Vivi, 
 files of foundation-ui. Everything in this directory is licensed on its own terms, in the file [`LICENSE`](./LICENSE) next to this one:
 [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/) (CC BY-NC-ND 4.0).
 
-- Copyright: © AlkaidLab.
+- Copyright: © AlkaidLab and ShadowLemoon. The art was drawn by ShadowLemoon; ShadowLemoon and AlkaidLab own it together.
 - What is covered: `vivi/` (the figure of 薇薇 in the sizes the products draw her, her two wallpapers `vivi-wallpaper-1.webp` and `vivi-wallpaper-2.webp`,
   the window buttons `btn-*.svg` drawn with her), `mascot/` (the lion mascot, three sizes).
 - In short: you may copy and share these files unchanged, with the credit above and a link to the licence, for non-commercial use. You may not use

@@ -24,8 +24,9 @@ The source code of foundation-ui is licensed under MPL-2.0 (the file `LICENSE`).
 
 - Give your own product, app, website, account or package any of these names or logos, or a name or logo that could be taken for them.
 - Suggest that your product is made, endorsed or supported by AlkaidLab or is an official release of one of its products.
-- Keep these names or marks in a product based on this library. **A modified version of the library, or a product that builds on it, has to take its
-  own name and remove these names, logos, 薇薇 and the files of `brand-assets/` from what it ships**, unless AlkaidLab has agreed in writing.
+- Use these names, logos, icons, 薇薇 or the lion mascot as the identity of a product of your own. **A modified version of the library, or a product that
+  builds on it, has to take its own name and its own icons and logos**, unless AlkaidLab has agreed in writing. This limits the use as a mark only; sharing
+  the files of `brand-assets/` unchanged under CC BY-NC-ND 4.0 (see above) stays allowed.
 
 ## Questions and permission
 
