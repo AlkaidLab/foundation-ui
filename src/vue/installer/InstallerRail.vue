@@ -17,7 +17,7 @@ const logo2 = VIVI.logo[128]
 <template>
   <aside class="m-inst__rail" data-tauri-drag-region>
     <div class="m-inst__brand" data-tauri-drag-region>
-      <img v-if="logo" class="m-inst__logo" :src="logo" :srcset="`${logo} 1x, ${logo2} 2x`" width="56" height="56" alt="" draggable="false" data-tauri-drag-region />
+      <img v-if="logo" class="m-inst__logo" :src="logo" :srcset="logo2 ? `${logo} 1x, ${logo2} 2x` : undefined" width="56" height="56" alt="" draggable="false" data-tauri-drag-region />
       <b class="m-inst__name" data-tauri-drag-region>{{ t(locale, 'brand') }}</b>
       <span class="m-inst__setup" data-tauri-drag-region>{{ t(locale, 'setup') }}</span>
     </div>

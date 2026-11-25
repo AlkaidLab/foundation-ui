@@ -18,12 +18,14 @@ let auto = null
 export function registerWallpapers(list, options = {}) {
   for (const p of list) {
     if (!p || typeof p.id !== 'string' || !/^[a-z][a-z0-9_-]*$/i.test(p.id) || RESERVED.has(p.id)) throw new Error(`wallpaper id not usable: ${p && p.id}`)
-    if (typeof p.url !== 'string' || !p.url || !(p.w > 0) || !(p.h > 0) || !p.focus) throw new Error(`wallpaper ${p.id} is incomplete`)
+    const finite = (n) => typeof n === 'number' && Number.isFinite(n)
+    const inUnit = (n) => finite(n) && n >= 0 && n <= 1
+    if (typeof p.url !== 'string' || !p.url || !(finite(p.w) && p.w > 0) || !(finite(p.h) && p.h > 0) || !p.focus || !inUnit(p.focus.x) || !inUnit(p.focus.y)) throw new Error(`wallpaper ${p.id} is incomplete`)
     WALLPAPERS[p.id] = Object.freeze({ ...p, focus: Object.freeze({ x: p.focus.x, y: p.focus.y }) })
   }
   const a = options.auto
   if (a) {
-    if (![a.narrow, a.wide, a.colour].every((id) => WALLPAPERS[id])) throw new Error('the Auto pictures are not registered')
+    if (![a.narrow, a.wide, a.colour].every((id) => typeof id === 'string' && Object.hasOwn(WALLPAPERS, id))) throw new Error('the Auto pictures are not registered')
     auto = Object.freeze({ narrow: a.narrow, wide: a.wide, colour: a.colour })
   }
 }

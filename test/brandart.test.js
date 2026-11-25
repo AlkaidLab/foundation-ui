@@ -2,13 +2,14 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { DEFAULTS, normalize, imageSource } from '../src/appearance/appearance.js'
 import { WALLPAPERS, autoPick, autoPictures, colourPictureId, registerWallpapers, wallpaperIds, wallpaperSources } from '../src/appearance/wallpaper.js'
 import { MASCOT, VIVI, hasMascot, registerMascot, viviClip, viviImage } from '../src/about/mascot.js'
 import { moreCatalogue } from '../src/vue/homeCatalogueMore.js'
 import { clearArt, registerFakeArt } from './fakeArt.js'
 
-const root = new URL('..', import.meta.url).pathname
+const root = fileURLToPath(new URL('..', import.meta.url))
 const walk = (dir) => readdirSync(dir).flatMap((n) => { const p = join(dir, n); return statSync(p).isDirectory() ? walk(p) : [p] })
 
 test('the library holds no picture of the mascot or her wallpapers, and no code names one', () => {
@@ -60,6 +61,8 @@ test('registration refuses ids and pictures that cannot work', () => {
   const pic = { id: 'a', url: 'x', w: 10, h: 10, focus: { x: 0.5, y: 0.5 } }
   for (const id of ['auto', 'default', 'gradient', 'file', 'url', '', 'a b', '1x']) assert.throws(() => registerWallpapers([{ ...pic, id }]), /not usable/, id)
   assert.throws(() => registerWallpapers([{ ...pic, w: 0 }]), /incomplete/)
+  for (const bad of [{ w: NaN }, { h: Infinity }, { focus: {} }, { focus: { x: 2, y: 0.5 } }, { focus: { x: 0.5, y: -0.1 } }]) assert.throws(() => registerWallpapers([{ ...pic, ...bad }]), /incomplete/, JSON.stringify(bad))
+  assert.throws(() => registerWallpapers([], { auto: { narrow: toString, wide: constructor, colour: hasOwnProperty } }), /Auto/)
   assert.throws(() => registerWallpapers([pic], { auto: { narrow: 'a', wide: 'b', colour: 'a' } }), /Auto/)
   clearArt()
   registerMascot({ logo: { 24: 'l' }, avatar: { 256: 'a' }, clip: {}, buttons: {} })
