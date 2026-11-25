@@ -1,7 +1,5 @@
 # Trademarks and brand identifiers
 
-This file is a draft for review.
-
 The source code of foundation-ui is licensed under MPL-2.0 (the file `LICENSE`). The directory `brand-assets/` is licensed under CC BY-NC-ND 4.0
 (`brand-assets/LICENSE`). Neither licence grants any right to use the names and marks below:
 

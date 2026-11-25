@@ -11,6 +11,8 @@ files of foundation-ui. Everything in this directory is licensed on its own term
   the window buttons `btn-*.svg` drawn with her), `mascot/` (the lion mascot, three sizes).
 - In short: you may copy and share these files unchanged, with the credit above and a link to the licence, for non-commercial use. You may not use
   them commercially, and you may not share changed versions. The licence text decides; this paragraph does not replace it.
+- Technical changes: section 2(a)(4) of the licence allows the technical modifications that are necessary to exercise the licensed rights in other media and
+  formats, such as scaling or converting the file format. Files changed only in this way are not adapted material. Any other changed version may not be shared.
 - No trademark right comes with them: the names and marks are covered by [TRADEMARKS.md](../TRADEMARKS.md).
 
 ## How a Product uses them
