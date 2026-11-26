@@ -52,3 +52,18 @@ test('isChanged compares as text and treats the unset key as the default', () =>
   assert.equal(tierOf('gamepad'), 1)
   assert.equal(tierOf('nope'), 0)
 })
+
+test('NVENC defaults match the host defaults and are not reported as changed', () => {
+  assert.equal(SETTING_META.nvenc_preset.def, 4)
+  assert.equal(SETTING_META.nvenc_spatial_aq.def, true)
+
+  assert.equal(isChanged('nvenc_preset', undefined), false)
+  assert.equal(isChanged('nvenc_preset', 4), false)
+  assert.equal(isChanged('nvenc_preset', 1), true)
+
+  assert.equal(isChanged('nvenc_spatial_aq', undefined), false)
+  assert.equal(isChanged('nvenc_spatial_aq', true), false)
+  assert.equal(isChanged('nvenc_spatial_aq', 'enabled'), false)
+  assert.equal(isChanged('nvenc_spatial_aq', false), true)
+  assert.equal(isChanged('nvenc_spatial_aq', 'disabled'), true)
+})
