@@ -140,10 +140,10 @@ export const SETTING_META = Object.freeze({
   wgc_disable_secure_desktop: S(3, false, { risk: 'medium' }),
   capture_compute_shader: G(3, 'auto'),
   // 编码器
-  nvenc_preset: G(2, 1, { steps: [1, 2, 3, 4, 5, 6, 7], prefix: 'P' }),
+  nvenc_preset: G(2, 4, { steps: [1, 2, 3, 4, 5, 6, 7], prefix: 'P' }),
   nvenc_frame_budget_guard: S(3, true),
   nvenc_twopass: G(3, 'quarter_res'),
-  nvenc_spatial_aq: S(3, false),
+  nvenc_spatial_aq: S(3, true),
   nvenc_rate_control: G(3, 'cbr'),
   nvenc_target_quality: N(3, 0, 0, 63, 1, '', { off: 0, offText: 'auto' }),
   nvenc_vbv_increase: N(3, 0, 0, 400, 1, ' %'),
