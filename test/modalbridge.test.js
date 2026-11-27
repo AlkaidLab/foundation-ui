@@ -44,3 +44,10 @@ test('the task flows are centred large dialogs: no right-hand drawer is left in 
   assert.match(css, /\.m-sheet--end\.m-sheet--wide \{ --m-dialog-w: 960px; \}/)
   assert.match(css, /max-width: 599\.98px\) \{\n  \.m-sheet--end \{ margin: 0; width: 100vw; max-width: 100vw; height: 100dvh/)
 })
+
+test('the frame is told again where the middle of the window is once the layout has followed a resize', () => {
+  const scene = read('src/vue/MScene.vue')
+  // the window's resize event runs before the size observer has the new size: told there alone, the offset is that of the previous size
+  assert.match(scene, /addEventListener\('resize', onModalResize\)/)
+  assert.match(scene, /watch\(\[\(\) => size\.value\.width, \(\) => size\.value\.height, \(\) => size\.value\.bar, railWidth, side, bottomBar\], \(\) => \{ if \(modalOpen\.value\) \{ measure\(measured\); tellFrame\(measured\?\.contentWindow\) \} \}, \{ flush: 'post' \}\)/)
+})
