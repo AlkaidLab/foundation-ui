@@ -45,6 +45,7 @@ export const SETTING_META = Object.freeze({
   gamepad: { tier: 1, control: 'cards', def: 'auto' },
   usb_forwarding_enabled: S(2, false, { risk: 'medium' }),
   usb_forwarding_port: F(3, 0, { port: true }),
+  usb_wired_streaming_enabled: S(2, false, { risk: 'medium' }),
   ds4_back_as_touchpad_click: S(2, true),
   motion_as_ds4: S(2, true),
   touchpad_as_ds4: S(2, true),
