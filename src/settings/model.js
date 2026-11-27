@@ -37,16 +37,14 @@ export const SETTINGS_CATEGORIES = Object.freeze({
 export const DISPLAY_PLACES = Object.freeze(DISPLAY_TREE.map((p) => Object.freeze({ id: p.place, page: p.page, icon: p.icon, labelKey: p.labelKey, windows: p.windows })))
 /**
  * The pages of 输入与外设: a place of the tab `input` each (the same pattern as 显示与视频 and 音频). 手柄 holds the gamepad, its type, per game, DualSense, the ds4 and DSU items and the ViGEm driver;
- * 键盘 its switch, scancodes and key repeat; 鼠标与触控 its switch, scrolling, pen and touch, the touchpad and the virtual mouse driver; USB 转发 the switch and the port, and USB 有线串流 the
- * VoidLink wired-streaming opt-in with its client platforms (both Windows hosts; the list of the devices on this computer is the control panel's own page). What was 高级 sits at the bottom of
- * the page of the thing it changes: there is no page of its own.
+ * 键盘 its switch, scancodes and key repeat; 鼠标与触控 its switch, scrolling, pen and touch, the touchpad and the virtual mouse driver; USB 转发 the switch and the port (Windows hosts; the list of
+ * the devices on this computer is the control panel's own page). What was 高级 sits at the bottom of the page of the thing it changes: there is no page of its own.
  */
 export const INPUT_PLACES = Object.freeze([
   Object.freeze({ id: 'gamepad', page: 'gamepad', icon: 'sports_esports', labelKey: 'shell.gamepad', windows: false }),
   Object.freeze({ id: 'keyboard', page: 'keyboard', icon: 'keyboard', labelKey: 'config.input_keyboard_title', windows: false }),
   Object.freeze({ id: 'mouse', page: 'mouse', icon: 'mouse', labelKey: 'config.input_mouse_title', windows: false }),
   Object.freeze({ id: 'usb', page: 'usb', icon: 'usb', labelKey: 'shell.usb_forwarding', windows: true }),
-  Object.freeze({ id: 'usb-wired', page: 'usb-wired', icon: 'cable', labelKey: 'shell.usb_wired_streaming', windows: true }),
 ])
 export const AUDIO_PLACES = Object.freeze([
   Object.freeze({ id: 'sound', page: 'audio-output', icon: 'speaker', labelKey: 'shell.audio_output', windows: false }),
