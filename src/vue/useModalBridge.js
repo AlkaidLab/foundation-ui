@@ -9,6 +9,16 @@ export const MODAL_CLOSE = 'foundation-modal-close'
 /** The shell tells the frame where the middle of the whole window is: { dx, dy } from the middle of the frame (the centred dialogs of the page move by it). */
 export const MODAL_FRAME = 'foundation-modal-frame'
 
+/** The room a centred sheet keeps at either side of the window's middle, in CSS px (the 12 px of expressive.css). */
+const SHEET_MARGIN = 24
+/** The least width a centred sheet keeps before it stands in the middle of the frame instead (expressive.css). */
+const SHEET_MIN = 280
+/**
+ * Whether a centred sheet can stand in the middle of the window and still stay inside the frame: the frame is widened by the shift on both sides, and a frame
+ * that cannot hold a sheet of a usable width (a detail pane beside a wide list puts the window's middle outside the frame) makes the sheet stand in the frame.
+ */
+export const centresOnWindow = (frameWidth, dx) => frameWidth - 2 * Math.abs(Number(dx) || 0) - SHEET_MARGIN >= Math.min(SHEET_MIN, Math.max(0, frameWidth - 32))
+
 /** The ids of the modals that are open in the frames, after one message of a frame ({ id, open }). Pure, so the shell's bookkeeping can be tested. */
 export const modalsAfter = (ids, data) => {
   const next = new Set(ids)
@@ -32,6 +42,8 @@ function listen() {
     if (event.data.type === MODAL_FRAME) {
       const set = (name, value) => document.documentElement.style.setProperty(name, `${Number.isFinite(value) ? Math.round(value) : 0}px`)
       set('--m-frame-dx', event.data.dx); set('--m-frame-dy', event.data.dy)
+      // where the sheet stands: in the middle of the window while the frame has the room for it, else in the middle of the frame
+      document.documentElement.dataset.mFrame = centresOnWindow(document.documentElement.clientWidth, event.data.dx) ? 'fit' : 'frame'
       return
     }
     if (event.data.type !== MODAL_CLOSE) return
