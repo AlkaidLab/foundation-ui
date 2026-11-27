@@ -236,6 +236,10 @@ watch(() => props.overlay, (on) => { if (!on) dropFrameModals() })
 const onFrameLoad = (event) => { if (event.target instanceof HTMLIFrameElement && modals.value.size) modals.value = modalsAfterFrameGone() }
 function onModalKey(event) { if (event.key === 'Escape' && modalOpen.value) { event.preventDefault(); event.stopPropagation(); closeFrameModal() } }
 const onModalResize = () => { if (modalOpen.value) { measure(measured); tellFrame(measured?.contentWindow) } }
+// The frame's rectangle follows the layout, and the layout follows the size the observer delivers after the window's resize event has run: told in that event alone, a centred dialog of the page moves by
+// the offset of the previous size (a window snapped, maximised or restored in one step: the whole step), and nothing tells again once the observer has the new size. Told again when the layout that
+// depends on the size has been made, the dialog keeps the middle of the window on every change of the shell: a resize by a step, a rail that folds away, the bar that takes its place on a narrow window.
+watch([() => size.value.width, () => size.value.height, () => size.value.bar, railWidth, side, bottomBar], () => { if (modalOpen.value) { measure(measured); tellFrame(measured?.contentWindow) } }, { flush: 'post' })
 watch(modalOpen, (on) => {
   // the window around a frame that has a modal open is held to the rules of a modal (src/a11y/modalLayer.js: no window menu, no wheel)
   document.documentElement.toggleAttribute('data-modal-frame', on)
