@@ -204,8 +204,11 @@ button.m-b2mic { all: unset; } .m-b2mic__btn { all: unset; display: flex; flex: 
 
 /* ---------- 组件状态 ---------- */
 .m-b2comp .m-b2__state { display: flex; align-items: center; gap: 8px; margin-top: auto; } .m-b2comp .m-b2__state b { font: 600 18px/22px var(--m-font-display); }
-.m-b2comp .m-b2__state .m-icon { width: 20px; height: 20px; color: var(--md-sys-color-success); } .m-b2comp.is-bad .m-b2__state .m-icon { color: var(--md-sys-color-error); }
+.m-b2comp .m-b2__state .m-icon { width: 20px; height: 20px; color: var(--component-state-icon, var(--md-sys-color-on-surface-variant)); }
 .m-b2comp .m-b2plate { flex: 1 1 auto; margin-top: 10px; gap: 4px; justify-content: space-between; align-items: flex-start; }
+.m-b2comp .m-b2plate[data-tone='ok'] { --component-state-icon: var(--md-sys-color-success); }
+.m-b2comp .m-b2plate[data-tone='warn'] { --plate: var(--md-sys-color-warning-container); --on-plate: var(--md-sys-color-on-warning-container); --component-state-icon: var(--md-sys-color-warning); }
+.m-b2comp .m-b2plate[data-tone='error'] { --plate: var(--md-sys-color-error-container); --on-plate: var(--md-sys-color-on-error-container); --component-state-icon: var(--md-sys-color-error); }
 .m-b2comp.is-m .m-b2comp__body { flex: 1 1 auto; min-height: 0; display: flex; gap: 14px; margin-top: 10px; } .m-b2comp.is-m .m-b2plate { flex: 0 0 40%; margin: 0; }
 .m-b2comp__side { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
 

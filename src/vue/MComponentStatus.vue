@@ -5,7 +5,7 @@ import MIcon from './MIcon.vue'
 import MChip from './MChip.vue'
 import MButton from './MButton.vue'
 import MRing from './MRing.vue'
-import { COMPONENT_ICONS, EXTENSION_COMPONENTS } from '../status/model.js'
+import { COMPONENT_ICONS, EXTENSION_COMPONENTS, componentStateAppearance } from '../status/model.js'
 import { fillText } from './guideTexts.js'
 import { stampClock } from '../stamp/index.js'
 
@@ -18,10 +18,6 @@ const rows = computed(() => props.status.rows.value.filter((r) => r.id !== 'spar
 // the page's "updated" stamp: the latest check of any card; clicking it checks them all
 const latest = computed(() => Math.max(0, ...rows.value.map((r) => Number(r.result?.at) || 0)))
 const busy = computed(() => rows.value.some((r) => r.checking))
-// a component that is not installed is a state, not a fault: the chip stays neutral so it does
-// not read as a warning, and the hint under the name says it is optional
-const TONE = { ok: 'ok', warn: 'warn', error: 'error', missing: 'neutral', unknown: 'neutral' }
-const STATE_ICON = { ok: 'check_circle', warn: 'warning', error: 'error', missing: 'download', unknown: 'help' }
 const RESULT_ICON = { ok: 'check_circle', warn: 'warning', error: 'error' }
 const KINDS = [['install', 'download'], ['import', 'upload_file'], ['update', 'system_update_alt'], ['repair', 'build'], ['open', 'open_in_new'], ['remove', 'delete']]
 const EXT = EXTENSION_COMPONENTS
@@ -64,7 +60,7 @@ onBeforeUnmount(() => props.status.stop())
         <p v-else-if="row.state === 'missing'" class="m-comp__hint">{{ T.missingHint }}</p>
         <p v-if="row.progress" class="m-comp__progress" data-progress="1">{{ row.progress.stage }}<b>{{ row.progress.percent }}%</b></p>
         <div class="m-comp__meta">
-          <MChip :tone="TONE[row.state]" :icon="STATE_ICON[row.state]">{{ T.states[row.state] }}</MChip>
+          <MChip v-bind="componentStateAppearance(row.state)">{{ T.states[row.state] }}</MChip>
           <span v-if="!hasUpdatePath(row)" class="m-comp__nopath" :title="pathNote(row)"><MIcon name="info" />{{ pathNote(row) }}</span>
           <span v-if="row.result" class="m-comp__time">{{ timeOf(row.result) }}</span>
         </div>

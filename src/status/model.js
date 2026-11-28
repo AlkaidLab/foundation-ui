@@ -13,6 +13,15 @@ export const FEED_IDS = Object.freeze(['dualsense', 'encoder', 'host'])
 /** The extension components: NVIDIA runtimes the person imports from a file they obtained themselves, each with the one DLL name it takes. */
 export const EXTENSION_COMPONENTS = Object.freeze({ dlssnr: { dll: 'nvngx_dlssnr.dll', other: 'nvngx_truehdr.dll' }, rtxhdr: { dll: 'nvngx_truehdr.dll', other: 'nvngx_dlssnr.dll' } })
 export const COMPONENT_ICONS = Object.freeze({ vdd: 'desktop_windows', usb: 'usb', vigem: 'gamepad', mic: 'mic', mouse: 'mouse', vulkan: 'hdr_on', dlssnr: 'wand_stars', rtxhdr: 'light_mode', sparxie: 'touch_app', dualsense: 'sports_esports', encoder: 'movie', host: 'cast_connected' })
+// The component page and overview use the same icon and tone for each state.
+const COMPONENT_STATE_APPEARANCE = {
+  ok: { tone: 'ok', icon: 'check_circle' },
+  warn: { tone: 'warn', icon: 'warning' },
+  error: { tone: 'error', icon: 'error' },
+  missing: { tone: 'neutral', icon: 'download' },
+  unknown: { tone: 'neutral', icon: 'help' },
+}
+export const componentStateAppearance = (state) => Object.hasOwn(COMPONENT_STATE_APPEARANCE, state) ? COMPONENT_STATE_APPEARANCE[state] : COMPONENT_STATE_APPEARANCE.unknown
 const RANK = { ok: 0, skip: 0, warn: 1, error: 2 }
 
 const str = (v) => (v === null || v === undefined ? '' : String(v).trim())
