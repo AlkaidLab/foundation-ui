@@ -16,7 +16,7 @@ export const DISPLAY_TREE = Object.freeze([
   Object.freeze({
     place: 'output', page: 'display-output', icon: 'monitor', labelKey: 'shell.display_output', windows: false,
     sections: Object.freeze([
-      Object.freeze({ id: 'target', keys: ['output_name', 'capture_target', 'window_title'], main: ['output_name', 'capture_target'] }),
+      Object.freeze({ id: 'target', keys: ['output_name'], main: ['output_name'] }),
       Object.freeze({ id: 'mode', keys: ['variable_refresh_rate'], live: ['display_resolution', 'display_refresh', 'display_scale'], main: ['display_resolution', 'display_refresh', 'display_scale'] }),
       Object.freeze({ id: 'prep', keys: ['display_device_prep'], main: ['display_device_prep'] }),
       Object.freeze({ id: 'headless', keys: ['vdd_headless_create'], main: ['vdd_headless_create'] }),
@@ -66,7 +66,7 @@ export const DISPLAY_TREE = Object.freeze([
   Object.freeze({
     place: 'advanced', page: 'display-advanced', icon: 'tune', labelKey: 'shell.display_advanced', windows: false, last: true,
     sections: Object.freeze([
-      Object.freeze({ id: 'capture', keys: ['capture', 'capture_compute_shader', 'wgc_disable_secure_desktop', 'minimum_fps_target', 'input_activity_boost', 'input_activity_boost_fps', 'input_activity_boost_window_ms', 'downscaling_quality'], live: ['wgc_mode'] }),
+      Object.freeze({ id: 'capture', keys: ['capture_target', 'window_title', 'capture', 'capture_compute_shader', 'wgc_disable_secure_desktop', 'minimum_fps_target', 'input_activity_boost', 'input_activity_boost_fps', 'input_activity_boost_window_ms', 'downscaling_quality'], live: ['wgc_mode'] }),
       Object.freeze({ id: 'gpu', keys: ['adapter_name'] }),
       Object.freeze({ id: 'compat', keys: [], links: [{ id: 'app_overrides', to: 'apps' }] }),
       Object.freeze({ id: 'sync', keys: ['nvenc_vdd_force_vsync', 'mat_live'] }),
