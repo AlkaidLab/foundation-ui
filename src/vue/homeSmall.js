@@ -1,6 +1,7 @@
 import { recommendForOs, osLabel } from '../clients/recommend.js'
 import { readOs } from '../clients/osChoice.js'
 import { registeredComponentStatus } from '../status/controller.js'
+import { componentStateAppearance } from '../status/model.js'
 import { statusTexts } from '../status/texts.js'
 
 // The small tile of a card: { icon, title, value, unit, secondary, tone, spark, progress, chip, empty, action } read from the card's data.
@@ -61,9 +62,9 @@ export function smallOf(card, T = {}) {
     case 'vdd': return { icon: 'desktop_windows', title, value: String(first(d.value, d.stateLabel, d.state, '')), secondary: d.value ? dot(d.stateLabel, d.sub) : d.sub, tone: d.tone, pills: [d.unit && d.value ? { label: d.unit } : null, ...(d.chips || []).filter((c) => /HDR/i.test(c.label)).map((c) => ({ label: c.label, tone: c.tone }))].filter(Boolean).slice(0, 2) }
     case 'component': {
       const st = registeredComponentStatus(); const row = st?.row(d.id); const TT = st ? st.text() : statusTexts('en')
-      const tone = { ok: 'ok', warn: 'warn', error: 'warn', missing: 'warn' }[row?.state]
+      const appearance = componentStateAppearance(row?.state)
       const name = String(TT.names?.[d.id] || title); const short = name.includes(' ') && /[\u4e00-\u9fff]/.test(name) ? name.slice(name.lastIndexOf(' ') + 1) : name
-      return { icon: 'monitor_heart', title: short, value: TT.states[row?.state || 'unknown'], secondary: row?.version || row?.note || '', tone, avatars: [{ icon: { ok: 'check_circle', warn: 'warning', error: 'error', missing: 'warning' }[row?.state] || 'help', tone: tone === 'ok' ? 'ok' : '' }] }
+      return { icon: 'monitor_heart', title: short, value: TT.states[row?.state || 'unknown'], secondary: row?.version || row?.note || '', tone: appearance.tone, avatars: [appearance] }
     }
     case 'curve': {
       const pts = (d.points || []).filter((v) => Number.isFinite(v))

@@ -51,7 +51,7 @@ const small = () => { if (generic('s')) { const v = smallOf(props.card, props.te
 <template>
   <MDashStack v-if="card.kind === 'stack'" :card="card" :details="details" :texts="texts" :preview="preview" @act="(a) => emit('act', a)" @rotate="(e) => emit('rotate', e)" @hover="(e) => emit('hover', e)" @suggest="(e) => emit('suggest', e)" @say="(t) => emit('say', t)" @flags="(e) => emit('flags', e)" />
   <component :is="design" v-else-if="design" v-bind="rootAttrs" :card="card" :texts="texts" :details="details" :variant="variantOf(card.id)" :chevron="more()" :preview="preview" :empty="emptyView" @act="(a) => act(a.type, a.value)" />
-  <MDashSmall v-bind="rootAttrs" v-else-if="small()" :small="small()" :group="card.group" :chevron="more()" :square="square()" @click="act('detail')" @act="(a) => act(a.type, a.value)" />
+  <MDashSmall v-bind="rootAttrs" v-else-if="small()" :class="{ 'm-dsmall--component': card.kind === 'component' }" :small="small()" :group="card.group" :chevron="more()" :square="square()" @click="act('detail')" @act="(a) => act(a.type, a.value)" />
   <div v-bind="rootAttrs" v-else-if="generic('l')" class="m-dlarge" :class="{ 'has-side': !!inlineDetail }">
     <div class="m-dlarge__main"><MDashCardView :card="{ ...card, size: 'm' }" :details="details" :texts="texts" :preview="preview" @act="(a) => emit('act', a)" /></div>
     <aside v-if="inlineDetail" class="m-dlarge__side"><MDashSections :detail="inlineDetail" :uid="card.id" :texts="texts" inline /></aside>
